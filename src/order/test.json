@@ -1,0 +1,110 @@
+{
+  "types": {
+    "EIP712Domain": [
+      {
+        "type": "string",
+        "name": "name"
+      },
+      {
+        "type": "string",
+        "name": "version"
+      },
+      {
+        "type": "uint256",
+        "name": "chainId"
+      },
+      {
+        "type": "address",
+        "name": "verifyingContract"
+      }
+    ],
+    "AssetType": [
+      {
+        "name": "assetClass",
+        "type": "bytes4"
+      },
+      {
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "Asset": [
+      {
+        "name": "assetType",
+        "type": "AssetType"
+      },
+      {
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "Order": [
+      {
+        "name": "maker",
+        "type": "address"
+      },
+      {
+        "name": "makeAsset",
+        "type": "Asset"
+      },
+      {
+        "name": "taker",
+        "type": "address"
+      },
+      {
+        "name": "takeAsset",
+        "type": "Asset"
+      },
+      {
+        "name": "salt",
+        "type": "uint256"
+      },
+      {
+        "name": "start",
+        "type": "uint256"
+      },
+      {
+        "name": "end",
+        "type": "uint256"
+      },
+      {
+        "name": "dataType",
+        "type": "bytes4"
+      },
+      {
+        "name": "data",
+        "type": "bytes"
+      }
+    ]
+  },
+  "domain": {
+    "name": "Exchange",
+    "version": "2",
+    "verifyingContract": "0x551e4009116d489e3c5a98405a9c4b601d250b58",
+    "chainId": 17
+  },
+  "primaryType": "Order",
+  "message": {
+    "maker": "0x0000000000000000000000000000000000000002",
+    "makeAsset": {
+      "assetType": {
+        "assetClass": "0x73ad2146",
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000a"
+      },
+      "value": "10"
+    },
+    "taker": "0x0000000000000000000000000000000000000000",
+    "takeAsset": {
+      "assetType": {
+        "assetClass": "0x73ad2146",
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000a"
+      },
+      "value": "10"
+    },
+    "salt": "10",
+    "start": 0,
+    "end": 0,
+    "dataType": "0x4c234266",
+    "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

@@ -717,12 +717,12 @@
   resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.1.0.tgz#b6bfcc1f5b29ee203c53739bcf3b6125ce8dc233"
   integrity sha512-ZF4yH5wJQoiH/mqhRhjXdM8UYbDrOjMRhjFWomYCe16iaIKeNaycHpedxd0aigG/93KFPXH/XPI/OJ+Y+TWdXQ==
 
-"@rarible/protocol-api-client@0.0.6":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@rarible/protocol-api-client/-/protocol-api-client-0.0.6.tgz#e0c6ecf9bb8c06dd180d4b01f063e2979be309b8"
-  integrity sha512-TJdNYMDDrCEPIqg+QHMc4mWjHeppifI+cpVsP9mLVXiE1JB+0tH30bAZSo/wfzWMxed8pU9Kama1Ab3Nn2h+bg==
+"@rarible/protocol-api-client@0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@rarible/protocol-api-client/-/protocol-api-client-0.0.7.tgz#e56bf7c8b550dc7c83fdd5f4f194eaa464bdf5e9"
+  integrity sha512-THHlwtz3wj7iXDS2vIv5uTm4XVi9uje8JZwAtzWUncg9xg7oVCCFLqXL0ZNkeYUQX6g3+YzXYF5L0dTaMRz+8w==
   dependencies:
-    "@rarible/types" "0.1.1"
+    "@rarible/types" "0.1.3"
 
 "@rarible/test-provider@0.1.3":
   version "0.1.3"
@@ -735,10 +735,10 @@
     ethereumjs-wallet "^1.0.1"
     web3-provider-engine "16.0.1"
 
-"@rarible/types@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.1.1.tgz#f19c550cfe029b52b31cbfeefb1b64c76e13b1e7"
-  integrity sha512-evxDWIjXBitJ0pqoLzNHWcsFRvbskL96s0Wwo9clRlde7ZYQJYa2DZcqN8q+RrhwkwcXxOZSiDJmfZ1tzcqbbA==
+"@rarible/types@0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.1.3.tgz#c706ee0b1535b2d0d84dee54fb33c4aabacc72aa"
+  integrity sha512-cKZ6Pl8hP6IXvuIjBHi84IHd871M8dJRiSTgBNVgtht4ul0aFowAmHJCzj+Y8kTDvfFdgj5wDm6TNYM0C5KnGA==
 
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"

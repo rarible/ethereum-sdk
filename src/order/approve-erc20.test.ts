@@ -2,11 +2,12 @@ import Web3 from "web3"
 // @ts-ignore
 import RpcSubprovider from "web3-provider-engine/subproviders/rpc"
 import Ganache from "ganache-core"
-import { toAddress } from "@rarible/types/build/address"
+import { randomAddress, toAddress } from "@rarible/types"
 import { deployTestErc20 } from "./contracts/test-erc20"
 import { Contract } from "web3-eth-contract"
 import Wallet from "ethereumjs-wallet"
 import { approveErc20 } from "./approve-erc20"
+import { toBn } from "../common/to-bn"
 
 const testPK = "846b79108c721af4d0ff7248f4a10c65e5a7087532b22d78645c576fadd80b7f"
 const testWallet = new Wallet(Buffer.from(testPK, "hex"))
@@ -24,11 +25,13 @@ describe("approveErc20", () => {
 		testErc20 = await deployTestErc20(web3, "TST", "TST")
 	})
 
-	test("should not do anything if enough erc20 tokens approved", async () => {
+	test("should approve exact value if not infinite", async () => {
 		await testErc20.methods.mint(testAddress, 100).send({ from: testAddress, gas: 200000 })
-		const result = await testErc20.methods.balanceOf(testAddress).call()
-		console.log(result)
 
-		//todo await approveErc20(web3, testAddress, toAddress(testErc20.options.address), toBn(100), true)
+		const operator = randomAddress()
+		await approveErc20(web3, toAddress(testErc20.options.address), testAddress, operator, toBn(100), false)
+
+		const result = toBn(await testErc20.methods.allowance(testAddress, operator).call())
+		expect(result.eq(100)).toBeTruthy()
 	})
 })

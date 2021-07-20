@@ -18,6 +18,7 @@ const web3 = new Web3(provider)
 describe("signOrder", () => {
 
 	test("should sign legacy orders", async () => {
+		await web3.eth.getChainId()
 		const signature = await signOrder(
 			web3,
 			wallet.getAddressString(),

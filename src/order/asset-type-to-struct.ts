@@ -1,4 +1,3 @@
-import Web3 from "web3"
 import { AssetType } from "@rarible/protocol-api-client"
 import { abi } from "./abi"
 import { id } from "../common/id"

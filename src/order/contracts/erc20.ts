@@ -1,8 +1,9 @@
 import type { AbiItem } from "web3-utils"
 import { Address } from "@rarible/protocol-api-client"
 import Web3 from "web3"
+import { Contract } from "web3-eth-contract"
 
-export function createErc20Contract(web3: Web3, address: Address) {
+export function createErc20Contract(web3: Web3, address?: Address): Contract {
 	return new web3.eth.Contract(erc20Abi, address)
 }
 

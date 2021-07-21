@@ -1,26 +1,26 @@
 import {
 	Address,
 	Asset,
-	BigNumber,
-	Erc1155AssetType,
 } from "@rarible/protocol-api-client"
 import Web3 from "web3"
 import { approveErc20 } from "./approve-erc20"
 import {approveErc721} from "./approve-erc721";
 import {approveErc1155} from "./approve-erc1155";
 import {sentTx} from "../common/send-transaction";
-import {toAddress} from "@rarible/types";
+import {getErc20TransferProxyAddress, getTransferProxyAddress} from "./addresses";
 
 export async function approve(
 	web3: Web3,
 	contract: Address,
 	owner: Address,
-	operator: Address,
 	asset: Asset,
 	infinite: undefined | boolean = true
 ): Promise<Action | undefined> {
+	const chainId = await web3.eth.getChainId()
+
 	switch (asset.assetType.assetClass) {
 		case "ERC20": {
+			const operator = getErc20TransferProxyAddress(chainId)
 			const action = async () => {
 				await approveErc20(sentTx, web3, contract, owner, operator, asset.value, infinite)
 			}
@@ -30,6 +30,7 @@ export async function approve(
 			}
 		}
 		case "ERC721": {
+			const operator = getTransferProxyAddress(chainId)
 			const action = async () => {
 				await approveErc721(sentTx, web3, contract, owner, operator)
 			}
@@ -39,6 +40,7 @@ export async function approve(
 			}
 		}
 		case "ERC1155": {
+			const operator = getTransferProxyAddress(chainId)
 			const action = async () => {
 				await approveErc1155(sentTx, web3, contract, owner, operator)
 			}

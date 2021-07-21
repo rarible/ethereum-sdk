@@ -1,4 +1,4 @@
-import { Asset, EIP712Domain, OrderForm } from "@rarible/protocol-api-client"
+import { Asset, Binary, EIP712Domain, OrderForm } from "@rarible/protocol-api-client"
 import Web3 from "web3"
 import { hashLegacyOrder } from "./hash-legacy-order"
 import { getExhangeV2Address } from "./addresses"
@@ -7,11 +7,11 @@ import { ZERO_ADDRESS } from "@rarible/types"
 import { EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES } from "./eip712"
 import { encodeData } from "./encode-data"
 
-export async function signOrder(web3: Web3, signer: string, order: OrderForm): Promise<string> {
+export async function signOrder(web3: Web3, signer: string, order: OrderForm): Promise<OrderForm> {
 	switch (order.type) {
 		case "RARIBLE_V1": {
 			const legacyHash = hashLegacyOrder(order)
-			return (web3.eth.personal as any)
+			const signature = await (web3.eth.personal as any)
 				.sign(legacyHash.substring(2), signer)
 				.catch((error: any) => {
 					if (error.code === 4001) {
@@ -19,6 +19,10 @@ export async function signOrder(web3: Web3, signer: string, order: OrderForm): P
 					}
 					return Promise.reject(error)
 				})
+			return {
+				...order,
+				signature
+			}
 		}
 		case "RARIBLE_V2": {
 			const chainId = await web3.eth.getChainId()
@@ -31,14 +35,18 @@ export async function signOrder(web3: Web3, signer: string, order: OrderForm): P
 				message: orderToStruct(order)
 			}
 
-			return signTypedData(web3, signer, data)
+			const signature = await signTypedData(web3, signer, data)
+			return {
+				...order,
+				signature
+			}
 		}
 	}
 	throw new Error(`Unsupported order type: ${order.type}`)
 }
 
 async function signTypedData(web3: Web3, signer: string, data: any) {
-	return (await new Promise<any>((resolve, reject) => {
+	return (await new Promise<Binary>((resolve, reject) => {
 		function cb(err: any, result: any) {
 			if (err) return reject(err);
 			if (result.error) return reject(result.error);

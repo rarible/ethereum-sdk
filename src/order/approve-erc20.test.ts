@@ -8,6 +8,7 @@ import { Contract } from "web3-eth-contract"
 import Wallet from "ethereumjs-wallet"
 import { approveErc20 } from "./approve-erc20"
 import { toBn } from "../common/to-bn"
+import {sentTx} from "../common/send-transaction";
 
 const testPK = "846b79108c721af4d0ff7248f4a10c65e5a7087532b22d78645c576fadd80b7f"
 const testWallet = new Wallet(Buffer.from(testPK, "hex"))
@@ -23,10 +24,10 @@ describe("approveErc20", () => {
 
 	beforeAll(async () => {
 		testErc20 = await deployTestErc20(web3, "TST", "TST")
+		await testErc20.methods.mint(testAddress, 100).send({ from: testAddress, gas: 200000 })
 	})
 
 	test("should approve exact value if not infinite", async () => {
-		await testErc20.methods.mint(testAddress, 100).send({ from: testAddress, gas: 200000 })
 
 		const operator = randomAddress()
 		await approveErc20(web3, toAddress(testErc20.options.address), testAddress, operator, toBn(100), false)
@@ -34,4 +35,30 @@ describe("approveErc20", () => {
 		const result = toBn(await testErc20.methods.allowance(testAddress, operator).call())
 		expect(result.eq(100)).toBeTruthy()
 	})
+
+	test("should approve if value infinite", async () => {
+		const infiniteBn = toBn(2).pow(256).minus(1)
+
+		const operator = randomAddress()
+		await approveErc20(web3, toAddress(testErc20.options.address), testAddress, operator, toBn( infiniteBn), true)
+
+		const result = toBn(await testErc20.methods.allowance(testAddress, operator).call())
+		expect(result.eq(infiniteBn)).toBeTruthy()
+	})
+
+	test("should not approve", async () => { //TODO what cases implement this flow?
+
+		const operator = randomAddress()
+		const testBnValue = toBn(200)
+
+		await sentTx(testErc20.methods.approve(operator, testBnValue), { from: testAddress })
+
+		await approveErc20(web3, toAddress(testErc20.options.address), testAddress, operator, toBn(testBnValue), false)
+
+		const result = toBn(await testErc20.methods.allowance(testAddress, operator).call())
+		expect(result.eq(testBnValue)).toBeTruthy()
+	})
+
+	//TODO what else cases are missing?
+
 })

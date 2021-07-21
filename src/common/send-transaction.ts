@@ -1,5 +1,4 @@
-import type { Contract, ContractSendMethod, SendOptions } from "web3-eth-contract"
-import { NftTransactionControllerApi } from "@rarible/protocol-api-client/build/apis/NftTransactionControllerApi"
+import type { ContractSendMethod, SendOptions } from "web3-eth-contract"
 import { PromiEvent } from 'web3-core'
 import Web3 from "web3"
 import { backOff } from "exponential-backoff"
@@ -12,15 +11,15 @@ export async function sentTx(source: ContractSendMethod, options: SendOptions): 
 	return waitForHash(event)
 }
 
-export async function sendTransaction(
-	api: NftTransactionControllerApi, source: ContractSendMethod, to: string | undefined, options: SendOptions
-): Promise<PromiEvent<Contract>> {
+export async function sendTransaction<T>(
+	notify: (hash: string) => Promise<T>, source: ContractSendMethod, options: SendOptions
+): Promise<T> {
 	const event = source.send(options)
 	const hash = await waitForHash(event)
-	return event
+	return notify(hash)
 }
 
-async function notifyProtocol(api: GatewayControllerApi, web3: Web3, hash: string): Promise<Array<LogEvent>> {
+export async function createPendingLogs(api: GatewayControllerApi, web3: Web3, hash: string): Promise<Array<LogEvent>> {
 	const tx = await getTransaction(web3, hash)
 	const createTransactionRequest = {
 		...tx,
@@ -39,7 +38,7 @@ function getTransaction(web3: Web3, hash: string) {
 	)
 }
 
-async function waitForHash<T>(promiEvent: PromiEvent<T>): Promise<string> {
+export async function waitForHash<T>(promiEvent: PromiEvent<T>): Promise<string> {
 	return new Promise(((resolve, reject) => {
 		promiEvent.on("transactionHash", hash => resolve(hash))
 		promiEvent.on("error", error => reject(error))

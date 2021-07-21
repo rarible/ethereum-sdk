@@ -30,7 +30,7 @@ describe("approveErc20", () => {
 	test("should approve exact value if not infinite", async () => {
 
 		const operator = randomAddress()
-		await approveErc20(web3, toAddress(testErc20.options.address), testAddress, operator, toBn(100), false)
+		await approveErc20(sentTx, web3, toAddress(testErc20.options.address), testAddress, operator, toBn(100), false)
 
 		const result = toBn(await testErc20.methods.allowance(testAddress, operator).call())
 		expect(result.eq(100)).toBeTruthy()
@@ -40,25 +40,22 @@ describe("approveErc20", () => {
 		const infiniteBn = toBn(2).pow(256).minus(1)
 
 		const operator = randomAddress()
-		await approveErc20(web3, toAddress(testErc20.options.address), testAddress, operator, toBn( infiniteBn), true)
+		await approveErc20(sentTx, web3, toAddress(testErc20.options.address), testAddress, operator, toBn( infiniteBn), true)
 
 		const result = toBn(await testErc20.methods.allowance(testAddress, operator).call())
 		expect(result.eq(infiniteBn)).toBeTruthy()
 	})
 
-	test("should not approve", async () => { //TODO what cases implement this flow?
+	test("should not approve", async () => {
 
 		const operator = randomAddress()
 		const testBnValue = toBn(200)
 
 		await sentTx(testErc20.methods.approve(operator, testBnValue), { from: testAddress })
 
-		await approveErc20(web3, toAddress(testErc20.options.address), testAddress, operator, toBn(testBnValue), false)
+		await approveErc20(sentTx, web3, toAddress(testErc20.options.address), testAddress, operator, toBn(testBnValue), false)
 
 		const result = toBn(await testErc20.methods.allowance(testAddress, operator).call())
 		expect(result.eq(testBnValue)).toBeTruthy()
 	})
-
-	//TODO what else cases are missing?
-
 })

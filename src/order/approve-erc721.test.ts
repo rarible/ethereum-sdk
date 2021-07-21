@@ -30,7 +30,7 @@ describe("approveErc721", () => {
         await testErc721.methods.mint(testAddress, tokenId, 'https://example.com').send({ from: testAddress, gas: 200000 })
 
         const operator = randomAddress()
-        await approveErc721(web3, toAddress(testErc721.options.address), testAddress, operator)
+        await approveErc721(sentTx, web3, toAddress(testErc721.options.address), testAddress, operator)
 
         const result: boolean = await testErc721.methods.isApprovedForAll(testAddress, operator).call()
         expect(result).toBeTruthy()
@@ -42,7 +42,7 @@ describe("approveErc721", () => {
 
         const operator = randomAddress()
         await sentTx(testErc721.methods.setApprovalForAll(operator, true), { from: testAddress })
-        const result = await approveErc721(web3, toAddress(testErc721.options.address), testAddress, operator)
+        const result = await approveErc721(sentTx, web3, toAddress(testErc721.options.address), testAddress, operator)
 
         expect(result === undefined).toBeTruthy()
     })

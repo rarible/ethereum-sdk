@@ -1,20 +1,20 @@
 import Web3 from "web3";
 import {Address} from "@rarible/protocol-api-client";
-import {createErc721Contract} from "./contracts/erc721";
+import {createErc1155Contract} from "./contracts/erc1155";
 import {ContractSendMethod, SendOptions} from "web3-eth-contract";
 
-export async function approveErc721(
+export async function approveErc1155(
     sentTx: (source: ContractSendMethod, options: SendOptions) => Promise<string>,
     web3: Web3,
     contract: Address,
     owner: Address,
     operator: Address
 ): Promise<string | undefined> {
-    const erc721 = createErc721Contract(web3, contract)
-    const allowance: boolean = await erc721.methods.isApprovedForAll(owner, operator).call()
+    const erc1155 = createErc1155Contract(web3, contract)
+    const allowance: boolean = await erc1155.methods.isApprovedForAll(owner, operator).call()
     if (!allowance) {
         const [address] = await web3.eth.getAccounts()
-        return sentTx(erc721.methods.setApprovalForAll(operator, true), { from: address })
+        return sentTx(erc1155.methods.setApprovalForAll(operator, true), { from: address })
     }
     return undefined
 }

@@ -16,7 +16,7 @@
     "build": "rimraf ./build && tsc"
   },
   "dependencies": {
-    "@rarible/action": "0.1.0",
+    "@rarible/action": "0.1.1",
     "@rarible/protocol-api-client": "0.0.7",
     "eth-sig-util": "^3.0.1",
     "ethereumjs-util": "^7.1.0",

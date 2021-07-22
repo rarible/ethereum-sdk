@@ -8,6 +8,7 @@ import Web3ProviderEngine from "web3-provider-engine"
 // @ts-ignore
 import RpcSubprovider from "web3-provider-engine/subproviders/rpc"
 import { TestSubprovider } from "@rarible/test-provider"
+import { TEST_ORDER_TEMPLATE } from "./test/order"
 
 const provider = new Web3ProviderEngine()
 const wallet = new Wallet(Buffer.from("d5012fe4e1c34f91d3d4ee8cec93af36f0100a719678d1bdaf4cf65eac833bac", "hex"))
@@ -60,23 +61,3 @@ describe("signOrder", () => {
 	})
 })
 
-const TEST_ORDER_TEMPLATE: Omit<OrderForm, "type" | "data"> = {
-	make: {
-		assetType: {
-			assetClass: "ERC721",
-			contract: toAddress("0x0000000000000000000000000000000000000001"),
-			tokenId: toBigNumber("10"),
-		},
-		value: toBigNumber("10"),
-	},
-	maker: toAddress("0x0000000000000000000000000000000000000002"),
-	take: {
-		assetType: {
-			assetClass: "ERC721",
-			contract: toAddress("0x0000000000000000000000000000000000000001"),
-			tokenId: toBigNumber("10"),
-		},
-		value: toBigNumber("10"),
-	},
-	salt: toBigNumber("10"),
-}

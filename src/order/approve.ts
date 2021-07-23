@@ -1,40 +1,82 @@
 import {
 	Address,
 	Asset,
-	BigNumber,
-	Erc1155AssetType,
-	Erc20AssetType,
-	Erc721AssetType,
 } from "@rarible/protocol-api-client"
-import { createErc20Contract } from "./contracts/erc20"
 import Web3 from "web3"
-import { getErc20TransferProxyAddress } from "./addresses"
-import { toBn } from "../common/to-bn"
-import BN from "bignumber.js"
 import { approveErc20 } from "./approve-erc20"
+import {approveErc721} from "./approve-erc721";
+import {approveErc1155} from "./approve-erc1155";
+import {sentTx} from "../common/send-transaction";
+import {
+	getErc1155LazyMintTransferProxy,
+	getErc20TransferProxyAddress,
+	getErc721LazyMintTransferProxy,
+	getTransferProxyAddress
+} from "./addresses";
 
-export async function approve(web3: Web3, owner: Address, asset: Asset, infinite: Boolean = true): Promise<Action | undefined> {
+export async function approve(
+	web3: Web3,
+	owner: Address,
+	asset: Asset,
+	infinite: undefined | boolean = true
+): Promise<Action | undefined> {
+	const chainId = await web3.eth.getChainId()
 	switch (asset.assetType.assetClass) {
-		case "ERC20":
-			return approveErc20(web3, owner, asset.assetType, asset.value, infinite)
-		case "ERC721":
-			return approveErc721(asset.assetType, asset.value, infinite)
-		case "ERC1155":
-			return approveErc1155(asset.assetType, asset.value, infinite)
+		case "ERC20": {
+			const contract = asset.assetType.contract
+			const operator = getErc20TransferProxyAddress(chainId)
+			const action = async () => {
+				await approveErc20(sentTx, web3, contract, owner, operator, asset.value, infinite)
+			}
+			return {
+				name: 'approve-erc20',
+				value: action
+			}
+		}
+		case "ERC721": {
+			const contract = asset.assetType.contract
+			const operator = getTransferProxyAddress(chainId)
+			const action = async () => {
+				await approveErc721(sentTx, web3, contract, owner, operator)
+			}
+			return{
+				name: 'approve-erc721',
+				value: action
+			}
+		}
+		case "ERC1155": {
+			const contract = asset.assetType.contract
+			const operator = getTransferProxyAddress(chainId)
+			const action = async () => {
+				await approveErc1155(sentTx, web3, contract, owner, operator)
+			}
+			return {
+				name: 'approve-erc1155',
+				value: action
+			}
+		}
 		case "ERC721_LAZY":
-			break
-		case "ERC1155_LAZY":
-			break
+			const contract = asset.assetType.contract
+			const operator = getErc721LazyMintTransferProxy(chainId)
+			const action = async () => {
+				await approveErc721(sentTx, web3, contract, owner, operator)
+			}
+			return{
+				name: 'approve-erc721-lazy',
+				value: action
+			}
+		case "ERC1155_LAZY": {
+			const contract = asset.assetType.contract
+			const operator = getErc1155LazyMintTransferProxy(chainId)
+			const action = async () => {
+				await approveErc1155(sentTx, web3, contract, owner, operator)
+			}
+			return {
+				name: 'approve-erc1155-lazy',
+				value: action
+			}
+		}
 	}
 	return undefined
 }
 
-async function approveErc721(assetType: Erc721AssetType, value: BigNumber, infinite: Boolean = true): Promise<Action | undefined> {
-	// @ts-ignore
-	return null
-}
-
-async function approveErc1155(assetType: Erc1155AssetType, value: BigNumber, infinite: Boolean = true): Promise<Action | undefined> {
-	// @ts-ignore
-	return null
-}

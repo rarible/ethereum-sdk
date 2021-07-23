@@ -1,25 +1,12 @@
-import Web3 from "web3"
 import { signOrder } from "./sign-order"
-import Wallet from "ethereumjs-wallet"
-import { toAddress } from "@rarible/types/build/address"
-import { toBigNumber } from "@rarible/types/build/big-number"
-import { OrderForm } from "@rarible/protocol-api-client"
-import Web3ProviderEngine from "web3-provider-engine"
-// @ts-ignore
-import RpcSubprovider from "web3-provider-engine/subproviders/rpc"
-import { TestSubprovider } from "@rarible/test-provider"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
-
-const provider = new Web3ProviderEngine()
-const wallet = new Wallet(Buffer.from("d5012fe4e1c34f91d3d4ee8cec93af36f0100a719678d1bdaf4cf65eac833bac", "hex"))
-provider.addProvider(new TestSubprovider(wallet))
-provider.addProvider(new RpcSubprovider({ rpcUrl: "https://node-e2e.rarible.com" }))
-const web3 = new Web3(provider)
+import { createE2eProvider } from "../test/create-e2e-provider"
 
 describe("signOrder", () => {
 
+	const { web3, wallet } = createE2eProvider()
+
 	test("should sign legacy orders", async () => {
-		await web3.eth.getChainId()
 		const signature = await signOrder(
 			web3,
 			wallet.getAddressString(),
@@ -50,14 +37,6 @@ describe("signOrder", () => {
 			},
 		)
 		expect(signature.signature).toEqual("0xe7febac2754d2d452f8e4ff6e4aca80ee80d2b4a7185903ae38b0a2ff8b4bb741ab25668e1291cd407ea31cd8e44c3a7ea0baec08dadbe1215dcf9a58cddd7531b")
-	})
-
-	beforeAll(() => {
-		provider.start()
-	})
-
-	afterAll(() => {
-		provider.stop()
 	})
 })
 

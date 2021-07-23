@@ -19,62 +19,32 @@ export async function approve(
 	owner: Address,
 	asset: Asset,
 	infinite: undefined | boolean = true
-): Promise<Action | undefined> {
+): Promise<string | undefined> {
 	const chainId = await web3.eth.getChainId()
 	switch (asset.assetType.assetClass) {
 		case "ERC20": {
 			const contract = asset.assetType.contract
 			const operator = getErc20TransferProxyAddress(chainId)
-			const action = async () => {
-				await approveErc20(sentTx, web3, contract, owner, operator, asset.value, infinite)
-			}
-			return {
-				name: 'approve-erc20',
-				value: action
-			}
+			return approveErc20(sentTx, web3, contract, owner, operator, asset.value, infinite)
 		}
 		case "ERC721": {
 			const contract = asset.assetType.contract
 			const operator = getTransferProxyAddress(chainId)
-			const action = async () => {
-				await approveErc721(sentTx, web3, contract, owner, operator)
-			}
-			return{
-				name: 'approve-erc721',
-				value: action
-			}
+			return approveErc721(sentTx, web3, contract, owner, operator)
 		}
 		case "ERC1155": {
 			const contract = asset.assetType.contract
 			const operator = getTransferProxyAddress(chainId)
-			const action = async () => {
-				await approveErc1155(sentTx, web3, contract, owner, operator)
-			}
-			return {
-				name: 'approve-erc1155',
-				value: action
-			}
+			return approveErc1155(sentTx, web3, contract, owner, operator)
 		}
 		case "ERC721_LAZY":
 			const contract = asset.assetType.contract
 			const operator = getErc721LazyMintTransferProxy(chainId)
-			const action = async () => {
-				await approveErc721(sentTx, web3, contract, owner, operator)
-			}
-			return{
-				name: 'approve-erc721-lazy',
-				value: action
-			}
+			return approveErc721(sentTx, web3, contract, owner, operator)
 		case "ERC1155_LAZY": {
 			const contract = asset.assetType.contract
 			const operator = getErc1155LazyMintTransferProxy(chainId)
-			const action = async () => {
-				await approveErc1155(sentTx, web3, contract, owner, operator)
-			}
-			return {
-				name: 'approve-erc1155-lazy',
-				value: action
-			}
+			return approveErc1155(sentTx, web3, contract, owner, operator)
 		}
 	}
 	return undefined

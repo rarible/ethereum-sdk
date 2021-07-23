@@ -9,17 +9,11 @@ import { simpleSend } from "./simple-send"
 import { CreateTransactionRequest, LogEvent } from "@rarible/protocol-api-client/build/models"
 import { CreateGatewayPendingTransactionsRequest } from "@rarible/protocol-api-client/build/apis/GatewayControllerApi"
 import { GatewayControllerApi } from "@rarible/protocol-api-client"
-
-const testPK = "846b79108c721af4d0ff7248f4a10c65e5a7087532b22d78645c576fadd80b7f"
-const testWallet = new Wallet(Buffer.from(testPK, "hex"))
-const testAddress = toAddress(testWallet.getAddressString())
+import { createGanacheProvider } from "../test/create-ganache-provider"
 
 describe("sendTransaction", () => {
-	const provider = Ganache.provider({
-		accounts: [{ secretKey: Buffer.from(testPK, "hex"), balance: "0x1000000000000000000000000000" }],
-	})
-	// @ts-ignore
-	const web3 = new Web3(provider)
+	const { web3, address: testAddress } = createGanacheProvider()
+
 	let testErc20: Contract
 
 	beforeAll(async () => {
@@ -63,9 +57,5 @@ describe("sendTransaction", () => {
 		expect(notified).toBeTruthy()
 		expect(notified!.hash).toBe(tx.hash.toLowerCase())
 		expect(notified!.from).toBe(tx.from.toLowerCase())
-	})
-
-	afterAll(() => {
-		provider.close(() => {})
 	})
 })

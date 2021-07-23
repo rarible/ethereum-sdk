@@ -1,24 +1,14 @@
-import Web3 from "web3"
 // @ts-ignore
 import RpcSubprovider from "web3-provider-engine/subproviders/rpc"
-import Ganache from "ganache-core"
 import { randomAddress, toAddress } from "@rarible/types"
 import { Contract } from "web3-eth-contract"
-import Wallet from "ethereumjs-wallet"
-import {deployTestErc721} from "./contracts/test-erc721";
-import {approveErc721} from "./approve-erc721";
-import {sentTx} from "../common/send-transaction";
-
-const testPK = "846b79108c721af4d0ff7248f4a10c65e5a7087532b22d78645c576fadd80b7f"
-const testWallet = new Wallet(Buffer.from(testPK, "hex"))
-const testAddress = toAddress(testWallet.getAddressString())
+import { deployTestErc721 } from "./contracts/test-erc721"
+import { approveErc721 } from "./approve-erc721"
+import { sentTx } from "../common/send-transaction"
+import { createGanacheProvider } from "../test/create-ganache-provider"
 
 describe("approveErc721", () => {
-    const provider = Ganache.provider({
-        accounts: [{ secretKey: Buffer.from(testPK, "hex"), balance: "0x1000000000000000000000000000" }],
-    })
-    // @ts-ignore
-    const web3 = new Web3(provider)
+    const { web3, address: testAddress } = createGanacheProvider()
     let testErc721: Contract
 
     beforeAll(async () => {

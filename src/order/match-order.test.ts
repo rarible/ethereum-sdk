@@ -12,7 +12,7 @@ import {createGanacheProviderTwoWallets} from "../test/create-ganache-provider-t
 import {BigNumber, OrderForm} from "@rarible/protocol-api-client";
 import {matchOrders, OrderMaker} from "./match-order";
 
-describe('should prepare tx, and match order', () => {
+describe('should match order', () => {
     const { web3, address } = createGanacheProviderTwoWallets()
     const [sender1Address, sender2Address] = address
 

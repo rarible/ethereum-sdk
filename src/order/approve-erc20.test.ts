@@ -1,7 +1,7 @@
 // @ts-ignore
 import RpcSubprovider from "web3-provider-engine/subproviders/rpc"
 import { randomAddress, toAddress } from "@rarible/types"
-import { deployTestErc20 } from "./contracts/test-erc20"
+import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { Contract } from "web3-eth-contract"
 import { approveErc20 } from "./approve-erc20"
 import { toBn } from "../common/to-bn"

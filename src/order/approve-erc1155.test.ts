@@ -2,7 +2,7 @@
 import RpcSubprovider from "web3-provider-engine/subproviders/rpc"
 import { randomAddress, toAddress } from "@rarible/types"
 import { Contract } from "web3-eth-contract"
-import { deployTestErc1155 } from "./contracts/test-erc1155"
+import { deployTestErc1155 } from "./contracts/test/test-erc1155"
 import { approveErc1155 } from "./approve-erc1155"
 import { toBn } from "../common/to-bn"
 import { sentTx } from "../common/send-transaction"

@@ -55,7 +55,7 @@ async function signTypedData(web3: Web3, signer: string, data: any) {
 
 		// @ts-ignore
 		return web3.currentProvider.sendAsync({
-			method: "eth_signTypedData_v4",
+			method: "eth_signTypedData", // todo - reverted from eth_signTypedData_v4 for ganache compatibility
 			params: [signer, data],
 			signer
 		}, cb);
@@ -71,7 +71,7 @@ function createEIP712Domain(chainId: number): EIP712Domain {
 	}
 }
 
-function orderToStruct(order: OrderForm) {
+export function orderToStruct(order: OrderForm) {
 	const [dataType, data] = encodeData(order.data)
 	return {
 		maker: order.maker,

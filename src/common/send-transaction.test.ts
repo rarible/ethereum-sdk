@@ -1,7 +1,7 @@
 import { createPendingLogs, sendTransaction } from "./send-transaction"
 import { randomAddress, randomWord } from "@rarible/types"
 import { Contract } from "web3-eth-contract"
-import { deployTestErc20 } from "../order/contracts/test-erc20"
+import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { simpleSend } from "./simple-send"
 import { CreateTransactionRequest, LogEvent } from "@rarible/protocol-api-client/build/models"
 import { CreateGatewayPendingTransactionsRequest } from "@rarible/protocol-api-client/build/apis/GatewayControllerApi"

@@ -12,7 +12,7 @@ import {createGanacheProviderTwoWallets} from "../test/create-ganache-provider-t
 import {BigNumber, OrderForm} from "@rarible/protocol-api-client";
 import {matchOrders, OrderMaker} from "./match-order";
 
-describe('should match order', () => {
+describe('match-order', () => {
     const { web3, address } = createGanacheProviderTwoWallets()
     const [sender1Address, sender2Address] = address
 
@@ -47,7 +47,7 @@ describe('should match order', () => {
         await sentTx(erc20TransferProxy.methods.addOperator(toAddress(exchangeV2.options.address)), {from: sender1Address})
 
     })
-    test('check deployments', async () => {
+    test('should match order(buy erc721 for erc20)', async () => {
         const testOrderLeft: OrderForm = {
             make: {
                 assetType: {

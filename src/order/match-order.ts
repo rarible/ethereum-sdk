@@ -25,8 +25,7 @@ export async function matchOrders(
     web3: Web3,
     contract: Address,
     orderLeft: OrderForm,
-    form: OrderMaker,
-    exchangeV2ContractAddress: Address
+    form: OrderMaker
 ): Promise<string | undefined> {
     switch (orderLeft.type) {
         // case 'RARIBLE_V1': {
@@ -37,8 +36,7 @@ export async function matchOrders(
                 web3,
                 contract,
                 orderLeft,
-                form,
-                exchangeV2ContractAddress
+                form
             )
         }
     }
@@ -50,9 +48,8 @@ async function prepareTxFor2Orders(
     contract: Address,
     order: OrderForm,
     form: OrderMaker,
-    exchangeV2ContractAddress: Address
 ): Promise<string | undefined> {
-    const exchangeContract = createExchangeV2Contract(web3, exchangeV2ContractAddress)
+    const exchangeContract = createExchangeV2Contract(web3, contract)
     const orderRight = {
         ...invert(order, form.maker),
         data: {
@@ -63,9 +60,11 @@ async function prepareTxFor2Orders(
     }
     const exchangeContractAddress = exchangeContract.options.address
     const fee = (orderRight.data as OrderRaribleV2DataV1).originFees.reduce((r,c) => r+c.value, 0) + protocolCommission
-    const orderSign = await signOrder(web3, form.maker, order, exchangeV2ContractAddress)
-    const orderRightSign = await signOrder(web3, form.maker, orderRight, exchangeV2ContractAddress)
+    const orderSign = await signOrder(web3, form.maker, order, contract)
+    const orderRightSign = await signOrder(web3, form.maker, orderRight, contract)
     const [address, address2] = await web3.eth.getAccounts()
+    console.log('orderSign', orderSign.signature);
+    console.log('orderRightSign', orderRightSign.signature);
     return await sentTx(
         exchangeContract.methods.matchOrders(
             orderToStruct(order),

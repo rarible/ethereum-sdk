@@ -114,10 +114,9 @@ describe('match-order', () => {
         console.log('maker', maker)
         const hash = await matchOrders(
             web3,
-            sender1Address,
+            toAddress(exchangeV2.options.address),
             testOrderLeft,
-            maker,
-            toAddress(exchangeV2.options.address)
+            maker
         );
         console.log('sender1 nft', await testErc721.methods.balanceOf(sender1Address).call(), 'sender2 nft', await testErc721.methods.balanceOf(sender2Address).call())
         const receipt = await web3.eth.getTransactionReceipt(hash as string)

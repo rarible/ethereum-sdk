@@ -14,7 +14,7 @@ export async function deployTestExchangeV2(web3: Web3, name: string, symbol: str
         .deploy({ data: exchangeV2Bytecode, arguments: [name, symbol] })
         .send({ from: address, gas: 4000000, gasPrice: "0" })
 }
-// todo may be should be a testContractAbi?
+
 const exchangeV2Abi: AbiItem[] = [
     {
         "anonymous": false,

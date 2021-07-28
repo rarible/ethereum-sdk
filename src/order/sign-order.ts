@@ -3,11 +3,11 @@ import Web3 from "web3"
 import { hashLegacyOrder } from "./hash-legacy-order"
 import { getExhangeV2Address } from "./addresses"
 import { assetTypeToStruct } from "./asset-type-to-struct"
-import { ZERO_ADDRESS } from "@rarible/types"
+import {Address, ZERO_ADDRESS} from "@rarible/types"
 import { EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES } from "./eip712"
 import { encodeData } from "./encode-data"
 
-export async function signOrder(web3: Web3, signer: string, order: OrderForm): Promise<OrderForm> {
+export async function signOrder(web3: Web3, signer: string, order: OrderForm, verifyingContract: Address): Promise<OrderForm> {
 	switch (order.type) {
 		case "RARIBLE_V1": {
 			const legacyHash = hashLegacyOrder(order)
@@ -26,7 +26,7 @@ export async function signOrder(web3: Web3, signer: string, order: OrderForm): P
 		}
 		case "RARIBLE_V2": {
 			const chainId = await web3.eth.getChainId()
-			const domain = createEIP712Domain(chainId)
+			const domain = createEIP712Domain(chainId,verifyingContract)
 
 			const data = {
 				types: EIP712_ORDER_TYPES,
@@ -63,10 +63,10 @@ async function signTypedData(web3: Web3, signer: string, data: any) {
 }
 
 
-function createEIP712Domain(chainId: number): EIP712Domain {
+function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712Domain {
 	return {
 		...EIP712_DOMAIN_TEMPLATE,
-		verifyingContract: getExhangeV2Address(chainId),
+		verifyingContract: verifyingContract,// todo temporary, must be a getExhangeV2Address(chainId)
 		chainId
 	}
 }

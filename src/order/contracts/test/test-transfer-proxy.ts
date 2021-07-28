@@ -7,11 +7,11 @@ export function createTransferProxyContract(web3: Web3, address?: Address): Cont
     return new web3.eth.Contract(transferProxyAbi, address)
 }
 
-export async function deployTransferProxy(web3: Web3, name: string, symbol: string) {
+export async function deployTransferProxy(web3: Web3) {
     const empty = createTransferProxyContract(web3)
     const [address] = await web3.eth.getAccounts()
     return empty
-        .deploy({ data: transferProxyBytecode, arguments: [name, symbol] })
+        .deploy({ data: transferProxyBytecode })
         .send({ from: address, gas: 3000000, gasPrice: "0" })
 }
 

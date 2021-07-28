@@ -7,11 +7,11 @@ export function createTestExchangeV2Contract(web3: Web3, address?: Address): Con
     return new web3.eth.Contract(exchangeV2Abi, address)
 }
 
-export async function deployTestExchangeV2(web3: Web3, name: string, symbol: string) {
+export async function deployTestExchangeV2(web3: Web3) {
     const empty = createTestExchangeV2Contract(web3)
     const [address] = await web3.eth.getAccounts()
     return empty
-        .deploy({ data: exchangeV2Bytecode, arguments: [name, symbol] })
+        .deploy({ data: exchangeV2Bytecode})
         .send({ from: address, gas: 4000000, gasPrice: "0" })
 }
 

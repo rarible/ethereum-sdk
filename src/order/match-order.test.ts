@@ -26,16 +26,15 @@ describe('match-order', () => {
         /**
          * Deploy
          */
-        testErc20 = await deployTestErc20(web3, 'test1', 'test1')
-        testErc721 = await deployTestErc721(web3, 'test721', 'test721')
-        transferProxy = await deployTransferProxy(web3, 'testTp', 'testTp')
-        erc20TransferProxy = await deployErc20TransferProxy(web3, 'testE20tp', 'testE20tp')
-        royaltiesProvider = await deployTestRoyaltiesProvider(web3, 'testRP', 'testRP')
-        exchangeV2 = await deployTestExchangeV2(web3, 'testEX', 'testEX')
+        testErc20 = await deployTestErc20(web3, "Test1", "TST1")
+        testErc721 = await deployTestErc721(web3, "Test", "TST")
+        transferProxy = await deployTransferProxy(web3)
+        erc20TransferProxy = await deployErc20TransferProxy(web3)
+        royaltiesProvider = await deployTestRoyaltiesProvider(web3)
+        exchangeV2 = await deployTestExchangeV2(web3)
         /**
          * Configuring
          */
-        const chainId = await web3.eth.getChainId()
         await sentTx(exchangeV2.methods.__ExchangeV2_init(
             toAddress(transferProxy.options.address),
             toAddress(erc20TransferProxy.options.address),
@@ -48,6 +47,10 @@ describe('match-order', () => {
 
     })
     test('should match order(buy erc721 for erc20)', async () => {
+        const tokenId = sender1Address + "b00000000000000000000001"
+        await sentTx(testErc20.methods.mint(sender1Address, 100), { from: sender1Address, gas: 200000 })
+
+        await sentTx(testErc721.methods.mint(sender2Address, tokenId, 'https://example.com'), { from: sender2Address })
         const testOrderLeft: OrderForm = {
             make: {
                 assetType: {
@@ -61,7 +64,7 @@ describe('match-order', () => {
                 assetType: {
                     assetClass: "ERC721",
                     contract: toAddress(testErc721.options.address),
-                    tokenId: (sender1Address + "b00000000000000000000001") as BigNumber,
+                    tokenId: tokenId as BigNumber,
                 },
                 value: toBigNumber("1"),
             },
@@ -73,9 +76,6 @@ describe('match-order', () => {
                 originFees: []
             }
         }
-        await sentTx(testErc20.methods.mint(sender1Address, 100), { from: sender1Address, gas: 200000 })
-        const tokenId = sender1Address + "b00000000000000000000001"
-        await sentTx(testErc721.methods.mint(sender2Address, tokenId, 'https://example.com'), { from: sender2Address })
 
         await sentTx(
             testErc20.methods.approve(
@@ -83,6 +83,14 @@ describe('match-order', () => {
                 new BN(10)
             ),
             {from: sender1Address}
+        )
+
+        await sentTx(
+            testErc20.methods.approve(
+                erc20TransferProxy.options.address,
+                new BN(10)
+            ),
+            {from: sender2Address}
         )
 
         await sentTx(
@@ -97,12 +105,21 @@ describe('match-order', () => {
         console.log('sender1 nft', await testErc721.methods.balanceOf(sender1Address).call(), 'sender2 nft', await testErc721.methods.balanceOf(sender2Address).call())
         console.log('sender1 erc20', await web3.eth.getBalance(sender1Address), 'sender1 erc20', await web3.eth.getBalance(sender2Address));
         const maker: OrderMaker = {
-            maker: sender1Address,
+            maker: sender2Address,
             amount: toBigNumber('10'),
             payouts: [],
             originFees: []
         }
-        const hash = await matchOrders(web3, sender1Address, testOrderLeft, maker);
+        console.log('sender1Address', sender1Address)
+        console.log('maker', maker)
+        const hash = await matchOrders(
+            web3,
+            sender1Address,
+            testOrderLeft,
+            maker,
+            toAddress(exchangeV2.options.address)
+        );
+        console.log('sender1 nft', await testErc721.methods.balanceOf(sender1Address).call(), 'sender2 nft', await testErc721.methods.balanceOf(sender2Address).call())
         const receipt = await web3.eth.getTransactionReceipt(hash as string)
         console.log('receipt', receipt)
     })

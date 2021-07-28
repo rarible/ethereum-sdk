@@ -7,11 +7,11 @@ export function createErc20TransferProxyContract(web3: Web3, address?: Address):
     return new web3.eth.Contract(erc20TransferProxyAbi, address)
 }
 
-export async function deployErc20TransferProxy(web3: Web3, name: string, symbol: string) {
+export async function deployErc20TransferProxy(web3: Web3) {
     const empty = createErc20TransferProxyContract(web3)
     const [address] = await web3.eth.getAccounts()
     return empty
-        .deploy({ data: erc20TransferProxyBytecode, arguments: [name, symbol] })
+        .deploy({ data: erc20TransferProxyBytecode})
         .send({ from: address, gas: 3000000, gasPrice: "0" })
 }
 

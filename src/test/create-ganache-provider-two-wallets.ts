@@ -17,7 +17,7 @@ export function createGanacheProviderTwoWallets() {
 			{ secretKey: Buffer.from(testPK2, "hex"), balance: "0x0001000000000000000000000000" }
 		],
 		// @ts-ignore
-		_chainIdRpc: 17
+		// _chainIdRpc: 17
 	})
 	// @ts-ignore
 	const web3 = new Web3(provider)

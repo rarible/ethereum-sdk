@@ -29,6 +29,13 @@ export interface RaribleSdk {
 	 * @param infinite - only valid for ERC-20 (if true, then infinite approval is used)
 	 */
 	approve(owner: Address, asset: Asset, infinite?: (boolean | undefined)): Promise<string | undefined>
+
+	apis: RaribleApis
+}
+
+export interface RaribleApis {
+	nftItem: NftItemControllerApi
+	order: OrderControllerApi
 }
 
 export interface RaribleOrderSdk {
@@ -67,6 +74,10 @@ export function createRaribleSdk(
 	const fill = partialCall(fillOrder, sendTx, approve, web3, config.exchange)
 
 	return {
+		apis: {
+			nftItem: nftItemControllerApi,
+			order: orderControllerApi,
+		},
 		approve,
 		order: {
 			sell,

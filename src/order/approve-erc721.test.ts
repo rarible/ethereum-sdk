@@ -8,7 +8,8 @@ import { sentTx } from "../common/send-transaction"
 import { createGanacheProvider } from "../test/create-ganache-provider"
 
 describe("approveErc721", () => {
-    const { web3, address: testAddress } = createGanacheProvider()
+    const { web3, addresses } = createGanacheProvider()
+    const [testAddress] = addresses
     let testErc721: Contract
 
     beforeAll(async () => {

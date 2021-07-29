@@ -1,7 +1,10 @@
 // noinspection JSCommentMatchesSignature
 
-import { Address, Asset, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
+import { Address, Asset, Binary, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
 import { ActionBuilder } from "@rarible/action"
+import { SimpleOrder } from "./sign-order"
+import { toBn } from "../common/to-bn"
+import { toBinary } from "@rarible/types"
 
 type UpserOrderStageId = "approve" | "sign" | "post"
 
@@ -12,14 +15,21 @@ type UpserOrderStageId = "approve" | "sign" | "post"
  */
 export async function upsertOrder(
 	approve: (owner: Address, asset: Asset, infinite: boolean) => Promise<string>,
-	signOrder: (signer: string, order: OrderForm) => Promise<OrderForm>,
+	signOrder: (order: SimpleOrder) => Promise<Binary>,
 	api: OrderControllerApi,
 	order: OrderForm,
 	infinite: boolean = false,
 ) {
 	return ActionBuilder.create<UpserOrderStageId>()
 		.then({ id: "approve", run: () => approve(order.maker, order.make, infinite) })
-		.then({ id: "sign", run: () => signOrder(order.maker, order) })
-		.then({ id: "post", run: signed => api.upsertOrder({ orderForm: signed })})
+		.then({ id: "sign", run: () => signOrder(orderFormToSimpleOrder(order)) })
+		.then({ id: "post", run: signature => api.upsertOrder({ orderForm: { ...order, signature } })})
 		.build()
+}
+
+function orderFormToSimpleOrder(form: OrderForm): SimpleOrder {
+	return {
+		...form,
+		salt: toBinary(toBn(form.salt).toString(16))
+	}
 }

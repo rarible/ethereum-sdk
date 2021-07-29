@@ -1,32 +1,33 @@
-import { Asset, Binary, EIP712Domain, OrderForm } from "@rarible/protocol-api-client"
+import { Asset, Binary, EIP712Domain, Order } from "@rarible/protocol-api-client"
 import Web3 from "web3"
 import { hashLegacyOrder } from "./hash-legacy-order"
-import { getExhangeV2Address } from "./addresses"
 import { assetTypeToStruct } from "./asset-type-to-struct"
-import {Address, ZERO_ADDRESS} from "@rarible/types"
+import { Address, ZERO_ADDRESS } from "@rarible/types"
 import { EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES } from "./eip712"
 import { encodeData } from "./encode-data"
+import { Config } from "../config/type"
 
-export async function signOrder(web3: Web3, signer: string, order: OrderForm, verifyingContract: Address): Promise<OrderForm> {
+export type SimpleOrder = Pick<Order, "data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature">
+
+export async function signOrder(
+	web3: Web3,
+	config: Pick<Config, "exchange" | "chainId">,
+	order: SimpleOrder,
+): Promise<Binary> {
 	switch (order.type) {
 		case "RARIBLE_V1": {
 			const legacyHash = hashLegacyOrder(order)
-			const signature = await (web3.eth.personal as any)
-				.sign(legacyHash.substring(2), signer)
+			return (web3.eth.personal as any)
+				.sign(legacyHash.substring(2), order.maker)
 				.catch((error: any) => {
 					if (error.code === 4001) {
 						return Promise.reject(new Error("Cancelled"))
 					}
 					return Promise.reject(error)
 				})
-			return {
-				...order,
-				signature
-			}
 		}
 		case "RARIBLE_V2": {
-			const chainId = await web3.eth.getChainId()
-			const domain = createEIP712Domain(chainId,verifyingContract)
+			const domain = createEIP712Domain(config.chainId, config.exchange.v2)
 
 			const data = {
 				types: EIP712_ORDER_TYPES,
@@ -35,11 +36,7 @@ export async function signOrder(web3: Web3, signer: string, order: OrderForm, ve
 				message: orderToStruct(order)
 			}
 
-			const signature = await signTypedData(web3, signer, data)
-			return {
-				...order,
-				signature
-			}
+			return signTypedData(web3, order.maker, data)
 		}
 	}
 	throw new Error(`Unsupported order type: ${order.type}`)
@@ -66,12 +63,12 @@ async function signTypedData(web3: Web3, signer: string, data: any) {
 function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712Domain {
 	return {
 		...EIP712_DOMAIN_TEMPLATE,
-		verifyingContract: verifyingContract,// todo temporary, must be a getExhangeV2Address(chainId)
+		verifyingContract: verifyingContract,
 		chainId
 	}
 }
 
-export function orderToStruct(order: OrderForm) {
+export function orderToStruct(order: SimpleOrder) {
 	const [dataType, data] = encodeData(order.data)
 	return {
 		maker: order.maker,

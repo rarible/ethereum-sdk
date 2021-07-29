@@ -8,7 +8,7 @@ import { Contract } from "web3-eth-contract"
 import { randomWord, toAddress, toBigNumber, toBinary } from "@rarible/types"
 import { sentTx } from "../common/send-transaction"
 import { BN } from "ethereumjs-util"
-import { fillOrder } from "./fill-order"
+import { fillOrder, fillOrderSendTx } from "./fill-order"
 import { signOrder, SimpleOrder } from "./sign-order"
 import { createGanacheProvider } from "../test/create-ganache-provider"
 
@@ -96,15 +96,13 @@ describe("fillOrder", () => {
 		const a = toAddress(exchangeV2.options.address)
 		const signature = await signOrder(web3, { chainId: 1, exchange: { v1: a, v2: a } }, left)
 
-		const hash = await fillOrder(
+		const hash = await fillOrderSendTx(
 			sentTx,
 			web3,
-			toAddress(exchangeV2.options.address),
+			{ v2: toAddress(exchangeV2.options.address), v1: toAddress(exchangeV2.options.address) },
 			{ ...left, signature },
 			{ amount: 1, payouts: [], originFees: [] },
 		)
-		console.log('sender1 nft', await testErc721.methods.balanceOf(sender1Address).call(), 'sender2 nft', await testErc721.methods.balanceOf(sender2Address).call())
-		const receipt = await web3.eth.getTransactionReceipt(hash as string)
-		console.log('receipt', receipt)
+		await web3.eth.getTransactionReceipt(hash as string)
 	})
 })

@@ -1,6 +1,7 @@
 import { Address } from "@rarible/protocol-api-client"
 
 export type Config = {
+	basePath: string
 	chainId: number
 	exchange: ExchangeAddresses
 	transferProxies: TransferProxies

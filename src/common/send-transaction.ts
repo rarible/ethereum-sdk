@@ -4,22 +4,23 @@ import Web3 from "web3"
 import { backOff } from "exponential-backoff"
 import { toBinary, toWord } from "@rarible/types"
 import { toAddress } from "@rarible/types/build/address"
-import { GatewayControllerApi, LogEvent } from "@rarible/protocol-api-client"
+import { GatewayControllerApi } from "@rarible/protocol-api-client"
 
 export async function sentTx(source: ContractSendMethod, options: SendOptions): Promise<string> {
 	const event = source.send({ ...options, gas: 3000000 })
 	return waitForHash(event)
 }
 
-export async function sendTransaction<T>(
-	notify: (hash: string) => Promise<T>, source: ContractSendMethod, options: SendOptions
-): Promise<T> {
+export async function sendTransaction(
+	notify: (hash: string) => Promise<void>, source: ContractSendMethod, options: SendOptions
+): Promise<string> {
 	const event = source.send(options)
 	const hash = await waitForHash(event)
-	return notify(hash)
+	await notify(hash)
+	return hash
 }
 
-export async function createPendingLogs(api: GatewayControllerApi, web3: Web3, hash: string): Promise<Array<LogEvent>> {
+export async function createPendingLogs(api: GatewayControllerApi, web3: Web3, hash: string): Promise<void> {
 	const tx = await getTransaction(web3, hash)
 	const createTransactionRequest = {
 		...tx,
@@ -28,7 +29,7 @@ export async function createPendingLogs(api: GatewayControllerApi, web3: Web3, h
 		to: tx.to ? toAddress(tx.to) : undefined,
 		input: toBinary(tx.input)
 	}
-	return api.createGatewayPendingTransactions({ createTransactionRequest })
+	await api.createGatewayPendingTransactions({ createTransactionRequest })
 }
 
 function getTransaction(web3: Web3, hash: string) {

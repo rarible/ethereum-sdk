@@ -4,7 +4,7 @@ import { sentTx } from "../common/send-transaction"
 import { createGanacheProvider } from "../test/create-ganache-provider"
 import {deployTestErc721} from "../order/contracts/test-erc721";
 import {Address} from "@rarible/protocol-api-client";
-import {transferErc721} from "./transfer-erc20";
+import {transferErc721} from "./transfer-erc721";
 
 describe("transfer Erc721", () => {
     const { web3, address: testAddress } = createGanacheProvider()

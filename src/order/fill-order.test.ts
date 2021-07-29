@@ -11,6 +11,8 @@ import { BN } from "ethereumjs-util"
 import { fillOrder, fillOrderSendTx } from "./fill-order"
 import { signOrder, SimpleOrder } from "./sign-order"
 import { createGanacheProvider } from "../test/create-ganache-provider"
+import { deployTestErc1155 } from "./contracts/test/test-erc1155"
+import { toBn } from "../common/to-bn"
 
 describe("fillOrder", () => {
 	const { web3, addresses } = createGanacheProvider()
@@ -18,6 +20,7 @@ describe("fillOrder", () => {
 
 	let testErc20: Contract
 	let testErc721: Contract
+	let testErc1155: Contract
 	let transferProxy: Contract
 	let erc20TransferProxy: Contract
 	let royaltiesProvider: Contract
@@ -29,6 +32,7 @@ describe("fillOrder", () => {
 		 */
 		testErc20 = await deployTestErc20(web3, "Test1", "TST1")
 		testErc721 = await deployTestErc721(web3, "Test", "TST")
+		testErc1155 = await deployTestErc1155(web3, "TEST")
 		transferProxy = await deployTransferProxy(web3)
 		erc20TransferProxy = await deployErc20TransferProxy(web3)
 		royaltiesProvider = await deployTestRoyaltiesProvider(web3)
@@ -47,20 +51,20 @@ describe("fillOrder", () => {
 		await sentTx(erc20TransferProxy.methods.addOperator(toAddress(exchangeV2.options.address)), { from: sender1Address })
 	})
 
-	test('should match order(buy erc721 for erc20)', async () => {
-		//sender1 has ERC20, sender2 has ERC721
+	test('should match order(buy erc1155 for erc20)', async () => {
+		//sender1 has ERC20, sender2 has ERC1155
 
 		await sentTx(testErc20.methods.mint(sender1Address, 100), { from: sender1Address })
-		await sentTx(testErc721.methods.mint(sender2Address, "1", 'https://example.com'), { from: sender1Address })
+		await sentTx(testErc1155.methods.mint(sender2Address, 1, 10, "0x"), { from: sender1Address })
 
 		const left: SimpleOrder = {
 			make: {
 				assetType: {
-					assetClass: "ERC721",
-					contract: toAddress(testErc721.options.address),
+					assetClass: "ERC1155",
+					contract: toAddress(testErc1155.options.address),
 					tokenId: toBigNumber("1"),
 				},
-				value: toBigNumber("1"),
+				value: toBigNumber("5"),
 			},
 			maker: sender2Address,
 			take: {
@@ -89,7 +93,7 @@ describe("fillOrder", () => {
 		)
 
 		await sentTx(
-			testErc721.methods.setApprovalForAll(transferProxy.options.address, true),
+			testErc1155.methods.setApprovalForAll(transferProxy.options.address, true),
 			{ from: sender2Address },
 		)
 
@@ -101,8 +105,13 @@ describe("fillOrder", () => {
 			web3,
 			{ v2: toAddress(exchangeV2.options.address), v1: toAddress(exchangeV2.options.address) },
 			{ ...left, signature },
-			{ amount: 1, payouts: [], originFees: [] },
+			{ amount: 2, payouts: [], originFees: [] },
 		)
 		await web3.eth.getTransactionReceipt(hash as string)
+
+		expect(toBn(await testErc20.methods.balanceOf(sender2Address).call()).toString())
+			.toBe("4")
+		expect(toBn(await testErc1155.methods.balanceOf(sender1Address, 1).call()).toString())
+			.toBe("2")
 	})
 })

@@ -47,7 +47,7 @@ describe("fillOrder", () => {
 		await sentTx(erc20TransferProxy.methods.addOperator(toAddress(exchangeV2.options.address)), { from: sender1Address })
 	})
 
-	test('should match order(buy erc721 for erc20)', async () => {
+	test('exchangeV2 should match order(buy erc721 for erc20)', async () => {
 		//sender1 has ERC20, sender2 has ERC721
 
 		await sentTx(testErc20.methods.mint(sender1Address, 100), { from: sender1Address })

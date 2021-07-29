@@ -8,6 +8,8 @@ import { invertOrder } from "./invert-order"
 import { ExchangeAddresses } from "../config/type"
 import { Action, ActionBuilder } from "@rarible/action"
 import {createExchangeV1Contract} from "./contracts/exchange-v1";
+import { toBn } from "../common/to-bn"
+
 
 const protocolCommission = toBigNumber('0')//todo impl
 
@@ -88,7 +90,7 @@ async function fillOrderV2(
 
 	const [address] = await web3.eth.getAccounts()
 	const orderRight = {
-		...invertOrder(order, toAddress(address)),
+		...invertOrder(order, toBn(request.amount), toAddress(address)),
 		data: {
 			...order.data,
 			payouts: request.payouts,

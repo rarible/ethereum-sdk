@@ -1,6 +1,8 @@
 {
   "name": "@rarible/protocol-ethereum-sdk",
-  "version": "0.0.2",
+  "version": "0.0.3",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "keywords": [
     "axios",
     "typescript",

@@ -66,7 +66,9 @@ export function createRaribleSdk(
 
 	const notify = createPendingLogs.bind(null, gatewayControllerApi, web3)
 
-	const sendTx = partialCall(sendTransaction, notify)
+	const sendTx = partialCall(sendTransaction, async hash => {
+		await notify(hash)
+	})
 	const approve = partialCall(approveTemplate, web3, config.transferProxies, sendTx)
 	const signOrder = partialCall(signOrderTemplate, web3, config)
 	const upsertOrder = partialCall(upsertOrderTemplate, approve, signOrder, orderControllerApi)

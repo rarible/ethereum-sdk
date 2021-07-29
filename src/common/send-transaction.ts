@@ -5,6 +5,7 @@ import { backOff } from "exponential-backoff"
 import { toBinary, toWord } from "@rarible/types"
 import { toAddress } from "@rarible/types/build/address"
 import { GatewayControllerApi } from "@rarible/protocol-api-client"
+import { LogEvent } from "@rarible/protocol-api-client/build/models"
 
 export async function sentTx(source: ContractSendMethod, options: SendOptions): Promise<string> {
 	const event = source.send({ ...options, gas: 3000000 })
@@ -20,7 +21,7 @@ export async function sendTransaction(
 	return hash
 }
 
-export async function createPendingLogs(api: GatewayControllerApi, web3: Web3, hash: string): Promise<void> {
+export async function createPendingLogs(api: GatewayControllerApi, web3: Web3, hash: string): Promise<Array<LogEvent>> {
 	const tx = await getTransaction(web3, hash)
 	const createTransactionRequest = {
 		...tx,
@@ -29,7 +30,7 @@ export async function createPendingLogs(api: GatewayControllerApi, web3: Web3, h
 		to: tx.to ? toAddress(tx.to) : undefined,
 		input: toBinary(tx.input)
 	}
-	await api.createGatewayPendingTransactions({ createTransactionRequest })
+	return api.createGatewayPendingTransactions({ createTransactionRequest })
 }
 
 function getTransaction(web3: Web3, hash: string) {

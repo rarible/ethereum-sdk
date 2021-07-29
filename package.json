@@ -13,7 +13,10 @@
     "typings.d.ts"
   ],
   "scripts": {
-    "build": "rimraf ./build && tsc"
+    "build": "tsc --project tsconfig-build.json",
+    "clean": "rimraf ./build",
+    "test": "jest --passWithNoTests",
+    "verify": "tsc --noEmit"
   },
   "dependencies": {
     "@rarible/action": "0.1.1",

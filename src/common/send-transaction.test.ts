@@ -9,7 +9,8 @@ import { GatewayControllerApi } from "@rarible/protocol-api-client"
 import { createGanacheProvider } from "../test/create-ganache-provider"
 
 describe("sendTransaction", () => {
-	const { web3, address: testAddress } = createGanacheProvider()
+	const { web3, addresses } = createGanacheProvider()
+	const [testAddress] = addresses
 
 	let testErc20: Contract
 
@@ -21,14 +22,13 @@ describe("sendTransaction", () => {
 		let notified: string | null = null
 		const notify = async (hash: string) => {
 			notified = hash
-			return `hash-${hash}`
 		}
 		const address = randomAddress()
 
 		const result = await sendTransaction(notify, testErc20.methods.mint(address, 100), { from: testAddress })
 
 		expect(notified).toBeTruthy()
-		expect(result).toBe(`hash-${notified}`)
+		expect(result).toBe(notified)
 	})
 
 	test("createPendingLogs is invoked", async () => {

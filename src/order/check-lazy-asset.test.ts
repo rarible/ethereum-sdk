@@ -1,6 +1,7 @@
 import { Configuration, NftItemControllerApi } from "@rarible/protocol-api-client"
 import { toAddress } from "@rarible/types/build/address"
 import { toBigNumber } from "@rarible/types/build/big-number"
+// @ts-ignore
 import FormData from "form-data"
 import fetch from "node-fetch"
 import { checkLazyAssetType } from "./check-lazy-asset-type"
@@ -21,6 +22,6 @@ describe("checkLazyAsset", () => {
 			},
 			value: toBigNumber("100"),
 		})
-		console.log("result is", result)
+		expect(result.assetType.assetClass).toBe("ERC721")
 	})
 })

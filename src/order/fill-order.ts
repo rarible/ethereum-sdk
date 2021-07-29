@@ -38,6 +38,24 @@ export async function fillOrder(
 	return undefined
 }
 
+async function fillOrderV1(
+	sendTx: (source: ContractSendMethod, options: SendOptions) => Promise<string>,
+	web3: Web3,
+	contract: Address,
+	order: SimpleOrder,
+	request: FillOrderRequest
+): Promise<string | undefined> {
+	const [address] = await web3.eth.getAccounts()
+	const orderRight = {
+		...invertOrder(order, toAddress(address)),
+		data: {
+			...order.data,
+			payouts: request.payouts,
+			originFees: request.originFees,
+		},
+	}
+}
+
 async function fillOrderV2(
 	sendTx: (source: ContractSendMethod, options: SendOptions) => Promise<string>,
 	web3: Web3,

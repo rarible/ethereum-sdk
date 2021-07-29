@@ -8,7 +8,7 @@ import type {ContractSendMethod, SendOptions} from "web3-eth-contract";
 const infiniteBn = toBn(2).pow(256).minus(1)
 
 export async function approveErc20(
-	sentTx: (source: ContractSendMethod, options: SendOptions) => Promise<string>,
+	sendTx: (source: ContractSendMethod, options: SendOptions) => Promise<string>,
 	web3: Web3,
 	contract: Address,
 	owner: Address,
@@ -22,9 +22,9 @@ export async function approveErc20(
 	if (allowance.lt(bnValue)) {
 		const [address] = await web3.eth.getAccounts()
 		if (!infinite) {
-			return sentTx(erc20.methods.approve(operator, bnValue), { from: address })
+			return sendTx(erc20.methods.approve(operator, bnValue), { from: address })
 		} else {
-			return sentTx(erc20.methods.approve(operator, infiniteBn), { from: address })
+			return sendTx(erc20.methods.approve(operator, infiniteBn), { from: address })
 		}
 	} else {
 		return undefined

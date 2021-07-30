@@ -2,11 +2,12 @@ import { randomAddress, toAddress } from "@rarible/types"
 import { Contract } from "web3-eth-contract"
 import { sentTx } from "../common/send-transaction"
 import { createGanacheProvider } from "../test/create-ganache-provider"
-import {deployTestErc1155} from "../order/contracts/test-erc1155";
 import {transferErc1155} from "./transfer-erc1155";
+import {deployTestErc1155} from "../order/contracts/test/test-erc1155";
 
 describe("transfer Erc1155", () => {
-    const { web3, address: testAddress } = createGanacheProvider()
+    const { web3, addresses } = createGanacheProvider()
+    const [testAddress] = addresses
     let testErc1155: Contract
     let from = testAddress
     let to = randomAddress()

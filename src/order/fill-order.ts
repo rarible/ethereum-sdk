@@ -1,5 +1,5 @@
 import { Asset, Part } from "@rarible/protocol-api-client"
-import { Address, toAddress, toBigNumber } from "@rarible/types"
+import { Address, toAddress, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 import Web3 from "web3"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import { orderToStruct, SimpleOrder } from "./sign-order"
@@ -31,10 +31,28 @@ export async function fillOrder(
 	request: FillOrderRequest,
 ) {
 	//todo add commissions to approve (on top of ERC-20 and ETH)
+	const makeAsset = getMakeAssetV2(order, request.amount)
 	return ActionBuilder.create<FillOrderStageId>()
-		.then({ id: "approve", run: () => approve(order.maker, order.make, Boolean(request.infinite))})
+		.then({ id: "approve", run: () => approve(order.maker, makeAsset, Boolean(request.infinite))})
 		.then({ id: "send-tx", run: () => fillOrderSendTx(sendTx, web3, config, order, request) })
 		.build()
+}
+
+function getMakeAsset(order: SimpleOrder, amount: number) {
+	switch (order.type) {
+		// case 'RARIBLE_V1': {
+		//     return (() => '')();
+		// }
+		case "RARIBLE_V2": {
+			return getMakeAssetV2(order, amount)
+		}
+	}
+	throw new Error(`Unsupported order type: ${order.type}`)
+}
+
+function getMakeAssetV2(order: SimpleOrder, amount: number) {
+	const inverted = invertOrder(order, toBn(amount), ZERO_ADDRESS)
+	return inverted.make
 }
 
 export async function fillOrderSendTx(

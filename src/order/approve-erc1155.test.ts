@@ -2,14 +2,15 @@
 import RpcSubprovider from "web3-provider-engine/subproviders/rpc"
 import { randomAddress, toAddress } from "@rarible/types"
 import { Contract } from "web3-eth-contract"
-import { deployTestErc1155 } from "./contracts/test-erc1155"
+import { deployTestErc1155 } from "./contracts/test/test-erc1155"
 import { approveErc1155 } from "./approve-erc1155"
 import { toBn } from "../common/to-bn"
 import { sentTx } from "../common/send-transaction"
 import { createGanacheProvider } from "../test/create-ganache-provider"
 
 describe("approveErc1155", () => {
-    const { web3, address: testAddress } = createGanacheProvider()
+    const { web3, addresses } = createGanacheProvider()
+    const [testAddress] = addresses
 
     let testErc1155: Contract
     beforeAll(async () => {

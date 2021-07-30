@@ -1,9 +1,9 @@
-import { OrderForm } from "@rarible/protocol-api-client"
 import { toLegacyAssetType } from "./to-legacy-asset-type"
 import Web3 from "web3"
 import { abi } from "./abi"
+import { SimpleOrder } from "./sign-order"
 
-export function hashLegacyOrder(order: OrderForm): string {
+export function hashLegacyOrder(order: SimpleOrder): string {
 	if (order.type !== "RARIBLE_V1") {
 		throw new Error(`Not supported type: ${order.type}`)
 	}

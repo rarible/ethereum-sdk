@@ -1,6 +1,8 @@
 {
   "name": "@rarible/protocol-ethereum-sdk",
-  "version": "0.0.1",
+  "version": "0.0.3",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "keywords": [
     "axios",
     "typescript",
@@ -13,7 +15,10 @@
     "typings.d.ts"
   ],
   "scripts": {
-    "build": "rimraf ./build && tsc"
+    "build": "tsc --project tsconfig-build.json",
+    "clean": "rimraf ./build",
+    "test": "jest --passWithNoTests",
+    "verify": "tsc --noEmit"
   },
   "dependencies": {
     "@rarible/action": "0.1.1",

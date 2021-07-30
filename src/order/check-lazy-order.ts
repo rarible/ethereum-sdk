@@ -1,5 +1,6 @@
 import { Address, Asset, OrderForm } from "@rarible/protocol-api-client"
 
+//todo use this
 export async function checkLazyOrder(checkLazyAsset: (asset: Asset) => Promise<Asset>, form: OrderForm): Promise<OrderForm> {
 	const make = await checkLazyMakeAsset(checkLazyAsset, form.make, form.maker)
 	const take = await checkLazyAsset(form.take)

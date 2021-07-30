@@ -1,6 +1,8 @@
 import { hashLegacyOrder } from "./hash-legacy-order"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { toAddress } from "@rarible/types/build/address"
+import { toBinary } from "@rarible/types"
+import { toBn } from "../common/to-bn"
 
 describe("hashLegacyOrder", () => {
 	test("simple order is hashed correctly", () => {
@@ -10,7 +12,7 @@ describe("hashLegacyOrder", () => {
 				dataType: "LEGACY",
 				fee: 1,
 			},
-			salt: toBigNumber("10"),
+			salt: toBinary(toBn("10").toString(16)),
 			maker: toAddress("0x10aea70c91688485a9c2f602d0a8dd438c75ea41"),
 			make: {
 				assetType: {

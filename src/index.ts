@@ -12,6 +12,7 @@ import {
 	GatewayControllerApi,
 	NftItemControllerApi,
 	NftOwnershipControllerApi,
+	OrderActivityControllerApi,
 	Order,
 	OrderControllerApi,
 } from "@rarible/protocol-api-client"
@@ -19,7 +20,6 @@ import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
 import { Action } from "@rarible/action"
 import { fillOrder, FillOrderRequest, FillOrderStageId } from "./order/fill-order"
 import { createPendingLogs, sendTransaction } from "./common/send-transaction"
-import {OrderActivityControllerApi} from "@rarible/protocol-api-client/build/apis/OrderActivityControllerApi";
 
 export interface RaribleSdk {
 	order: RaribleOrderSdk
@@ -86,7 +86,7 @@ export function createRaribleSdk(
 			nftItem: nftItemControllerApi,
 			nftOwnership: nftOwnershipControllerApi,
 			order: orderControllerApi,
-			orderActivities: orderActivitiesControllerApi
+			orderActivity: orderActivitiesControllerApi
 		},
 		approve,
 		order: {

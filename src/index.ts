@@ -11,6 +11,8 @@ import {
 	ConfigurationParameters,
 	GatewayControllerApi,
 	NftItemControllerApi,
+	NftOwnershipControllerApi,
+	OrderActivityControllerApi,
 	Order,
 	OrderControllerApi,
 } from "@rarible/protocol-api-client"
@@ -35,7 +37,9 @@ export interface RaribleSdk {
 
 export interface RaribleApis {
 	nftItem: NftItemControllerApi
-	order: OrderControllerApi
+	nftOwnership: NftOwnershipControllerApi,
+	order: OrderControllerApi,
+	orderActivities: OrderActivityControllerApi
 }
 
 export interface RaribleOrderSdk {
@@ -61,7 +65,9 @@ export function createRaribleSdk(
 	const apiConfiguration = new Configuration({ ...configurationParameters, basePath: config.basePath })
 
 	const nftItemControllerApi = new NftItemControllerApi(apiConfiguration)
+	const nftOwnershipControllerApi = new NftOwnershipControllerApi(apiConfiguration)
 	const orderControllerApi = new OrderControllerApi(apiConfiguration)
+	const orderActivitiesControllerApi = new OrderActivityControllerApi(apiConfiguration)
 	const gatewayControllerApi = new GatewayControllerApi(apiConfiguration)
 
 	const notify = createPendingLogs.bind(null, gatewayControllerApi, web3)
@@ -78,7 +84,9 @@ export function createRaribleSdk(
 	return {
 		apis: {
 			nftItem: nftItemControllerApi,
+			nftOwnership: nftOwnershipControllerApi,
 			order: orderControllerApi,
+			orderActivities: orderActivitiesControllerApi
 		},
 		approve,
 		order: {
@@ -93,3 +101,4 @@ type Arr = readonly unknown[];
 function partialCall<T extends Arr, U extends Arr, R>(f: (...args: [...T, ...U]) => R, ...headArgs: T) {
 	return (...tailArgs: U) => f(...headArgs, ...tailArgs);
 }
+

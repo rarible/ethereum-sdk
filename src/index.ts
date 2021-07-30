@@ -39,7 +39,7 @@ export interface RaribleApis {
 	nftItem: NftItemControllerApi
 	nftOwnership: NftOwnershipControllerApi,
 	order: OrderControllerApi,
-	orderActivities: OrderActivityControllerApi
+	orderActivity: OrderActivityControllerApi
 }
 
 export interface RaribleOrderSdk {

@@ -13,8 +13,8 @@ const protocolCommission = toBigNumber('0')//todo impl
 
 export type FillOrderRequest = {
 	amount: number,
-	payouts: Array<Part>,
-	originFees: Array<Part>,
+	payouts?: Array<Part>,
+	originFees?: Array<Part>,
 	infinite?: boolean
 }
 
@@ -92,8 +92,8 @@ async function fillOrderV2(
 		...invertOrder(order, toBn(request.amount), toAddress(address)),
 		data: {
 			...order.data,
-			payouts: request.payouts,
-			originFees: request.originFees,
+			payouts: request.payouts || [],
+			originFees: request.originFees || [],
 		},
 	}
 	return await matchOrders(sendTx, web3, contract, order, orderRight, toAddress(address))

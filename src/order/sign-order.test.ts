@@ -6,7 +6,7 @@ import { toAddress } from "@rarible/types"
 
 describe("signOrder", () => {
 
-	const { web3, wallet } = createE2eProvider()
+	const { web3, wallet } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
 	const signOrderE2e = signOrder.bind(null, web3, E2E_CONFIG)
 
 	test("should sign legacy orders", async () => {
@@ -21,7 +21,7 @@ describe("signOrder", () => {
 				maker: toAddress(wallet.getAddressString())
 			},
 		)
-		expect(signature).toEqual("0xeaf7cd0e5d236fca80c9713cc1017787fd5255b4df68f7c114fdc18422a2409708c721ddc230e9c9aa80567c7b5bbd74b2094ce7989ed8cef8a30582a9f0f35c1b")
+		expect(signature).toEqual("0x5fec2e13b0ad828fd4bd8908ca695518ecf8256218cf6d0c1fb3ecb460c8510222a2d52b9946c761217fcadfa88f7e120707c4fa1c441fb6c34f5bf5df821b741b")
 	})
 
 	test("should sign v2 orders", async () => {
@@ -37,7 +37,7 @@ describe("signOrder", () => {
 				maker: toAddress(wallet.getAddressString())
 			},
 		)
-		expect(signature).toEqual("0xbc484cf90eb7a83abd1347c8f5686ca5969fbee3fb30f26f924c648f70160b9a2755ccde7ccd7c9ca7a138c94b4fef388047e0b339f01c622cc0b593b89842aa1b")
+		expect(signature).toEqual("0xcbaf8914c5da5efea1c8d3afa70d93147ec842632b4db1f62475c9ed107b07220496c37efa66fcfac2a54caa252ecbf77db79428d53b48ea39b89d8211bfa8151c")
 	})
 })
 

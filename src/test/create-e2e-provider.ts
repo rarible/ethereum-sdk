@@ -5,12 +5,13 @@ import { TestSubprovider } from "@rarible/test-provider"
 import Web3 from "web3"
 // @ts-ignore
 import RpcSubprovider from "web3-provider-engine/subproviders/rpc"
+import { randomWord } from "@rarible/types"
 
-export function createE2eProvider() {
+export function createE2eProvider(pk: string = randomWord()) {
 	(global as any).FormData = FormData
 
 	const provider = new Web3ProviderEngine()
-	const wallet = new Wallet(Buffer.from("d5012fe4e1c34f91d3d4ee8cec93af36f0100a719678d1bdaf4cf65eac833bac", "hex"))
+	const wallet = new Wallet(Buffer.from(fixPK(pk), "hex"))
 	provider.addProvider(new TestSubprovider(wallet))
 	provider.addProvider(new RpcSubprovider({ rpcUrl: "https://node-e2e.rarible.com" }))
 	const web3 = new Web3(provider)
@@ -26,5 +27,13 @@ export function createE2eProvider() {
 	return {
 		web3,
 		wallet,
+	}
+}
+
+function fixPK(pk: string) {
+	if (pk.startsWith("0x")) {
+		return pk.substring(2)
+	} else {
+		return pk
 	}
 }

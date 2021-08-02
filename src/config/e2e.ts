@@ -1,5 +1,5 @@
 import { Config } from "./type"
-import { toAddress } from "@rarible/types"
+import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 
 export const E2E_CONFIG: Config = {
 	basePath: "https://api-e2e.rarible.com",
@@ -11,7 +11,7 @@ export const E2E_CONFIG: Config = {
 	transferProxies: {
 		nft: toAddress("0x66611f8d97688a0af08d4337d7846efec6995d58"),
 		erc20: toAddress("0xbf558e78cfde95afbf17a4abe394cb2cc42e6270"),
-		erc721Lazy: toAddress("0xbf558e78cfde95afbf17a4abe394cb2cc42e6270"),//todo
-		erc1155Lazy: toAddress("0xbf558e78cfde95afbf17a4abe394cb2cc42e6270"),//todo
+		erc721Lazy: toAddress("0xe853B9994304264ff418b818A8D23FD39e8DABe6"),
+		erc1155Lazy: toAddress("0x6E605A7d1FD15e9087f0756ab57E0ED99735a7a7"),
 	},
 }

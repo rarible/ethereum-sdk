@@ -17,7 +17,6 @@ export type BidRequest = {
 	makeAssetType: EthAssetType | Erc20AssetType,
 	amount: number
 	takeAssetType: Erc721AssetType | Erc1155AssetType,
-	taker: Address,
 	price: number
 	payouts: Array<Part>
 	originFees: Array<Part>

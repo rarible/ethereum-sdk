@@ -14,12 +14,17 @@ import {
 	NftOwnershipControllerApi,
 	OrderActivityControllerApi,
 	Order,
-	OrderControllerApi,
+	OrderControllerApi, OrderForm,
 } from "@rarible/protocol-api-client"
 import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
 import { Action } from "@rarible/action"
 import { fillOrder, FillOrderRequest, FillOrderStageId } from "./order/fill-order"
 import { createPendingLogs, sendTransaction } from "./common/send-transaction"
+import {
+	checkLazyOrder as checkLazyOrderTemplate,
+	checkLazyAsset as checkLazyAssetTemplate,
+	checkLazyAssetType as checkLazyAssetTypeTemplate
+} from "./order";
 
 export interface RaribleSdk {
 	order: RaribleOrderSdk
@@ -46,7 +51,7 @@ export interface RaribleOrderSdk {
 	/**
 	 * Sell asset (create off-chain order and check if approval is needed)
 	 */
-	sell(request: SellRequest): Promise<Action<UpserOrderStageId, [(string | undefined), Binary, Order]>>
+	sell(request: SellRequest): Promise<Action<UpserOrderStageId, [OrderForm, (string | undefined), Binary, Order]>>
 
 	/**
 	 * Fill order (buy or accept bid - depending on the order type)
@@ -75,9 +80,13 @@ export function createRaribleSdk(
 	const sendTx = partialCall(sendTransaction, async hash => {
 		await notify(hash)
 	})
+	const checkLazyAssetType = partialCall(checkLazyAssetTypeTemplate, nftItemControllerApi)
+	const checkLazyAsset = partialCall(checkLazyAssetTemplate, checkLazyAssetType)
+	const checkLazyOrder = partialCall(checkLazyOrderTemplate, checkLazyAsset)
+
 	const approve = partialCall(approveTemplate, web3, config.transferProxies, sendTx)
 	const signOrder = partialCall(signOrderTemplate, web3, config)
-	const upsertOrder = partialCall(upsertOrderTemplate, approve, signOrder, orderControllerApi, nftItemControllerApi)
+	const upsertOrder = partialCall(upsertOrderTemplate, checkLazyOrder, approve, signOrder, orderControllerApi)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder)
 	const fill = partialCall(fillOrder, sendTx, approve, web3, config.exchange)
 

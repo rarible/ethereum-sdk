@@ -30,7 +30,8 @@ describe("upsertOrder", () => {
 				originFees: []
 			}
 		}
-		const upsert = await upsertOrder(approve, sign, orderApi, itemApi, order)
+		const checkLazyOrder = async () => Promise.resolve(order)
+		const upsert = await upsertOrder(checkLazyOrder, approve, sign, orderApi, order)
 		await upsert.run(0)
 		await upsert.run(1)
 		await upsert.run(2)

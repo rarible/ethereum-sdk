@@ -77,7 +77,7 @@ export function createRaribleSdk(
 	})
 	const approve = partialCall(approveTemplate, web3, config.transferProxies, sendTx)
 	const signOrder = partialCall(signOrderTemplate, web3, config)
-	const upsertOrder = partialCall(upsertOrderTemplate, approve, signOrder, orderControllerApi)
+	const upsertOrder = partialCall(upsertOrderTemplate, approve, signOrder, orderControllerApi, nftItemControllerApi)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder)
 	const fill = partialCall(fillOrder, sendTx, approve, web3, config.exchange)
 

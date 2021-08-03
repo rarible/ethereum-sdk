@@ -6,6 +6,7 @@ import { Address, ZERO_ADDRESS } from "@rarible/types"
 import { EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES } from "./eip712"
 import { encodeData } from "./encode-data"
 import { Config } from "../config/type"
+import {signTypedData} from "../common/sign-typed-data";
 
 export type SimpleOrder = Pick<Order, "data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature">
 
@@ -35,28 +36,10 @@ export async function signOrder(
 				primaryType: EIP712_ORDER_TYPE,
 				message: orderToStruct(order)
 			}
-
 			return signTypedData(web3, order.maker, data)
 		}
 	}
 	throw new Error(`Unsupported order type: ${order.type}`)
-}
-
-async function signTypedData(web3: Web3, signer: string, data: any) {
-	return (await new Promise<Binary>((resolve, reject) => {
-		function cb(err: any, result: any) {
-			if (err) return reject(err);
-			if (result.error) return reject(result.error);
-			resolve(result.result);
-		}
-
-		// @ts-ignore
-		return web3.currentProvider.sendAsync({
-			method: "eth_signTypedData", // todo - reverted from eth_signTypedData_v4 for ganache compatibility
-			params: [signer, data],
-			signer
-		}, cb);
-	}))
 }
 
 

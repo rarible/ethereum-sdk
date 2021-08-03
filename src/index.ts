@@ -14,7 +14,8 @@ import {
 	NftOwnershipControllerApi,
 	OrderActivityControllerApi,
 	Order,
-	OrderControllerApi, OrderForm,
+	OrderControllerApi,
+	OrderForm,
 } from "@rarible/protocol-api-client"
 import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
 import { Action } from "@rarible/action"
@@ -25,6 +26,7 @@ import {
 	checkLazyAsset as checkLazyAssetTemplate,
 	checkLazyAssetType as checkLazyAssetTypeTemplate
 } from "./order";
+import { bid as bidTemplate, BidRequest} from "./order/bid";
 
 export interface RaribleSdk {
 	order: RaribleOrderSdk
@@ -52,6 +54,13 @@ export interface RaribleOrderSdk {
 	 * Sell asset (create off-chain order and check if approval is needed)
 	 */
 	sell(request: SellRequest): Promise<Action<UpserOrderStageId, [OrderForm, (string | undefined), Binary, Order]>>
+
+	/**
+	 * Create bid (create off-chain order and check if approval is needed)
+	 */
+	bid(request: BidRequest): Promise<Action<UpserOrderStageId, [(string | undefined), Binary, Order]>>
+
+
 
 	/**
 	 * Fill order (buy or accept bid - depending on the order type)
@@ -88,6 +97,7 @@ export function createRaribleSdk(
 	const signOrder = partialCall(signOrderTemplate, web3, config)
 	const upsertOrder = partialCall(upsertOrderTemplate, checkLazyOrder, approve, signOrder, orderControllerApi)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder)
+	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder)
 	const fill = partialCall(fillOrder, sendTx, approve, web3, config.exchange)
 
 	return {
@@ -101,6 +111,7 @@ export function createRaribleSdk(
 		order: {
 			sell,
 			fill,
+			bid,
 		}
 	}
 }

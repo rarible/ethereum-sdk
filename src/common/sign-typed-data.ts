@@ -33,9 +33,7 @@ export async function signTypedData(web3: Web3, signer: string, data: any) {
             try {
                 return await tryToSign(SignTypedDataTypes.SIGN_TYPED_DATA, data)
             } catch (error) {
-                return await new Promise<Binary>((resolve, reject) => {
-                    reject(error)
-                })
+                return await Promise.reject(error)
             }
         }
     }

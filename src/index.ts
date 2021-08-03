@@ -58,7 +58,7 @@ export interface RaribleOrderSdk {
 	/**
 	 * Create bid (create off-chain order and check if approval is needed)
 	 */
-	bid(request: BidRequest): Promise<Action<UpserOrderStageId, [(string | undefined), Binary, Order]>>
+	bid(request: BidRequest): Promise<Action<UpserOrderStageId, [OrderForm, (string | undefined), Binary, Order]>>
 
 
 

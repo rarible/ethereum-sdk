@@ -1,6 +1,6 @@
 import { signOrder } from "./sign-order"
 import { toAddress } from "@rarible/types/build/address"
-import { Configuration, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
+import {Configuration, NftItemControllerApi, OrderControllerApi, OrderForm} from "@rarible/protocol-api-client"
 import { upsertOrder } from "./upsert-order"
 import fetch from "node-fetch"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
@@ -16,7 +16,9 @@ describe("upsertOrder", () => {
 		const approve = () => Promise.resolve("")
 		const sign = signOrder.bind(null, web3, E2E_CONFIG)
 		//@ts-ignore
-		const api = new OrderControllerApi(new Configuration({ basePath: "https://api-e2e.rarible.com", fetchApi: fetch }))
+		const configuration = new Configuration({ basePath: "https://api-e2e.rarible.com", fetchApi: fetch })
+		const orderApi = new OrderControllerApi(configuration)
+		const itemApi = new NftItemControllerApi(configuration)
 		const order: OrderForm = {
 			...TEST_ORDER_TEMPLATE,
 			salt: toBigNumber("10"),
@@ -28,7 +30,8 @@ describe("upsertOrder", () => {
 				originFees: []
 			}
 		}
-		const upsert = await upsertOrder(approve, sign, api, order)
+		const checkLazyOrder = async () => Promise.resolve(order)
+		const upsert = await upsertOrder(checkLazyOrder, approve, sign, orderApi, order)
 		await upsert.run(0)
 		await upsert.run(1)
 		await upsert.run(2)

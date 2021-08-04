@@ -7,15 +7,12 @@ import {
 	NftItemControllerApi,
 	Order,
 	OrderControllerApi,
-	OrderForm
+	OrderForm,
 } from "@rarible/protocol-api-client"
 import { Action, ActionBuilder } from "@rarible/action"
 import { SimpleOrder } from "./sign-order"
 import { toBn } from "../common/to-bn"
 import { toBinary } from "@rarible/types"
-import {checkLazyOrder} from "./check-lazy-order";
-import {checkLazyAsset} from "./check-lazy-asset";
-import {checkLazyAssetType} from "./check-lazy-asset-type";
 
 export type UpserOrderStageId = "checkLazyOrder" | "approve" | "sign" | "post"
 
@@ -27,6 +24,7 @@ export type UpsertOrderFunction = (order: OrderForm, infinite?: boolean) => Prom
  * @param infinite - pass true if you want to use infinite approval for ERC-20 tokens
  */
 export async function upsertOrder(
+	checkLazyOrder: (form: OrderForm) => Promise<OrderForm>,
 	approve: (owner: Address, asset: Asset, infinite: boolean) => Promise<string | undefined>,
 	signOrder: (order: SimpleOrder) => Promise<Binary>,
 	orderApi: OrderControllerApi,
@@ -34,12 +32,7 @@ export async function upsertOrder(
 	order: OrderForm,
 	infinite: boolean = false,
 ) {
-	const checkedOrder = await checkLazyOrder(
-		(asset) => checkLazyAsset(
-			(assetType) => checkLazyAssetType(nftItemApi, assetType),
-			asset
-		),
-		order)
+	const checkedOrder = await checkLazyOrder(order)
 	return ActionBuilder.create<UpserOrderStageId>()
 		.then({ id: "approve", run: () => approve(checkedOrder.maker, checkedOrder.make, infinite) })
 		.then({ id: "sign", run: () => signOrder(orderFormToSimpleOrder(checkedOrder)) })

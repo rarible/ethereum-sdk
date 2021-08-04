@@ -42,8 +42,8 @@ export async function upsertOrder(
 		order)
 	return ActionBuilder.create<UpserOrderStageId>()
 		.then({ id: "approve", run: () => approve(checkedOrder.maker, checkedOrder.make, infinite) })
-		.then({ id: "sign", run: () => signOrder(orderFormToSimpleOrder(order)) })
-		.then({ id: "post", run: signature => orderApi.upsertOrder({ orderForm: { ...order, signature } })})
+		.then({ id: "sign", run: () => signOrder(orderFormToSimpleOrder(checkedOrder)) })
+		.then({ id: "post", run: signature => orderApi.upsertOrder({ orderForm: { ...checkedOrder, signature } })})
 		.build()
 }
 

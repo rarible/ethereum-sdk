@@ -17,7 +17,7 @@ export type SellRequest = {
 	makeAssetType: Erc721AssetType | Erc1155AssetType,
 	amount: number
 	takeAssetType: EthAssetType | Erc20AssetType
-	price: number
+	price: string
 	payouts: Array<Part>
 	originFees: Array<Part>
 }

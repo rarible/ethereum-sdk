@@ -35,7 +35,7 @@ export function sell(
 		},
 		take: {
 			assetType: request.takeAssetType,
-			value: toBigNumber(`${request.amount * request.price}`)//todo better calc
+			value: toBigNumber(toBn(request.amount).multipliedBy(request.price).toString())
 		},
 		type: "RARIBLE_V2",
 		data: {

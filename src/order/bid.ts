@@ -31,7 +31,7 @@ export function bid(
 		maker: request.maker,
 		make: {
 			assetType: request.makeAssetType,
-			value: toBigNumber(`${request.amount * request.price}`),
+			value: toBigNumber(toBn(request.amount).multipliedBy(request.price).toString()),
 		},
 		take: {
 			assetType: request.takeAssetType,

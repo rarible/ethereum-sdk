@@ -1,8 +1,6 @@
 import { UpsertOrderFunction } from "./upsert-order"
 import {
-	Address,
-	Erc1155AssetType,
-	Erc721AssetType,
+	Address, AssetType,
 	NftItemControllerApi,
 	OrderForm,
 	Part,
@@ -13,9 +11,9 @@ import {AssetTypeRequest, AssetTypeResponse} from "./check-asset-type";
 
 export type BidRequest = {
 	maker: Address
-	makeAssetType: AssetTypeRequest,
+	makeAssetType: AssetType,
 	amount: number
-	takeAssetType: Erc721AssetType | Erc1155AssetType,
+	takeAssetType: AssetTypeRequest,
 	price: number
 	payouts: Array<Part>
 	originFees: Array<Part>
@@ -30,11 +28,11 @@ export async function bid(
 	const order: OrderForm = {
 		maker: request.maker,
 		make: {
-			assetType: await checkAssetType(request.makeAssetType),
+			assetType: request.makeAssetType,
 			value: toBigNumber(`${request.amount * request.price}`),
 		},
 		take: {
-			assetType: request.takeAssetType,
+			assetType: await checkAssetType(request.takeAssetType),
 			value: toBigNumber(`${request.amount}`)
 		},
 		type: "RARIBLE_V2",

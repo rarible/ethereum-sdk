@@ -35,7 +35,7 @@ export function sell(
 		},
 		take: {
 			assetType: request.takeAssetType,
-			value: toBigNumber(toBn(request.amount).multipliedBy(request.price).toString())
+			value: toBigNumber(toBn(request.price).multipliedBy(request.amount).toString())
 		},
 		type: "RARIBLE_V2",
 		data: {

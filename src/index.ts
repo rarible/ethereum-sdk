@@ -27,9 +27,12 @@ import {
 	checkLazyOrder as checkLazyOrderTemplate
 } from "./order"
 import {mintLazy as mintLazyTemplate, MintLazyRequest, MintLazyStageId} from "./nft/mint-lazy";
+import {signNft as signNftTemplate} from "../../protocol-example/src/protocol-ethereum-sdk/src/nft/sign-nft";
 
 export interface RaribleSdk {
 	order: RaribleOrderSdk
+
+	nft: RaribleNftSdk
 
 	/**
 	 * Checks if approval is needed and executes approve transaction
@@ -67,7 +70,13 @@ export interface RaribleOrderSdk {
 	 * @param request parameters - what amount
 	 */
 	fill(order: SimpleOrder, request: FillOrderRequest): Promise<Action<FillOrderStageId, [(string | undefined), string]>>
+}
 
+export interface RaribleNftSdk {
+	/**
+	 *
+	 * @param request parameters for item to mint
+	 */
 	mintLazy(request: MintLazyRequest): Promise<NftItem>
 }
 
@@ -102,7 +111,9 @@ export function createRaribleSdk(
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder)
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder)
 	const fill = partialCall(fillOrder, sendTx, approve, web3, config.exchange)
-	const mintLazy = partialCall(mintLazyTemplate, web3, nftCollectionControllerApi, nftLazyMintControllerApi)
+
+	const signNft = partialCall(signNftTemplate, web3, config)
+	const mintLazy = partialCall(mintLazyTemplate, web3, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
 
 	return {
 		apis: {
@@ -116,6 +127,8 @@ export function createRaribleSdk(
 			sell,
 			fill,
 			bid,
+		},
+		nft: {
 			mintLazy,
 		}
 	}
@@ -126,4 +139,3 @@ type Arr = readonly unknown[];
 function partialCall<T extends Arr, U extends Arr, R>(f: (...args: [...T, ...U]) => R, ...headArgs: T) {
 	return (...tailArgs: U) => f(...headArgs, ...tailArgs);
 }
-

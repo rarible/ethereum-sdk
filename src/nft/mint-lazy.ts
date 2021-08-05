@@ -1,79 +1,72 @@
 import Web3 from "web3";
 import {
-    Address,
-    Erc1155AssetType,
-    Erc721AssetType,
+    Binary,
     NftCollectionControllerApi, NftItem,
-    NftLazyMintControllerApi
+    NftLazyMintControllerApi, Part
 } from "@rarible/protocol-api-client";
-import {BigNumber, toAddress} from "@rarible/types";
-import {toBigNumber} from "@rarible/types/build/big-number";
-import {signTypedData} from "../common/sign-typed-data";
+import {SignNftRequestType} from "./sign-nft";
+import {Address, BigNumber} from "@rarible/types";
 
 export type MintLazyStageId = "mint-lazy"
 
-export type MintLazyRequest = {
-    assetType: Pick<Erc721AssetType, 'assetClass' | 'contract'> | Pick<Erc1155AssetType, 'assetClass' | 'contract'>
-    minter: Address
-    uri: string,
-    royalties: []
-    creators: []
-    supply?: BigNumber
+export type LazyErc721Request = {
+    "@type": "ERC721";
+    contract: Address;
+    uri: string;
+    creators: Array<Part>;
+    royalties: Array<Part>;
 }
+
+export type LazyErc1155Request = {
+    "@type": "ERC1155";
+    contract: Address;
+    uri: string;
+    creators: Array<Part>;
+    royalties: Array<Part>;
+    supply: BigNumber;
+}
+
+export type MintLazyRequest = LazyErc721Request | LazyErc1155Request
 
 export async function mintLazy(
     web3: Web3,
+    signNft: (nft: SignNftRequestType) => Promise<Binary>,
     nftCollection: NftCollectionControllerApi,
     nftLazyMintApi: NftLazyMintControllerApi,
     mintLazyRequest: MintLazyRequest
     ): Promise<NftItem> {
 
-    const {tokenId} = await nftCollection.generateNftTokenId({collection: mintLazyRequest.assetType.contract, minter: mintLazyRequest.minter})
-    switch (mintLazyRequest.assetType.assetClass) {
+    const {tokenId} = await nftCollection.generateNftTokenId({
+        collection: mintLazyRequest.contract,
+        minter: mintLazyRequest.creators[0].account}
+    )
+
+    switch (mintLazyRequest['@type']) {
         case "ERC721": {
-            const data = {
-                "@type": mintLazyRequest.assetType.assetClass,
-                contract: mintLazyRequest.assetType.contract,
+            const signature = await signNft({
                 tokenId,
-                uri: mintLazyRequest.uri,
-                creators: mintLazyRequest.creators,
-                royalties: mintLazyRequest.royalties,
-            }
-            const signature = await signTypedData(web3, mintLazyRequest.minter, data)
+                ...mintLazyRequest,
+            })
+
             return await nftLazyMintApi.mintNftAsset({
                 lazyNft: {
-                    "@type": "ERC721",
-                    contract: toAddress(mintLazyRequest.assetType.contract),
-                    tokenId: tokenId,
-                    uri: mintLazyRequest.uri,
-                    creators: mintLazyRequest.creators,
-                    royalties: mintLazyRequest.royalties,
+                    ...mintLazyRequest,
+                    tokenId,
                     signatures: [signature],
                 }
             })
         }
         case "ERC1155": {
-            const data = {
-                "@type": mintLazyRequest.assetType.assetClass,
-                contract: mintLazyRequest.assetType.contract,
+            const signature = await signNft({
+                ...mintLazyRequest,
                 tokenId,
-                uri: mintLazyRequest.uri,
-                creators: mintLazyRequest.creators,
-                royalties: mintLazyRequest.royalties,
-                supply: mintLazyRequest.supply,
-            }
-            const signature = await signTypedData(web3, mintLazyRequest.minter, data)
+            })
             if (mintLazyRequest.supply) {
                 return await nftLazyMintApi.mintNftAsset({
                     lazyNft: {
-                        "@type": "ERC1155",
-                        contract: toAddress(mintLazyRequest.assetType.contract),
-                        tokenId: tokenId,
-                        uri: mintLazyRequest.uri,
-                        creators: mintLazyRequest.creators,
-                        royalties: mintLazyRequest.royalties,
-                        supply: toBigNumber(mintLazyRequest.supply),
-                        signatures: [signature],
+                        ...mintLazyRequest,
+                        tokenId,
+                        signatures: [signature]
                     }
                 })
             } else {
@@ -82,3 +75,5 @@ export async function mintLazy(
         }
     }
 }
+
+

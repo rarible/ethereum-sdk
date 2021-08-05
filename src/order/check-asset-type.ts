@@ -13,19 +13,19 @@ export type NftAssetType = {
 
 export type AssetTypeRequest = Erc721AssetType | Erc1155AssetType | NftAssetType
 
-export type AssetTypeResponse = Exclude<AssetTypeRequest, NftAssetType>
+export type AssetTypeResponse = Erc721AssetType | Erc1155AssetType
 
 
 export async function checkAssetType(nftItemApi: NftItemControllerApi, collectionApi: NftCollectionControllerApi, asset: AssetTypeRequest): Promise<AssetTypeResponse> {
     if ('assetClass' in asset) {
-        return asset as AssetTypeResponse
+        return asset
     } else {
         const collectionResponse = await collectionApi.getNftCollectionByIdRaw({collection: asset.contract})
         if (collectionResponse.status === 200) {
             return {
                 ...asset,
                 assetClass: collectionResponse.value.type,
-            } as AssetTypeResponse
+            }
         } else {
             throw new Error(`Can't get info of NFT collection with id ${asset.contract}`)
         }

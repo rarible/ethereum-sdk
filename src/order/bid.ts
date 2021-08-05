@@ -1,20 +1,23 @@
 import { UpsertOrderFunction } from "./upsert-order"
 import {
-	Address, AssetType,
+	Address,
 	NftItemControllerApi,
 	OrderForm,
 	Part,
+	EthAssetType,
+	Erc20AssetType
 } from "@rarible/protocol-api-client"
 import { randomWord, toBigNumber } from "@rarible/types"
 import { toBn } from "../common/to-bn"
+import BN from "bignumber.js"
 import {AssetTypeRequest, AssetTypeResponse} from "./check-asset-type";
 
 export type BidRequest = {
 	maker: Address
-	makeAssetType: AssetType,
+	makeAssetType: EthAssetType | Erc20AssetType,
 	amount: number
 	takeAssetType: AssetTypeRequest,
-	price: number
+	price: BN.Value
 	payouts: Array<Part>
 	originFees: Array<Part>
 }
@@ -29,7 +32,7 @@ export async function bid(
 		maker: request.maker,
 		make: {
 			assetType: request.makeAssetType,
-			value: toBigNumber(`${request.amount * request.price}`),
+			value: toBigNumber(toBn(request.price).multipliedBy(request.amount).toString()),
 		},
 		take: {
 			assetType: await checkAssetType(request.takeAssetType),

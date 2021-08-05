@@ -14,7 +14,7 @@ import {
 	NftOwnershipControllerApi,
 	OrderActivityControllerApi,
 	Order,
-	OrderControllerApi,
+	OrderControllerApi, NftCollectionControllerApi, NftLazyMintControllerApi, NftItem,
 } from "@rarible/protocol-api-client"
 import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
 import { Action } from "@rarible/action"
@@ -26,6 +26,7 @@ import {
 	checkLazyAsset as checkLazyAssetTemplate,
 	checkLazyOrder as checkLazyOrderTemplate
 } from "./order"
+import {mintLazy as mintLazyTemplate, MintLazyRequest, MintLazyStageId} from "./nft/mint-lazy";
 
 export interface RaribleSdk {
 	order: RaribleOrderSdk
@@ -59,8 +60,6 @@ export interface RaribleOrderSdk {
 	 */
 	bid(request: BidRequest): Promise<Action<UpserOrderStageId, [(string | undefined), Binary, Order]>>
 
-
-
 	/**
 	 * Fill order (buy or accept bid - depending on the order type)
 	 *
@@ -68,6 +67,8 @@ export interface RaribleOrderSdk {
 	 * @param request parameters - what amount
 	 */
 	fill(order: SimpleOrder, request: FillOrderRequest): Promise<Action<FillOrderStageId, [(string | undefined), string]>>
+
+	mintLazy(request: MintLazyRequest): Promise<NftItem>
 }
 
 export function createRaribleSdk(
@@ -79,6 +80,8 @@ export function createRaribleSdk(
 
 	const nftItemControllerApi = new NftItemControllerApi(apiConfiguration)
 	const nftOwnershipControllerApi = new NftOwnershipControllerApi(apiConfiguration)
+	const nftCollectionControllerApi = new NftCollectionControllerApi(apiConfiguration)
+	const nftLazyMintControllerApi = new NftLazyMintControllerApi(apiConfiguration)
 	const orderControllerApi = new OrderControllerApi(apiConfiguration)
 	const orderActivitiesControllerApi = new OrderActivityControllerApi(apiConfiguration)
 	const gatewayControllerApi = new GatewayControllerApi(apiConfiguration)
@@ -99,6 +102,7 @@ export function createRaribleSdk(
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder)
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder)
 	const fill = partialCall(fillOrder, sendTx, approve, web3, config.exchange)
+	const mintLazy = partialCall(mintLazyTemplate, web3, nftCollectionControllerApi, nftLazyMintControllerApi)
 
 	return {
 		apis: {
@@ -112,6 +116,7 @@ export function createRaribleSdk(
 			sell,
 			fill,
 			bid,
+			mintLazy,
 		}
 	}
 }

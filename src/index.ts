@@ -15,6 +15,7 @@ import {
 	OrderActivityControllerApi,
 	Order,
 	OrderControllerApi,
+	NftCollectionControllerApi,
 } from "@rarible/protocol-api-client"
 import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
 import { Action } from "@rarible/action"
@@ -26,6 +27,7 @@ import {
 	checkLazyAsset as checkLazyAssetTemplate,
 	checkLazyOrder as checkLazyOrderTemplate
 } from "./order"
+import {checkAssetType as checkAssetTypeTemplate} from "./order/check-asset-type";
 
 export interface RaribleSdk {
 	order: RaribleOrderSdk
@@ -45,7 +47,8 @@ export interface RaribleApis {
 	nftItem: NftItemControllerApi
 	nftOwnership: NftOwnershipControllerApi,
 	order: OrderControllerApi,
-	orderActivity: OrderActivityControllerApi
+	orderActivity: OrderActivityControllerApi,
+	nftCollection: NftCollectionControllerApi
 }
 
 export interface RaribleOrderSdk {
@@ -82,6 +85,7 @@ export function createRaribleSdk(
 	const orderControllerApi = new OrderControllerApi(apiConfiguration)
 	const orderActivitiesControllerApi = new OrderActivityControllerApi(apiConfiguration)
 	const gatewayControllerApi = new GatewayControllerApi(apiConfiguration)
+	const nftCollectionControllerApi = new NftCollectionControllerApi(apiConfiguration)
 
 	const notify = createPendingLogs.bind(null, gatewayControllerApi, web3)
 
@@ -93,11 +97,13 @@ export function createRaribleSdk(
 	const checkLazyAsset = partialCall(checkLazyAssetTemplate, checkLazyAssetType)
 	const checkLazyOrder = partialCall(checkLazyOrderTemplate, checkLazyAsset)
 
+	const checkAssetType = partialCall(checkAssetTypeTemplate, nftItemControllerApi, nftCollectionControllerApi)
+
 	const approve = partialCall(approveTemplate, web3, config.transferProxies, sendTx)
 	const signOrder = partialCall(signOrderTemplate, web3, config)
 	const upsertOrder = partialCall(upsertOrderTemplate, checkLazyOrder, approve, signOrder, orderControllerApi, nftItemControllerApi)
-	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder)
-	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder)
+	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
+	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const fill = partialCall(fillOrder, sendTx, approve, web3, config.exchange)
 
 	return {
@@ -105,7 +111,8 @@ export function createRaribleSdk(
 			nftItem: nftItemControllerApi,
 			nftOwnership: nftOwnershipControllerApi,
 			order: orderControllerApi,
-			orderActivity: orderActivitiesControllerApi
+			orderActivity: orderActivitiesControllerApi,
+			nftCollection: nftCollectionControllerApi
 		},
 		approve,
 		order: {

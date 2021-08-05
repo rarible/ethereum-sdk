@@ -11,13 +11,14 @@ import {
 } from "@rarible/protocol-api-client"
 import { randomWord, toBigNumber } from "@rarible/types"
 import { toBn } from "../common/to-bn"
+import BN from "bignumber.js"
 
 export type SellRequest = {
 	maker: Address
 	makeAssetType: Erc721AssetType | Erc1155AssetType,
 	amount: number
 	takeAssetType: EthAssetType | Erc20AssetType
-	price: string
+	price: BN.Value
 	payouts: Array<Part>
 	originFees: Array<Part>
 }

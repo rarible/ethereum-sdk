@@ -11,13 +11,14 @@ import {
 } from "@rarible/protocol-api-client"
 import { randomWord, toBigNumber } from "@rarible/types"
 import { toBn } from "../common/to-bn"
+import BN from "bignumber.js"
 
 export type BidRequest = {
 	maker: Address
 	makeAssetType: EthAssetType | Erc20AssetType,
 	amount: number
 	takeAssetType: Erc721AssetType | Erc1155AssetType,
-	price: number
+	price: BN.Value
 	payouts: Array<Part>
 	originFees: Array<Part>
 }
@@ -31,7 +32,7 @@ export function bid(
 		maker: request.maker,
 		make: {
 			assetType: request.makeAssetType,
-			value: toBigNumber(`${request.amount * request.price}`),
+			value: toBigNumber(toBn(request.price).multipliedBy(request.amount).toString()),
 		},
 		take: {
 			assetType: request.takeAssetType,

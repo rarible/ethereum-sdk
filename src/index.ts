@@ -116,7 +116,7 @@ export function createRaribleSdk(
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const fill = partialCall(fillOrder, sendTx, approve, web3, config.exchange)
 
-	const signNft = partialCall(signNftTemplate, web3, config)
+	const signNft = partialCall(signNftTemplate, web3, config.chainId)
 	const mintLazy = partialCall(mintLazyTemplate, web3, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
 
 	return {

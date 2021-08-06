@@ -118,7 +118,9 @@ sdk.order.fill(
 ).then(a => a.runAll())
 ```
 
-For example, you can get the `order` object using our sdk api methods `sdk.apis.order.getSellOrders({})`
+For example, you can get the `order` object using our sdk api methods `sdk.apis.order.getSellOrders({})`. You can get
+more information in the test
+repository [sell e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/erc721-sale.test.ts)
 
 #### Transfer NFT Tokens
 

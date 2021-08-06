@@ -1,6 +1,6 @@
 import {
     Binary,
-    EIP712Domain, Part,
+    EIP712Domain, LazyErc1155, Part,
 } from "@rarible/protocol-api-client"
 import Web3 from "web3"
 import {Address, BigNumber} from "@rarible/types"
@@ -13,29 +13,14 @@ import {
     EIP721_NFT_TYPE,
     EIP721_NFT_TYPES
 } from "./eip712";
+import { LazyErc721 } from "@rarible/protocol-api-client/build/models/LazyNft"
 
-export type MintLazyErc721Simple = {
-    "@type": "ERC721";
-    contract: Address;
-    uri: string;
-    creators: Array<Part>;
-    royalties: Array<Part>;
-}
-export type MintLazyErc1155Simple = {
-    "@type": "ERC1155";
-    contract: Address;
-    uri: string;
-    creators: Array<Part>;
-    royalties: Array<Part>;
-    supply: BigNumber;
-}
-type TokenData = {tokenId: BigNumber, creators: Part[]}
-export type SignNftRequestType = MintLazyErc721Simple & TokenData | MintLazyErc1155Simple & TokenData
+export type SimpleLazyNft<K extends keyof any> = Omit<LazyErc721, K> | Omit<LazyErc1155, K>
 
 export async function signNft(
     web3: Web3,
     chainId: number,
-    nft: SignNftRequestType,
+    nft: SimpleLazyNft<"signatures">,
 ): Promise<Binary> {
     switch (nft['@type']) {
         case "ERC721": {

@@ -20,15 +20,15 @@ import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
 import { Action } from "@rarible/action"
 import { fillOrder, FillOrderRequest, FillOrderStageId } from "./order/fill-order"
 import { createPendingLogs, sendTransaction } from "./common/send-transaction"
-import { bid as bidTemplate, BidRequest} from "./order/bid";
+import { bid as bidTemplate, BidRequest } from "./order/bid"
 import {
 	checkLazyAssetType as checkLazyAssetTypeTemplate,
 	checkLazyAsset as checkLazyAssetTemplate,
-	checkLazyOrder as checkLazyOrderTemplate
+	checkLazyOrder as checkLazyOrderTemplate,
 } from "./order"
-import {checkAssetType as checkAssetTypeTemplate} from "./order/check-asset-type";
-import {mintLazy as mintLazyTemplate, MintLazyRequest, MintLazyStageId} from "./nft/mint-lazy";
-import {signNft as signNftTemplate} from "../../protocol-example/src/protocol-ethereum-sdk/src/nft/sign-nft";
+import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
+import { mintLazy as mintLazyTemplate, MintLazyRequest } from "./nft/mint-lazy"
+import { signNft as signNftTemplate } from "./nft/sign-nft"
 
 export interface RaribleSdk {
 	order: RaribleOrderSdk
@@ -83,7 +83,7 @@ export interface RaribleNftSdk {
 }
 
 export function createRaribleSdk(
-	web3: Web3, env: keyof typeof CONFIGS, configurationParameters?: ConfigurationParameters
+	web3: Web3, env: keyof typeof CONFIGS, configurationParameters?: ConfigurationParameters,
 ): RaribleSdk {
 
 	const config = CONFIGS[env]
@@ -116,7 +116,7 @@ export function createRaribleSdk(
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const fill = partialCall(fillOrder, sendTx, approve, web3, config.exchange)
 
-	const signNft = partialCall(signNftTemplate, web3, config)
+	const signNft = partialCall(signNftTemplate, web3, config.chainId)
 	const mintLazy = partialCall(mintLazyTemplate, web3, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
 
 	return {
@@ -125,7 +125,7 @@ export function createRaribleSdk(
 			nftOwnership: nftOwnershipControllerApi,
 			order: orderControllerApi,
 			orderActivity: orderActivitiesControllerApi,
-			nftCollection: nftCollectionControllerApi
+			nftCollection: nftCollectionControllerApi,
 		},
 		approve,
 		order: {
@@ -135,12 +135,12 @@ export function createRaribleSdk(
 		},
 		nft: {
 			mintLazy,
-		}
+		},
 	}
 }
 
 type Arr = readonly unknown[];
 
 function partialCall<T extends Arr, U extends Arr, R>(f: (...args: [...T, ...U]) => R, ...headArgs: T) {
-	return (...tailArgs: U) => f(...headArgs, ...tailArgs);
+	return (...tailArgs: U) => f(...headArgs, ...tailArgs)
 }

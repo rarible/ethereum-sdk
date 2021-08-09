@@ -29,15 +29,28 @@ import { createRaribleSdk } from "@rarible/protocol-ethereum-sdk"
 const sdk = createRaribleSdk(web3, env, { fetchApi: fetch })
 ```
 
-- web3 - configured [web3js](https://github.com/ChainSafe/web3.js/tree/v1.4.0) client
+- web3 - configured with your provider [web3js](https://github.com/ChainSafe/web3.js/tree/v1.4.0) client
 - env - environment configuration name, it should accept one of these values
   ``` 'ropsten' | 'rinkeby' | 'mainnet' | 'e2e'```
 
-#### Mint NFT Tokens
+#### Lazy Mint NFT Tokens
 
+Creates lazy mint NFT
+
+```typescript
+
+const item = await sdk.nft.mintLazy({
+	"@type": "ERC721", // type of token to mint 
+	contract: "0x0", // lazy mint contract contract address
+	uri: '//testUri', // token URI
+	creators: [{ account: "0x0", value: 10000 }], // array of creators object
+	royalties: [], // array of royalties
+})
 ```
 
-```
+Return minted item object.
+
+[Sell e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/lazy-mint.test.ts)
 
 #### Create sell order
 
@@ -67,6 +80,8 @@ const request = {
 	},
 }
 ```
+
+Returns an object of created order.
 
 [Sell e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/erc721-sale.test.ts)
 
@@ -104,6 +119,8 @@ const request = {
 }
 ```
 
+Returns an object of created bid order.
+
 [Bid e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/create-bid.test.ts)
 
 #### Purchase order or accept bid (fill order)
@@ -118,8 +135,8 @@ sdk.order.fill(
 ).then(a => a.runAll())
 ```
 
-For example, you can get the `order` object using our sdk api methods `sdk.apis.order.getSellOrders({})`. You can get
-more information in the test
+For example, you can get the `order` object using our sdk api methods `sdk.apis.order.getSellOrders({})` and pass it
+to `fill` function. You can get more information in the test
 repository [sell e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/erc721-sale.test.ts)
 
 #### Transfer NFT Tokens

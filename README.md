@@ -10,12 +10,10 @@ mpn install -D @rarible/protocol-ethereum-sdk
 
 ### With protocol-ethereum-sdk, you can:
 
-- Mint NFT ERC721 and ERC1155 tokens
+- Create Lazy Mint NFT ERC721 and ERC1155 tokens
 - Create sell orders
 - Create/accept bid for auctions
 - Buy tokens for regular sell orders
-- Transfer tokens
-- Burn tokens
 
 ### Usage
 
@@ -40,11 +38,11 @@ Creates lazy mint NFT
 ```typescript
 
 const item = await sdk.nft.mintLazy({
-	"@type": "ERC721", // type of token to mint
-	contract: "0x0", // lazy mint contract contract address
-	uri: '//testUri', // token URI
-	creators: [{ account: "0x0", value: 10000 }], // array of creators object
-	royalties: [], // array of royalties
+  "@type": "ERC721", // type of token to mint
+  contract: "0x0", // lazy mint contract contract address
+  uri: '//testUri', // token URI
+  creators: [{ account: "0x0", value: 10000 }], // array of creators object
+  royalties: [], // array of royalties
 })
 ```
 
@@ -64,20 +62,20 @@ const sellerAddress: Address = '0x0' // Owner of ERC721 token
 const nftAmount: number = 1 // For ERC721 always be 1
 const sellPrice: number = 10 // price per unit of ERC721 or ERC1155 token(s)
 const request = {
-	makeAssetType: {
-		assetClass: "ERC1155",
-		contract: contractErc721Address,
-		tokenId: tokenId,
-	},
-	maker: sellerAddress,
-	amount: nftAmount,
-	originFees: [],
-	payouts: [],
-	price: sellPrice,
-	takeAssetType: {
-		assetClass: "ERC20",
-		contract: contractErc20Address
-	},
+  makeAssetType: {
+    assetClass: "ERC1155",
+    contract: contractErc721Address,
+    tokenId: tokenId,
+  },
+  maker: sellerAddress,
+  amount: nftAmount,
+  originFees: [],
+  payouts: [],
+  price: sellPrice,
+  takeAssetType: {
+    assetClass: "ERC20",
+    contract: contractErc20Address
+  },
 }
 ```
 
@@ -101,21 +99,21 @@ const nftAmount: number = 1 // For ERC721 always be 1
 const bidPrice: number = 10 // price per unit of ERC721 or ERC1155 token(s)
 
 const request = {
-	makeAssetType: {
-		assetClass: "ERC20",
-		contract: contractErc20Address,
-	},
-	maker: buyerAddress,
-	takeAssetType: {
-		assetClass: "ERC721",
-		contract: contractErc721Address,
-		tokenId: tokenId,
-	},
-	taker: sellerAddress,
-	amount: nftAmount,
-	originFees: [],
-	payouts: [],
-	price: bidPrice,
+  makeAssetType: {
+    assetClass: "ERC20",
+    contract: contractErc20Address,
+  },
+  maker: buyerAddress,
+  takeAssetType: {
+    assetClass: "ERC721",
+    contract: contractErc721Address,
+    tokenId: tokenId,
+  },
+  taker: sellerAddress,
+  amount: nftAmount,
+  originFees: [],
+  payouts: [],
+  price: bidPrice,
 }
 ```
 
@@ -130,17 +128,11 @@ Returns an object of created bid order.
 const order: SimpleOrder
 
 sdk.order.fill(
-	order,
-	{ payouts: [], originFees: [], amount: 1, infinite: true }
+  order,
+  { payouts: [], originFees: [], amount: 1, infinite: true }
 ).then(a => a.runAll())
 ```
 
 For example, you can get the `order` object using our sdk api methods `sdk.apis.order.getSellOrders({})` and pass it
 to `fill` function. You can get more information in the test
 repository [sell e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/erc721-sale.test.ts)
-
-#### Transfer NFT Tokens
-
-```
-
-```

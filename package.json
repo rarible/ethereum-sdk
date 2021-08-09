@@ -26,7 +26,8 @@
     "eth-sig-util": "^3.0.1",
     "ethereumjs-util": "^7.1.0",
     "exponential-backoff": "^3.1.0",
-    "web3": "1.2.11"
+    "web3": "1.2.11",
+    "ethers": "5.4.4"
   },
   "devDependencies": {
     "@rarible/test-provider": "0.1.12",

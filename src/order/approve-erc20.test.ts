@@ -7,9 +7,14 @@ import { toBn } from "../common/to-bn"
 import { sentTx } from "../common/send-transaction"
 import { createGanacheProvider } from "../test/create-ganache-provider"
 import { awaitAll } from "../common/await-all"
+import { ethers } from "ethers"
+import { EthersEthereum } from "./ethersjs"
 
 describe("approveErc20", () => {
-	const { web3, addresses } = createGanacheProvider()
+	const { web3, addresses, provider } = createGanacheProvider()
+	// @ts-ignore
+	const pr = new ethers.providers.Web3Provider(provider)
+	const ethereum = new EthersEthereum(pr.getSigner())
 	const [testAddress] = addresses
 
 	const it = awaitAll({
@@ -23,7 +28,7 @@ describe("approveErc20", () => {
 	test("should approve exact value if not infinite", async () => {
 
 		const operator = randomAddress()
-		await approveErc20(sentTx, web3, toAddress(it.testErc20.options.address), testAddress, operator, toBn(100), false)
+		await approveErc20(ethereum, toAddress(it.testErc20.options.address), testAddress, operator, toBn(100), false)
 
 		const result = toBn(await it.testErc20.methods.allowance(testAddress, operator).call())
 		expect(result.eq(100)).toBeTruthy()
@@ -33,7 +38,7 @@ describe("approveErc20", () => {
 		const infiniteBn = toBn(2).pow(256).minus(1)
 
 		const operator = randomAddress()
-		await approveErc20(sentTx, web3, toAddress(it.testErc20.options.address), testAddress, operator, toBn( infiniteBn), true)
+		await approveErc20(ethereum, toAddress(it.testErc20.options.address), testAddress, operator, toBn( infiniteBn), true)
 
 		const result = toBn(await it.testErc20.methods.allowance(testAddress, operator).call())
 		expect(result.eq(infiniteBn)).toBeTruthy()
@@ -46,7 +51,7 @@ describe("approveErc20", () => {
 
 		await sentTx(it.testErc20.methods.approve(operator, testBnValue), { from: testAddress })
 
-		await approveErc20(sentTx, web3, toAddress(it.testErc20.options.address), testAddress, operator, toBn(testBnValue), false)
+		await approveErc20(ethereum, toAddress(it.testErc20.options.address), testAddress, operator, toBn(testBnValue), false)
 
 		const result = toBn(await it.testErc20.methods.allowance(testAddress, operator).call())
 		expect(result.eq(testBnValue)).toBeTruthy()

@@ -24,6 +24,6 @@ export function createGanacheProvider() {
 	})
 
 	return {
-		web3, wallets, addresses: wallets.map(w => toAddress(w.getAddressString()))
+		provider, web3, wallets, addresses: wallets.map(w => toAddress(w.getAddressString()))
 	}
 }

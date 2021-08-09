@@ -40,7 +40,7 @@ Creates lazy mint NFT
 ```typescript
 
 const item = await sdk.nft.mintLazy({
-	"@type": "ERC721", // type of token to mint 
+	"@type": "ERC721", // type of token to mint
 	contract: "0x0", // lazy mint contract contract address
 	uri: '//testUri', // token URI
 	creators: [{ account: "0x0", value: 10000 }], // array of creators object

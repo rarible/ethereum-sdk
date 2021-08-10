@@ -1,13 +1,10 @@
 node_modules/
 .idea
 *.iml
-build
-api-docs
 
 tsconfig.tsbuildinfo
 platforms/
 plugins/
-node_modules/
 coverage/
 
 # Build

@@ -1,23 +1,17 @@
 export interface Ethereum {
-	currentProvider: CurrentProvider
-
 	createContract(abi: any, address?: string): EthereumContract
+
+	signTypedData(primaryType: string, domain: any, types: any, message: any): Promise<string>
 }
 
 export interface EthereumContract {
 	call(name: string, ...args: any): Promise<any>
 
 	send(name: string, ...args: any): Promise<EthereumTransaction>
-
-
 }
 
 export interface EthereumTransaction {
 	hash: string
 
 	wait(): Promise<void>
-}
-
-export interface CurrentProvider {
-	sendAsync(request: { method: string, params: any[], signer: string }, callBack: (err: any, result: any) => void): Promise<string | undefined>
 }

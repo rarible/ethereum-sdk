@@ -1,13 +1,39 @@
-import { Contract, ethers, Signer } from "ethers"
+import { Contract, ethers } from "ethers"
 import { TransactionResponse } from "@ethersproject/abstract-provider"
 import { Ethereum, EthereumContract, EthereumTransaction } from "@rarible/ethereum-provider"
 
 export class EthersEthereum implements Ethereum {
-	constructor(readonly signer: Signer) {
+	constructor(readonly web3Provider: ethers.providers.Web3Provider) {
 	}
 
 	createContract(abi: any, address?: string): EthereumContract {
-		return new EthersContract(new ethers.Contract(address!, abi, this.signer))
+		return new EthersContract(new ethers.Contract(address!, abi, this.web3Provider.getSigner()))
+	}
+
+	async signTypedData(primaryType: string, domain: any, types: any, message: any): Promise<string> {
+		const data = {
+			types: {
+				EIP712Domain: DOMAIN_TYPE,
+				...types
+			},
+			domain,
+			primaryType,
+			message,
+		}
+		const [signer] = await this.web3Provider.listAccounts()
+		try {
+			return await tryToSign(this.web3Provider, SignTypedDataTypes.SIGN_TYPED_DATA_V4, signer, JSON.stringify(data))
+		} catch (error) {
+			try {
+				return await tryToSign(this.web3Provider, SignTypedDataTypes.SIGN_TYPED_DATA_V3, signer, data)
+			} catch (error) {
+				try {
+					return await tryToSign(this.web3Provider, SignTypedDataTypes.SIGN_TYPED_DATA, signer, data)
+				} catch (error) {
+					return await Promise.reject(error)
+				}
+			}
+		}
 	}
 }
 
@@ -37,4 +63,22 @@ export class EthersTransaction implements EthereumTransaction {
 	async wait(): Promise<void> {
 		await this.tx.wait()
 	}
+}
+
+export const DOMAIN_TYPE = [
+	{ type: "string", name: "name" },
+	{ type: "string", name: "version" },
+	{ type: "uint256", name: "chainId" },
+	{ type: "address", name: "verifyingContract" },
+]
+
+
+async function tryToSign(web3: ethers.providers.Web3Provider, type: SignTypedDataTypes, signer: string, data: any): Promise<string> {
+	return await web3.send(type, [signer, data])
+}
+
+enum SignTypedDataTypes {
+	SIGN_TYPED_DATA = "eth_signTypedData",
+	SIGN_TYPED_DATA_V3 = "eth_signTypedData_v3",
+	SIGN_TYPED_DATA_V4 = "eth_signTypedData_v4"
 }

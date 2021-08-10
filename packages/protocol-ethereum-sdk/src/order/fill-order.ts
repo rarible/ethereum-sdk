@@ -1,13 +1,12 @@
 import { Asset, Part } from "@rarible/protocol-api-client"
-import { Address, toAddress, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
-import Web3 from "web3"
+import { Address, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
+import { Action, ActionBuilder } from "@rarible/action"
+import { Ethereum } from "@rarible/ethereum-provider"
+import { ExchangeAddresses } from "../config/type"
+import { toBn } from "../common/to-bn"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import { orderToStruct, SimpleOrder } from "./sign-order"
-import { ContractSendMethod, SendOptions } from "web3-eth-contract"
 import { invertOrder } from "./invert-order"
-import { ExchangeAddresses } from "../config/type"
-import { Action, ActionBuilder } from "@rarible/action"
-import { toBn } from "../common/to-bn"
 
 const protocolCommission = toBigNumber('0')//todo impl
 
@@ -23,9 +22,8 @@ export type FillOrderStageId = "approve" | "send-tx"
 export type FillOrderFunction = () => Promise<Action<FillOrderStageId, [string | undefined, string]>>
 
 export async function fillOrder(
-	sendTx: (source: ContractSendMethod, options: SendOptions) => Promise<string>,
+	ethereum: Ethereum,
 	approve: (owner: Address, asset: Asset, infinite: boolean) => Promise<string | undefined>,
-	web3: Web3,
 	config: ExchangeAddresses,
 	order: SimpleOrder,
 	request: FillOrderRequest,
@@ -33,8 +31,8 @@ export async function fillOrder(
 	//todo add commissions to approve (on top of ERC-20 and ETH)
 	const makeAsset = getMakeAssetV2(order, request.amount)
 	return ActionBuilder.create<FillOrderStageId>()
-		.then({ id: "approve", run: () => approve(order.maker, makeAsset, Boolean(request.infinite))})
-		.then({ id: "send-tx", run: () => fillOrderSendTx(sendTx, web3, config, order, request) })
+		.then({ id: "approve", run: () => approve(order.maker, makeAsset, Boolean(request.infinite)) })
+		.then({ id: "send-tx", run: () => fillOrderSendTx(ethereum, config, order, request) })
 		.build()
 }
 
@@ -56,8 +54,7 @@ function getMakeAssetV2(order: SimpleOrder, amount: number) {
 }
 
 export async function fillOrderSendTx(
-	sendTx: (source: ContractSendMethod, options: SendOptions) => Promise<string>,
-	web3: Web3,
+	ethereum: Ethereum,
 	config: ExchangeAddresses,
 	order: SimpleOrder,
 	request: FillOrderRequest,
@@ -68,8 +65,7 @@ export async function fillOrderSendTx(
 		// }
 		case 'RARIBLE_V2': {
 			return await fillOrderV2(
-				sendTx,
-				web3,
+				ethereum,
 				config.v2,
 				order,
 				request,
@@ -80,41 +76,38 @@ export async function fillOrderSendTx(
 }
 
 async function fillOrderV2(
-	sendTx: (source: ContractSendMethod, options: SendOptions) => Promise<string>,
-	web3: Web3,
+	ethereum: Ethereum,
 	contract: Address,
 	order: SimpleOrder,
 	request: FillOrderRequest,
 ): Promise<string> {
 
-	const [address] = await web3.eth.getAccounts()
+	const address = order.maker // todo get proposer address/ are only maker can make fill?
 	const orderRight = {
-		...invertOrder(order, toBn(request.amount), toAddress(address)),
+		...invertOrder(order, toBn(request.amount), address),
 		data: {
 			...order.data,
 			payouts: request.payouts || [],
 			originFees: request.originFees || [],
 		},
 	}
-	return await matchOrders(sendTx, web3, contract, order, orderRight, toAddress(address))
+	return await matchOrders(ethereum, contract, order, orderRight, address)
 }
 
 async function matchOrders(
-	sendTx: (source: ContractSendMethod, options: SendOptions) => Promise<string>,
-	web3: Web3,
+	ethereum: Ethereum,
 	contract: Address,
 	left: SimpleOrder,
 	right: SimpleOrder,
 	sender: Address,
 ): Promise<string> {
-	const exchangeContract = createExchangeV2Contract(web3, contract)
-	return await sendTx(
-		exchangeContract.methods.matchOrders(
-			orderToStruct(left),
-			left.signature || "0x",
-			orderToStruct(right),
-			right.signature || "0x",
-		),
-		{ from: sender },
+	const exchangeContract = createExchangeV2Contract(ethereum, contract)
+	const tx = await exchangeContract.send(
+		"matchOrders",
+		orderToStruct(left),
+		left.signature || "0x",
+		orderToStruct(right),
+		right.signature || "0x",
 	)
+	return tx.hash
 }

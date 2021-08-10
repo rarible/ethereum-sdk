@@ -1,12 +1,12 @@
 import { Asset, Binary, EIP712Domain, Order } from "@rarible/protocol-api-client"
 import Web3 from "web3"
+import { Address, ZERO_ADDRESS } from "@rarible/types"
+import { signTypedData } from "../common/sign-typed-data"
+import { Config } from "../config/type"
 import { hashLegacyOrder } from "./hash-legacy-order"
 import { assetTypeToStruct } from "./asset-type-to-struct"
-import { Address, ZERO_ADDRESS } from "@rarible/types"
 import { EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES } from "./eip712"
 import { encodeData } from "./encode-data"
-import { Config } from "../config/type"
-import {signTypedData} from "../common/sign-typed-data";
 
 export type SimpleOrder = Pick<Order, "data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature">
 
@@ -34,7 +34,7 @@ export async function signOrder(
 				types: EIP712_ORDER_TYPES,
 				domain,
 				primaryType: EIP712_ORDER_TYPE,
-				message: orderToStruct(order)
+				message: orderToStruct(order),
 			}
 			return signTypedData(web3, order.maker, data)
 		}
@@ -47,7 +47,7 @@ function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712
 	return {
 		...EIP712_DOMAIN_TEMPLATE,
 		verifyingContract: verifyingContract,
-		chainId
+		chainId,
 	}
 }
 
@@ -62,13 +62,13 @@ export function orderToStruct(order: SimpleOrder) {
 		start: order.start ?? 0,
 		end: order.end ?? 0,
 		dataType,
-		data
+		data,
 	}
 }
 
 function assetToStruct(asset: Asset) {
 	return {
 		assetType: assetTypeToStruct(asset.assetType),
-		value: asset.value
+		value: asset.value,
 	}
 }

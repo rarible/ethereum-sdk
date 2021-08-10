@@ -1,0 +1,4 @@
+{
+	"root": true,
+	"extends": ["@roborox/default", "prettier", "prettier/@typescript-eslint"]
+}

@@ -1,8 +1,3 @@
-import { CONFIGS } from "./config"
-import { UpserOrderStageId, upsertOrder as upsertOrderTemplate } from "./order/upsert-order"
-import { approve as approveTemplate } from "./order/approve"
-import Web3 from "web3"
-import { sell as sellTemplate, SellRequest } from "./order/sell"
 import {
 	Address,
 	Asset,
@@ -10,20 +5,28 @@ import {
 	Configuration,
 	ConfigurationParameters,
 	GatewayControllerApi,
+	NftCollectionControllerApi,
+	NftItem,
 	NftItemControllerApi,
+	NftLazyMintControllerApi,
 	NftOwnershipControllerApi,
-	OrderActivityControllerApi,
 	Order,
-	OrderControllerApi, NftCollectionControllerApi, NftLazyMintControllerApi, NftItem,
+	OrderActivityControllerApi,
+	OrderControllerApi,
 } from "@rarible/protocol-api-client"
-import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
 import { Action } from "@rarible/action"
+import { Ethereum } from "@rarible/ethereum-provider"
+import { CONFIGS } from "./config"
+import { UpserOrderStageId, upsertOrder as upsertOrderTemplate } from "./order/upsert-order"
+import { approve as approveTemplate } from "./order/approve"
+import { sell as sellTemplate, SellRequest } from "./order/sell"
+import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
 import { fillOrder, FillOrderRequest, FillOrderStageId } from "./order/fill-order"
 import { createPendingLogs, sendTransaction } from "./common/send-transaction"
 import { bid as bidTemplate, BidRequest } from "./order/bid"
 import {
-	checkLazyAssetType as checkLazyAssetTypeTemplate,
 	checkLazyAsset as checkLazyAssetTemplate,
+	checkLazyAssetType as checkLazyAssetTypeTemplate,
 	checkLazyOrder as checkLazyOrderTemplate,
 } from "./order"
 import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
@@ -83,7 +86,9 @@ export interface RaribleNftSdk {
 }
 
 export function createRaribleSdk(
-	web3: Web3, env: keyof typeof CONFIGS, configurationParameters?: ConfigurationParameters,
+	ethereum: Ethereum,
+	env: keyof typeof CONFIGS,
+	configurationParameters?: ConfigurationParameters,
 ): RaribleSdk {
 
 	const config = CONFIGS[env]
@@ -97,7 +102,7 @@ export function createRaribleSdk(
 	const orderActivitiesControllerApi = new OrderActivityControllerApi(apiConfiguration)
 	const gatewayControllerApi = new GatewayControllerApi(apiConfiguration)
 
-	const notify = createPendingLogs.bind(null, gatewayControllerApi, web3)
+	const notify = createPendingLogs.bind(null, gatewayControllerApi, ethereum)
 
 	const sendTx = partialCall(sendTransaction, async hash => {
 		await notify(hash)
@@ -109,15 +114,15 @@ export function createRaribleSdk(
 
 	const checkAssetType = partialCall(checkAssetTypeTemplate, nftItemControllerApi, nftCollectionControllerApi)
 
-	const approve = partialCall(approveTemplate, web3, config.transferProxies, sendTx)
-	const signOrder = partialCall(signOrderTemplate, web3, config)
+	const approve = partialCall(approveTemplate, ethereum, config.transferProxies, sendTx)
+	const signOrder = partialCall(signOrderTemplate, ethereum, config)
 	const upsertOrder = partialCall(upsertOrderTemplate, checkLazyOrder, approve, signOrder, orderControllerApi, nftItemControllerApi)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
-	const fill = partialCall(fillOrder, sendTx, approve, web3, config.exchange)
+	const fill = partialCall(fillOrder, sendTx, approve, ethereum, config.exchange)
 
-	const signNft = partialCall(signNftTemplate, web3, config.chainId)
-	const mintLazy = partialCall(mintLazyTemplate, web3, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
+	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
+	const mintLazy = partialCall(mintLazyTemplate, ethereum, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
 
 	return {
 		apis: {

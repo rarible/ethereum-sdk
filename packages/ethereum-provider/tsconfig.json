@@ -11,7 +11,8 @@
     // "declarationMap": true,                /* Generates a sourcemap for each corresponding '.d.ts' file. */
     // "sourceMap": true,                     /* Generates corresponding '.map' file. */
     // "outFile": "./",                       /* Concatenate and emit output to single file. */
-    "outDir": "build" /* Redirect output structure to the directory. */,
+    "outDir": "../../build"
+    /* Redirect output structure to the directory. */,
     // "rootDir": "./",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
     // "composite": true,                     /* Enable project compilation */
     // "removeComments": true,                /* Do not emit comments to output. */
@@ -58,6 +59,14 @@
     "experimentalDecorators": true
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   },
-  "include": ["src/**/*", "typings.d.ts"],
-  "exclude": ["build", "node_modules", "stories", "src/**/*.test.ts", "src/**/test", "src/**/test*.ts"]
+  "include": [
+    "packages/protocol-ethereum-sdk/src/**/*",
+    "typings.d.ts"
+  ],
+  "exclude": [
+    "../../build", "node_modules", "stories",
+    "packages/protocol-ethereum-sdk/src/**/*.test.ts",
+    "packages/protocol-ethereum-sdk/src/**/test",
+    "packages/protocol-ethereum-sdk/src/**/test*.ts"
+  ]
 }

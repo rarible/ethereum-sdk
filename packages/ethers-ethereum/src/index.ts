@@ -1,6 +1,6 @@
 import { Contract, ethers, Signer } from "ethers"
-import { Ethereum, EthereumContract, EthereumTransaction } from "./approve-erc20"
 import { TransactionResponse } from "@ethersproject/abstract-provider"
+import { Ethereum, EthereumContract, EthereumTransaction } from "@rarible/ethereum-provider"
 
 export class EthersEthereum implements Ethereum {
 	constructor(readonly signer: Signer) {

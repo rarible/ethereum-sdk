@@ -1,6 +1,18 @@
-node_modules
+node_modules/
 .idea
 *.iml
 build
 api-docs
-/model/target/
+
+tsconfig.tsbuildinfo
+platforms/
+plugins/
+node_modules/
+coverage/
+
+# Build
+build/
+test-reports/
+cypress/screenshots/
+source/locales/_build/
+storybook-static

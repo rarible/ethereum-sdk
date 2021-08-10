@@ -1,37 +1,34 @@
-import {
-	Address,
-	Asset,
-} from "@rarible/protocol-api-client"
-import Web3 from "web3"
-import { approveErc20 } from "./approve-erc20"
-import {approveErc721} from "./approve-erc721";
-import {approveErc1155} from "./approve-erc1155";
-import { TransferProxies } from "../config/type"
+import { Address, Asset } from "@rarible/protocol-api-client"
 import { ContractSendMethod, SendOptions } from "web3-eth-contract"
+import { Ethereum } from "@rarible/ethereum-provider"
+import { TransferProxies } from "../config/type"
+import { approveErc20 } from "./approve-erc20"
+import { approveErc721 } from "./approve-erc721"
+import { approveErc1155 } from "./approve-erc1155"
 
 export async function approve(
-	web3: Web3,
+	ethereum: Ethereum,
 	config: TransferProxies,
 	sendTx: (source: ContractSendMethod, options: SendOptions) => Promise<string>,
 	owner: Address,
 	asset: Asset,
-	infinite: undefined | boolean = true
+	infinite: undefined | boolean = true,
 ): Promise<string | undefined> {
 	switch (asset.assetType.assetClass) {
 		case "ERC20": {
 			const contract = asset.assetType.contract
 			const operator = config.erc20
-			return approveErc20(sendTx, web3, contract, owner, operator, asset.value, infinite)
+			return approveErc20(ethereum, contract, owner, operator, asset.value, infinite)
 		}
 		case "ERC721": {
 			const contract = asset.assetType.contract
 			const operator = config.nft
-			return approveErc721(sendTx, web3, contract, owner, operator)
+			return approveErc721(sendTx, ethereum, contract, owner, operator)
 		}
 		case "ERC1155": {
 			const contract = asset.assetType.contract
 			const operator = config.nft
-			return approveErc1155(sendTx, web3, contract, owner, operator)
+			return approveErc1155(sendTx, ethereum, contract, owner, operator)
 		}
 		case "ERC721_LAZY":
 			const contract = asset.assetType.contract

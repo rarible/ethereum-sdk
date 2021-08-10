@@ -8,17 +8,16 @@ import { sentTx } from "../common/send-transaction"
 import { createGanacheProvider } from "../test/create-ganache-provider"
 import { awaitAll } from "../common/await-all"
 import { ethers } from "ethers"
-import { EthersEthereum } from "./ethersjs"
+import { EthersEthereum } from "@rarible/ethers-ethereum"
 
 describe("approveErc20", () => {
 	const { web3, addresses, provider } = createGanacheProvider()
-	// @ts-ignore
 	const pr = new ethers.providers.Web3Provider(provider)
 	const ethereum = new EthersEthereum(pr.getSigner())
 	const [testAddress] = addresses
 
 	const it = awaitAll({
-		testErc20: deployTestErc20(web3, "TST", "TST")
+		testErc20: deployTestErc20(web3, "TST", "TST"),
 	})
 
 	beforeAll(async () => {
@@ -38,7 +37,7 @@ describe("approveErc20", () => {
 		const infiniteBn = toBn(2).pow(256).minus(1)
 
 		const operator = randomAddress()
-		await approveErc20(ethereum, toAddress(it.testErc20.options.address), testAddress, operator, toBn( infiniteBn), true)
+		await approveErc20(ethereum, toAddress(it.testErc20.options.address), testAddress, operator, toBn(infiniteBn), true)
 
 		const result = toBn(await it.testErc20.methods.allowance(testAddress, operator).call())
 		expect(result.eq(infiniteBn)).toBeTruthy()

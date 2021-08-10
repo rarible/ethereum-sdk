@@ -23,10 +23,10 @@ export async function transfer(
 			return transferErc1155(sendTx, web3, contract, owner, receiver, asset.assetType.tokenId, asset.value)
 		}
 		case "ERC721_LAZY":
-			const contract = asset.assetType.contract
+			const contract = config.erc721Lazy
 			return transferErc721(sendTx, web3, contract, owner, receiver, asset.assetType.tokenId)
 		case "ERC1155_LAZY": {
-			const contract = asset.assetType.contract
+			const contract = config.erc1155Lazy
 			return transferErc1155(sendTx, web3, contract, owner, receiver, asset.assetType.tokenId, asset.value)
 		}
 	}

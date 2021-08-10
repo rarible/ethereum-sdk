@@ -10,11 +10,14 @@ import {
 	Configuration,
 	ConfigurationParameters,
 	GatewayControllerApi,
+	NftCollectionControllerApi,
+	NftItem,
 	NftItemControllerApi,
+	NftLazyMintControllerApi,
 	NftOwnershipControllerApi,
-	OrderActivityControllerApi,
 	Order,
-	OrderControllerApi, NftCollectionControllerApi, NftLazyMintControllerApi, NftItem,
+	OrderActivityControllerApi,
+	OrderControllerApi,
 } from "@rarible/protocol-api-client"
 import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
 import { Action } from "@rarible/action"
@@ -22,13 +25,14 @@ import { fillOrder, FillOrderRequest, FillOrderStageId } from "./order/fill-orde
 import { createPendingLogs, sendTransaction } from "./common/send-transaction"
 import { bid as bidTemplate, BidRequest } from "./order/bid"
 import {
-	checkLazyAssetType as checkLazyAssetTypeTemplate,
 	checkLazyAsset as checkLazyAssetTemplate,
+	checkLazyAssetType as checkLazyAssetTypeTemplate,
 	checkLazyOrder as checkLazyOrderTemplate,
 } from "./order"
 import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
 import { mintLazy as mintLazyTemplate, MintLazyRequest } from "./nft/mint-lazy"
 import { signNft as signNftTemplate } from "./nft/sign-nft"
+import { transfer as transferTemplate } from "./nft/transfer"
 
 export interface RaribleSdk {
 	order: RaribleOrderSdk
@@ -80,6 +84,11 @@ export interface RaribleNftSdk {
 	 * @param request parameters for item to mint
 	 */
 	mintLazy(request: MintLazyRequest): Promise<NftItem>
+
+	/**
+	 * Transfer NFT's
+	 */
+	transfer(owner: Address, receiver: Address, asset: Asset): Promise<string | undefined>
 }
 
 export function createRaribleSdk(
@@ -118,6 +127,7 @@ export function createRaribleSdk(
 
 	const signNft = partialCall(signNftTemplate, web3, config.chainId)
 	const mintLazy = partialCall(mintLazyTemplate, web3, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
+	const transfer = partialCall(transferTemplate, web3, config.transferProxies, sendTx)
 
 	return {
 		apis: {
@@ -135,6 +145,7 @@ export function createRaribleSdk(
 		},
 		nft: {
 			mintLazy,
+			transfer,
 		},
 	}
 }

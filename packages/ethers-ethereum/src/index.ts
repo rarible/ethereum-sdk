@@ -11,38 +11,12 @@ export class EthersEthereum implements Ethereum {
 	}
 
 	async send(method: string, params: any): Promise<any> {
-		const [signer] = await this.getSigner()
+		const [signer] = await this.getAccounts()
 		return await this.web3Provider.send(method, [signer, params])
 	}
 
-	async getSigner(): Promise<string[]> {
+	async getAccounts(): Promise<string[]> {
 		return await this.web3Provider.listAccounts()
-	}
-
-	async signTypedData(primaryType: string, domain: any, types: any, message: any): Promise<string> {
-		const data = {
-			types: {
-				EIP712Domain: DOMAIN_TYPE,
-				...types,
-			},
-			domain,
-			primaryType,
-			message,
-		}
-		const [signer] = await this.web3Provider.listAccounts()
-		try {
-			return await tryToSign(this.web3Provider, SignTypedDataTypes.SIGN_TYPED_DATA_V4, signer, JSON.stringify(data))
-		} catch (error) {
-			try {
-				return await tryToSign(this.web3Provider, SignTypedDataTypes.SIGN_TYPED_DATA_V3, signer, data)
-			} catch (error) {
-				try {
-					return await tryToSign(this.web3Provider, SignTypedDataTypes.SIGN_TYPED_DATA, signer, data)
-				} catch (error) {
-					return await Promise.reject(error)
-				}
-			}
-		}
 	}
 
 	personalSign(message: string): Promise<string> {
@@ -76,22 +50,4 @@ export class EthersTransaction implements EthereumTransaction {
 	async wait(): Promise<void> {
 		await this.tx.wait()
 	}
-}
-
-export const DOMAIN_TYPE = [
-	{ type: "string", name: "name" },
-	{ type: "string", name: "version" },
-	{ type: "uint256", name: "chainId" },
-	{ type: "address", name: "verifyingContract" },
-]
-
-
-async function tryToSign(web3: ethers.providers.Web3Provider, type: SignTypedDataTypes, signer: string, data: any): Promise<string> {
-	return await web3.send(type, [signer, data])
-}
-
-enum SignTypedDataTypes {
-	SIGN_TYPED_DATA = "eth_signTypedData",
-	SIGN_TYPED_DATA_V3 = "eth_signTypedData_v3",
-	SIGN_TYPED_DATA_V4 = "eth_signTypedData_v4"
 }

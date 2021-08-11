@@ -44,6 +44,10 @@ export class EthersEthereum implements Ethereum {
 			}
 		}
 	}
+
+	personalSign(message: string): Promise<string> {
+		return this.web3Provider.getSigner().signMessage(message);
+	}
 }
 
 export class EthersContract implements EthereumContract {

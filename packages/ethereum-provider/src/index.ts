@@ -6,6 +6,8 @@ export interface Ethereum {
 	send(method: string, params: any): Promise<any>
 
 	getSigner(): Promise<string[]>
+
+	personalSign(message: string): Promise<string>
 }
 
 export interface EthereumContract {

@@ -1,4 +1,4 @@
-import { createGanacheProvider, testTypedSignature } from "@rarible/ethereum-sdk-test-common"
+import { createGanacheProvider, testTypedSignature, testPersonalSign } from "@rarible/ethereum-sdk-test-common"
 import { ethers } from "ethers"
 import { EthersEthereum } from "./index"
 
@@ -9,5 +9,9 @@ describe("EthersEthereum", () => {
 
 	it("signs typed data correctly", async () => {
 		await testTypedSignature(new EthersEthereum(eth))
+	})
+
+	it("signs personal message correctly", async () => {
+		await testPersonalSign(new EthersEthereum(eth))
 	})
 })

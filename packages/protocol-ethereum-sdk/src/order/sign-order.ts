@@ -1,7 +1,6 @@
 import { Asset, Binary, EIP712Domain, Order } from "@rarible/protocol-api-client"
-import Web3 from "web3"
-import { Address, ZERO_ADDRESS } from "@rarible/types"
-import { signTypedData } from "../common/sign-typed-data"
+import { Address, toBinary, ZERO_ADDRESS } from "@rarible/types"
+import { Ethereum } from "@rarible/ethereum-provider"
 import { Config } from "../config/type"
 import { hashLegacyOrder } from "./hash-legacy-order"
 import { assetTypeToStruct } from "./asset-type-to-struct"
@@ -11,14 +10,15 @@ import { encodeData } from "./encode-data"
 export type SimpleOrder = Pick<Order, "data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature">
 
 export async function signOrder(
-	web3: Web3,
+	ethereum: Ethereum,
 	config: Pick<Config, "exchange" | "chainId">,
 	order: SimpleOrder,
 ): Promise<Binary> {
 	switch (order.type) {
 		case "RARIBLE_V1": {
 			const legacyHash = hashLegacyOrder(order)
-			return (web3.eth.personal as any)
+			// @ts-ignore
+			return (ethereum.eth.personal as any)// todo
 				.sign(legacyHash.substring(2), order.maker)
 				.catch((error: any) => {
 					if (error.code === 4001) {
@@ -29,14 +29,8 @@ export async function signOrder(
 		}
 		case "RARIBLE_V2": {
 			const domain = createEIP712Domain(config.chainId, config.exchange.v2)
-
-			const data = {
-				types: EIP712_ORDER_TYPES,
-				domain,
-				primaryType: EIP712_ORDER_TYPE,
-				message: orderToStruct(order),
-			}
-			return signTypedData(web3, order.maker, data)
+			const signature = await ethereum.signTypedData(EIP712_ORDER_TYPE, domain, EIP712_ORDER_TYPES, orderToStruct(order))
+			return toBinary(signature)
 		}
 	}
 	throw new Error(`Unsupported order type: ${order.type}`)

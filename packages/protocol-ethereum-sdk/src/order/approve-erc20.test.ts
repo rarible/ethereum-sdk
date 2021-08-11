@@ -1,19 +1,23 @@
 // @ts-ignore
 import RpcSubprovider from "web3-provider-engine/subproviders/rpc"
 import { randomAddress, toAddress } from "@rarible/types"
-import { deployTestErc20 } from "./contracts/test/test-erc20"
-import { approveErc20 } from "./approve-erc20"
+import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
+import Web3 from "web3"
 import { toBn } from "../common/to-bn"
 import { sentTx } from "../common/send-transaction"
-import { createGanacheProvider } from "../test/create-ganache-provider"
 import { awaitAll } from "../common/await-all"
-import { ethers } from "ethers"
-import { EthersEthereum } from "@rarible/ethers-ethereum"
+import { Web3Ethereum } from "../../../web3-ethereum"
+import { approveErc20 } from "./approve-erc20"
+import { deployTestErc20 } from "./contracts/test/test-erc20"
 
 describe("approveErc20", () => {
-	const { web3, addresses, provider } = createGanacheProvider()
-	const pr = new ethers.providers.Web3Provider(provider)
-	const ethereum = new EthersEthereum(pr.getSigner())
+	const {
+		provider,
+		addresses,
+	} = createGanacheProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
+	// @ts-ignore
+	const web3 = new Web3(provider)
+	const ethereum = new Web3Ethereum(web3)
 	const [testAddress] = addresses
 
 	const it = awaitAll({

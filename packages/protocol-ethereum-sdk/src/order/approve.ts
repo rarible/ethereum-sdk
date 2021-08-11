@@ -1,5 +1,4 @@
 import { Address, Asset } from "@rarible/protocol-api-client"
-import { ContractSendMethod, SendOptions } from "web3-eth-contract"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { TransferProxies } from "../config/type"
 import { approveErc20 } from "./approve-erc20"
@@ -9,7 +8,6 @@ import { approveErc1155 } from "./approve-erc1155"
 export async function approve(
 	ethereum: Ethereum,
 	config: TransferProxies,
-	sendTx: (source: ContractSendMethod, options: SendOptions) => Promise<string>,
 	owner: Address,
 	asset: Asset,
 	infinite: undefined | boolean = true,

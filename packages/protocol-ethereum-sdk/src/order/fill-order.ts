@@ -81,8 +81,7 @@ async function fillOrderV2(
 	order: SimpleOrder,
 	request: FillOrderRequest,
 ): Promise<string> {
-
-	const address = order.maker // todo get proposer address/ are only maker can make fill?
+	const address = order.maker // todo get txSender address
 	const orderRight = {
 		...invertOrder(order, toBn(request.amount), address),
 		data: {

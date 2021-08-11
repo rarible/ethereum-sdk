@@ -114,7 +114,7 @@ export function createRaribleSdk(
 
 	const checkAssetType = partialCall(checkAssetTypeTemplate, nftItemControllerApi, nftCollectionControllerApi)
 
-	const approve = partialCall(approveTemplate, ethereum, config.transferProxies, sendTx)
+	const approve = partialCall(approveTemplate, ethereum, config.transferProxies)
 	const signOrder = partialCall(signOrderTemplate, ethereum, config)
 	const upsertOrder = partialCall(upsertOrderTemplate, checkLazyOrder, approve, signOrder, orderControllerApi, nftItemControllerApi)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)

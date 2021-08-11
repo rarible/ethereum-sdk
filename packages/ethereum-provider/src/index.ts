@@ -1,7 +1,11 @@
 export interface Ethereum {
 	createContract(abi: any, address?: string): EthereumContract
 
-	signTypedData(primaryType: string, domain: any, types: any, message: any): Promise<string>
+	signTypedData(ethereum: Ethereum, data: any): Promise<string>
+
+	send(method: string, params: any): Promise<any>
+
+	getSigner(): Promise<string[]>
 }
 
 export interface EthereumContract {

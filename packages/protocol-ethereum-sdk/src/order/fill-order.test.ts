@@ -1,21 +1,26 @@
+import { BN } from "ethereumjs-util"
+import { randomWord, toAddress, toBigNumber, toBinary } from "@rarible/types"
+import { ethers } from "ethers"
+import { sentTx } from "../common/send-transaction"
+import { createGanacheProvider } from "../test/create-ganache-provider"
+import { toBn } from "../common/to-bn"
+import { awaitAll } from "../common/await-all"
+import { EthersEthereum } from "../../../ethers-ethereum"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
 import { deployTransferProxy } from "./contracts/test/test-transfer-proxy"
 import { deployErc20TransferProxy } from "./contracts/test/test-erc20-transfer-proxy"
 import { deployTestExchangeV2 } from "./contracts/test/test-exchange-v2"
 import { deployTestRoyaltiesProvider } from "./contracts/test/test-royalties-provider"
-import { randomWord, toAddress, toBigNumber, toBinary } from "@rarible/types"
-import { sentTx } from "../common/send-transaction"
-import { BN } from "ethereumjs-util"
 import { fillOrder, fillOrderSendTx } from "./fill-order"
 import { signOrder, SimpleOrder } from "./sign-order"
-import { createGanacheProvider } from "../test/create-ganache-provider"
 import { deployTestErc1155 } from "./contracts/test/test-erc1155"
-import { toBn } from "../common/to-bn"
-import { awaitAll } from "../common/await-all"
 
 describe("fillOrder", () => {
-	const { web3, addresses } = createGanacheProvider()
+	const { web3, addresses, provider } = createGanacheProvider()
+	//@ts-ignore
+	const pr = new ethers.providers.Web3Provider(provider)
+	const ethereum = new EthersEthereum(pr.getSigner())
 	const [sender1Address, sender2Address] = addresses
 
 	const it = awaitAll({
@@ -25,7 +30,7 @@ describe("fillOrder", () => {
 		transferProxy: deployTransferProxy(web3),
 		erc20TransferProxy: deployErc20TransferProxy(web3),
 		royaltiesProvider: deployTestRoyaltiesProvider(web3),
-		exchangeV2: deployTestExchangeV2(web3)
+		exchangeV2: deployTestExchangeV2(web3),
 	})
 
 	beforeAll(async () => {
@@ -93,8 +98,7 @@ describe("fillOrder", () => {
 		const signature = await signOrder(web3, { chainId: 1, exchange: { v1: a, v2: a } }, left)
 
 		const hash = await fillOrderSendTx(
-			sentTx,
-			web3,
+			ethereum,
 			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
 			{ ...left, signature },
 			{ amount: 2, payouts: [], originFees: [] },

@@ -13,6 +13,7 @@
   ],
   "dependencies": {
     "typescript": "4.3.5",
-    "@rarible/ethereum-provider": "0.0.1"
+    "@rarible/ethereum-provider": "0.0.1",
+    "@rarible/ethereum-sdk-test-common": "0.0.1"
   }
 }

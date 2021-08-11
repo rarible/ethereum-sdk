@@ -10,11 +10,20 @@ export class EthersEthereum implements Ethereum {
 		return new EthersContract(new ethers.Contract(address!, abi, this.web3Provider.getSigner()))
 	}
 
+	async send(method: string, params: any): Promise<any> {
+		const [signer] = await this.getSigner()
+		return await this.web3Provider.send(method, [signer, params])
+	}
+
+	async getSigner(): Promise<string[]> {
+		return await this.web3Provider.listAccounts()
+	}
+
 	async signTypedData(primaryType: string, domain: any, types: any, message: any): Promise<string> {
 		const data = {
 			types: {
 				EIP712Domain: DOMAIN_TYPE,
-				...types
+				...types,
 			},
 			domain,
 			primaryType,

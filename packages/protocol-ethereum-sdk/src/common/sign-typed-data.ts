@@ -1,5 +1,5 @@
 import { Binary } from "@rarible/protocol-api-client"
-import { Ethereum } from "@rarible/ethereum-provider"
+import Web3 from "web3"
 
 enum SignTypedDataTypes {
 	SIGN_TYPED_DATA = "eth_signTypedData",
@@ -7,7 +7,7 @@ enum SignTypedDataTypes {
 	SIGN_TYPED_DATA_V4 = "eth_signTypedData_v4"
 }
 
-export async function signTypedData(ethereum: Ethereum, signer: string, data: any) {
+export async function signTypedData(web3: Web3, signer: string, data: any) {
 	async function tryToSign(type: SignTypedDataTypes, data: any) {
 		return await new Promise<Binary>((resolve, reject) => {
 			function cb(err: any, result: any) {
@@ -16,7 +16,8 @@ export async function signTypedData(ethereum: Ethereum, signer: string, data: an
 				resolve(result.result)
 			}
 
-			return ethereum.currentProvider.sendAsync({
+			// @ts-ignore
+			return web3.currentProvider.sendAsync({
 				method: type,
 				params: [signer, data],
 				signer,

@@ -2,7 +2,6 @@ import Web3 from "web3"
 import { Contract } from "web3-eth-contract"
 import { PromiEvent } from "web3-core"
 import { Ethereum, EthereumContract, EthereumTransaction } from "@rarible/ethereum-provider"
-import { EIP721_NFT_TYPE, EIP721_NFT_TYPES } from "../../protocol-ethereum-sdk/src/nft/eip712"
 
 export class Web3Ethereum implements Ethereum {
 	constructor(private readonly web3: Web3) {
@@ -12,11 +11,34 @@ export class Web3Ethereum implements Ethereum {
 		return new Web3Contract(this.web3, new this.web3.eth.Contract(abi, address))
 	}
 
+	async send(method: string, params: any): Promise<any> {
+
+		const [signer] = await this.web3.eth.getAccounts()
+		return await new Promise<string>((resolve, reject) => {
+			function cb(err: any, result: any) {
+				if (err) return reject(err)
+				if (result.error) return reject(result.error)
+				resolve(result.result)
+			}
+
+			// @ts-ignore
+			return await this.web3.currentProvider.sendAsync({
+				method,
+				params: [signer, params],
+				signer,
+			}, cb)
+		})
+	}
+
+	async getSigner(): Promise<string[]> {
+		return await this.web3.eth.getAccounts()
+	}
+
 	async signTypedData(primaryType: string, domain: any, types: any, message: any): Promise<string> {
 		const data = {
 			types: {
 				EIP712Domain: DOMAIN_TYPE,
-				...types
+				...types,
 			},
 			domain,
 			primaryType,
@@ -94,5 +116,11 @@ export class Web3Transaction implements EthereumTransaction {
 			this.promiEvent.on("error", reject)
 		}))
 	}
+}
+
+enum SignTypedDataTypes {
+	SIGN_TYPED_DATA = "eth_signTypedData",
+	SIGN_TYPED_DATA_V3 = "eth_signTypedData_v3",
+	SIGN_TYPED_DATA_V4 = "eth_signTypedData_v4"
 }
 

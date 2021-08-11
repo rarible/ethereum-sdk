@@ -30,60 +30,9 @@ export class Web3Ethereum implements Ethereum {
 		})
 	}
 
-	async getSigner(): Promise<string[]> {
+	async getAccounts(): Promise<string[]> {
 		return await this.web3.eth.getAccounts()
 	}
-
-	async signTypedData(primaryType: string, domain: any, types: any, message: any): Promise<string> {
-		const data = {
-			types: {
-				EIP712Domain: DOMAIN_TYPE,
-				...types,
-			},
-			domain,
-			primaryType,
-			message,
-		}
-		const [signer] = await this.web3.eth.getAccounts()
-		try {
-			return await tryToSign(this.web3, SignTypedDataTypes.SIGN_TYPED_DATA_V4, signer, JSON.stringify(data))
-		} catch (error) {
-			try {
-				return await tryToSign(this.web3, SignTypedDataTypes.SIGN_TYPED_DATA_V3, signer, data)
-			} catch (error) {
-				try {
-					return await tryToSign(this.web3, SignTypedDataTypes.SIGN_TYPED_DATA, signer, data)
-				} catch (error) {
-					return await Promise.reject(error)
-				}
-			}
-		}
-	}
-}
-
-export const DOMAIN_TYPE = [
-	{ type: "string", name: "name" },
-	{ type: "string", name: "version" },
-	{ type: "uint256", name: "chainId" },
-	{ type: "address", name: "verifyingContract" },
-]
-
-
-async function tryToSign(web3: Web3, type: SignTypedDataTypes, signer: string, data: any): Promise<string> {
-	return await new Promise<string>((resolve, reject) => {
-		function cb(err: any, result: any) {
-			if (err) return reject(err)
-			if (result.error) return reject(result.error)
-			resolve(result.result)
-		}
-
-		// @ts-ignore
-		return web3.currentProvider.sendAsync({
-			method: type,
-			params: [signer, data],
-			signer,
-		}, cb)
-	})
 }
 
 
@@ -118,9 +67,4 @@ export class Web3Transaction implements EthereumTransaction {
 	}
 }
 
-enum SignTypedDataTypes {
-	SIGN_TYPED_DATA = "eth_signTypedData",
-	SIGN_TYPED_DATA_V3 = "eth_signTypedData_v3",
-	SIGN_TYPED_DATA_V4 = "eth_signTypedData_v4"
-}
 

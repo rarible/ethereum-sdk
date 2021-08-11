@@ -1,5 +1,7 @@
-import { createGanacheProvider, testTypedSignature, testPersonalSign } from "@rarible/ethereum-sdk-test-common"
+import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/src/create-ganache-provider"
 import { ethers } from "ethers"
+import { testPersonalSign } from "@rarible/ethereum-sdk-test-common/src"
+import { testTypedSignature } from '../../test-common/src/test-typed-signature'
 import { EthersEthereum } from "./index"
 
 describe("EthersEthereum", () => {

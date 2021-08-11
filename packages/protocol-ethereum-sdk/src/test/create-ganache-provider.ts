@@ -14,16 +14,17 @@ export function createGanacheProvider() {
 	const provider = Ganache.provider({
 		accounts,
 		// @ts-ignore
-		_chainIdRpc: 17
+		_chainIdRpc: 17,
 	})
 	// @ts-ignore
 	const web3 = new Web3(provider)
 
 	afterAll(() => {
-		provider.close(() => {})
+		provider.close(() => {
+		})
 	})
 
 	return {
-		provider, web3, wallets, addresses: wallets.map(w => toAddress(w.getAddressString()))
+		provider, web3, wallets, addresses: wallets.map(w => toAddress(w.getAddressString())),
 	}
 }

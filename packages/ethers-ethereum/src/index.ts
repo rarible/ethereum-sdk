@@ -11,8 +11,7 @@ export class EthersEthereum implements Ethereum {
 	}
 
 	async send(method: string, params: any): Promise<any> {
-		const [signer] = await this.getAccounts()
-		return await this.web3Provider.send(method, [signer, params])
+		return await this.web3Provider.send(method, params)
 	}
 
 	async getAccounts(): Promise<string[]> {
@@ -20,7 +19,7 @@ export class EthersEthereum implements Ethereum {
 	}
 
 	personalSign(message: string): Promise<string> {
-		return this.web3Provider.getSigner().signMessage(message);
+		return this.web3Provider.getSigner().signMessage(message)
 	}
 }
 
@@ -51,3 +50,11 @@ export class EthersTransaction implements EthereumTransaction {
 		await this.tx.wait()
 	}
 }
+
+export const DOMAIN_TYPE = [
+	{ type: "string", name: "name" },
+	{ type: "string", name: "version" },
+	{ type: "uint256", name: "chainId" },
+	{ type: "address", name: "verifyingContract" },
+]
+

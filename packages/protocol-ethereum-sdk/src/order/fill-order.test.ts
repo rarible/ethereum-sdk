@@ -1,11 +1,11 @@
 import { BN } from "ethereumjs-util"
 import { randomWord, toAddress, toBigNumber, toBinary } from "@rarible/types"
-import { ethers } from "ethers"
+import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/test-common/src/create-ganache-provider"
+import { Web3Ethereum } from "@rarible/web3-ethereum"
+import Web3 from "web3"
 import { sentTx } from "../common/send-transaction"
-import { createGanacheProvider } from "../test/create-ganache-provider"
 import { toBn } from "../common/to-bn"
 import { awaitAll } from "../common/await-all"
-import { EthersEthereum } from "../../../ethers-ethereum"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
 import { deployTransferProxy } from "./contracts/test/test-transfer-proxy"
@@ -17,10 +17,10 @@ import { signOrder, SimpleOrder } from "./sign-order"
 import { deployTestErc1155 } from "./contracts/test/test-erc1155"
 
 describe("fillOrder", () => {
-	const { web3, addresses, provider } = createGanacheProvider()
+	const { addresses, provider } = createGanacheProvider()
 	//@ts-ignore
-	const pr = new ethers.providers.Web3Provider(provider)
-	const ethereum = new EthersEthereum(pr.getSigner())
+	const web3 = new Web3(provider)
+	const ethereum = new Web3Ethereum(web3)
 	const [sender1Address, sender2Address] = addresses
 
 	const it = awaitAll({
@@ -95,7 +95,7 @@ describe("fillOrder", () => {
 		)
 
 		const a = toAddress(it.exchangeV2.options.address)
-		const signature = await signOrder(web3, { chainId: 1, exchange: { v1: a, v2: a } }, left)
+		const signature = await signOrder(ethereum, { chainId: 1, exchange: { v1: a, v2: a } }, left)
 
 		const hash = await fillOrderSendTx(
 			ethereum,

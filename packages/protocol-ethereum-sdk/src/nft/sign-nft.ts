@@ -1,7 +1,8 @@
 import { Binary, EIP712Domain, LazyErc1155 } from "@rarible/protocol-api-client"
-import Web3 from "web3"
-import { Address } from "@rarible/types"
-import { signTypedData } from "../common/sign-typed-data"
+import { Address, toBinary } from "@rarible/types"
+import { signTypedData } from "@rarible/ethereum-provider"
+import { LazyErc721 } from "@rarible/protocol-api-client/build/models/LazyNft"
+import { Ethereum } from "@rarible/ethereum-provider/build"
 import {
 	EIP1155_DOMAIN_NFT_TEMPLATE,
 	EIP1155_NFT_TYPE,
@@ -10,12 +11,11 @@ import {
 	EIP721_NFT_TYPE,
 	EIP721_NFT_TYPES,
 } from "./eip712"
-import { LazyErc721 } from "@rarible/protocol-api-client/build/models/LazyNft"
 
 export type SimpleLazyNft<K extends keyof any> = Omit<LazyErc721, K> | Omit<LazyErc1155, K>
 
 export async function signNft(
-	web3: Web3,
+	ethereum: Ethereum,
 	chainId: number,
 	nft: SimpleLazyNft<"signatures">,
 ): Promise<Binary> {
@@ -29,7 +29,7 @@ export async function signNft(
 				primaryType: EIP721_NFT_TYPE,
 				message: { ...nft, tokenURI: nft.uri },
 			}
-			return signTypedData(web3, nft.creators[0].account, data)
+			return toBinary(await signTypedData(ethereum, data))
 		}
 		case "ERC1155":
 			const domain = createEIP712NftDomain(chainId, nft.contract, "ERC1155")
@@ -40,7 +40,7 @@ export async function signNft(
 				primaryType: EIP1155_NFT_TYPE,
 				message: { ...nft, tokenURI: nft.uri },
 			}
-			return signTypedData(web3, nft.creators[0].account, data)
+			return toBinary(await signTypedData(ethereum, data))
 	}
 }
 

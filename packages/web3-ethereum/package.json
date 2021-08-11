@@ -5,7 +5,8 @@
   "main": "src/index.ts",
   "scripts": {
     "test": "jest",
-    "build": "tsc --project tsconfig-build.json"
+    "build": "tsc --project tsconfig-build.json",
+    "clean": "rimraf ./build"
   },
   "keywords": [
     "ethereum",

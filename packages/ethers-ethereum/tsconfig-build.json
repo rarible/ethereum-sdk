@@ -3,6 +3,11 @@
   "compilerOptions": {
     "outDir": "build"
   },
-  "include": ["src/**/*"],
-  "exclude": ["build", "node_modules", "stories", "**/*.test.ts*"]
+  "include": [
+    "src/**/*",
+    "./typings.d.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts*"
+  ]
 }

@@ -1,16 +1,19 @@
 import fetch from "node-fetch"
 import { toAddress, toBigNumber } from "@rarible/types"
-import { createRaribleSdk } from "../index"
-import { createE2eProvider } from "../test/create-e2e-provider"
 import { Contract } from "web3-eth-contract"
+import { createE2eProvider } from "@rarible/ethereum-sdk-test-common/src/create-e2e-provider"
+import Web3 from "web3"
+import { Web3Ethereum } from "@rarible/web3-ethereum"
+import { createRaribleSdk } from "../index"
 import { checkAssetType } from "./check-asset-type"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
 
 
 describe("check-asset-type test", function () {
-	const { web3, wallet } = createE2eProvider()
-	const sdk = createRaribleSdk(web3, "e2e", { fetchApi: fetch })
+	const { provider, wallet } = createE2eProvider()
+	const web3 = new Web3(provider)
+	const sdk = createRaribleSdk(new Web3Ethereum(web3), "e2e", { fetchApi: fetch })
 	let testErc20: Contract
 	let testErc721: Contract
 	beforeAll(async () => {

@@ -1,10 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../build"
+    "outDir": "build"
   },
   "include": [
-    "packages/protocol-ethereum-sdk/src/**/*",
+    "src/**/*",
     "./typings.d.ts"
   ],
   "exclude": [

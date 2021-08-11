@@ -1,13 +1,17 @@
+import { toAddress } from "@rarible/types"
+import { createE2eProvider } from "@rarible/ethereum-sdk-test-common/build/test-common/src"
+import { Web3Ethereum } from "@rarible/web3-ethereum"
+import Web3 from "web3"
+import { E2E_CONFIG } from "../config/e2e"
 import { signOrder } from "./sign-order"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
-import { createE2eProvider } from "../test/create-e2e-provider"
-import { E2E_CONFIG } from "../config/e2e"
-import { toAddress } from "@rarible/types"
 
 describe("signOrder", () => {
 
-	const { web3, wallet } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
-	const signOrderE2e = signOrder.bind(null, web3, E2E_CONFIG)
+	const { provider, wallet } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
+	const eth = new Web3(provider)
+	const signOrderE2e = signOrder.bind(null, new Web3Ethereum(eth), E2E_CONFIG)
+
 
 	test("should sign legacy orders", async () => {
 		const signature = await signOrderE2e(
@@ -18,9 +22,10 @@ describe("signOrder", () => {
 					dataType: "LEGACY",
 					fee: 100,
 				},
-				maker: toAddress(wallet.getAddressString())
+				maker: toAddress(wallet.getAddressString()),
 			},
 		)
+		console.log('signOrderE2e', signature)
 		expect(signature).toEqual("0x5fec2e13b0ad828fd4bd8908ca695518ecf8256218cf6d0c1fb3ecb460c8510222a2d52b9946c761217fcadfa88f7e120707c4fa1c441fb6c34f5bf5df821b741b")
 	})
 
@@ -34,7 +39,7 @@ describe("signOrder", () => {
 					payouts: [],
 					originFees: [],
 				},
-				maker: toAddress(wallet.getAddressString())
+				maker: toAddress(wallet.getAddressString()),
 			},
 		)
 		expect(signature).toEqual("0xcbaf8914c5da5efea1c8d3afa70d93147ec842632b4db1f62475c9ed107b07220496c37efa66fcfac2a54caa252ecbf77db79428d53b48ea39b89d8211bfa8151c")

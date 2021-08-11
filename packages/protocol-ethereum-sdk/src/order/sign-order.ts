@@ -1,6 +1,6 @@
 import { Asset, Binary, EIP712Domain, Order } from "@rarible/protocol-api-client"
 import { Address, toBinary, ZERO_ADDRESS } from "@rarible/types"
-import { Ethereum } from "@rarible/ethereum-provider"
+import { Ethereum, signTypedData } from "@rarible/ethereum-provider"
 import { Config } from "../config/type"
 import { hashLegacyOrder } from "./hash-legacy-order"
 import { assetTypeToStruct } from "./asset-type-to-struct"
@@ -17,19 +17,25 @@ export async function signOrder(
 	switch (order.type) {
 		case "RARIBLE_V1": {
 			const legacyHash = hashLegacyOrder(order)
+			return toBinary(await ethereum.personalSign(legacyHash))
 			// @ts-ignore
-			return (ethereum.eth.personal as any)// todo
-				.sign(legacyHash.substring(2), order.maker)
-				.catch((error: any) => {
-					if (error.code === 4001) {
-						return Promise.reject(new Error("Cancelled"))
-					}
-					return Promise.reject(error)
-				})
+			// return (ethereum.eth.personal as any)// todo
+			// 	.sign(legacyHash.substring(2), order.maker)
+			// 	.catch((error: any) => {
+			// 		if (error.code === 4001) {
+			// 			return Promise.reject(new Error("Cancelled"))
+			// 		}
+			// 		return Promise.reject(error)
+			// 	})
 		}
 		case "RARIBLE_V2": {
 			const domain = createEIP712Domain(config.chainId, config.exchange.v2)
-			const signature = await ethereum.signTypedData(EIP712_ORDER_TYPE, domain, EIP712_ORDER_TYPES, orderToStruct(order))
+			const signature = await signTypedData(ethereum, {
+				primaryType: EIP712_ORDER_TYPE,
+				domain,
+				types: EIP712_ORDER_TYPES,
+				message: orderToStruct(order),
+			})
 			return toBinary(signature)
 		}
 	}

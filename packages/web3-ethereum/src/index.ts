@@ -1,3 +1,4 @@
+'use-strict'
 import Web3 from "web3"
 import { Contract } from "web3-eth-contract"
 import { PromiEvent } from "web3-core"
@@ -22,9 +23,9 @@ export class Web3Ethereum implements Ethereum {
 			}
 
 			// @ts-ignore
-			return await this.web3.currentProvider.sendAsync({
+			return this.web3.currentProvider.sendAsync({
 				method,
-				params: [signer, params],
+				params: [signer, params[1]],
 				signer,
 			}, cb)
 		})

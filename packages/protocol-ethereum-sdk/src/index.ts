@@ -102,6 +102,7 @@ export function createRaribleSdk(
 	const orderActivitiesControllerApi = new OrderActivityControllerApi(apiConfiguration)
 	const gatewayControllerApi = new GatewayControllerApi(apiConfiguration)
 
+	// @ts-ignore
 	const notify = createPendingLogs.bind(null, gatewayControllerApi, ethereum)
 
 	const sendTx = partialCall(sendTransaction, async hash => {
@@ -116,13 +117,13 @@ export function createRaribleSdk(
 
 	const approve = partialCall(approveTemplate, ethereum, config.transferProxies)
 	const signOrder = partialCall(signOrderTemplate, ethereum, config)
-	const upsertOrder = partialCall(upsertOrderTemplate, checkLazyOrder, approve, signOrder, orderControllerApi, nftItemControllerApi)
+	const upsertOrder = partialCall(upsertOrderTemplate, checkLazyOrder, approve, signOrder, orderControllerApi)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const fill = partialCall(fillOrder, ethereum, approve, config.exchange)
 
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
-	const mintLazy = partialCall(mintLazyTemplate, ethereum, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
+	const mintLazy = partialCall(mintLazyTemplate, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
 
 	return {
 		apis: {

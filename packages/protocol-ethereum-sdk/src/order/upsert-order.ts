@@ -1,14 +1,6 @@
 // noinspection JSCommentMatchesSignature
 
-import {
-	Address,
-	Asset,
-	Binary,
-	NftItemControllerApi,
-	Order,
-	OrderControllerApi,
-	OrderForm,
-} from "@rarible/protocol-api-client"
+import { Address, Asset, Binary, Order, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
 import { Action, ActionBuilder } from "@rarible/action"
 import { SimpleOrder } from "./sign-order"
 import { toBn } from "../common/to-bn"
@@ -28,7 +20,6 @@ export async function upsertOrder(
 	approve: (owner: Address, asset: Asset, infinite: boolean) => Promise<string | undefined>,
 	signOrder: (order: SimpleOrder) => Promise<Binary>,
 	orderApi: OrderControllerApi,
-	nftItemApi: NftItemControllerApi,
 	order: OrderForm,
 	infinite: boolean = false,
 ) {
@@ -36,13 +27,13 @@ export async function upsertOrder(
 	return ActionBuilder.create<UpserOrderStageId>()
 		.then({ id: "approve", run: () => approve(checkedOrder.maker, checkedOrder.make, infinite) })
 		.then({ id: "sign", run: () => signOrder(orderFormToSimpleOrder(checkedOrder)) })
-		.then({ id: "post", run: signature => orderApi.upsertOrder({ orderForm: { ...checkedOrder, signature } })})
+		.then({ id: "post", run: signature => orderApi.upsertOrder({ orderForm: { ...checkedOrder, signature } }) })
 		.build()
 }
 
 function orderFormToSimpleOrder(form: OrderForm): SimpleOrder {
 	return {
 		...form,
-		salt: toBinary(toBn(form.salt).toString(16))
+		salt: toBinary(toBn(form.salt).toString(16)),
 	}
 }

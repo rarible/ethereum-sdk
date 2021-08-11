@@ -1,7 +1,7 @@
 {
   "name": "@rarible/protocol-ethereum-sdk",
   "version": "0.0.8",
-  "main": "../../build/index.js",
+  "main": "build/index.js",
   "types": "build/index.d.ts",
   "keywords": [
     "axios",
@@ -11,7 +11,7 @@
     "api_documentation"
   ],
   "files": [
-    "../../build",
+    "build",
     "typings.d.ts"
   ],
   "scripts": {
@@ -33,6 +33,7 @@
     "@rarible/test-provider": "0.1.12",
     "@rarible/web3-ethereum": "0.0.1",
     "@truffle/hdwallet-provider": "1.4.1",
+    "@rarible/ethereum-sdk-test-common": "0.0.1",
     "@types/jest": "26.0.24",
     "@types/node-fetch": "^2.5.11",
     "@types/web3-provider-engine": "^14.0.1",

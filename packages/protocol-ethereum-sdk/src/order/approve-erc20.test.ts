@@ -1,7 +1,7 @@
 // @ts-ignore
 import RpcSubprovider from "web3-provider-engine/subproviders/rpc"
 import { randomAddress, toAddress } from "@rarible/types"
-import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
+import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/src/create-ganache-provider"
 import Web3 from "web3"
 import { toBn } from "../common/to-bn"
 import { sentTx } from "../common/send-transaction"

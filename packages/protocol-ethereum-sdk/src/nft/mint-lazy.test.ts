@@ -1,4 +1,4 @@
-import { createE2eProvider } from "@rarible/ethereum-sdk-test-common/build/test-common/src"
+import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import fetch from "node-fetch"
 import { Contract } from "web3-eth-contract"
 import { toAddress } from "@rarible/types"

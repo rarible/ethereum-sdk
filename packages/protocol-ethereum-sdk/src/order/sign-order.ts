@@ -17,16 +17,7 @@ export async function signOrder(
 	switch (order.type) {
 		case "RARIBLE_V1": {
 			const legacyHash = hashLegacyOrder(order)
-			return toBinary(await ethereum.personalSign(legacyHash))
-			// @ts-ignore
-			// return (ethereum.eth.personal as any)// todo
-			// 	.sign(legacyHash.substring(2), order.maker)
-			// 	.catch((error: any) => {
-			// 		if (error.code === 4001) {
-			// 			return Promise.reject(new Error("Cancelled"))
-			// 		}
-			// 		return Promise.reject(error)
-			// 	})
+			return toBinary(await ethereum.personalSign(legacyHash.substring(2)))
 		}
 		case "RARIBLE_V2": {
 			const domain = createEIP712Domain(config.chainId, config.exchange.v2)

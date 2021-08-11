@@ -6,7 +6,7 @@ import { deployTestErc1155 } from "./contracts/test/test-erc1155"
 import { approveErc1155 } from "./approve-erc1155"
 import { toBn } from "../common/to-bn"
 import { sentTx } from "../common/send-transaction"
-import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/test-common/src/create-ganache-provider"
+import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 

@@ -8,6 +8,9 @@
     "./typings.d.ts"
   ],
   "exclude": [
+    "build",
+    "node_modules",
+    "stories",
     "**/*.test.ts*"
   ]
 }

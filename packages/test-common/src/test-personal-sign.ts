@@ -1,5 +1,5 @@
 import * as ethSigUtil from "eth-sig-util"
-import { Ethereum } from "../../ethereum-provider"
+import { Ethereum } from "@rarible/ethereum-provider"
 
 export async function testPersonalSign(ethereum: Ethereum) {
 	const [account] = await ethereum.getAccounts()

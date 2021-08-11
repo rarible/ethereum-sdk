@@ -10,7 +10,7 @@ export function awaitAll<T>(value: T): Unpromise<T> {
 	for (const key in value) {
 		if (value[key] !== undefined && "then" in value[key]) {
 			all.push(value[key] as any);
-				// @ts-ignore
+			// @ts-ignore
 			(value[key] as any).then(r => result[key] = r)
 		}
 	}

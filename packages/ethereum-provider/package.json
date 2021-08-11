@@ -4,7 +4,7 @@
   "description": "Library to abstract from web3.js or ethers.js",
   "main": "src/index.ts",
   "scripts": {
-    "test": "jest",
+    "test": "echo 'There has no tests'",
     "build": "tsc --project tsconfig-build.json",
     "clean": "rimraf ./build"
   },

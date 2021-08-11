@@ -1,5 +1,5 @@
 import { toAddress } from "@rarible/types"
-import { createE2eProvider } from "@rarible/ethereum-sdk-test-common/build/test-common/src"
+import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { E2E_CONFIG } from "../config/e2e"
@@ -25,7 +25,6 @@ describe("signOrder", () => {
 				maker: toAddress(wallet.getAddressString()),
 			},
 		)
-		console.log('signOrderE2e', signature)
 		expect(signature).toEqual("0x5fec2e13b0ad828fd4bd8908ca695518ecf8256218cf6d0c1fb3ecb460c8510222a2d52b9946c761217fcadfa88f7e120707c4fa1c441fb6c34f5bf5df821b741b")
 	})
 

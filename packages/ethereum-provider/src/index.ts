@@ -3,7 +3,7 @@ export interface Ethereum {
 
 	send(method: string, params: any): Promise<any>
 
-	getSigner(): Promise<string[]>
+	getAccounts(): Promise<string[]>
 
 	personalSign(message: string): Promise<string>
 }

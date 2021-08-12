@@ -2,7 +2,8 @@
   "name": "@rarible/ethers-ethereum",
   "version": "0.0.1",
   "description": "",
-  "main": "src/index.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
     "test": "jest",
     "build": "tsc --project tsconfig-build.json",

@@ -2,7 +2,8 @@
   "name": "@rarible/ethereum-provider",
   "version": "0.0.1",
   "description": "Library to abstract from web3.js or ethers.js",
-  "main": "src/index.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
     "test": "echo 'There has no tests'",
     "build": "tsc --project tsconfig-build.json",

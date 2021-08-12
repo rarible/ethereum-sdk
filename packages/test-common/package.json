@@ -25,5 +25,9 @@
     "@rarible/test-provider": "0.1.12",
     "@types/web3-provider-engine": "^14.0.1",
     "web3-provider-engine": "16.0.1"
+  },
+  "gitHead": "e1a77d6596ee3286e6f2d7c1db5f69489c10f10c",
+  "publishConfig": {
+    "access": "public"
   }
 }

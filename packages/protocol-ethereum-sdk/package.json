@@ -1,0 +1,54 @@
+{
+  "name": "@rarible/protocol-ethereum-sdk",
+  "version": "0.1.1",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "keywords": [
+    "axios",
+    "typescript",
+    "openapi",
+    "openapi-generator",
+    "api_documentation"
+  ],
+  "files": [
+    "build",
+    "typings.d.ts"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig-build.json",
+    "clean": "rimraf ./build",
+    "test": "jest --passWithNoTests",
+    "verify": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@rarible/action": "0.1.2",
+    "@rarible/ethereum-provider": "^0.1.1",
+    "@rarible/protocol-api-client": "0.0.7",
+    "eth-sig-util": "^3.0.1",
+    "ethereumjs-util": "^7.1.0",
+    "exponential-backoff": "^3.1.0"
+  },
+  "devDependencies": {
+    "@rarible/ethereum-sdk-test-common": "^0.1.1",
+    "@rarible/ethers-ethereum": "^0.1.1",
+    "@rarible/test-provider": "0.1.12",
+    "@rarible/web3-ethereum": "^0.1.1",
+    "@truffle/hdwallet-provider": "1.4.1",
+    "@types/jest": "26.0.24",
+    "@types/node-fetch": "^2.5.11",
+    "@types/web3-provider-engine": "^14.0.1",
+    "ethereumjs-tx": "^2.1.2",
+    "ethers": "^5.4.4",
+    "form-data": "4.0.0",
+    "ganache-core": "2.13.2",
+    "jest": "27.0.6",
+    "node-fetch": "2.6.1",
+    "ts-jest": "27.0.3",
+    "typescript": "4.3.5",
+    "web3-provider-engine": "16.0.1"
+  },
+  "gitHead": "e1a77d6596ee3286e6f2d7c1db5f69489c10f10c",
+  "publishConfig": {
+    "access": "public"
+  }
+}

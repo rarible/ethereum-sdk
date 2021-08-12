@@ -17,7 +17,7 @@ describe("approveErc20", () => {
 	} = createGanacheProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
 	// @ts-ignore
 	const web3 = new Web3(provider)
-	const ethereum = new Web3Ethereum(web3)
+	const ethereum = new Web3Ethereum({ web3 })
 	const [testAddress] = addresses
 
 	const it = awaitAll({

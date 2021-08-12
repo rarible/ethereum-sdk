@@ -3,12 +3,18 @@ import { Contract } from "web3-eth-contract"
 import { PromiEvent } from "web3-core"
 import { Ethereum, EthereumContract, EthereumTransaction } from "@rarible/ethereum-provider"
 
+type Web3EthereumConfig = {
+	web3: Web3
+	from?: string
+	gas?: number
+}
+
 export class Web3Ethereum implements Ethereum {
-	constructor(private readonly web3: Web3, private readonly from?: string) {
+	constructor(private readonly config: Web3EthereumConfig) {
 	}
 
 	createContract(abi: any, address?: string): EthereumContract {
-		return new Web3Contract(this.web3, new this.web3.eth.Contract(abi, address))
+		return new Web3Contract(this.config, new this.config.web3.eth.Contract(abi, address))
 	}
 
 	async send(method: string, params: any): Promise<any> {
@@ -21,7 +27,7 @@ export class Web3Ethereum implements Ethereum {
 			}
 
 			// @ts-ignore
-			return this.web3.currentProvider.sendAsync({
+			return this.config.web3.currentProvider.sendAsync({
 				method,
 				params: [signer, params[1]],
 				signer,
@@ -31,7 +37,7 @@ export class Web3Ethereum implements Ethereum {
 
 	async personalSign(message: string): Promise<string> {
 		const signer = await this.getFrom()
-		return (this.web3.eth.personal as any)
+		return (this.config.web3.eth.personal as any)
 			.sign(message, signer)
 			.catch((error: any) => {
 				if (error.code === 4001) {
@@ -42,16 +48,16 @@ export class Web3Ethereum implements Ethereum {
 	}
 
 	async getFrom(): Promise<string> {
-		if (this.from) {
-			return this.from
+		if (this.config.from) {
+			return this.config.from
 		}
-		return this.web3.eth.getAccounts().then(([first]) => first)
+		return this.config.web3.eth.getAccounts().then(([first]) => first)
 	}
 }
 
 
 export class Web3Contract implements EthereumContract {
-	constructor(private readonly web3: Web3, private readonly contract: Contract) {
+	constructor(private readonly config: Web3EthereumConfig, private readonly contract: Contract) {
 	}
 
 	call(name: string, ...args: any): Promise<any> {
@@ -59,13 +65,20 @@ export class Web3Contract implements EthereumContract {
 	}
 
 	async send(name: string, ...args: any): Promise<EthereumTransaction> {
-		const [address] = await this.web3.eth.getAccounts()
-		const promiEvent: PromiEvent<any> = this.contract.methods[name](...args).send({ from: address })
+		const address = await this.getFrom()
+		const promiEvent: PromiEvent<any> = this.contract.methods[name](...args).send({ from: address, gas: this.config.gas })
 		const hash = await new Promise<string>(((resolve, reject) => {
 			promiEvent.on("transactionHash", resolve)
 			promiEvent.on("error", reject)
 		}))
 		return new Web3Transaction(hash, promiEvent)
+	}
+
+	async getFrom(): Promise<string> {
+		if (this.config.from) {
+			return this.config.from
+		}
+		return this.config.web3.eth.getAccounts().then(([first]) => first)
 	}
 }
 

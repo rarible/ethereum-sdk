@@ -16,8 +16,8 @@ describe("upsertOrder", () => {
 
 	test("sign and upsert works", async () => {
 		const approve = () => Promise.resolve("")
-		const eth = new Web3(provider)
-		const sign = signOrder.bind(null, new Web3Ethereum(eth), E2E_CONFIG)
+		const web3 = new Web3(provider)
+		const sign = signOrder.bind(null, new Web3Ethereum({ web3 }), E2E_CONFIG)
 		const configuration = new Configuration({ basePath: "https://api-e2e.rarible.com", fetchApi: fetch })
 		const orderApi = new OrderControllerApi(configuration)
 		const order: OrderForm = {

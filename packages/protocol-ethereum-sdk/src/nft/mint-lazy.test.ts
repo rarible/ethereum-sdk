@@ -13,11 +13,11 @@ describe('mint-lazy test', () => {
 	const { provider, wallet } = createE2eProvider()
 	let testErc721: Contract
 	let testErc1155: Contract
-	const eth = new Web3(provider)
-	const sdk = createRaribleSdk(new Web3Ethereum(eth), "e2e", { fetchApi: fetch })
+	const web3 = new Web3(provider)
+	const sdk = createRaribleSdk(new Web3Ethereum({ web3 }), "e2e", { fetchApi: fetch })
 	beforeAll(async () => {
-		testErc721 = await deployTestErc721(eth, "TST", "TST")
-		testErc1155 = await deployTestErc1155(eth, "TST")
+		testErc721 = await deployTestErc721(web3, "TST", "TST")
+		testErc1155 = await deployTestErc1155(web3, "TST")
 	})
 	test('should mint erc721_lazy', async () => {
 		const nftItem = await sdk.nft.mintLazy(

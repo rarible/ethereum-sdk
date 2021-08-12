@@ -13,7 +13,7 @@ import { deployTestErc721 } from "./contracts/test/test-erc721"
 describe("check-asset-type test", function () {
 	const { provider, wallet } = createE2eProvider()
 	const web3 = new Web3(provider)
-	const sdk = createRaribleSdk(new Web3Ethereum(web3), "e2e", { fetchApi: fetch })
+	const sdk = createRaribleSdk(new Web3Ethereum({ web3 }), "e2e", { fetchApi: fetch })
 	let testErc20: Contract
 	let testErc721: Contract
 	beforeAll(async () => {

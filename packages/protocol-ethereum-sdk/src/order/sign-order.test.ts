@@ -14,9 +14,8 @@ describe("signOrder", () => {
 	const ethereum = new Web3Ethereum(eth)
 	const signOrderE2e = signOrder.bind(null, ethereum, E2E_CONFIG)
 
-
 	test("should sign legacy orders", async () => {
-		const accounts = await ethereum.getAccounts()
+		const signer = await ethereum.getFrom()
 		const order: SimpleOrder = {
 			...TEST_ORDER_TEMPLATE,
 			type: "RARIBLE_V1",
@@ -24,17 +23,16 @@ describe("signOrder", () => {
 				dataType: "LEGACY",
 				fee: 100,
 			},
-			maker: toAddress(accounts[0]),
+			maker: toAddress(signer),
 		}
-		const signature = await signOrderE2e(
-			order,
-		)
+
+		const signature = await signOrderE2e(order)
 
 		expect(signature).toEqual("0x5fec2e13b0ad828fd4bd8908ca695518ecf8256218cf6d0c1fb3ecb460c8510222a2d52b9946c761217fcadfa88f7e120707c4fa1c441fb6c34f5bf5df821b741b")
 	})
 
 	test("should sign v2 orders", async () => {
-		const accounts = await ethereum.getAccounts()
+		const signer = await ethereum.getFrom()
 		const signature = await signOrderE2e(
 			{
 				...TEST_ORDER_TEMPLATE,
@@ -44,7 +42,7 @@ describe("signOrder", () => {
 					payouts: [],
 					originFees: [],
 				},
-				maker: toAddress(accounts[0]),
+				maker: toAddress(signer),
 			},
 		)
 		expect(signature).toEqual("0xcbaf8914c5da5efea1c8d3afa70d93147ec842632b4db1f62475c9ed107b07220496c37efa66fcfac2a54caa252ecbf77db79428d53b48ea39b89d8211bfa8151c")

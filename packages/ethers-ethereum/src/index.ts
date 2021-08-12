@@ -3,7 +3,7 @@ import { TransactionResponse } from "@ethersproject/abstract-provider"
 import { Ethereum, EthereumContract, EthereumTransaction } from "@rarible/ethereum-provider"
 
 export class EthersEthereum implements Ethereum {
-	constructor(readonly web3Provider: ethers.providers.Web3Provider) {
+	constructor(readonly web3Provider: ethers.providers.Web3Provider, readonly from?: string) {
 	}
 
 	createContract(abi: any, address?: string): EthereumContract {
@@ -14,12 +14,15 @@ export class EthersEthereum implements Ethereum {
 		return await this.web3Provider.send(method, params)
 	}
 
-	async getAccounts(): Promise<string[]> {
-		return await this.web3Provider.listAccounts()
-	}
-
 	personalSign(message: string): Promise<string> {
 		return this.web3Provider.getSigner().signMessage(message)
+	}
+
+	async getFrom(): Promise<string> {
+		if (this.from) {
+			return this.from
+		}
+		return this.web3Provider.listAccounts().then(xs => xs[0])
 	}
 }
 

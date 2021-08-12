@@ -17,11 +17,12 @@ import { signOrder, SimpleOrder } from "./sign-order"
 import { deployTestErc1155 } from "./contracts/test/test-erc1155"
 
 describe("fillOrder", () => {
-	const { addresses, provider } = createGanacheProvider()
+	const { addresses, provider, wallets } = createGanacheProvider()
+	const [sender1Address, sender2Address] = addresses
 	//@ts-ignore
 	const web3 = new Web3(provider)
-	const ethereum = new Web3Ethereum(web3)
-	const [sender1Address, sender2Address] = addresses
+	const ethereum1 = new Web3Ethereum(web3, sender1Address)
+	const ethereum2 = new Web3Ethereum(web3, sender2Address)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -95,10 +96,10 @@ describe("fillOrder", () => {
 		)
 
 		const a = toAddress(it.exchangeV2.options.address)
-		const signature = await signOrder(ethereum, { chainId: 1, exchange: { v1: a, v2: a } }, left)
+		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
 
 		const hash = await fillOrderSendTx(
-			ethereum,
+			ethereum1,
 			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
 			{ ...left, signature },
 			{ amount: 2, payouts: [], originFees: [] },

@@ -7,6 +7,7 @@ import { toBn } from "../common/to-bn"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import { orderToStruct, SimpleOrder } from "./sign-order"
 import { invertOrder } from "./invert-order"
+import { toAddress } from "@rarible/types/build/address"
 
 const protocolCommission = toBigNumber('0')//todo impl
 
@@ -81,7 +82,7 @@ async function fillOrderV2(
 	order: SimpleOrder,
 	request: FillOrderRequest,
 ): Promise<string> {
-	const address = order.maker // todo get txSender address
+	const address = toAddress(await ethereum.getFrom())
 	const orderRight = {
 		...invertOrder(order, toBn(request.amount), address),
 		data: {

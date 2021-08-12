@@ -4,7 +4,7 @@ import { PromiEvent } from "web3-core"
 import { Ethereum, EthereumContract, EthereumTransaction } from "@rarible/ethereum-provider"
 
 export class Web3Ethereum implements Ethereum {
-	constructor(private readonly web3: Web3) {
+	constructor(private readonly web3: Web3, private readonly from?: string) {
 	}
 
 	createContract(abi: any, address?: string): EthereumContract {
@@ -12,8 +12,7 @@ export class Web3Ethereum implements Ethereum {
 	}
 
 	async send(method: string, params: any): Promise<any> {
-
-		const [signer] = await this.web3.eth.getAccounts()
+		const signer = await this.getFrom()
 		return await new Promise<string>((resolve, reject) => {
 			function cb(err: any, result: any) {
 				if (err) return reject(err)
@@ -30,12 +29,8 @@ export class Web3Ethereum implements Ethereum {
 		})
 	}
 
-	async getAccounts(): Promise<string[]> {
-		return await this.web3.eth.getAccounts()
-	}
-
 	async personalSign(message: string): Promise<string> {
-		const [signer] = await this.web3.eth.getAccounts()
+		const signer = await this.getFrom()
 		return (this.web3.eth.personal as any)
 			.sign(message, signer)
 			.catch((error: any) => {
@@ -44,6 +39,13 @@ export class Web3Ethereum implements Ethereum {
 				}
 				return Promise.reject(error)
 			})
+	}
+
+	async getFrom(): Promise<string> {
+		if (this.from) {
+			return this.from
+		}
+		return this.web3.eth.getAccounts().then(([first]) => first)
 	}
 }
 

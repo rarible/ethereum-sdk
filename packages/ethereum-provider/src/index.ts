@@ -3,7 +3,7 @@ export interface Ethereum {
 
 	send(method: string, params: any): Promise<any>
 
-	getAccounts(): Promise<string[]>
+	getFrom(): Promise<string>
 
 	personalSign(message: string): Promise<string>
 }
@@ -21,7 +21,7 @@ export interface EthereumTransaction {
 }
 
 export async function signTypedData(ethereum: Ethereum, data: any) {
-	const [signer] = await ethereum.getAccounts()
+	const signer = await ethereum.getFrom()
 	try {
 		return await tryToSign(ethereum, SignTypedDataTypes.SIGN_TYPED_DATA_V4, signer, JSON.stringify(data))
 	} catch (error) {

@@ -1,10 +1,10 @@
 // noinspection JSCommentMatchesSignature
 
-import { Address, Asset, Binary, Order, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
+import { Address, Asset, Binary, Order, OrderControllerApi, OrderForm, Word } from "@rarible/protocol-api-client"
 import { Action, ActionBuilder } from "@rarible/action"
 import { SimpleOrder } from "./sign-order"
 import { toBn } from "../common/to-bn"
-import { toBinary } from "@rarible/types"
+import { toBinary, toWord } from "@rarible/types"
 
 export type UpserOrderStageId = "checkLazyOrder" | "approve" | "sign" | "post"
 
@@ -34,6 +34,7 @@ export async function upsertOrder(
 function orderFormToSimpleOrder(form: OrderForm): SimpleOrder {
 	return {
 		...form,
-		salt: toBinary(toBn(form.salt).toString(16)),
+		// @ts-ignore
+		salt: toBinary(toBn(form.salt).toString(16)) as Word,
 	}
 }

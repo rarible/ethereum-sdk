@@ -1,11 +1,11 @@
 import { SimpleOrder } from "./sign-order"
-import { Address, AssetType, Binary } from "@rarible/protocol-api-client"
-import { toBigNumber, toBinary } from "@rarible/types"
+import { AssetType } from "@rarible/protocol-api-client"
+import { Address, toBigNumber, toWord, Word } from "@rarible/types"
 import BN from "bignumber.js"
 import { toBn } from "../common/to-bn"
 
-const ZERO = toBinary("0x0000000000000000000000000000000000000000000000000000000000000000")
-export function invertOrder(order: SimpleOrder, amount: BN, maker: Address, salt: Binary = toBinary(ZERO)): SimpleOrder {
+const ZERO = toWord("0x0000000000000000000000000000000000000000000000000000000000000000")
+export function invertOrder(order: SimpleOrder, amount: BN, maker: Address, salt: Word = ZERO): SimpleOrder {
 	const [makeValue, takeValue] = calculateAmounts(toBn(order.make.value), toBn(order.take.value), amount, isNft(order.take.assetType))
 	return {
 		...order,

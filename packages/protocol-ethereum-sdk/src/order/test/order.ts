@@ -1,6 +1,6 @@
 import { toAddress } from "@rarible/types/build/address"
 import { toBigNumber } from "@rarible/types/build/big-number"
-import { toBinary } from "@rarible/types"
+import { toWord } from "@rarible/types"
 import { SimpleOrder } from "../sign-order"
 import { toBn } from "../../common/to-bn"
 
@@ -22,5 +22,5 @@ export const TEST_ORDER_TEMPLATE: Omit<SimpleOrder, "type" | "data"> = {
 		},
 		value: toBigNumber("10"),
 	},
-	salt: toBinary(toBn(10).toString(16)),
+	salt: toWord("0x000000000000000000000000000000000000000000000000000000000000000a"),
 }

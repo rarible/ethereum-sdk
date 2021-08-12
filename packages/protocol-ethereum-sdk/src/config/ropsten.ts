@@ -2,7 +2,7 @@ import { Config } from "./type"
 import { toAddress } from "@rarible/types"
 
 export const ROPSTEN_CONFIG: Config = {
-	basePath: "https://api-dev.rarible.com",
+	basePath: "https://ethereum-api-dev.rarible.org",
 	chainId: 3,
 	exchange: {
 		v1: toAddress("0xd782A10D023828d283f7b943Ae0fc3F07B2952d9"),

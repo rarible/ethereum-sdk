@@ -72,7 +72,7 @@ describe("fillOrder", () => {
 				},
 				value: toBigNumber("10"),
 			},
-			salt: toBinary(randomWord()),
+			salt: randomWord(),
 			type: 'RARIBLE_V2',
 			data: {
 				dataType: "RARIBLE_V2_DATA_V1",

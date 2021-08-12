@@ -1,5 +1,5 @@
 import { toAddress } from "@rarible/types"
-import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
+import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { E2E_CONFIG } from "../config/e2e"
@@ -8,10 +8,7 @@ import { TEST_ORDER_TEMPLATE } from "./test/order"
 
 describe("signOrder", () => {
 
-	// const { provider, wallet } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
-	const {
-		provider,
-	} = createGanacheProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
+	const { provider } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
 	// @ts-ignore
 	const eth = new Web3(provider)
 	const ethereum = new Web3Ethereum(eth)

@@ -36,21 +36,14 @@ export class Web3Ethereum implements Ethereum {
 
 	async personalSign(message: string): Promise<string> {
 		const [signer] = await this.web3.eth.getAccounts()
-		return await this.web3.eth.sign(message, signer)
+		return (this.web3.eth.personal as any)
+			.sign(message, signer)
 			.catch((error: any) => {
 				if (error.code === 4001) {
 					return Promise.reject(new Error("Cancelled"))
 				}
 				return Promise.reject(error)
 			})
-		// return (this.web3.eth.personal as any)
-		// 	.sign(message, signer)
-		// 	.catch((error: any) => {
-		// 		if (error.code === 4001) {
-		// 			return Promise.reject(new Error("Cancelled"))
-		// 		}
-		// 		return Promise.reject(error)
-		// 	})
 	}
 }
 

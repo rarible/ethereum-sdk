@@ -11,7 +11,7 @@ export async function approveErc721(
 	const erc721 = createErc721Contract(ethereum, contract)
 	const allowance: boolean = await erc721.functionCall("isApprovedForAll", owner, operator).call()
 	if (!allowance) {
-		const tx = await erc721.functionCall("setApprovalForAll", operator, true).call()
+		const tx = await erc721.functionCall("setApprovalForAll", operator, true).send()
 		return tx.hash
 	}
 	return undefined

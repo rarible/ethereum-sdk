@@ -4,7 +4,7 @@ import { Address, Asset, Binary, Order, OrderControllerApi, OrderForm, Word } fr
 import { Action, ActionBuilder } from "@rarible/action"
 import { SimpleOrder } from "./sign-order"
 import { toBn } from "../common/to-bn"
-import { toBinary, toWord } from "@rarible/types"
+import { toBinary } from "@rarible/types"
 
 export type UpserOrderStageId = "checkLazyOrder" | "approve" | "sign" | "post"
 

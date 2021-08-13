@@ -1,5 +1,5 @@
 import { BN } from "ethereumjs-util"
-import { randomWord, toAddress, toBigNumber, toBinary } from "@rarible/types"
+import { randomAddress, randomWord, toAddress, toBigNumber, toBinary } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
@@ -108,6 +108,57 @@ describe("fillOrder", () => {
 
 		expect(toBn(await it.testErc20.methods.balanceOf(sender2Address).call()).toString())
 			.toBe("4")
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString())
+			.toBe("2")
+	})
+
+	test('should match order(buy erc1155 for eth)', async () => {
+		//sender1 has ETH, sender2 has ERC1155
+
+		await sentTx(it.testErc1155.methods.mint(sender2Address, 1, 10, "0x"), { from: sender1Address })
+
+		const left: SimpleOrder = {
+			make: {
+				assetType: {
+					assetClass: "ERC1155",
+					contract: toAddress(it.testErc1155.options.address),
+					tokenId: toBigNumber("1"),
+				},
+				value: toBigNumber("5"),
+			},
+			maker: sender2Address,
+			take: {
+				assetType: {
+					assetClass: "ETH",
+				},
+				value: toBigNumber("1000000"),
+			},
+			salt: randomWord(),
+			type: 'RARIBLE_V2',
+			data: {
+				dataType: "RARIBLE_V2_DATA_V1",
+				payouts: [],
+				originFees: [],
+			},
+		}
+
+		//todo approve using our functions
+		await sentTx(
+			it.testErc1155.methods.setApprovalForAll(it.transferProxy.options.address, true),
+			{ from: sender2Address },
+		)
+
+		const a = toAddress(it.exchangeV2.options.address)
+		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
+
+		const hash = await fillOrderSendTx(
+			ethereum1,
+			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
+			{ ...left, signature },
+			{ amount: 2, payouts: [], originFees: [{ account: randomAddress(), value: 0 }] },
+		)
+		await web3.eth.getTransactionReceipt(hash as string)
+
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString())
 			.toBe("2")
 	})

@@ -1,7 +1,7 @@
 import { Asset, Part } from "@rarible/protocol-api-client"
 import { Address, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 import { Action, ActionBuilder } from "@rarible/action"
-import { Ethereum } from "@rarible/ethereum-provider"
+import { Ethereum, EthereumSendOptions } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types/build/address"
 import { ExchangeAddresses } from "../config/type"
 import { toBn } from "../common/to-bn"
@@ -9,7 +9,7 @@ import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import { orderToStruct, SimpleOrder } from "./sign-order"
 import { invertOrder } from "./invert-order"
 
-const protocolCommission = toBigNumber('0')//todo impl
+const protocolFee = toBigNumber('0')//todo impl
 
 export type FillOrderRequest = {
 	amount: number,
@@ -79,7 +79,7 @@ async function fillOrderV2(
 			originFees: request.originFees || [],
 		},
 	}
-	return await matchOrders(ethereum, contract, order, orderRight, address)
+	return await matchOrders(ethereum, contract, order, orderRight)
 }
 
 async function matchOrders(
@@ -87,16 +87,23 @@ async function matchOrders(
 	contract: Address,
 	left: SimpleOrder,
 	right: SimpleOrder,
-	sender: Address,
 ): Promise<string> {
 	const exchangeContract = createExchangeV2Contract(ethereum, contract)
+	let options: EthereumSendOptions
+	//todo check if ETH was already locked (order is onchain)
+	if (left.make.assetType.assetClass === "ETH") {
+		options = { value: left.make.value }
+	} else if (right.make.assetType.assetClass === "ETH") {
+		options = { value: right.make.value }
+	} else {
+		options = { }
+	}
 	const tx = await exchangeContract.functionCall(
 		"matchOrders",
 		orderToStruct(left),
 		left.signature || "0x",
 		orderToStruct(right),
 		right.signature || "0x",
-	).send({ ...left.make.assetType.assetClass === "ETH" ? { value: left.take.value } : {} })
-	console.log('tx', tx)
+	).send(options)
 	return tx.hash
 }

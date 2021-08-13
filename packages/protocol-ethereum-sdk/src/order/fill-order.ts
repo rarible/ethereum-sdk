@@ -1,5 +1,5 @@
 import { Asset, Part } from "@rarible/protocol-api-client"
-import { Address, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
+import { Address, toBigNumber, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { Action, ActionBuilder } from "@rarible/action"
 import { Ethereum, EthereumSendOptions } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types/build/address"
@@ -90,10 +90,9 @@ async function matchOrders(
 ): Promise<string> {
 	const exchangeContract = createExchangeV2Contract(ethereum, contract)
 	let options: EthereumSendOptions
-	//todo check if ETH was already locked (order is onchain)
-	if (left.make.assetType.assetClass === "ETH") {
+	if (left.make.assetType.assetClass === "ETH" && left.salt === ZERO) {
 		options = { value: left.make.value }
-	} else if (right.make.assetType.assetClass === "ETH") {
+	} else if (right.make.assetType.assetClass === "ETH" && right.salt === ZERO) {
 		options = { value: right.make.value }
 	} else {
 		options = { }
@@ -107,3 +106,5 @@ async function matchOrders(
 	).send(options)
 	return tx.hash
 }
+
+const ZERO = toWord("0x0000000000000000000000000000000000000000000000000000000000000000")

@@ -2,12 +2,12 @@ import { Asset, Part } from "@rarible/protocol-api-client"
 import { Address, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 import { Action, ActionBuilder } from "@rarible/action"
 import { Ethereum } from "@rarible/ethereum-provider"
+import { toAddress } from "@rarible/types/build/address"
 import { ExchangeAddresses } from "../config/type"
 import { toBn } from "../common/to-bn"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import { orderToStruct, SimpleOrder } from "./sign-order"
 import { invertOrder } from "./invert-order"
-import { toAddress } from "@rarible/types/build/address"
 
 const protocolCommission = toBigNumber('0')//todo impl
 
@@ -35,18 +35,6 @@ export async function fillOrder(
 		.then({ id: "approve", run: () => approve(order.maker, makeAsset, Boolean(request.infinite)) })
 		.then({ id: "send-tx", run: () => fillOrderSendTx(ethereum, config, order, request) })
 		.build()
-}
-
-function getMakeAsset(order: SimpleOrder, amount: number) {
-	switch (order.type) {
-		// case 'RARIBLE_V1': {
-		//     return (() => '')();
-		// }
-		case "RARIBLE_V2": {
-			return getMakeAssetV2(order, amount)
-		}
-	}
-	throw new Error(`Unsupported order type: ${order.type}`)
 }
 
 function getMakeAssetV2(order: SimpleOrder, amount: number) {
@@ -102,12 +90,13 @@ async function matchOrders(
 	sender: Address,
 ): Promise<string> {
 	const exchangeContract = createExchangeV2Contract(ethereum, contract)
-	const tx = await exchangeContract.send(
+	const tx = await exchangeContract.functionCall(
 		"matchOrders",
 		orderToStruct(left),
 		left.signature || "0x",
 		orderToStruct(right),
 		right.signature || "0x",
-	)
+	).send({ ...left.make.assetType.assetClass === "ETH" ? { value: left.take.value } : {} })
+	console.log('tx', tx)
 	return tx.hash
 }

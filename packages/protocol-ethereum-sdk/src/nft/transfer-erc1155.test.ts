@@ -1,22 +1,26 @@
 import { randomAddress, toAddress } from "@rarible/types"
 import { Contract } from "web3-eth-contract"
-import { sentTx } from "../common/send-transaction"
-import { createGanacheProvider } from "../test/create-ganache-provider"
-import { transferErc1155 } from "./transfer-erc1155"
+import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
+import Web3 from "web3"
+import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
+import { transferErc1155 } from "./transfer-erc1155"
 
 describe("transfer Erc1155", () => {
-	const { web3, addresses } = createGanacheProvider()
+	const { provider, addresses } = createGanacheProvider()
+	// @ts-ignore
+	const web3 = new Web3(provider)
+	const ethereum = new Web3Ethereum({ web3 })
 	const [testAddress] = addresses
 	let testErc1155: Contract
 	let from = testAddress
 	let to = randomAddress()
 
 	beforeAll(async () => {
+		console.log(await web3.eth.getGasPrice())
 		testErc1155 = await deployTestErc1155(web3, "TST")
 	})
-
-	test(`should transfer erc1155 token from: ${from}, to: ${to}`, async () => {
+	test('should transfer erc1155 token', async () => {
 		const token1Id = testAddress + "b00000000000000000000001"
 		const token1Balance = '10'
 		await testErc1155.methods.mint(from, token1Id, token1Balance, '123').send({ from: from, gas: 200000 })
@@ -24,7 +28,7 @@ describe("transfer Erc1155", () => {
 		const senderBalance: string = await testErc1155.methods.balanceOf(from, token1Id).call()
 		expect(senderBalance === token1Balance).toBeTruthy()
 
-		const hash = await transferErc1155(sentTx, web3, toAddress(testErc1155.options.address), from, to, token1Id, '5')
+		const hash = await transferErc1155(ethereum, toAddress(testErc1155.options.address), from, to, token1Id, '5')
 		expect(!!hash).toBeTruthy()
 
 		const senderResultBalance: string = await testErc1155.methods.balanceOf(from, token1Id).call()
@@ -59,8 +63,7 @@ describe("transfer Erc1155", () => {
 		expect(token4Balances).toEqual(['300', '0'])
 
 		const hash = await transferErc1155(
-			sentTx,
-			web3,
+			ethereum,
 			toAddress(testErc1155.options.address),
 			from,
 			to,
@@ -106,8 +109,7 @@ describe("transfer Erc1155", () => {
 			expect(token3Balances).toEqual(['100', '0'])
 
 			const hash = await transferErc1155(
-				sentTx,
-				web3,
+				ethereum,
 				toAddress(testErc1155.options.address),
 				from,
 				to,

@@ -13,8 +13,8 @@ export async function transferErc721(
 	const erc721 = createErc721Contract(ethereum, contract)
 	const ownership: Address = await erc721.call("ownerOf", tokenId)
 	if (toAddress(ownership) === toAddress(from)) {
-		const address = await ethereum.getFrom()
-		return sentTx(erc721.methods.safeTransferFrom(from, to, tokenId), { from: address })
+		const tx = await erc721.send("safeTransferFrom", from, to, tokenId)
+		return tx.hash
 	}
 	return undefined
 }

@@ -2,7 +2,7 @@ import { Config } from "./type"
 import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 
 export const E2E_CONFIG: Config = {
-	basePath: "https://api-e2e.rarible.com",
+	basePath: "https://ethereum-api-e2e.rarible.org",
 	chainId: 17,
 	exchange: {
 		v1: toAddress("0x80f32a12cc4c095e2a409b70e5c96e8515e87dea"),

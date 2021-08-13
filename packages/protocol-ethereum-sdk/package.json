@@ -1,6 +1,6 @@
 {
   "name": "@rarible/protocol-ethereum-sdk",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "keywords": [
@@ -23,7 +23,7 @@
   "dependencies": {
     "@rarible/action": "0.1.2",
     "@rarible/ethereum-provider": "^0.1.1",
-    "@rarible/protocol-api-client": "0.0.7",
+    "@rarible/protocol-api-client": "0.1.1",
     "eth-sig-util": "^3.0.1",
     "ethereumjs-util": "^7.1.0",
     "exponential-backoff": "^3.1.0"

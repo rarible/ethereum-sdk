@@ -1,5 +1,5 @@
 import { BN } from "ethereumjs-util"
-import { randomAddress, randomWord, toAddress, toBigNumber, toBinary } from "@rarible/types"
+import { randomAddress, randomWord, toAddress, toBigNumber } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
@@ -15,6 +15,7 @@ import { deployTestRoyaltiesProvider } from "./contracts/test/test-royalties-pro
 import { fillOrder, fillOrderSendTx } from "./fill-order"
 import { signOrder, SimpleOrder } from "./sign-order"
 import { deployTestErc1155 } from "./contracts/test/test-erc1155"
+import { getMakeFee } from "./get-make-fee"
 
 describe("fillOrder", () => {
 	const { addresses, provider } = createGanacheProvider()
@@ -41,7 +42,7 @@ describe("fillOrder", () => {
 		await sentTx(it.exchangeV2.methods.__ExchangeV2_init(
 			toAddress(it.transferProxy.options.address),
 			toAddress(it.erc20TransferProxy.options.address),
-			toBigNumber('0'),
+			toBigNumber('100'),
 			sender1Address,
 			toAddress(it.royaltiesProvider.options.address),
 		), { from: sender1Address })
@@ -99,6 +100,7 @@ describe("fillOrder", () => {
 		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
 
 		const hash = await fillOrderSendTx(
+			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
 			{ ...left, signature },
@@ -151,15 +153,20 @@ describe("fillOrder", () => {
 		const a = toAddress(it.exchangeV2.options.address)
 		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
 
+		const before1 = toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call())
+		const before2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call())
+
 		const hash = await fillOrderSendTx(
+			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
 			{ ...left, signature },
-			{ amount: 2, payouts: [], originFees: [{ account: randomAddress(), value: 0 }] },
+			{ amount: 2, payouts: [], originFees: [{ account: randomAddress(), value: 100 }] },
 		)
-		await web3.eth.getTransactionReceipt(hash as string)
 
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString())
+			.toBe(before2.minus(2).toFixed())
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString())
-			.toBe("2")
+			.toBe(before1.plus(2).toFixed())
 	})
 })

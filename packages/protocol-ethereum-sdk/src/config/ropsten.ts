@@ -14,4 +14,7 @@ export const ROPSTEN_CONFIG: Config = {
 		erc721Lazy: toAddress("0x6c49c170c82C40709a32Fb4E827ad3011CD86227"),
 		erc1155Lazy: toAddress("0x9F7fBc52A53f85e57a5DAde35dFa14797A4dA412"),
 	},
+	fees: {
+		v2: 0
+	}
 }

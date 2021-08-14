@@ -9,6 +9,7 @@ import { E2E_CONFIG } from "../config/e2e"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { upsertOrder } from "./upsert-order"
 import { signOrder } from "./sign-order"
+import { getMakeFee } from "./get-make-fee"
 
 describe("upsertOrder", () => {
 	const { provider, wallet } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
@@ -31,7 +32,7 @@ describe("upsertOrder", () => {
 			},
 		}
 		const checkLazyOrder = async () => Promise.resolve(order)
-		const upsert = await upsertOrder(checkLazyOrder, approve, sign, orderApi, order)
+		const upsert = await upsertOrder(getMakeFee.bind(null, { v2: 0 }), checkLazyOrder, approve, sign, orderApi, order)
 		await upsert.run(0)
 		await upsert.run(1)
 		await upsert.run(2)

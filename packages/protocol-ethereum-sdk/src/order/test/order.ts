@@ -2,7 +2,6 @@ import { toAddress } from "@rarible/types/build/address"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { toWord } from "@rarible/types"
 import { SimpleOrder } from "../sign-order"
-import { toBn } from "../../common/to-bn"
 
 export const TEST_ORDER_TEMPLATE: Omit<SimpleOrder, "type" | "data"> = {
 	make: {

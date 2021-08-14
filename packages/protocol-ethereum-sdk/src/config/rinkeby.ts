@@ -14,4 +14,7 @@ export const RINKEBY_CONFIG: Config = {
 		erc721Lazy: toAddress("0x75fDbe19C2dc673384dDc14C9F453dB86F5f32E8"),
 		erc1155Lazy: toAddress("0x0cF0AAb68432a3710ECbf2f1b112a11cEe31a83C"),
 	},
+	fees: {
+		v2: 0
+	}
 }

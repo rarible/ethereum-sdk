@@ -1,5 +1,5 @@
 import { Asset, Part } from "@rarible/protocol-api-client"
-import { Address, toBigNumber, toWord, ZERO_ADDRESS } from "@rarible/types"
+import { Address, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { Action, ActionBuilder } from "@rarible/action"
 import { Ethereum, EthereumSendOptions } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types/build/address"
@@ -8,8 +8,8 @@ import { toBn } from "../common/to-bn"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import { orderToStruct, SimpleOrder } from "./sign-order"
 import { invertOrder } from "./invert-order"
-
-const protocolFee = toBigNumber('0')//todo impl
+import { addFee } from "./add-fee"
+import { GetMakeFeeFunction } from "./get-make-fee"
 
 export type FillOrderRequest = {
 	amount: number,
@@ -23,26 +23,29 @@ export type FillOrderStageId = "approve" | "send-tx"
 export type FillOrderFunction = () => Promise<Action<FillOrderStageId, [string | undefined, string]>>
 
 export async function fillOrder(
+	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
 	approve: (owner: Address, asset: Asset, infinite: boolean) => Promise<string | undefined>,
 	config: ExchangeAddresses,
 	order: SimpleOrder,
 	request: FillOrderRequest,
 ) {
-	//todo add commissions to approve (on top of ERC-20 and ETH)
-	const makeAsset = getMakeAssetV2(order, request.amount)
+	const makeAsset = getMakeAssetV2(getMakeFee, order, request.amount)
+	//todo we should wait for approve to be mined
 	return ActionBuilder.create<FillOrderStageId>()
 		.then({ id: "approve", run: () => approve(order.maker, makeAsset, Boolean(request.infinite)) })
-		.then({ id: "send-tx", run: () => fillOrderSendTx(ethereum, config, order, request) })
+		.then({ id: "send-tx", run: () => fillOrderSendTx(getMakeFee, ethereum, config, order, request) })
 		.build()
 }
 
-function getMakeAssetV2(order: SimpleOrder, amount: number) {
+function getMakeAssetV2(getMakeFee: GetMakeFeeFunction, order: SimpleOrder, amount: number) {
 	const inverted = invertOrder(order, toBn(amount), ZERO_ADDRESS)
-	return inverted.make
+	const makeFee = getMakeFee(inverted)
+	return addFee(inverted.make, makeFee)
 }
 
 export async function fillOrderSendTx(
+	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
 	config: ExchangeAddresses,
 	order: SimpleOrder,
@@ -54,6 +57,7 @@ export async function fillOrderSendTx(
 		// }
 		case 'RARIBLE_V2': {
 			return await fillOrderV2(
+				getMakeFee,
 				ethereum,
 				config.v2,
 				order,
@@ -65,6 +69,7 @@ export async function fillOrderSendTx(
 }
 
 async function fillOrderV2(
+	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
 	contract: Address,
 	order: SimpleOrder,
@@ -79,10 +84,11 @@ async function fillOrderV2(
 			originFees: request.originFees || [],
 		},
 	}
-	return await matchOrders(ethereum, contract, order, orderRight)
+	return await matchOrders(getMakeFee, ethereum, contract, order, orderRight)
 }
 
 async function matchOrders(
+	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
 	contract: Address,
 	left: SimpleOrder,
@@ -91,9 +97,9 @@ async function matchOrders(
 	const exchangeContract = createExchangeV2Contract(ethereum, contract)
 	let options: EthereumSendOptions
 	if (left.make.assetType.assetClass === "ETH" && left.salt === ZERO) {
-		options = { value: left.make.value }
+		options = { value: getRealValue(getMakeFee, left) }
 	} else if (right.make.assetType.assetClass === "ETH" && right.salt === ZERO) {
-		options = { value: right.make.value }
+		options = { value: getRealValue(getMakeFee, right) }
 	} else {
 		options = { }
 	}
@@ -105,6 +111,12 @@ async function matchOrders(
 		right.signature || "0x",
 	).send(options)
 	return tx.hash
+}
+
+function getRealValue(getMakeFee: GetMakeFeeFunction, order: SimpleOrder) {
+	const fee = getMakeFee(order)
+	const make = addFee(order.make, fee)
+	return make.value
 }
 
 const ZERO = toWord("0x0000000000000000000000000000000000000000000000000000000000000000")

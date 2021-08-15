@@ -20,8 +20,6 @@ export type FillOrderRequest = {
 
 export type FillOrderStageId = "approve" | "send-tx"
 
-export type FillOrderFunction = () => Promise<Action<FillOrderStageId, [string | undefined, string]>>
-
 export async function fillOrder(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,

@@ -106,6 +106,7 @@ export function createRaribleSdk(
 	// @ts-ignore
 	const notify = createPendingLogs.bind(null, gatewayControllerApi, ethereum)
 
+	//todo we should notify API about pending tx
 	const sendTx = partialCall(sendTransaction, async hash => {
 		await notify(hash)
 	})

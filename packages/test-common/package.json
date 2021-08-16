@@ -1,6 +1,6 @@
 {
   "name": "@rarible/ethereum-sdk-test-common",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -21,7 +21,7 @@
     "typescript": "4.3.5"
   },
   "devDependencies": {
-    "@rarible/ethereum-provider": "^0.1.1",
+    "@rarible/ethereum-provider": "^0.1.3",
     "@rarible/test-provider": "0.1.12",
     "@types/web3-provider-engine": "^14.0.1",
     "web3-provider-engine": "16.0.1"

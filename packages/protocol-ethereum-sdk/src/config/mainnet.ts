@@ -2,7 +2,7 @@ import { Config } from "./type"
 import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 
 export const MAINNET_CONFIG: Config = {
-	basePath: "https://api.rarible.com",
+	basePath: "https://ethereum-api.rarible.org",
 	chainId: 1,
 	exchange: {
 		v1: toAddress("0x09EaB21c40743B2364b94345419138eF80f39e30"),
@@ -14,4 +14,7 @@ export const MAINNET_CONFIG: Config = {
 		erc721Lazy: toAddress("0xbb7829BFdD4b557EB944349b2E2c965446052497"),
 		erc1155Lazy: toAddress("0x75a8B7c0B22D973E0B46CfBD3e2f6566905AA79f"),
 	},
+	fees: {
+		v2: 0
+	}
 }

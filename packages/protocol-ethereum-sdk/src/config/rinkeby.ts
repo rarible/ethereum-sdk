@@ -2,7 +2,7 @@ import { Config } from "./type"
 import { toAddress } from "@rarible/types"
 
 export const RINKEBY_CONFIG: Config = {
-	basePath: "https://api-staging.rarible.com",
+	basePath: "https://ethereum-api-staging.rarible.org",
 	chainId: 4,
 	exchange: {
 		v1: toAddress("0xda381535565b97640a6453fa7a1a7b161af78cbe"),
@@ -14,4 +14,7 @@ export const RINKEBY_CONFIG: Config = {
 		erc721Lazy: toAddress("0x75fDbe19C2dc673384dDc14C9F453dB86F5f32E8"),
 		erc1155Lazy: toAddress("0x0cF0AAb68432a3710ECbf2f1b112a11cEe31a83C"),
 	},
+	fees: {
+		v2: 0
+	}
 }

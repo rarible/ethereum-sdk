@@ -1,6 +1,12 @@
 import { Contract, ethers } from "ethers"
 import { TransactionResponse } from "@ethersproject/abstract-provider"
-import { Ethereum, EthereumContract, EthereumTransaction } from "@rarible/ethereum-provider"
+import {
+	Ethereum,
+	EthereumContract,
+	EthereumFunctionCall,
+	EthereumSendOptions,
+	EthereumTransaction,
+} from "@rarible/ethereum-provider"
 
 export class EthersEthereum implements Ethereum {
 	constructor(readonly web3Provider: ethers.providers.Web3Provider, readonly from?: string) {
@@ -30,15 +36,24 @@ export class EthersContract implements EthereumContract {
 	constructor(private readonly contract: Contract) {
 	}
 
-	call(name: string, ...args: any): Promise<any> {
-		return this.contract[name](...args)
+	functionCall(name: string, ...args: any): EthereumFunctionCall {
+		return new EthersFunctionCall(this.contract, this.contract.methods[name].bind(null, ...args))
 	}
 
-	async send(name: string, ...args: any): Promise<EthereumTransaction> {
-		const tx: TransactionResponse = await this.contract[name](...args)
+}
+
+export class EthersFunctionCall implements EthereumFunctionCall {
+	constructor(private readonly contract: Contract, private readonly func: any) {
+	}
+
+	call(options: EthereumSendOptions): Promise<any> {
+		return this.func(options)
+	}
+
+	async send(options: EthereumSendOptions): Promise<EthereumTransaction> {
+		const tx: TransactionResponse = await this.func(options)
 		return new EthersTransaction(tx)
 	}
-
 }
 
 export class EthersTransaction implements EthereumTransaction {
@@ -54,10 +69,4 @@ export class EthersTransaction implements EthereumTransaction {
 	}
 }
 
-export const DOMAIN_TYPE = [
-	{ type: "string", name: "name" },
-	{ type: "string", name: "version" },
-	{ type: "uint256", name: "chainId" },
-	{ type: "address", name: "verifyingContract" },
-]
 

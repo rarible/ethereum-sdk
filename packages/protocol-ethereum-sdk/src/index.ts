@@ -32,6 +32,7 @@ import {
 import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
 import { mintLazy as mintLazyTemplate, MintLazyRequest } from "./nft/mint-lazy"
 import { signNft as signNftTemplate } from "./nft/sign-nft"
+import { getMakeFee as getMakeFeeTemplate } from "./order/get-make-fee"
 
 export interface RaribleSdk {
 	order: RaribleOrderSdk
@@ -105,6 +106,7 @@ export function createRaribleSdk(
 	// @ts-ignore
 	const notify = createPendingLogs.bind(null, gatewayControllerApi, ethereum)
 
+	//todo we should notify API about pending tx
 	const sendTx = partialCall(sendTransaction, async hash => {
 		await notify(hash)
 	})
@@ -117,10 +119,11 @@ export function createRaribleSdk(
 
 	const approve = partialCall(approveTemplate, ethereum, config.transferProxies)
 	const signOrder = partialCall(signOrderTemplate, ethereum, config)
-	const upsertOrder = partialCall(upsertOrderTemplate, checkLazyOrder, approve, signOrder, orderControllerApi)
+	const getMakeFee = partialCall(getMakeFeeTemplate, config.fees)
+	const upsertOrder = partialCall(upsertOrderTemplate, getMakeFee, checkLazyOrder, approve, signOrder, orderControllerApi)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
-	const fill = partialCall(fillOrder, ethereum, approve, config.exchange)
+	const fill = partialCall(fillOrder, getMakeFee, ethereum, approve, config.exchange)
 
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
 	const mintLazy = partialCall(mintLazyTemplate, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)

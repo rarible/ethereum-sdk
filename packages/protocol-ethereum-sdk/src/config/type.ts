@@ -4,7 +4,12 @@ export type Config = {
 	basePath: string
 	chainId: number
 	exchange: ExchangeAddresses
-	transferProxies: TransferProxies
+	transferProxies: TransferProxies,
+	fees: ExchangeFees
+}
+
+export type ExchangeFees = {
+	v2: number
 }
 
 export type TransferProxies = {

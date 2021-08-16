@@ -9,9 +9,19 @@ export interface Ethereum {
 }
 
 export interface EthereumContract {
-	call(name: string, ...args: any): Promise<any>
+	functionCall(name: string, ...args: any): EthereumFunctionCall
+}
 
-	send(name: string, ...args: any): Promise<EthereumTransaction>
+export interface EthereumSendOptions {
+	value?: number | string
+	gas?: number
+	gasPrice?: number
+}
+
+export interface EthereumFunctionCall {
+	call(options?: EthereumSendOptions): Promise<any>
+
+	send(options?: EthereumSendOptions): Promise<EthereumTransaction>
 }
 
 export interface EthereumTransaction {
@@ -47,3 +57,4 @@ enum SignTypedDataTypes {
 	SIGN_TYPED_DATA_V3 = "eth_signTypedData_v3",
 	SIGN_TYPED_DATA_V4 = "eth_signTypedData_v4"
 }
+

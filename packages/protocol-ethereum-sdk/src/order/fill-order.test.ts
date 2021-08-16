@@ -1,5 +1,5 @@
 import { BN } from "ethereumjs-util"
-import { randomWord, toAddress, toBigNumber, toBinary } from "@rarible/types"
+import { randomAddress, randomWord, toAddress, toBigNumber } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
@@ -15,6 +15,7 @@ import { deployTestRoyaltiesProvider } from "./contracts/test/test-royalties-pro
 import { fillOrder, fillOrderSendTx } from "./fill-order"
 import { signOrder, SimpleOrder } from "./sign-order"
 import { deployTestErc1155 } from "./contracts/test/test-erc1155"
+import { getMakeFee } from "./get-make-fee"
 
 describe("fillOrder", () => {
 	const { addresses, provider } = createGanacheProvider()
@@ -41,7 +42,7 @@ describe("fillOrder", () => {
 		await sentTx(it.exchangeV2.methods.__ExchangeV2_init(
 			toAddress(it.transferProxy.options.address),
 			toAddress(it.erc20TransferProxy.options.address),
-			toBigNumber('0'),
+			toBigNumber('100'),
 			sender1Address,
 			toAddress(it.royaltiesProvider.options.address),
 		), { from: sender1Address })
@@ -72,7 +73,7 @@ describe("fillOrder", () => {
 				},
 				value: toBigNumber("10"),
 			},
-			salt: toBinary(randomWord()),
+			salt: randomWord(),
 			type: 'RARIBLE_V2',
 			data: {
 				dataType: "RARIBLE_V2_DATA_V1",
@@ -99,6 +100,7 @@ describe("fillOrder", () => {
 		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
 
 		const hash = await fillOrderSendTx(
+			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
 			{ ...left, signature },
@@ -110,5 +112,61 @@ describe("fillOrder", () => {
 			.toBe("4")
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString())
 			.toBe("2")
+	})
+
+	test('should match order(buy erc1155 for eth)', async () => {
+		//sender1 has ETH, sender2 has ERC1155
+
+		await sentTx(it.testErc1155.methods.mint(sender2Address, 1, 10, "0x"), { from: sender1Address })
+
+		const left: SimpleOrder = {
+			make: {
+				assetType: {
+					assetClass: "ERC1155",
+					contract: toAddress(it.testErc1155.options.address),
+					tokenId: toBigNumber("1"),
+				},
+				value: toBigNumber("5"),
+			},
+			maker: sender2Address,
+			take: {
+				assetType: {
+					assetClass: "ETH",
+				},
+				value: toBigNumber("1000000"),
+			},
+			salt: randomWord(),
+			type: 'RARIBLE_V2',
+			data: {
+				dataType: "RARIBLE_V2_DATA_V1",
+				payouts: [],
+				originFees: [],
+			},
+		}
+
+		//todo approve using our functions
+		await sentTx(
+			it.testErc1155.methods.setApprovalForAll(it.transferProxy.options.address, true),
+			{ from: sender2Address },
+		)
+
+		const a = toAddress(it.exchangeV2.options.address)
+		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
+
+		const before1 = toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call())
+		const before2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call())
+
+		const hash = await fillOrderSendTx(
+			getMakeFee.bind(null, { v2: 100 }),
+			ethereum1,
+			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
+			{ ...left, signature },
+			{ amount: 2, payouts: [], originFees: [{ account: randomAddress(), value: 100 }] },
+		)
+
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString())
+			.toBe(before2.minus(2).toFixed())
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString())
+			.toBe(before1.plus(2).toFixed())
 	})
 })

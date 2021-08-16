@@ -1,7 +1,13 @@
 import Web3 from "web3"
 import { Contract } from "web3-eth-contract"
 import { PromiEvent } from "web3-core"
-import { Ethereum, EthereumContract, EthereumTransaction } from "@rarible/ethereum-provider"
+import {
+	Ethereum,
+	EthereumContract,
+	EthereumFunctionCall,
+	EthereumSendOptions,
+	EthereumTransaction,
+} from "@rarible/ethereum-provider"
 
 type Web3EthereumConfig = {
 	web3: Web3
@@ -60,13 +66,30 @@ export class Web3Contract implements EthereumContract {
 	constructor(private readonly config: Web3EthereumConfig, private readonly contract: Contract) {
 	}
 
-	call(name: string, ...args: any): Promise<any> {
-		return this.contract.methods[name](...args).call()
+	functionCall(name: string, ...args: any): EthereumFunctionCall {
+		return new Web3FunctionCall(this.config, this.contract, this.contract.methods[name].bind(null, ...args))
+	}
+}
+
+export class Web3FunctionCall implements EthereumFunctionCall {
+	constructor(
+		private readonly config: Web3EthereumConfig,
+		private readonly contract: Contract,
+		private readonly func: any,
+	) {
 	}
 
-	async send(name: string, ...args: any): Promise<EthereumTransaction> {
+	call(options?: EthereumSendOptions): Promise<any> {
+		return this.func().call({ ...options })
+	}
+
+	async send(options?: EthereumSendOptions): Promise<EthereumTransaction> {
 		const address = await this.getFrom()
-		const promiEvent: PromiEvent<any> = this.contract.methods[name](...args).send({ from: address, gas: this.config.gas })
+		const promiEvent: PromiEvent<any> = this.func().send({
+			from: address,
+			gas: this.config.gas,
+			...options,
+		})
 		const hash = await new Promise<string>(((resolve, reject) => {
 			promiEvent.on("transactionHash", resolve)
 			promiEvent.on("error", reject)

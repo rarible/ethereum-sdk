@@ -97,7 +97,7 @@ describe("transfer Erc721", () => {
 		console.log('pre create')
 		const erc721Lazy = createErc721LazyContract(ethereum, CONFIGS.e2e.transferProxies.erc721Lazy)
 		console.log('created', params)
-		const transferResult: EthereumTransaction = await erc721Lazy.send("mintAndTransfer", ...params)
+		const transferResult: EthereumTransaction = await erc721Lazy.functionCall("mintAndTransfer", ...params).send()
 		console.log('transferResult', transferResult)
 	})
 

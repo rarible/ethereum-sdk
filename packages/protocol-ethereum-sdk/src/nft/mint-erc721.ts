@@ -1,18 +1,14 @@
-import { Ethereum } from "@rarible/ethereum-provider"
-import { NftCollectionControllerApi } from "@rarible/protocol-api-client"
-import { Address } from "@rarible/types"
-import { createErc721Contract } from "../order/contracts/erc721"
+import { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
+import { Address, BigNumber } from "@rarible/types"
 
 export async function mintErc721(
 	ethereum: Ethereum,
-	nftCollectionApi: NftCollectionControllerApi,
-	contract: Address,
+	contract: EthereumContract,
 	minter: Address,
 	to: Address,
 	uri: string,
+	tokenId: BigNumber,
 ): Promise<string> {
-	const erc721Contract = createErc721Contract(ethereum, contract)
-	const tokenId = await nftCollectionApi.generateNftTokenId({ collection: contract, minter })
-	const tx = await erc721Contract.send("mint", to, tokenId.tokenId, uri)
+	const tx = await contract.functionCall("mint", to, tokenId, uri).send()
 	return tx.hash
 }

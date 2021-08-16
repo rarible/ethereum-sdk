@@ -29,7 +29,7 @@ export async function transferErc721Lazy(
 					from,
 					to,
 				]
-				const transferResult = await erc721Lazy.send("transferFromOrMint", ...params)
+				const transferResult = await erc721Lazy.functionCall("transferFromOrMint", ...params).send()
 				console.log(transferResult)
 			}
 		} else if (lazyValue === undefined) {

@@ -11,9 +11,9 @@ export async function transferErc721(
 	tokenId: string,
 ): Promise<string | undefined> {
 	const erc721 = createErc721Contract(ethereum, contract)
-	const ownership: Address = await erc721.call("ownerOf", tokenId)
+	const ownership: Address = await erc721.functionCall("ownerOf", tokenId).call()
 	if (toAddress(ownership) === toAddress(from)) {
-		const tx = await erc721.send("safeTransferFrom", from, to, tokenId)
+		const tx = await erc721.functionCall("safeTransferFrom", from, to, tokenId).send()
 		return tx.hash
 	}
 	return undefined

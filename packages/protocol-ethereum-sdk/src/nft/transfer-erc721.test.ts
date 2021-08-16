@@ -22,7 +22,7 @@ describe("transfer Erc721", () => {
 		testErc721 = await deployTestErc721(web3, "TST", "TST")
 	})
 
-	test(`should transfer erc721 token from: ${from}, to: ${to}`, async () => {
+	test('should transfer erc721 token', async () => {
 		const tokenId1: string = from + "b00000000000000000000001"
 		await testErc721.methods.mint(from, tokenId1, 'https://nft.com').send({ from, gas: 20000 })
 

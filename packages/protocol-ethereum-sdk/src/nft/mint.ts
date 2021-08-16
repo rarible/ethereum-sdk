@@ -3,6 +3,8 @@ import { Ethereum } from "@rarible/ethereum-provider"
 import { Address } from "@rarible/types"
 import { mintErc721 } from "./mint-erc721"
 import { mintErc1155 } from "./mint-erc1155"
+import { createErc721Contract } from "../order/contracts/erc721"
+import { createErc1155Contract } from "../order/contracts/erc1155"
 
 type MintErc721Data = {
 	assetClass: "ERC721",
@@ -30,10 +32,14 @@ export async function mint(
 ): Promise<string | undefined> {
 	switch (data.assetClass) {
 		case "ERC721": {
-			return await mintErc721(ethereum, nftCollectionApi, data.contract, data.minter, data.to, data.uri)
+			const erc721Contract = createErc721Contract(ethereum, data.contract)
+			const { tokenId } = await nftCollectionApi.generateNftTokenId({ collection: data.contract, minter: data.minter })
+			return await mintErc721(ethereum, erc721Contract, data.minter, data.to, data.uri, tokenId)
 		}
 		case "ERC1155": {
-			return await mintErc1155(ethereum, nftCollectionApi, data.contract, data.minter, data.to, data.uri, data.amount)
+			const erc155Contract = createErc1155Contract(ethereum, data.contract)
+			const { tokenId } = await nftCollectionApi.generateNftTokenId({ collection: data.contract, minter: data.minter })
+			return await mintErc1155(ethereum, erc155Contract, data.minter, data.to, data.uri, tokenId, data.amount)
 		}
 	}
 }

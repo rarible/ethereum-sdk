@@ -30,9 +30,9 @@ async function sendTransaction(
 	from: Address,
 	to: Address,
 	tokenId: string | string[],
-	tokenAmount: string | string[]
+	tokenAmount: string | string[],
 ) {
 	const erc1155 = createErc1155Contract(ethereum, contract)
-	const tx = await erc1155.send("safeBatchTransferFrom", from, to, tokenId, tokenAmount, '0x0')
+	const tx = await erc1155.functionCall("safeBatchTransferFrom", from, to, tokenId, tokenAmount, '0x0').send({})
 	return tx.hash
 }

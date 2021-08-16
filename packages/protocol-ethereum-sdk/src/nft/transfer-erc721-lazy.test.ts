@@ -1,4 +1,3 @@
-import { Contract } from "web3-eth-contract"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import fetch from "node-fetch"
@@ -22,11 +21,10 @@ import { signNftLazy } from "./sign-nft-lazy"
 
 describe("transfer Erc721", () => {
 	const { provider, wallet } = createE2eProvider()
-	let testErc721: Contract
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
 
-	const configuration = new Configuration({ basePath: "https://api-e2e.rarible.com", fetchApi: fetch })
+	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org", fetchApi: fetch })
 	const nftOwnershipApi = new NftOwnershipControllerApi(configuration)
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(configuration)
@@ -71,8 +69,6 @@ describe("transfer Erc721", () => {
 			},
 		)
 		const nftTemplate: SimpleLazyNft<"signatures" | "@type"> = {
-			// @ts-ignore
-			// "@type": "ERC721_LAZY",
 			contract: toAddress(CONFIGS.e2e.transferProxies.erc721Lazy),
 			tokenId: tokenId,
 			uri: '//uri',
@@ -92,11 +88,8 @@ describe("transfer Erc721", () => {
 				signatures: [signature],
 			},
 			wallet.getAddressString(),
-			// randomAddress(),
 		]
-		console.log('pre create')
 		const erc721Lazy = createErc721LazyContract(ethereum, CONFIGS.e2e.transferProxies.erc721Lazy)
-		console.log('created', params)
 		const transferResult: EthereumTransaction = await erc721Lazy.functionCall("mintAndTransfer", ...params).send()
 		console.log('transferResult', transferResult)
 	})

@@ -29,8 +29,8 @@ export async function transferErc721Lazy(
 					from,
 					to,
 				]
-				const transferResult = await erc721Lazy.functionCall("transferFromOrMint", ...params).send()
-				console.log(transferResult)
+				const tx = await erc721Lazy.functionCall("transferFromOrMint", ...params).send()
+				return tx.hash
 			}
 		} else if (lazyValue === undefined) {
 			throw new Error(`Can't mint and transfer, lazyValue is ${lazyValue}`)

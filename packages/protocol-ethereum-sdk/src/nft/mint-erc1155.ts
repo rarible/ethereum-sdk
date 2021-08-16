@@ -6,7 +6,7 @@ export async function mintErc1155(
 	contract: EthereumContract,
 	minter: Address,
 	to: Address,
-	uri: string,
+	uri: Buffer,
 	tokenId: BigNumber,
 	amount: number,
 ): Promise<string> {

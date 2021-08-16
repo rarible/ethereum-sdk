@@ -29,7 +29,6 @@ describe('mint-lazy test', () => {
 				royalties: [],
 			})
 		const resultNft = await sdk.apis.nftItem.getNftItemById({ itemId: nftItem.id })
-		console.log(resultNft)
 		expect(resultNft.lazySupply).toEqual('1')
 	}, 10000)
 

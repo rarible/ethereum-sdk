@@ -5,19 +5,16 @@ import {
 	Binary,
 	Configuration,
 	NftCollectionControllerApi,
-	NftItem,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
 	NftOwnershipControllerApi,
 } from "@rarible/protocol-api-client"
-import { toAddress } from "@rarible/types"
+import { randomAddress, toAddress } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { EthereumTransaction } from "@rarible/ethereum-provider"
 import { CONFIGS } from "../config"
-import { MintLazyRequest } from "./mint-lazy"
-import { SimpleLazyNft } from "./sign-nft"
-import { createErc721LazyContract } from "./contracts/erc721-lazy"
-import { signNftLazy } from "./sign-nft-lazy"
+import { signNft, SimpleLazyNft } from "./sign-nft"
+import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
 
 describe("transfer Erc721", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -30,45 +27,22 @@ describe("transfer Erc721", () => {
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)
 
-	let mint: (mintLazyRequest: MintLazyRequest) => Promise<NftItem>
-	let sign: (nft: SimpleLazyNft<"signatures" | "@type">) => Promise<Binary>
+	let sign: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>
 
 	beforeAll(async () => {
 		const chainId = await web3.eth.getChainId()
-		sign = signNftLazy.bind(null, ethereum, chainId)
-		// mint = mintLazy.bind(null, sign, nftCollectionApi, nftLazyMintControllerApi)
-		// testErc721 = await deployTestErc721(web3, "TST", "TST")
+		sign = signNft.bind(null, ethereum, chainId)
 	})
 
 	test('should transfer erc721 lazy token', async () => {
-		// const nftItem = await mint(
-		// 	{
-		// 		"@type": "ERC721",
-		// 		contract: toAddress(testErc721.options.address),
-		// 		uri: '/uri',
-		// 		creators: [{ account: toAddress(wallet.getAddressString()), value: 10000 }],
-		// 		royalties: [],
-		// 	},
-		// )
-		// console.log('nftItem', nftItem)
-		// const ownership = await nftOwnershipApi.getNftOwnershipsByItem({
-		// 	tokenId: nftItem.tokenId,
-		// 	contract: nftItem.contract,
-		// })
 
-		const data = {
-			"@type": "ERC721",
-			contract: toAddress("0x2547760120aED692EB19d22A5d9CCfE0f7872fcE"),
-			uri: '/uri',
-			creators: [{ account: toAddress(wallet.getAddressString()), value: 10000 }],
-			royalties: [],
-		}
 		const { tokenId } = await nftCollectionApi.generateNftTokenId({
 				collection: toAddress("0x2547760120aED692EB19d22A5d9CCfE0f7872fcE"),
 				minter: toAddress(wallet.getAddressString()),
 			},
 		)
-		const nftTemplate: SimpleLazyNft<"signatures" | "@type"> = {
+		const nftTemplate: SimpleLazyNft<"signatures"> = {
+			["@type"]: 'ERC721',
 			contract: toAddress(CONFIGS.e2e.transferProxies.erc721Lazy),
 			tokenId: tokenId,
 			uri: '//uri',
@@ -88,9 +62,10 @@ describe("transfer Erc721", () => {
 				signatures: [signature],
 			},
 			wallet.getAddressString(),
+			randomAddress(),
 		]
 		const erc721Lazy = createErc721LazyContract(ethereum, CONFIGS.e2e.transferProxies.erc721Lazy)
-		const transferResult: EthereumTransaction = await erc721Lazy.functionCall("mintAndTransfer", ...params).send()
+		const transferResult: EthereumTransaction = await erc721Lazy.functionCall("transferFromOrMint", ...params).send()
 		console.log('transferResult', transferResult)
 	})
 

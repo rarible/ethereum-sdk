@@ -1,6 +1,6 @@
 import { Address, NftItemControllerApi, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
-import { createErc721LazyContract } from "./contracts/erc721-lazy"
+import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
 
 export async function transferErc721Lazy(
 	ethereum: Ethereum,

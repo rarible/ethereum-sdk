@@ -15,12 +15,10 @@ export async function transferErc1155(
 		if (tokenId.length === tokenAmount.length) {
 			return await sendTransaction(ethereum, contract, from, to, tokenId, tokenAmount)
 		} else {
-			return undefined
+			throw new Error("Length of token amounts and token id's isn't equal")
 		}
-	} else if (typeof tokenId === "string" && typeof tokenAmount === "string") {
-		return await sendTransaction(ethereum, contract, from, to, tokenId, tokenAmount)
 	} else {
-		return undefined
+		return await sendTransaction(ethereum, contract, from, to, tokenId, tokenAmount)
 	}
 }
 
@@ -33,6 +31,10 @@ async function sendTransaction(
 	tokenAmount: string | string[],
 ) {
 	const erc1155 = createErc1155Contract(ethereum, contract)
-	const tx = await erc1155.functionCall("safeBatchTransferFrom", from, to, tokenId, tokenAmount, '0x0').send({})
+	if (Array.isArray(tokenId) && Array.isArray(tokenAmount)) {
+		const tx = await erc1155.functionCall("safeBatchTransferFrom", from, to, tokenId, tokenAmount, '0x0').send({ gas: 200000 })
+		return tx.hash
+	}
+	const tx = await erc1155.functionCall("safeTransferFrom", from, to, tokenId, tokenAmount, '0x0').send({ gas: 200000 })
 	return tx.hash
 }

@@ -17,7 +17,6 @@ describe("transfer Erc1155", () => {
 	let to = randomAddress()
 
 	beforeAll(async () => {
-		console.log(await web3.eth.getGasPrice())
 		testErc1155 = await deployTestErc1155(web3, "TST")
 	})
 	test('should transfer erc1155 token', async () => {
@@ -107,25 +106,17 @@ describe("transfer Erc1155", () => {
 			]
 			expect(token2Balances).toEqual(['100', '0'])
 			expect(token3Balances).toEqual(['100', '0'])
-
-			const hash = await transferErc1155(
-				ethereum,
-				toAddress(testErc1155.options.address),
-				from,
-				to,
-				[token2Id, token3Id],
-				['50', '50', '10'])
-			expect(hash === undefined).toBeTruthy()
-
-			const [
-				resultToken2Balances,
-				resultToken3Balances,
-			] = [
-				await testErc1155.methods.balanceOfBatch([from, to], [token2Id, token2Id]).call(),
-				await testErc1155.methods.balanceOfBatch([from, to], [token3Id, token3Id]).call(),
-			]
-
-			expect(resultToken2Balances).toEqual(['100', '0'])
-			expect(resultToken3Balances).toEqual(['100', '0'])
+			expect.assertions(3)
+			try {
+				await transferErc1155(
+					ethereum,
+					toAddress(testErc1155.options.address),
+					from,
+					to,
+					[token2Id, token3Id],
+					['50', '50', '10'])
+			} catch (e) {
+				expect(e.message).toEqual("Length of token amounts and token id's isn't equal")
+			}
 		})
 })

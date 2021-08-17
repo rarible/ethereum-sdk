@@ -13,7 +13,7 @@ describe("transfer Erc721", () => {
 	let from = testAddress
 	// @ts-ignore
 	const web3 = new Web3(provider)
-	const ethereum = new Web3Ethereum({ web3, gas: 20000, from })
+	const ethereum = new Web3Ethereum({ web3 })
 
 	let testErc721: Contract
 	let to = randomAddress()
@@ -24,7 +24,7 @@ describe("transfer Erc721", () => {
 
 	test('should transfer erc721 token', async () => {
 		const tokenId1: string = from + "b00000000000000000000001"
-		await testErc721.methods.mint(from, tokenId1, 'https://nft.com').send({ from, gas: 20000 })
+		await testErc721.methods.mint(from, tokenId1, 'https://nft.com').send({ from, gas: 200000 })
 
 		const senderBalance = await testErc721.methods.balanceOf(from).call()
 		expect(senderBalance === '1').toBeTruthy()
@@ -47,7 +47,7 @@ describe("transfer Erc721", () => {
 
 		const resultReceiverBalance = await testErc721.methods.balanceOf(to).call()
 		expect(resultReceiverBalance === '1').toBeTruthy()
-	})
+	}, 20000)
 
 	test(`should throw ownership error`, async () => {
 		const tokenId2: string = from + "b00000000000000000000002"

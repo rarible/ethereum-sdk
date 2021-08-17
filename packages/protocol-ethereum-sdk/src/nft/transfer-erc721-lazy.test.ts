@@ -11,7 +11,6 @@ import {
 } from "@rarible/protocol-api-client"
 import { randomAddress, toAddress } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { EthereumTransaction } from "@rarible/ethereum-provider"
 import { CONFIGS } from "../config"
 import { signNft, SimpleLazyNft } from "./sign-nft"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
@@ -34,13 +33,14 @@ describe("transfer Erc721", () => {
 		sign = signNft.bind(null, ethereum, chainId)
 	})
 
-	test('should transfer erc721 lazy token', async () => {
-
+	test('should transfer erc721 lazy token', async () => { // todo use transfer-erc721-lazy function
+		const recipient = randomAddress()
 		const { tokenId } = await nftCollectionApi.generateNftTokenId({
-				collection: toAddress("0x2547760120aED692EB19d22A5d9CCfE0f7872fcE"),
+				collection: toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7"),
 				minter: toAddress(wallet.getAddressString()),
 			},
 		)
+
 		const nftTemplate: SimpleLazyNft<"signatures"> = {
 			["@type"]: 'ERC721',
 			contract: toAddress(CONFIGS.e2e.transferProxies.erc721Lazy),
@@ -62,11 +62,13 @@ describe("transfer Erc721", () => {
 				signatures: [signature],
 			},
 			wallet.getAddressString(),
-			randomAddress(),
+			recipient,
 		]
-		const erc721Lazy = createErc721LazyContract(ethereum, CONFIGS.e2e.transferProxies.erc721Lazy)
-		const transferResult: EthereumTransaction = await erc721Lazy.functionCall("transferFromOrMint", ...params).send()
-		console.log('transferResult', transferResult)
+		const erc721Lazy = createErc721LazyContract(ethereum, toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7"))
+		await erc721Lazy.functionCall("transferFromOrMint", ...params).send()
+		const recipientBalance = await erc721Lazy.functionCall("balanceOf", recipient).call()
+
+		expect(recipientBalance).toEqual(1)
 	})
 
 })

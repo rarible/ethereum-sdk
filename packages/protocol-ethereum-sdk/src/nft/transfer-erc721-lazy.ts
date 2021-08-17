@@ -1,9 +1,13 @@
-import { Address, NftItemControllerApi, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
+import { Address, Binary, NftItemControllerApi, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
+import { toBigNumber } from "@rarible/types/build/big-number"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
+import { SimpleLazyNft } from "./sign-nft"
 
+// todo refactor function input params
 export async function transferErc721Lazy(
 	ethereum: Ethereum,
+	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftOwnershipApi: NftOwnershipControllerApi,
 	nftItemApi: NftItemControllerApi,
 	contract: Address,
@@ -16,15 +20,24 @@ export async function transferErc721Lazy(
 	if (ownership.total) {
 		const lazyValue = ownership.ownerships.find(o => o.owner === from)?.lazyValue
 		if (lazyValue) {
-			const nftItem = await nftItemApi.getNftItemByIdRaw({ itemId: tokenId })
+			const nftItem = await nftItemApi.getNftItemByIdRaw({ itemId: tokenId }) // todo remove this call, get params on function input
 			if (nftItem.status === 200) {
+				const nftTemplate: SimpleLazyNft<"signatures"> = {
+					["@type"]: 'ERC721',
+					contract,
+					tokenId: toBigNumber(tokenId),
+					uri: 'uri',
+					creators: [...nftItem.value.creators],
+					royalties: [...nftItem.value.royalties],
+				}
+				const signature = await signNft(nftTemplate)
 				const params = [
 					{
 						tokenId: nftItem.value.tokenId,
 						uri: nftItem.value,
 						creators: nftItem.value.creators,
 						royalties: nftItem.value.royalties,
-						// signatures,
+						signatures: [signature],
 					},
 					from,
 					to,
@@ -40,6 +53,5 @@ export async function transferErc721Lazy(
 	} else {
 		throw new Error(`Address ${from} has not any ownerships of token with Id ${tokenId}`)
 	}
-	console.log('ownership', ownership)
 	return undefined
 }

@@ -16,6 +16,7 @@ import { transferErc721 } from "./transfer-erc721"
 import { transferErc1155 } from "./transfer-erc1155"
 import { transferErc721Lazy } from "./transfer-erc721-lazy"
 import { SimpleLazyNft } from "./sign-nft"
+import { transferErc1155Lazy } from "./transfer-erc1155-lazy"
 
 type TransferAsset =
 	EthAssetType
@@ -23,7 +24,7 @@ type TransferAsset =
 	| Erc721AssetType
 	| Erc1155AssetType
 	| Omit<Erc721LazyAssetType, "signatures" | "uri">
-	| Omit<Erc1155LazyAssetType, "signatures" | "uri">
+	| Omit<Erc1155LazyAssetType, "signatures" | "uri"> // todo remove uri when we can get uri from api
 
 export async function transfer(
 	ethereum: Ethereum,
@@ -48,10 +49,9 @@ export async function transfer(
 			return transferErc721Lazy(ethereum, signNft, nftItemApi, nftOwnershipApi, asset, receiver)
 		}
 
-		// case "ERC1155_LAZY": {
-		// 	const contract = config.erc1155Lazy
-		// 	return transferErc1155(sendTx, web3, contract, owner, receiver, asset.assetType.tokenId, asset.value)
-		// }
+		case "ERC1155_LAZY": {
+			return transferErc1155Lazy(ethereum, signNft, nftItemApi, nftOwnershipApi, asset, receiver, value)
+		}
 	}
 	return undefined
 }

@@ -49,7 +49,7 @@ export async function transferErc721Lazy(
 			const tx = await erc721Lazy.functionCall("mintAndTransfer", ...params).send()
 			return tx.hash
 		} else if (lazyValue === undefined) {
-			//todo may be use transferFromOrMint for this case
+			//todo may be use transferFromOrMint for this case if value grater than 0
 			throw new Error(`Can't mint and transfer, lazyValue is ${lazyValue}`)
 		} else {
 			throw new Error(`Address ${from} has not any ownerships of token with Id ${nftItem.tokenId}`)

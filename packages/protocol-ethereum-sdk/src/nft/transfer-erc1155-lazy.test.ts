@@ -14,8 +14,8 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { signNft, SimpleLazyNft } from "./sign-nft"
 import { mint, MintLazyRequest } from "./mint"
-import { transferErc721Lazy } from "./transfer-erc721-lazy"
-import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
+import { transferErc1155Lazy } from "./transfer-erc1155-lazy"
+import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
 
 describe("transfer Erc721 lazy", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -35,36 +35,37 @@ describe("transfer Erc721 lazy", () => {
 		sign = signNft.bind(null, ethereum, chainId)
 	})
 
-	test('should transfer erc721 lazy token', async () => {
+	test('should transfer erc1155 lazy token', async () => {
 		const recipient = randomAddress()
-		const contract = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
+		const contract = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
 
 		const mintNftTemplate: MintLazyRequest = {
-			"@type": 'ERC721',
+			"@type": 'ERC1155',
 			contract,
 			uri: '//uri',
 			creators: [{ account: toAddress(wallet.getAddressString()), value: 10000 }],
 			royalties: [],
+			supply: toBigNumber('100'),
 			isLazy: true,
 		}
 		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintControllerApi, mintNftTemplate)
 		const lazyNftItem = await nftItemApi.getNftLazyItemById({ itemId: tokenId })
-		await transferErc721Lazy(
+		await transferErc1155Lazy(
 			ethereum,
 			sign,
 			nftItemApi,
 			nftOwnershipApi,
 			{
-				assetClass: "ERC721_LAZY",
+				assetClass: "ERC1155_LAZY",
 				tokenId: toBigNumber(tokenId),
 				contract: lazyNftItem.contract,
 				creators: lazyNftItem.creators,
 				royalties: lazyNftItem.royalties,
-			}, recipient)
+			}, recipient, toBigNumber('50'))
 
-		const erc721Lazy = createErc721LazyContract(ethereum, contract)
-		const recipientBalance = await erc721Lazy.functionCall("balanceOf", recipient).call()
-		expect(recipientBalance).toEqual("1")
+		const erc1155Lazy = createErc1155LazyContract(ethereum, contract)
+		const recipientBalance = await erc1155Lazy.functionCall("balanceOf", recipient, lazyNftItem.tokenId).call()
+		expect(recipientBalance).toEqual("50")
 	}, 10000)
-
+//todo add test cases where we have partial lazyValue and value greater then 0 to use transferFromOrMint
 })

@@ -25,15 +25,15 @@ export async function transferErc721Lazy(
 	const from = await ethereum.getFrom()
 	if (ownership.total) {
 		const lazyValue = ownership.ownerships.find(o => o.owner.toLowerCase() === from.toLowerCase())?.lazyValue
-		const lazyMintNftData: SimpleLazyNft<"signatures"> = {
-			"@type": "ERC721",
-			contract: nftItem.contract,
-			tokenId: nftItem.tokenId,
-			uri: nftItem.uri,
-			creators: nftItem.creators,
-			royalties: nftItem.royalties,
-		}
 		if (lazyValue) {
+			const lazyMintNftData: SimpleLazyNft<"signatures"> = {
+				"@type": "ERC721",
+				contract: nftItem.contract,
+				tokenId: nftItem.tokenId,
+				uri: nftItem.uri,
+				creators: nftItem.creators,
+				royalties: nftItem.royalties,
+			}
 			const signature = await signNft(lazyMintNftData)
 			const params = [
 				{
@@ -43,13 +43,13 @@ export async function transferErc721Lazy(
 					royalties: lazyMintNftData.royalties,
 					signatures: [signature],
 				},
-				from,
 				to,
 			]
 			const erc721Lazy = createErc721LazyContract(ethereum, nftItem.contract)
-			const tx = await erc721Lazy.functionCall("transferFromOrMint", ...params).send()
+			const tx = await erc721Lazy.functionCall("mintAndTransfer", ...params).send()
 			return tx.hash
 		} else if (lazyValue === undefined) {
+			//todo may be use transferFromOrMint for this case
 			throw new Error(`Can't mint and transfer, lazyValue is ${lazyValue}`)
 		} else {
 			throw new Error(`Address ${from} has not any ownerships of token with Id ${nftItem.tokenId}`)

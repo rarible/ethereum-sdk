@@ -7,7 +7,6 @@ import {
 	Binary,
 	Configuration,
 	NftCollectionControllerApi,
-	NftItem,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
 } from "@rarible/protocol-api-client"
@@ -71,7 +70,7 @@ describe("mint test", () => {
 	})
 
 	test("mint lazy Erc721", async () => {
-		const nftItem = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
+		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
 			"@type": "ERC721",
 			contract: toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7"),
 			uri: 'uri',
@@ -79,12 +78,12 @@ describe("mint test", () => {
 			royalties: [],
 			isLazy: true,
 		})
-		const resultNft = await nftItemApi.getNftItemById({ itemId: (nftItem as NftItem).id })
+		const resultNft = await nftItemApi.getNftItemById({ itemId: tokenId })
 		expect(resultNft.lazySupply).toEqual('1')
 	})
 
 	test("mint lazy Erc1155", async () => {
-		const nftItem = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
+		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
 			"@type": "ERC1155",
 			contract: toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d"),
 			uri: 'uri',
@@ -93,7 +92,7 @@ describe("mint test", () => {
 			royalties: [],
 			isLazy: true,
 		})
-		const resultNft = await nftItemApi.getNftItemById({ itemId: (nftItem as NftItem).id })
+		const resultNft = await nftItemApi.getNftItemById({ itemId: tokenId })
 		expect(resultNft.lazySupply).toEqual('100')
 	})
 })

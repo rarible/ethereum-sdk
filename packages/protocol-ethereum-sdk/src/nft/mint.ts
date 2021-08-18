@@ -1,10 +1,4 @@
-import {
-	Address,
-	Binary,
-	NftCollectionControllerApi,
-	NftItem,
-	NftLazyMintControllerApi,
-} from "@rarible/protocol-api-client"
+import { Address, Binary, NftCollectionControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { SimpleLazyNft } from "./sign-nft"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
@@ -33,7 +27,7 @@ export async function mint(
 	nftCollectionApi: NftCollectionControllerApi,
 	nftLazyMintApi: NftLazyMintControllerApi,
 	data: MintDataType,
-): Promise<NftItem | string | undefined> {
+): Promise<string> {
 	if (data.isLazy) {
 		return await mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, data)
 	} else {
@@ -49,7 +43,7 @@ export async function mintOnChain(ethereum: Ethereum, nftCollectionApi: NftColle
 				collection: data.contract,
 				minter: await ethereum.getFrom(),
 			})
-			const tx = await erc721Contract.functionCall("mint", tokenId, v, r, s, [], data.uri).send()
+			await erc721Contract.functionCall("mint", tokenId, v, r, s, [], data.uri).send()
 			return tokenId
 		}
 		case "ERC1155": {
@@ -58,7 +52,7 @@ export async function mintOnChain(ethereum: Ethereum, nftCollectionApi: NftColle
 				collection: data.contract,
 				minter: await ethereum.getFrom(),
 			})
-			const tx = await erc155Contract.functionCall("mint", tokenId, v, r, s, [], data.amount, data.uri).send()
+			await erc155Contract.functionCall("mint", tokenId, v, r, s, [], data.amount, data.uri).send()
 			return tokenId
 		}
 	}
@@ -69,7 +63,7 @@ export async function mintOffChain(
 	nftCollectionApi: NftCollectionControllerApi,
 	nftLazyMintApi: NftLazyMintControllerApi,
 	data: MintLazyRequest,
-) {
+): Promise<string> {
 	const { features } = await nftCollectionApi.getNftCollectionById({ collection: data.contract })
 
 	if (features.includes("MINT_AND_TRANSFER")) {
@@ -78,16 +72,16 @@ export async function mintOffChain(
 			minter: data.creators[0].account,
 		})
 		const signature = await signNft({ tokenId, ...data })
-		return await nftLazyMintApi.mintNftAsset({
+		const nftLazyItem = await nftLazyMintApi.mintNftAsset({
 			lazyNft: {
 				...data,
 				tokenId,
 				signatures: [signature],
 			},
 		})
+		return nftLazyItem.id
 	} else {
 		throw new Error("This collection doesn't support lazy minting")
 	}
-	return undefined
 }
 

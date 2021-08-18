@@ -1,57 +1,61 @@
-import { Address, Binary, NftItemControllerApi, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
+import {
+	Address,
+	Binary,
+	Erc721LazyAssetType,
+	NftItemControllerApi,
+	NftOwnershipControllerApi,
+} from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
-import { toBigNumber } from "@rarible/types/build/big-number"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
 import { SimpleLazyNft } from "./sign-nft"
 
-// todo refactor function input params
 export async function transferErc721Lazy(
 	ethereum: Ethereum,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
-	nftOwnershipApi: NftOwnershipControllerApi,
 	nftItemApi: NftItemControllerApi,
-	contract: Address,
-	from: Address,
+	nftOwnershipApi: NftOwnershipControllerApi,
+	asset: Omit<Erc721LazyAssetType, "signatures" | "uri">,
 	to: Address,
-	tokenId: string,
 ): Promise<string | undefined> {
-	const erc721Lazy = createErc721LazyContract(ethereum, contract)
-	const ownership = await nftOwnershipApi.getNftOwnershipsByItem({ tokenId, contract })
+	const nftItem = await nftItemApi.getNftLazyItemById({ itemId: asset.tokenId })
+	const ownership = await nftOwnershipApi.getNftOwnershipsByItem({
+		tokenId: nftItem.tokenId,
+		contract: nftItem.contract,
+	})
+	const from = await ethereum.getFrom()
 	if (ownership.total) {
-		const lazyValue = ownership.ownerships.find(o => o.owner === from)?.lazyValue
+		const lazyValue = ownership.ownerships.find(o => o.owner.toLowerCase() === from.toLowerCase())?.lazyValue
+		const lazyMintNftData: SimpleLazyNft<"signatures"> = {
+			"@type": "ERC721",
+			contract: nftItem.contract,
+			tokenId: nftItem.tokenId,
+			uri: nftItem.uri,
+			creators: nftItem.creators,
+			royalties: nftItem.royalties,
+		}
 		if (lazyValue) {
-			const nftItem = await nftItemApi.getNftItemByIdRaw({ itemId: tokenId }) // todo remove this call, get params on function input
-			if (nftItem.status === 200) {
-				const nftTemplate: SimpleLazyNft<"signatures"> = {
-					["@type"]: 'ERC721',
-					contract,
-					tokenId: toBigNumber(tokenId),
-					uri: 'uri',
-					creators: [...nftItem.value.creators],
-					royalties: [...nftItem.value.royalties],
-				}
-				const signature = await signNft(nftTemplate)
-				const params = [
-					{
-						tokenId: nftItem.value.tokenId,
-						uri: nftItem.value,
-						creators: nftItem.value.creators,
-						royalties: nftItem.value.royalties,
-						signatures: [signature],
-					},
-					from,
-					to,
-				]
-				const tx = await erc721Lazy.functionCall("transferFromOrMint", ...params).send()
-				return tx.hash
-			}
+			const signature = await signNft(lazyMintNftData)
+			const params = [
+				{
+					tokenId: lazyMintNftData.tokenId,
+					uri: lazyMintNftData.uri,
+					creators: lazyMintNftData.creators,
+					royalties: lazyMintNftData.royalties,
+					signatures: [signature],
+				},
+				from,
+				to,
+			]
+			const erc721Lazy = createErc721LazyContract(ethereum, nftItem.contract)
+			const tx = await erc721Lazy.functionCall("transferFromOrMint", ...params).send()
+			return tx.hash
 		} else if (lazyValue === undefined) {
 			throw new Error(`Can't mint and transfer, lazyValue is ${lazyValue}`)
 		} else {
-			throw new Error(`Address ${from} has not any ownerships of token with Id ${tokenId}`)
+			throw new Error(`Address ${from} has not any ownerships of token with Id ${nftItem.tokenId}`)
 		}
 	} else {
-		throw new Error(`Address ${from} has not any ownerships of token with Id ${tokenId}`)
+		throw new Error(`Address ${from} has not any ownerships of token with Id ${nftItem.tokenId}`)
 	}
 	return undefined
 }

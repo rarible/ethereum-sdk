@@ -85,7 +85,7 @@ describe("transfer Erc1155", () => {
 		expect(resultToken4Balances).toEqual(['0', '300'])
 	})
 
-	test(`the transferErc1155 should return undefined,
+	test(`the transferErc1155 should throw error,
     because the length of identifiers and quantities,
     the parameters of the sum do not match`,
 		async () => {

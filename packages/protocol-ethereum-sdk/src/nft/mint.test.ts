@@ -12,11 +12,11 @@ import {
 	NftLazyMintControllerApi,
 } from "@rarible/protocol-api-client"
 import fetch from "node-fetch"
+import { toBigNumber } from "@rarible/types/build/big-number"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { signNft, SimpleLazyNft } from "./sign-nft"
 import { mint } from "./mint"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
-import { toBigNumber } from "@rarible/types/build/big-number"
 
 describe("mint test", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -48,9 +48,7 @@ describe("mint test", () => {
 			{
 				"@type": "ERC721",
 				contract: toAddress(mintableTokenE2eAddress),
-				minter,
 				uri: 'uri',
-				isLazy: false,
 			})
 		const contract = createMintableTokenContract(ethereum, toAddress(mintableTokenE2eAddress))
 		const balanceOfMinter = await contract.functionCall('balanceOf', minter).call()
@@ -64,10 +62,8 @@ describe("mint test", () => {
 		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
 			"@type": "ERC1155",
 			contract: toAddress(raribleTokenE2eAddress),
-			minter,
 			uri,
 			amount,
-			isLazy: false,
 		})
 		contract = createRaribleTokenContract(ethereum, toAddress(raribleTokenE2eAddress))
 		const balanceOfMinter: string = await contract.functionCall('balanceOf', minter, tokenId).call()

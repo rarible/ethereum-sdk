@@ -12,20 +12,18 @@ import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 
 type SimpleNft721 = {
 	"@type": "ERC721"
-	uri: string
 }
 
 type SimpleNft1155 = {
 	"@type": "ERC1155"
 	amount: number
-	uri: string
 }
 
 type SimpleNft = SimpleNft721 | SimpleNft1155
 
 export type MintLazyRequest = SimpleLazyNft<"signatures" | "tokenId"> & { isLazy: true }
 
-export type MintRequest = SimpleNft & { isLazy: false, contract: Address, minter: Address }
+export type MintRequest = SimpleNft & { contract: Address, uri: string, isLazy?: false }
 
 type MintDataType = MintLazyRequest | MintRequest
 
@@ -43,25 +41,25 @@ export async function mint(
 	}
 }
 
-export async function mintOnChain(ethereum: Ethereum, nftCollectionApi: NftCollectionControllerApi, data: MintRequest) {
+export async function mintOnChain(ethereum: Ethereum, nftCollectionApi: NftCollectionControllerApi, data: MintRequest): Promise<string> {
 	switch (data["@type"]) {
 		case "ERC721": {
 			const erc721Contract = createMintableTokenContract(ethereum, data.contract)
 			const { tokenId, signature: { v, r, s } } = await nftCollectionApi.generateNftTokenId({
 				collection: data.contract,
-				minter: data.minter,
+				minter: await ethereum.getFrom(),
 			})
 			const tx = await erc721Contract.functionCall("mint", tokenId, v, r, s, [], data.uri).send()
-			return tx.hash ? tokenId : undefined
+			return tokenId
 		}
 		case "ERC1155": {
 			const erc155Contract = createRaribleTokenContract(ethereum, data.contract)
 			const { tokenId, signature: { v, r, s } } = await nftCollectionApi.generateNftTokenId({
 				collection: data.contract,
-				minter: data.minter,
+				minter: await ethereum.getFrom(),
 			})
 			const tx = await erc155Contract.functionCall("mint", tokenId, v, r, s, [], data.amount, data.uri).send()
-			return tx.hash ? tokenId : undefined
+			return tokenId
 		}
 	}
 }

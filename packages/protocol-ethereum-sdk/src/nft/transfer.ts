@@ -43,13 +43,11 @@ export async function transfer(
 			if ("assetClass" in asset) {
 				switch (asset["assetClass"]) {
 					case "ERC721": {
-						const contract = asset.contract
-						return transferErc721(ethereum, contract, from, to, asset.tokenId)
+						return transferErc721(ethereum, asset.contract, from, to, asset.tokenId)
 					}
 					case "ERC1155": {
-						const contract = asset.contract
 						if (amount) {
-							return transferErc1155(ethereum, contract, from, to, asset.tokenId, amount)
+							return transferErc1155(ethereum, asset.contract, from, to, asset.tokenId, amount)
 						} else {
 							throw new Error("Amount is undefined or null")
 						}

@@ -14,9 +14,10 @@ export async function transferNftLazy(
 	asset: TransferAsset,
 	from: Address,
 	to: Address,
-	amount: BigNumber,
+	amount?: BigNumber,
 ): Promise<string | undefined> {
-	const lazyNft = await nftItemApi.getNftLazyItemById({ itemId: asset.tokenId })
+	debugger
+	const lazyNft = await nftItemApi.getNftLazyItemById({ itemId: `${asset.contract}:${asset.tokenId}` })
 	const params = {
 		tokenId: lazyNft.tokenId,
 		uri: lazyNft.uri,
@@ -27,8 +28,11 @@ export async function transferNftLazy(
 	}
 	switch (lazyNft["@type"]) {
 		case "ERC721": {
+			debugger
 			const erc721Lazy = createErc721LazyContract(ethereum, lazyNft.contract)
+			debugger
 			const tx = await erc721Lazy.functionCall("transferFromOrMint", params, from, to).send()
+			debugger
 			return tx.hash
 		}
 		case "ERC1155": {

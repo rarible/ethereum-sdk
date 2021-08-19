@@ -35,15 +35,10 @@ export async function transfer(
 	const ownershipByFrom = ownership.ownerships.find(o => o.owner.toLowerCase() === from.toLowerCase())
 	if (ownershipByFrom) {
 		if (toBn(ownershipByFrom.lazyValue).gt("0")) {
-			if (amount) {
-				if (toBn(amount).gt(ownershipByFrom.value)) {
-					return await transferNftLazy(ethereum, signNft, nftItemApi, nftOwnershipApi, asset, toAddress(from), to, amount)
-				} else {
-					throw new Error(`Account ${from} don't have enough token supply for transfer`)
-				}
-			} else {
-				throw new Error("Amount is undefined or null")
+			if (amount && toBn(amount).gt(ownershipByFrom.value)) {
+				throw new Error(`Account ${from} don't have enough token supply for transfer`)
 			}
+			return await transferNftLazy(ethereum, signNft, nftItemApi, nftOwnershipApi, asset, toAddress(from), to, amount)
 		} else {
 			if ("assetClass" in asset) {
 				switch (asset["assetClass"]) {

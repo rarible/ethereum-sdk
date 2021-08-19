@@ -49,7 +49,6 @@ describe("transfer Erc721 lazy", () => {
 			isLazy: true,
 		}
 		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintControllerApi, mintNftTemplate)
-		const lazyNftItem = await nftItemApi.getNftLazyItemById({ itemId: tokenId })
 		await transfer(
 			ethereum,
 			sign,
@@ -57,14 +56,14 @@ describe("transfer Erc721 lazy", () => {
 			nftOwnershipApi,
 			{
 				tokenId: toBigNumber(tokenId),
-				contract: lazyNftItem.contract,
+				contract: contract,
 			},
 			recipient,
 			toBigNumber('50'),
 		)
 
 		const erc1155Lazy = createErc1155LazyContract(ethereum, contract)
-		const recipientBalance = await erc1155Lazy.functionCall("balanceOf", recipient, lazyNftItem.tokenId).call()
+		const recipientBalance = await erc1155Lazy.functionCall("balanceOf", recipient, tokenId).call()
 		expect(recipientBalance).toEqual("50")
 	}, 10000)
 })

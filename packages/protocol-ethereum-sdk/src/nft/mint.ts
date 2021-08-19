@@ -79,7 +79,7 @@ export async function mintOffChain(
 				signatures: [signature],
 			},
 		})
-		return nftLazyItem.id
+		return nftLazyItem.tokenId
 	} else {
 		throw new Error("This collection doesn't support lazy minting")
 	}

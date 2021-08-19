@@ -78,7 +78,7 @@ describe("mint test", () => {
 			royalties: [],
 			isLazy: true,
 		})
-		const resultNft = await nftItemApi.getNftItemById({ itemId: tokenId })
+		const resultNft = await nftItemApi.getNftItemById({ itemId: `0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7:${tokenId}` })
 		expect(resultNft.lazySupply).toEqual('1')
 	})
 
@@ -92,7 +92,7 @@ describe("mint test", () => {
 			royalties: [],
 			isLazy: true,
 		})
-		const resultNft = await nftItemApi.getNftItemById({ itemId: tokenId })
+		const resultNft = await nftItemApi.getNftItemById({ itemId: `0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d:${tokenId}` })
 		expect(resultNft.lazySupply).toEqual('100')
 	})
 })

@@ -14,8 +14,8 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { signNft, SimpleLazyNft } from "./sign-nft"
 import { mint, MintLazyRequest } from "./mint"
-import { transferErc1155Lazy } from "./transfer-erc1155-lazy"
 import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
+import { transfer } from "./transfer"
 
 describe("transfer Erc721 lazy", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -50,22 +50,21 @@ describe("transfer Erc721 lazy", () => {
 		}
 		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintControllerApi, mintNftTemplate)
 		const lazyNftItem = await nftItemApi.getNftLazyItemById({ itemId: tokenId })
-		await transferErc1155Lazy(
+		await transfer(
 			ethereum,
 			sign,
 			nftItemApi,
 			nftOwnershipApi,
 			{
-				assetClass: "ERC1155_LAZY",
 				tokenId: toBigNumber(tokenId),
 				contract: lazyNftItem.contract,
-				creators: lazyNftItem.creators,
-				royalties: lazyNftItem.royalties,
-			}, recipient, toBigNumber('50'))
+			},
+			recipient,
+			toBigNumber('50'),
+		)
 
 		const erc1155Lazy = createErc1155LazyContract(ethereum, contract)
 		const recipientBalance = await erc1155Lazy.functionCall("balanceOf", recipient, lazyNftItem.tokenId).call()
 		expect(recipientBalance).toEqual("50")
 	}, 10000)
-//todo add test cases where we have partial lazyValue and value greater then 0 to use transferFromOrMint
 })

@@ -39,17 +39,4 @@ describe("transfer Erc721", () => {
 		expect(toAddress(receiverOwnership) === toAddress(to)).toBeTruthy()
 	}, 20000)
 
-	test(`should throw ownership error`, async () => {
-		const tokenId2: string = from + "b00000000000000000000002"
-		await testErc721.methods.mint(from, tokenId2, 'https://nft.com').send({ from, gas: 200000 })
-		const senderBalance = await testErc721.methods.balanceOf(from).call()
-		expect(senderBalance === '1').toBeTruthy()
-
-		const ownership: Address = await testErc721.methods.ownerOf(tokenId2).call()
-		expect(toAddress(ownership) === toAddress(from)).toBeTruthy()
-
-		const hash = await transferErc721(ethereum, toAddress(testErc721.options.address), randomAddress(), to, tokenId2)
-		expect(!!hash).toBeFalsy()
-	})
-
 })

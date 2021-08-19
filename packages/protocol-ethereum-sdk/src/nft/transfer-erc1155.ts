@@ -1,6 +1,6 @@
 import { Address } from "@rarible/protocol-api-client"
-import { createErc1155Contract } from "../order/contracts/erc1155"
 import { Ethereum } from "@rarible/ethereum-provider"
+import { createErc1155Contract } from "../order/contracts/erc1155"
 
 export async function transferErc1155(
 	ethereum: Ethereum,
@@ -10,7 +10,6 @@ export async function transferErc1155(
 	tokenId: string | string[],
 	tokenAmount: string | string[],
 ): Promise<string | undefined> {
-
 	if (Array.isArray(tokenId) && Array.isArray((tokenAmount))) {
 		if (tokenId.length === tokenAmount.length) {
 			return await sendTransaction(ethereum, contract, from, to, tokenId, tokenAmount)

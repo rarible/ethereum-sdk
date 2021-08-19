@@ -14,8 +14,8 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { signNft, SimpleLazyNft } from "./sign-nft"
 import { mint, MintLazyRequest } from "./mint"
-import { transferErc721Lazy } from "./transfer-erc721-lazy"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
+import { transfer } from "./transfer"
 
 describe("transfer Erc721 lazy", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -36,6 +36,7 @@ describe("transfer Erc721 lazy", () => {
 	})
 
 	test('should transfer erc721 lazy token', async () => {
+		const from = toAddress(wallet.getAddressString())
 		const recipient = randomAddress()
 		const contract = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 
@@ -43,24 +44,23 @@ describe("transfer Erc721 lazy", () => {
 			"@type": 'ERC721',
 			contract,
 			uri: '//uri',
-			creators: [{ account: toAddress(wallet.getAddressString()), value: 10000 }],
+			creators: [{ account: from, value: 10000 }],
 			royalties: [],
 			isLazy: true,
 		}
 		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintControllerApi, mintNftTemplate)
 		const lazyNftItem = await nftItemApi.getNftLazyItemById({ itemId: tokenId })
-		await transferErc721Lazy(
+		await transfer(
 			ethereum,
 			sign,
 			nftItemApi,
 			nftOwnershipApi,
 			{
-				assetClass: "ERC721_LAZY",
 				tokenId: toBigNumber(tokenId),
 				contract: lazyNftItem.contract,
-				creators: lazyNftItem.creators,
-				royalties: lazyNftItem.royalties,
-			}, recipient)
+			},
+			recipient,
+		)
 
 		const erc721Lazy = createErc721LazyContract(ethereum, contract)
 		const recipientBalance = await erc721Lazy.functionCall("balanceOf", recipient).call()

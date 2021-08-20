@@ -130,7 +130,7 @@ export function createRaribleSdk(
 	const upsertOrder = partialCall(upsertOrderTemplate, getMakeFee, checkLazyOrder, approve, signOrder, orderControllerApi)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
-	const fill = partialCall(fillOrder, getMakeFee, ethereum, approve, config.exchange)
+	const fill = partialCall(fillOrder, getMakeFee, ethereum, orderControllerApi, approve, config.exchange)
 
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
 	const mint = partialCall(mintTemplate, ethereum, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)

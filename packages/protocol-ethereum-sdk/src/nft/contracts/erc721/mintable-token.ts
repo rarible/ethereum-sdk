@@ -1,23 +1,9 @@
 import { AbiItem } from "web3-utils"
 import { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
 import { Address } from "@rarible/protocol-api-client"
-import Web3 from "web3"
-import { Contract } from "web3-eth-contract"
 
 export function createMintableTokenContract(ethereum: Ethereum, address?: Address): EthereumContract {
 	return ethereum.createContract(mintableTokenAbi, address)
-}
-
-export async function deployTestMintableTokenContract(web3: Web3, name: string, symbol: string) {
-	const empty = createTestMintableToken(web3)
-	const [address] = await web3.eth.getAccounts()
-	return empty
-		.deploy({ data: bytecode, arguments: [name, symbol] })
-		.send({ from: address, gas: 4000000, gasPrice: "0" })
-}
-
-function createTestMintableToken(web3: Web3, address?: Address): Contract {
-	return new web3.eth.Contract(mintableTokenAbi, address)
 }
 
 const mintableTokenAbi: AbiItem[] = [

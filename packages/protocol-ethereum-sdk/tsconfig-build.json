@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "build"
+  },
+  "include": [
+    "src/**/*",
+    "./typings.d.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts*"
+  ]
+}

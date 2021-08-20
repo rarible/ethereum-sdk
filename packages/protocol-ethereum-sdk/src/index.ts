@@ -16,6 +16,7 @@ import {
 } from "@rarible/protocol-api-client"
 import { Action } from "@rarible/action"
 import { Ethereum } from "@rarible/ethereum-provider"
+import { BigNumber } from "@rarible/types"
 import { CONFIGS } from "./config"
 import { UpserOrderStageId, upsertOrder as upsertOrderTemplate } from "./order/upsert-order"
 import { approve as approveTemplate } from "./order/approve"
@@ -30,7 +31,8 @@ import {
 	checkLazyOrder as checkLazyOrderTemplate,
 } from "./order"
 import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
-import { mintLazy as mintLazyTemplate, MintLazyRequest } from "./nft/mint-lazy"
+import { mint as mintTemplate, MintLazyRequest } from "./nft/mint"
+import { transfer as transferTemplate, TransferAsset } from "./nft/transfer"
 import { signNft as signNftTemplate } from "./nft/sign-nft"
 import { getMakeFee as getMakeFeeTemplate } from "./order/get-make-fee"
 
@@ -83,7 +85,12 @@ export interface RaribleNftSdk {
 	 *
 	 * @param request parameters for item to mint
 	 */
-	mintLazy(request: MintLazyRequest): Promise<NftItem>
+	mint(request: MintLazyRequest): Promise<NftItem | string | undefined>
+
+	/**
+	 *
+	 */
+	transfer(asset: TransferAsset, to: Address, amount?: BigNumber): Promise<string | undefined>
 }
 
 export function createRaribleSdk(
@@ -126,7 +133,8 @@ export function createRaribleSdk(
 	const fill = partialCall(fillOrder, getMakeFee, ethereum, approve, config.exchange)
 
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
-	const mintLazy = partialCall(mintLazyTemplate, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
+	const mint = partialCall(mintTemplate, ethereum, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
+	const transfer = partialCall(transferTemplate, ethereum, signNft, nftItemControllerApi, nftOwnershipControllerApi)
 
 	return {
 		apis: {
@@ -143,7 +151,8 @@ export function createRaribleSdk(
 			bid,
 		},
 		nft: {
-			mintLazy,
+			mint,
+			transfer,
 		},
 	}
 }

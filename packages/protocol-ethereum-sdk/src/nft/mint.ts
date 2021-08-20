@@ -43,6 +43,7 @@ export async function mintOnChain(ethereum: Ethereum, nftCollectionApi: NftColle
 				collection: data.contract,
 				minter: await ethereum.getFrom(),
 			})
+			// todo add fees
 			await erc721Contract.functionCall("mint", tokenId, v, r, s, [], data.uri).send()
 			return tokenId
 		}
@@ -52,6 +53,7 @@ export async function mintOnChain(ethereum: Ethereum, nftCollectionApi: NftColle
 				collection: data.contract,
 				minter: await ethereum.getFrom(),
 			})
+			// todo add fees
 			await erc155Contract.functionCall("mint", tokenId, v, r, s, [], data.amount, data.uri).send()
 			return tokenId
 		}

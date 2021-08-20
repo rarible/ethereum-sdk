@@ -4,6 +4,8 @@ import {
 	Binary,
 	Configuration,
 	ConfigurationParameters,
+	Erc1155AssetType,
+	Erc721AssetType,
 	GatewayControllerApi,
 	NftCollectionControllerApi,
 	NftItem,
@@ -35,6 +37,7 @@ import { mint as mintTemplate, MintLazyRequest } from "./nft/mint"
 import { transfer as transferTemplate, TransferAsset } from "./nft/transfer"
 import { signNft as signNftTemplate } from "./nft/sign-nft"
 import { getMakeFee as getMakeFeeTemplate } from "./order/get-make-fee"
+import { burn as burnTemplate } from "./nft/burn"
 
 export interface RaribleSdk {
 	order: RaribleOrderSdk
@@ -88,9 +91,17 @@ export interface RaribleNftSdk {
 	mint(request: MintLazyRequest): Promise<NftItem | string | undefined>
 
 	/**
-	 *
+	 * @param asset asset for transfer
+	 * @param to recipient address
+	 * @param amount for transfer
 	 */
 	transfer(asset: TransferAsset, to: Address, amount?: BigNumber): Promise<string | undefined>
+
+	/**
+	 * @param asset asset to burn
+	 * @param amount amount to burn for Erc1155 token
+	 */
+	burn(asset: Erc721AssetType | Erc1155AssetType, amount?: number): Promise<string>
 }
 
 export function createRaribleSdk(
@@ -135,6 +146,7 @@ export function createRaribleSdk(
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
 	const mint = partialCall(mintTemplate, ethereum, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
 	const transfer = partialCall(transferTemplate, ethereum, signNft, nftItemControllerApi, nftOwnershipControllerApi)
+	const burn = partialCall(burnTemplate, ethereum)
 
 	return {
 		apis: {
@@ -153,6 +165,7 @@ export function createRaribleSdk(
 		nft: {
 			mint,
 			transfer,
+			burn,
 		},
 	}
 }

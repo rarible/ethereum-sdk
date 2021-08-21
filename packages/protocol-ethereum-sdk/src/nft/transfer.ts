@@ -34,9 +34,6 @@ export async function transfer(
 	})
 	if (ownership.status === 200) {
 		if (toBn(ownership.value.lazyValue).gt(0)) {
-			if (amount && toBn(amount).gt(ownership.value.value)) {
-				throw new Error(`Account ${from} don't have enough token supply for transfer`)
-			}
 			return await transferNftLazy(ethereum, signNft, nftItemApi, nftOwnershipApi, asset, toAddress(from), to, amount)
 		} else {
 			if ("assetClass" in asset) {

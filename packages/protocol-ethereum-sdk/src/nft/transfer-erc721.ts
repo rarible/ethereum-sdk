@@ -8,7 +8,7 @@ export async function transferErc721(
 	from: Address,
 	to: Address,
 	tokenId: string,
-): Promise<string | undefined> {
+): Promise<string> {
 	const erc721 = createErc721Contract(ethereum, contract)
 	const tx = await erc721.functionCall("safeTransferFrom", from, to, tokenId).send({ gas: 200000 })
 	return tx.hash

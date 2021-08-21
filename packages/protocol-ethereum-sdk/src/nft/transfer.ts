@@ -28,7 +28,7 @@ export async function transfer(
 	asset: TransferAsset,
 	to: Address,
 	amount?: BigNumber,
-): Promise<string | undefined> {
+): Promise<string> {
 	const from = toAddress(await ethereum.getFrom())
 	const ownership = await nftOwnershipApi.getNftOwnershipByIdRaw({
 		ownershipId: getOwnershipId(asset.contract, asset.tokenId, from),
@@ -48,6 +48,5 @@ export async function transfer(
 	} else {
 		throw new Error(`Address ${from} has not any ownerships of token with Id ${asset.tokenId}`)
 	}
-	return undefined
 }
 

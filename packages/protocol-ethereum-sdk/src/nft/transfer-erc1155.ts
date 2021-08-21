@@ -9,7 +9,7 @@ export async function transferErc1155(
 	to: Address,
 	tokenId: string | string[],
 	tokenAmount: string | string[],
-): Promise<string | undefined> {
+): Promise<string> {
 	if (Array.isArray(tokenId) && Array.isArray((tokenAmount))) {
 		if (tokenId.length === tokenAmount.length) {
 			return await sendTransaction(ethereum, contract, from, to, tokenId, tokenAmount)

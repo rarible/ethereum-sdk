@@ -37,5 +37,4 @@ export async function transferNftLazy(
 			return tx.hash
 		}
 	}
-
 }

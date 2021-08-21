@@ -16,6 +16,7 @@ import { signNft, SimpleLazyNft } from "./sign-nft"
 import { mint, MintLazyRequest } from "./mint"
 import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
 import { transfer } from "./transfer"
+import { checkAssetType } from "../order/check-asset-type"
 
 describe("transfer Erc721 lazy", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -27,6 +28,7 @@ describe("transfer Erc721 lazy", () => {
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)
+	const checkAssetTypeImpl = checkAssetType.bind(null, nftItemApi, nftCollectionApi)
 
 	let sign: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>
 
@@ -52,6 +54,7 @@ describe("transfer Erc721 lazy", () => {
 		await transfer(
 			ethereum,
 			sign,
+			checkAssetTypeImpl,
 			nftItemApi,
 			nftOwnershipApi,
 			{

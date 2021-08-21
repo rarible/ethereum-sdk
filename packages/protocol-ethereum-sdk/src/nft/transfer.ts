@@ -10,7 +10,7 @@ import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
 import { toAddress } from "@rarible/types/build/address"
 import { toBn } from "../common/to-bn"
-import { NftAssetType } from "../order/check-asset-type"
+import { CheckAssetTypeFunction, NftAssetType } from "../order/check-asset-type"
 import { transferErc721 } from "./transfer-erc721"
 import { transferErc1155 } from "./transfer-erc1155"
 import { SimpleLazyNft } from "./sign-nft"
@@ -22,6 +22,7 @@ export type TransferAsset = NftAssetType | Erc721AssetType | Erc1155AssetType
 export async function transfer(
 	ethereum: Ethereum,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
+	checkAssetType: CheckAssetTypeFunction,
 	nftItemApi: NftItemControllerApi,
 	nftOwnershipApi: NftOwnershipControllerApi,
 	asset: TransferAsset,
@@ -33,24 +34,15 @@ export async function transfer(
 		ownershipId: getOwnershipId(asset.contract, asset.tokenId, from),
 	})
 	if (ownership.status === 200) {
+		const checkedAssetType = await checkAssetType(asset)
 		if (toBn(ownership.value.lazyValue).gt(0)) {
 			return await transferNftLazy(ethereum, signNft, nftItemApi, nftOwnershipApi, asset, toAddress(from), to, amount)
 		} else {
-			if ("assetClass" in asset) {
-				switch (asset["assetClass"]) {
-					case "ERC721": {
-						return transferErc721(ethereum, asset.contract, from, to, asset.tokenId)
-					}
-					case "ERC1155": {
-						if (amount) {
-							return transferErc1155(ethereum, asset.contract, from, to, asset.tokenId, amount)
-						} else {
-							throw new Error("Amount is undefined or null")
-						}
-					}
-				}
-			} else {
-				throw new Error("You have not passed the assetClass for the not lazy NFT item")
+			switch (checkedAssetType.assetClass) {
+				case "ERC721":
+					return transferErc721(ethereum, asset.contract, from, to, asset.tokenId)
+				case "ERC1155":
+					return transferErc1155(ethereum, asset.contract, from, to, asset.tokenId, amount || "1")
 			}
 		}
 	} else {

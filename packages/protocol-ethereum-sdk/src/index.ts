@@ -134,7 +134,7 @@ export function createRaribleSdk(
 
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
 	const mint = partialCall(mintTemplate, ethereum, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
-	const transfer = partialCall(transferTemplate, ethereum, signNft, nftItemControllerApi, nftOwnershipControllerApi)
+	const transfer = partialCall(transferTemplate, ethereum, signNft, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi)
 
 	return {
 		apis: {
@@ -159,6 +159,6 @@ export function createRaribleSdk(
 
 type Arr = readonly unknown[];
 
-function partialCall<T extends Arr, U extends Arr, R>(f: (...args: [...T, ...U]) => R, ...headArgs: T) {
+function partialCall<T extends Arr, U extends Arr, R>(f: (...args: [...T, ...U]) => R, ...headArgs: T): (...tailArgs: U) => R {
 	return (...tailArgs: U) => f(...headArgs, ...tailArgs)
 }

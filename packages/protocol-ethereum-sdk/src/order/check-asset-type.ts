@@ -15,6 +15,7 @@ export type AssetTypeRequest = Erc721AssetType | Erc1155AssetType | NftAssetType
 
 export type AssetTypeResponse = Erc721AssetType | Erc1155AssetType
 
+export type CheckAssetTypeFunction = (asset: AssetTypeRequest) => Promise<AssetTypeResponse>
 
 export async function checkAssetType(nftItemApi: NftItemControllerApi, collectionApi: NftCollectionControllerApi, asset: AssetTypeRequest): Promise<AssetTypeResponse> {
     if ('assetClass' in asset) {

@@ -1,4 +1,9 @@
-import { Address, Binary, NftCollectionControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
+import {
+	Address,
+	Binary,
+	NftCollectionControllerApi,
+	NftLazyMintControllerApi,
+} from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { SimpleLazyNft } from "./sign-nft"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
@@ -17,16 +22,16 @@ type SimpleNft = SimpleNft721 | SimpleNft1155
 
 export type MintLazyRequest = SimpleLazyNft<"signatures" | "tokenId"> & { isLazy: true }
 
-export type MintRequest = SimpleNft & { contract: Address, uri: string, isLazy?: false }
+export type MintOnchainRequest = SimpleNft & { contract: Address, uri: string, isLazy?: false }
 
-type MintDataType = MintLazyRequest | MintRequest
+type MintRequest = MintLazyRequest | MintOnchainRequest
 
 export async function mint(
 	ethereum: Ethereum,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	nftLazyMintApi: NftLazyMintControllerApi,
-	data: MintDataType,
+	data: MintRequest,
 ): Promise<string> {
 	if (data.isLazy) {
 		return await mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, data)
@@ -35,7 +40,8 @@ export async function mint(
 	}
 }
 
-export async function mintOnChain(ethereum: Ethereum, nftCollectionApi: NftCollectionControllerApi, data: MintRequest): Promise<string> {
+export async function mintOnChain(ethereum: Ethereum, nftCollectionApi: NftCollectionControllerApi, data: MintOnchainRequest): Promise<string> {
+	//todo here can be new contracts, then we need to mint onchain other way
 	switch (data["@type"]) {
 		case "ERC721": {
 			const erc721Contract = createMintableTokenContract(ethereum, data.contract)

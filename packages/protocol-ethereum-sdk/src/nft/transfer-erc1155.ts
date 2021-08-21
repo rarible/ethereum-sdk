@@ -31,9 +31,9 @@ async function sendTransaction(
 ) {
 	const erc1155 = createErc1155Contract(ethereum, contract)
 	if (Array.isArray(tokenId) && Array.isArray(tokenAmount)) {
-		const tx = await erc1155.functionCall("safeBatchTransferFrom", from, to, tokenId, tokenAmount, '0x0').send({ gas: 200000 })
+		const tx = await erc1155.functionCall("safeBatchTransferFrom", from, to, tokenId, tokenAmount, '0x0').send()
 		return tx.hash
 	}
-	const tx = await erc1155.functionCall("safeTransferFrom", from, to, tokenId, tokenAmount, '0x0').send({ gas: 200000 })
+	const tx = await erc1155.functionCall("safeTransferFrom", from, to, tokenId, tokenAmount, '0x0').send()
 	return tx.hash
 }

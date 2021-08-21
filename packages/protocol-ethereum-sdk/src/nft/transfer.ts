@@ -15,6 +15,7 @@ import { transferErc721 } from "./transfer-erc721"
 import { transferErc1155 } from "./transfer-erc1155"
 import { SimpleLazyNft } from "./sign-nft"
 import { transferNftLazy } from "./transfer-nft-lazy"
+import { getOwnershipId } from "../common/get-ownership-id"
 
 export type TransferAsset = NftAssetType | Erc721AssetType | Erc1155AssetType
 
@@ -27,15 +28,13 @@ export async function transfer(
 	to: Address,
 	amount?: BigNumber,
 ): Promise<string | undefined> {
-	const ownership = await nftOwnershipApi.getNftOwnershipsByItem({
-		tokenId: asset.tokenId,
-		contract: asset.contract,
-	})
 	const from = toAddress(await ethereum.getFrom())
-	const ownershipByFrom = ownership.ownerships.find(o => o.owner.toLowerCase() === from.toLowerCase())
-	if (ownershipByFrom) {
-		if (toBn(ownershipByFrom.lazyValue).gt("0")) {
-			if (amount && toBn(amount).gt(ownershipByFrom.value)) {
+	const ownership = await nftOwnershipApi.getNftOwnershipByIdRaw({
+		ownershipId: getOwnershipId(asset.contract, asset.tokenId, from),
+	})
+	if (ownership.status === 200) {
+		if (toBn(ownership.value.lazyValue).gt(0)) {
+			if (amount && toBn(amount).gt(ownership.value.value)) {
 				throw new Error(`Account ${from} don't have enough token supply for transfer`)
 			}
 			return await transferNftLazy(ethereum, signNft, nftItemApi, nftOwnershipApi, asset, toAddress(from), to, amount)

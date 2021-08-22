@@ -1,8 +1,7 @@
 import {
 	Configuration,
-	NftCollectionControllerApi,
 	NftItemControllerApi,
-	NftLazyMintControllerApi,
+	NftOwnershipControllerApi,
 	OrderControllerApi,
 	OrderForm,
 } from "@rarible/protocol-api-client"
@@ -12,16 +11,14 @@ import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import fetch from "node-fetch"
-import { EthereumContract } from "@rarible/ethereum-provider"
-import { mint as mintTemplate } from "../nft/mint"
-import { signNft as signNftTemplate } from "../nft/sign-nft"
-import { createMintableTokenContract } from "../nft/contracts/erc721/mintable-token"
 import { CONFIGS } from "../config"
 import { toBn } from "../common/to-bn"
 import { retry } from "../common/retry"
 import { signOrder, SimpleOrder } from "./sign-order"
 import { fillOrderSendTx } from "./fill-order"
 import { getMakeFee } from "./get-make-fee"
+import { awaitAll } from "../common/await-all"
+import { deployTestErc721 } from "./contracts/test/test-erc721"
 
 describe("test exchange v1 order", () => {
 	const { provider: provider1, wallet: wallet1 } = createE2eProvider()
@@ -37,32 +34,24 @@ describe("test exchange v1 order", () => {
 	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org", fetchApi: fetch })
 	const orderApi = new OrderControllerApi(configuration)
 	const itemApi = new NftItemControllerApi(configuration)
-	const collectionApi = new NftCollectionControllerApi(configuration)
-	const lazyMintApi = new NftLazyMintControllerApi(configuration)
-	const signNft = signNftTemplate.bind(null, ethereum1, 17)
-	const mint = mintTemplate.bind(null, ethereum1, signNft, collectionApi, lazyMintApi)
+	const ownershipApi = new NftOwnershipControllerApi(configuration)
 
 	const seller = toAddress(wallet1.getAddressString())
 	const buyer = toAddress(wallet2.getAddressString())
 
-	const erc721ContractAddress = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
-	let erc721contract: EthereumContract
-
-	beforeAll(async () => {
-		erc721contract = await createMintableTokenContract(ethereum1, erc721ContractAddress)
+	const it = awaitAll({
+		testErc721: deployTestErc721(web31, "Test", "TST"),
 	})
+
 	test("", async () => {
-		const tokenId = await mint({
-			"@type": "ERC721",
-			contract: toAddress(erc721ContractAddress),
-			uri: 'uri',
-		})
+		const tokenId = toBigNumber("1")
+		await it.testErc721.methods.mint(seller, tokenId, "url").send({ from: seller })
 
 		let order: OrderForm = {
 			make: {
 				assetType: {
 					assetClass: "ERC721",
-					contract: toAddress(erc721ContractAddress),
+					contract: toAddress(it.testErc721.options.address),
 					tokenId: toBigNumber(tokenId),
 				},
 				value: toBigNumber("1"),
@@ -72,7 +61,7 @@ describe("test exchange v1 order", () => {
 				assetType: {
 					assetClass: "ETH",
 				},
-				value: toBigNumber("1"),
+				value: toBigNumber("100000"),
 			},
 			salt: toBigNumber("10"),
 			type: "RARIBLE_V1",
@@ -89,7 +78,8 @@ describe("test exchange v1 order", () => {
 
 		order = { ...order, signature: leftSignature }
 
-		await erc721contract.functionCall("setApprovalForAll", buyer, true).call()
+		await it.testErc721.methods.setApprovalForAll(CONFIGS.e2e.transferProxies.nft, true)
+			.send({ from: seller })
 
 		const hash = await fillOrderSendTx(
 			getMakeFee.bind(null, { v2: 100 }),
@@ -100,18 +90,14 @@ describe("test exchange v1 order", () => {
 			order,
 			{ amount: 1, payouts: [], originFees: [] },
 		)
-		
+
 		await retry(10, async () => {
-			const balanceOfBuyer = await itemApi.getNftItemById({ itemId: `${erc721ContractAddress}:${tokenId}` })
-			expect(balanceOfBuyer.owners.find(o => o.toLowerCase() === buyer.toLowerCase())).toBe(buyer.toLowerCase())
+			const ownership = await ownershipApi.getNftOwnershipById({ ownershipId: `${it.testErc721.options.address}:${tokenId}:${buyer}` })
+			expect(ownership.value).toBe("1")
 		})
 	}, 30000)
 })
 
-
-function fromSimpleOrderToOrderForm(order: SimpleOrder) {
-	return { ...order, salt: toBigNumber(order.salt) } as OrderForm
-}
 
 function orderFormToSimpleOrder(form: OrderForm): SimpleOrder {
 	return {

@@ -123,35 +123,50 @@ async function fillOrderV1(
 	order: SimpleOrder,
 	request: FillOrderRequest,
 ): Promise<string> {
+	const getAssetWithFee = (asset: Asset, fee: number) => {
+		if (asset.assetType.assetClass === "ETH" || asset.assetType.assetClass === "ERC20") {
+			return addFee(asset, fee)
+		} else {
+			return asset
+		}
+	}
+
 	const data = order.data
 	if (data.dataType !== "LEGACY") {
 		throw new Error(`Not supported data type: ${data.dataType}`)
 	}
+	const fee = (request.originFees || []).map(f => f.value).reduce((s, f) => s + f, 0)
+	const buyerFeeSig = await orderApi.buyerFeeSignature({ fee, orderForm: fromSimpleOrderToOrderForm(order) })
+	const buyer = toAddress(await ethereum.getFrom())
+	const orderRight = invertOrder(order, toBn(request.amount), buyer)
+
 	let options: EthereumSendOptions
 	if (order.take.assetType.assetClass === "ETH") {
-		options = { value: data.fee }
+		const makeAsset = getAssetWithFee(orderRight.make, fee)
+		options = { value: makeAsset.value }
 	} else {
 		options = {}
 	}
-	const sig = order.signature ? toVrs(order.signature) : {}
-	const buyerFee = 3 //todo where we can get it?
-	const buyerFeeSig = toVrs(
-		await orderApi.buyerFeeSignature({ fee: buyerFee, orderForm: fromSimpleOrderToOrderForm(order) }),
-	)
-	const buyer = await ethereum.getFrom()
-	const amount = request.amount
 
 	const exchangeContract = createExchangeV1Contract(ethereum, contract)
 	const tx = await exchangeContract.functionCall(
 		"exchange",
 		toStructLegacyOrder(order),
-		sig,
-		buyerFee,
-		buyerFeeSig,
-		amount,
-		buyer,
+		toVrs(order.signature!),
+		fee,
+		toVrs(buyerFeeSig),
+		orderRight.take.value,
+		getSingleBuyer(request.payouts),
 	).send(options)
 	return tx.hash
+}
+
+function getSingleBuyer(payouts?: Array<Part>): Address {
+	if (payouts && payouts.length > 1) {
+		return payouts[0].account
+	} else {
+		return ZERO_ADDRESS
+	}
 }
 
 function fromSimpleOrderToOrderForm(order: SimpleOrder) {
@@ -159,11 +174,11 @@ function fromSimpleOrderToOrderForm(order: SimpleOrder) {
 }
 
 function toVrs(sig: string) {
-	const sig0 = sig.substring(2)
+	const sig0 = sig.startsWith("0x") ? sig.substring(2) : sig
 	const r = "0x" + sig0.substring(0, 64)
 	const s = "0x" + sig0.substring(64, 128)
 	const v = parseInt(sig0.substring(128, 130), 16)
-	return { r, v, s }
+	return { r, v: (v < 27 ? v + 27 : v), s }
 }
 
 

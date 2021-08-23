@@ -116,7 +116,6 @@ async function mintErc1155New(
 		supply: amount,
 	}
 	const signature = await signNft(nftData)
-	console.log('nftData', nftData)
 	await erc1155Contract.functionCall(
 		"mintAndTransfer",
 		{

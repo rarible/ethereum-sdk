@@ -11,31 +11,24 @@ export async function mintOffChain(
 ): Promise<string> {
 	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, data.creators[0].account)
 	let nftData: SimpleLazyNft<"signatures">
-	switch (data.collection.type) {
-		case "ERC721": {
-			nftData = {
-				"@type": data.collection.type,
-				contract: data.collection.id,
-				uri: '',
-				royalties: data.royalties,
-				creators: data.creators,
-				tokenId,
-			}
+	if ("supply" in data) {
+		nftData = {
+			"@type": data.collection.type,
+			contract: data.collection.id,
+			uri: '',
+			royalties: data.royalties,
+			creators: data.creators,
+			tokenId,
+			supply: data.supply,
 		}
-		case "ERC1155": {
-			if ("supply" in data) {
-				nftData = {
-					"@type": data.collection.type,
-					contract: data.collection.id,
-					uri: '',
-					royalties: data.royalties,
-					creators: data.creators,
-					tokenId,
-					supply: data.supply,
-				}
-			} else {
-				throw new Error("Key 'supply' doesn't exist in Erc1155 mint request")
-			}
+	} else {
+		nftData = {
+			"@type": data.collection.type,
+			contract: data.collection.id,
+			uri: '',
+			royalties: data.royalties,
+			creators: data.creators,
+			tokenId,
 		}
 	}
 	const signature = await signNft(nftData)

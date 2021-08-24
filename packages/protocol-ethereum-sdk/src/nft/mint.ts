@@ -21,8 +21,7 @@ export async function mint(
 	nftLazyMintApi: NftLazyMintControllerApi,
 	data: MintRequest,
 ): Promise<string> {
-	if ("creators" in data) { // todo - lazy is not required field for onchain mint with new contracts
-		// const collection: LazyERC721Collection | LazyERC1155Collection = {...data.collection, [lazySupported]: true}
+	if ("creators" in data) {
 		if (data.lazy) {
 			/**
 			 * Lazy minting
@@ -32,36 +31,20 @@ export async function mint(
 			/**
 			 * On chain minting on new contracts
 			 */
-			const collection = data.collection
-			switch (collection.type) {
-				case "ERC721": {
-					return await mintErc721New(ethereum, signNft, nftCollectionApi, { ...data, collection })
-				}
-				case "ERC1155": {
-					if ("supply" in data) {
-						return await mintErc1155New(ethereum, signNft, nftCollectionApi, { ...data, collection })
-					} else {
-						throw new Error("Key 'supply' doesn't exist in Erc1155 mint request")
-					}
-				}
+			if ("supply" in data) {
+				return await mintErc1155New(ethereum, signNft, nftCollectionApi, data)
+			} else {
+				return await mintErc721New(ethereum, signNft, nftCollectionApi, data)
 			}
 		}
 	} else {
 		/**
 		 * On chain minting on legacy contracts
 		 */
-		const collection = data.collection
-		switch (collection.type) {
-			case "ERC721": {
-				return await mintErc721Legacy(ethereum, signNft, nftCollectionApi, { ...data, collection })
-			}
-			case "ERC1155": {
-				if ("supply" in data) {
-					return await mintErc1155Legacy(ethereum, signNft, nftCollectionApi, { ...data, collection })
-				} else {
-					throw new Error("Key 'supply' doesn't exist in Erc1155 mint request")
-				}
-			}
+		if ("supply" in data) {
+			return await mintErc1155Legacy(ethereum, signNft, nftCollectionApi, data)
+		} else {
+			return await mintErc721Legacy(ethereum, signNft, nftCollectionApi, data)
 		}
 	}
 }

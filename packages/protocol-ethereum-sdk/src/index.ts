@@ -18,7 +18,7 @@ import { Action } from "@rarible/action"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
 import { CONFIGS } from "./config"
-import { UpserOrderStageId, upsertOrder as upsertOrderTemplate } from "./order/upsert-order"
+import { UpsertOrderStageId, upsertOrder as upsertOrderTemplate } from "./order/upsert-order"
 import { approve as approveTemplate } from "./order/approve"
 import { sell as sellTemplate, SellRequest } from "./order/sell"
 import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
@@ -64,12 +64,12 @@ export interface RaribleOrderSdk {
 	/**
 	 * Sell asset (create off-chain order and check if approval is needed)
 	 */
-	sell(request: SellRequest): Promise<Action<UpserOrderStageId, [(string | undefined), Binary, Order]>>
+	sell(request: SellRequest): Promise<Action<UpsertOrderStageId, [(string | undefined), Binary, Order]>>
 
 	/**
 	 * Create bid (create off-chain order and check if approval is needed)
 	 */
-	bid(request: BidRequest): Promise<Action<UpserOrderStageId, [(string | undefined), Binary, Order]>>
+	bid(request: BidRequest): Promise<Action<UpsertOrderStageId, [(string | undefined), Binary, Order]>>
 
 	/**
 	 * Fill order (buy or accept bid - depending on the order type)

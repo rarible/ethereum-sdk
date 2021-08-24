@@ -1,5 +1,4 @@
 import {
-	Address,
 	Binary,
 	LazyErc1155,
 	NftCollection,
@@ -8,40 +7,12 @@ import {
 	Part,
 } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
-import { SimpleLazyNft } from "./sign-nft"
-import { mintOnChain } from "./mint-on-chain"
-import { mintOffChain } from "./mint-off-chain"
 import { LazyErc721 } from "@rarible/protocol-api-client/build/models/LazyNft"
-import { toBigNumber } from "@rarible/types/build/big-number"
+import { mintOffChain } from "./mint-off-chain"
+import { mintErc1155Legacy, mintErc1155New, mintErc721Legacy, mintErc721New } from "./mint-on-chain"
+import { SimpleLazyNft } from "./sign-nft"
 
-type SimpleNft721Legacy = {
-	"@type": "ERC721"
-}
-
-type SimpleNft1155Legacy = {
-	"@type": "ERC1155"
-	amount: string
-}
-
-export type SimpleNft721 = {
-	"@type": "ERC721"
-	creators: Part[]
-}
-
-export type SimpleNft1155 = {
-	"@type": "ERC1155"
-	creators: Part[]
-	amount: string
-}
-type SimpleNft = SimpleNft721 | SimpleNft1155 | SimpleNft721Legacy | SimpleNft1155Legacy
-
-export type MintLazyRequest = SimpleLazyNft<"signatures" | "tokenId"> & { isLazy: true }
-
-export type MintOnchainRequest =
-	SimpleNft
-	& { contract: Address, uri: string, royalties: Part[], isLazy?: false }
-
-export type MintRequest = MintLazyRequest | MintOnchainRequest
+export type MintRequest = LazyErc721Request | LazyErc1155Request | LegacyERC721Request | LegacyERC1155Request
 
 export async function mint(
 	ethereum: Ethereum,
@@ -50,10 +21,48 @@ export async function mint(
 	nftLazyMintApi: NftLazyMintControllerApi,
 	data: MintRequest,
 ): Promise<string> {
-	if (data.isLazy) {
-		return await mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, data)
+	if ("creators" in data) { // todo - lazy is not required field for onchain mint with new contracts
+		// const collection: LazyERC721Collection | LazyERC1155Collection = {...data.collection, [lazySupported]: true}
+		if (data.lazy) {
+			/**
+			 * Lazy minting
+			 */
+			return await mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, data)
+		} else {
+			/**
+			 * On chain minting on new contracts
+			 */
+			const collection = data.collection
+			switch (collection.type) {
+				case "ERC721": {
+					return await mintErc721New(ethereum, signNft, nftCollectionApi, { ...data, collection })
+				}
+				case "ERC1155": {
+					if ("supply" in data) {
+						return await mintErc1155New(ethereum, signNft, nftCollectionApi, { ...data, collection })
+					} else {
+						throw new Error("Key 'supply' doesn't exist in Erc1155 mint request")
+					}
+				}
+			}
+		}
 	} else {
-		return await mintOnChain(ethereum, signNft, nftCollectionApi, data)
+		/**
+		 * On chain minting on legacy contracts
+		 */
+		const collection = data.collection
+		switch (collection.type) {
+			case "ERC721": {
+				return await mintErc721Legacy(ethereum, signNft, nftCollectionApi, { ...data, collection })
+			}
+			case "ERC1155": {
+				if ("supply" in data) {
+					return await mintErc1155Legacy(ethereum, signNft, nftCollectionApi, { ...data, collection })
+				} else {
+					throw new Error("Key 'supply' doesn't exist in Erc1155 mint request")
+				}
+			}
+		}
 	}
 }
 
@@ -61,25 +70,25 @@ type ERC721Collection = Pick<NftCollection, "id" | "features"> & { type: "ERC721
 type LegacyERC721Collection = ERC721Collection & { [lazySupported]: false }
 type LazyERC721Collection = ERC721Collection & { [lazySupported]: true }
 
-function isLazy721Collection(
+export function isLazy721Collection(
 	collection: Pick<NftCollection, "id" | "type" | "features">,
 ): collection is LazyERC721Collection {
 	return collection.type === "ERC721" && collection.features.indexOf("MINT_WITH_ADDRESS") !== -1
 }
 
-function isLegacyErc721Collection(
+export function isLegacyErc721Collection(
 	collection: Pick<NftCollection, "id" | "type" | "features">,
 ): collection is LegacyERC721Collection {
 	return collection.type === "ERC721" && collection.features.indexOf("MINT_WITH_ADDRESS") === -1
 }
 
-type LegacyERC721Request = {
+export type LegacyERC721Request = {
 	collection: LegacyERC721Collection
 	uri: string
 	royalties: Array<Part>
 }
 
-type LazyErc721Request = {
+export type LazyErc721Request = {
 	collection: LazyERC721Collection,
 	lazy?: boolean
 } & Omit<LazyErc721, "signatures" | "contract" | "tokenId" | "@type">
@@ -88,68 +97,30 @@ type ERC1155Collection = Pick<NftCollection, "id" | "features"> & { type: "ERC11
 type LegacyERC1155Collection = ERC1155Collection & { [lazySupported]: false }
 type LazyERC1155Collection = ERC1155Collection & { [lazySupported]: true }
 
-function isLazy1155Collection(
+export function isLazy1155Collection(
 	collection: Pick<NftCollection, "id" | "type" | "features">,
 ): collection is LazyERC1155Collection {
 	return collection.type === "ERC1155" && collection.features.indexOf("MINT_WITH_ADDRESS") !== -1
 }
 
-function isLegacyErc1155Collection(
+export function isLegacyErc1155Collection(
 	collection: Pick<NftCollection, "id" | "type" | "features">,
 ): collection is LegacyERC1155Collection {
 	return collection.type === "ERC1155" && collection.features.indexOf("MINT_WITH_ADDRESS") === -1
 }
 
-type LegacyERC1155Request = {
+export type LegacyERC1155Request = {
 	collection: LegacyERC1155Collection
 	uri: string
 	supply: number
 	royalties: Array<Part>
 }
 
-type LazyErc1155Request = {
+export type LazyErc1155Request = {
 	collection: LazyERC1155Collection,
 	lazy?: boolean
 } & Omit<LazyErc1155, "signatures" | "contract" | "tokenId" | "@type">
 
-function showHowToMint(collection: NftCollection) {
-	if (isLazy721Collection(collection)) {
-		newMint({
-			collection,
-			uri: "uri",
-			royalties: [],
-			creators: []
-		})
-	} else if (isLegacyErc721Collection(collection)) {
-		newMint({
-			collection,
-			uri: "",
-			royalties: []
-		})
-	} else if (isLazy1155Collection(collection)) {
-		newMint({
-			collection,
-			uri: "",
-			royalties: [],
-			supply: toBigNumber("1"),
-			creators: []
-		})
-	} else if (isLegacyErc1155Collection(collection)) {
-		newMint({
-			collection,
-			uri: "",
-			royalties: [],
-			supply: 1
-		})
-	}
-}
-
 declare const lazySupported: unique symbol
-
-type NewMintRequest = LazyErc721Request | LegacyERC721Request | LazyErc1155Request | LegacyERC1155Request
-
-function newMint(request: NewMintRequest) {
-
-}
 
 

@@ -31,7 +31,7 @@ import {
 	checkLazyOrder as checkLazyOrderTemplate,
 } from "./order"
 import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
-import { mint as mintTemplate, MintLazyRequest } from "./nft/mint"
+import { mint as mintTemplate, MintRequest } from "./nft/mint"
 import { transfer as transferTemplate, TransferAsset } from "./nft/transfer"
 import { signNft as signNftTemplate } from "./nft/sign-nft"
 import { getMakeFee as getMakeFeeTemplate } from "./order/get-make-fee"
@@ -85,7 +85,7 @@ export interface RaribleNftSdk {
 	 *
 	 * @param request parameters for item to mint
 	 */
-	mint(request: MintLazyRequest): Promise<NftItem | string | undefined>
+	mint(request: MintRequest): Promise<NftItem | string | undefined>
 
 	/**
 	 *

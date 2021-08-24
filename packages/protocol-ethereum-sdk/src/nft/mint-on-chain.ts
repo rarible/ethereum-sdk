@@ -33,7 +33,8 @@ export async function mintOnChain(
 				 */
 				const erc721Contract = createMintableTokenContract(ethereum, data.contract)
 				const { tokenId, signature: { v, r, s } } = await getTokenId(nftCollectionApi, data.contract, from)
-				await erc721Contract.functionCall("mint", tokenId, v, r, s, [], data.uri).send()// todo fees
+				const fees = data.royalties || []
+				await erc721Contract.functionCall("mint", tokenId, v, r, s, fees, data.uri).send()
 				return tokenId
 			}
 		}
@@ -50,7 +51,8 @@ export async function mintOnChain(
 				 */
 				const erc155Contract = createRaribleTokenContract(ethereum, data.contract)
 				const { tokenId, signature: { v, r, s } } = await getTokenId(nftCollectionApi, data.contract, from)
-				await erc155Contract.functionCall("mint", tokenId, v, r, s, [], data.amount, data.uri).send()// todo fees
+				const fees = data.royalties || []
+				await erc155Contract.functionCall("mint", tokenId, v, r, s, fees, data.amount, data.uri).send()
 				return tokenId
 			}
 		}
@@ -120,10 +122,11 @@ async function mintErc1155New(
 		"mintAndTransfer",
 		{
 			tokenId,
+			uri: nftData.uri,
+			supply: amount,
 			creators,
-			royalties: data.royalties,
+			royalties: nftData.royalties,
 			signatures: [signature],
-			uri: data.uri,
 		},
 		from,
 		amount,

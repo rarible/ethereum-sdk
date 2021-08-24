@@ -10,6 +10,7 @@ import { SimpleLazyNft } from "./sign-nft"
 import { mintOnChain } from "./mint-on-chain"
 import { mintOffChain } from "./mint-off-chain"
 
+// todo refactor input types for mint, remove check collection logic
 type SimpleNft721 = {
 	"@type": "ERC721"
 }
@@ -18,7 +19,6 @@ type SimpleNft1155 = {
 	"@type": "ERC1155"
 	amount: string
 }
-
 type SimpleNft = SimpleNft721 | SimpleNft1155
 
 export type MintLazyRequest = SimpleLazyNft<"signatures" | "tokenId"> & { isLazy: true }
@@ -27,7 +27,7 @@ export type MintOnchainRequest =
 	SimpleNft
 	& { contract: Address, uri: string, creators?: Part[], royalties?: Part[], isLazy?: false }
 
-type MintRequest = MintLazyRequest | MintOnchainRequest
+export type MintRequest = MintLazyRequest | MintOnchainRequest
 
 export async function mint(
 	ethereum: Ethereum,

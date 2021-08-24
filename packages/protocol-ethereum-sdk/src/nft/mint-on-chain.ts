@@ -1,12 +1,12 @@
 import { Ethereum } from "@rarible/ethereum-provider"
-import { Address, Binary, NftCollectionControllerApi } from "@rarible/protocol-api-client"
+import { Address, Binary, NftCollectionControllerApi, Part } from "@rarible/protocol-api-client"
 import { toAddress } from "@rarible/types"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
 import { SimpleLazyNft } from "./sign-nft"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
-import { MintOnchainRequest } from "./mint"
+import { MintOnchainRequest, SimpleNft1155, SimpleNft721 } from "./mint"
 import { getTokenId } from "./get-token-id"
 import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
 
@@ -18,11 +18,10 @@ export async function mintOnChain(
 ): Promise<string> {
 
 	const from = toAddress(await ethereum.getFrom())
-	const { features } = await nftCollectionApi.getNftCollectionById({ collection: data.contract })
 
 	switch (data["@type"]) {
 		case "ERC721": {
-			if (features.includes("MINT_AND_TRANSFER")) {
+			if ("creators" in data) {
 				/**
 				 * Mint with new contract
 				 */
@@ -33,13 +32,12 @@ export async function mintOnChain(
 				 */
 				const erc721Contract = createMintableTokenContract(ethereum, data.contract)
 				const { tokenId, signature: { v, r, s } } = await getTokenId(nftCollectionApi, data.contract, from)
-				const fees = data.royalties || []
-				await erc721Contract.functionCall("mint", tokenId, v, r, s, fees, data.uri).send()
+				await erc721Contract.functionCall("mint", tokenId, v, r, s, data.royalties, data.uri).send()
 				return tokenId
 			}
 		}
 		case "ERC1155": {
-			if (features.includes("MINT_AND_TRANSFER")) {
+			if ("creators" in data) {
 				/**
 				 * Mint with new contract
 				 */
@@ -51,8 +49,7 @@ export async function mintOnChain(
 				 */
 				const erc155Contract = createRaribleTokenContract(ethereum, data.contract)
 				const { tokenId, signature: { v, r, s } } = await getTokenId(nftCollectionApi, data.contract, from)
-				const fees = data.royalties || []
-				await erc155Contract.functionCall("mint", tokenId, v, r, s, fees, data.amount, data.uri).send()
+				await erc155Contract.functionCall("mint", tokenId, v, r, s, data.royalties, data.amount, data.uri).send()
 				return tokenId
 			}
 		}
@@ -63,7 +60,7 @@ async function mintErc721New(
 	ethereum: Ethereum,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
-	data: MintOnchainRequest,
+	data: SimpleNft721 & { contract: Address, uri: string, royalties: Part[] },
 	from: Address,
 ) {
 
@@ -99,7 +96,7 @@ async function mintErc1155New(
 	ethereum: Ethereum,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
-	data: MintOnchainRequest,
+	data: SimpleNft1155 & { contract: Address, uri: string, royalties: Part[] },
 	from: Address,
 ) {
 

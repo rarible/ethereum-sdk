@@ -53,6 +53,7 @@ describe("mint test", () => {
 				"@type": "ERC721",
 				contract: toAddress(mintableTokenE2eAddress),
 				uri: 'uri',
+				royalties: [],
 			})
 		const contract = createMintableTokenContract(ethereum, toAddress(mintableTokenE2eAddress))
 		const balanceOfMinter = await contract.functionCall('balanceOf', minter).call()
@@ -68,6 +69,7 @@ describe("mint test", () => {
 			contract: toAddress(raribleTokenE2eAddress),
 			uri,
 			amount,
+			royalties: [],
 		})
 		contract = createRaribleTokenContract(ethereum, toAddress(raribleTokenE2eAddress))
 		const balanceOfMinter: string = await contract.functionCall('balanceOf', minter, tokenId).call()

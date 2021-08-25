@@ -1,10 +1,4 @@
-import {
-	Configuration,
-	NftItemControllerApi,
-	NftOwnershipControllerApi,
-	OrderControllerApi,
-	OrderForm,
-} from "@rarible/protocol-api-client"
+import { Configuration, NftOwnershipControllerApi, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
 import { toBigNumber, toBinary, Word } from "@rarible/types"
 import { toAddress } from "@rarible/types/build/address"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
@@ -33,7 +27,6 @@ describe("test exchange v1 order", () => {
 
 	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org", fetchApi: fetch })
 	const orderApi = new OrderControllerApi(configuration)
-	const itemApi = new NftItemControllerApi(configuration)
 	const ownershipApi = new NftOwnershipControllerApi(configuration)
 
 	const seller = toAddress(wallet1.getAddressString())

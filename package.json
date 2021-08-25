@@ -13,13 +13,16 @@
     "build-ethers-ethereum": "yarn workspace @rarible/ethers-ethereum run build",
     "build-web3-ethereum": "yarn workspace @rarible/web3-ethereum run build",
     "build-sdk": "yarn workspace @rarible/protocol-ethereum-sdk run build",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx ./",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx **/src/**/*",
+    "lint:fix": "eslint --ext .js,.jsx,.ts,.tsx **/src/**/*",
     "release": "lerna publish from-package",
     "prettify:packages": "lerna exec -- sort-package-json && sort-package-json",
     "prettify:code": "prettier --write **/src/**/*",
     "prettify": "run-s prettify:*",
     "test": "lerna run test --parallel",
-    "verify": "lerna run verify --parallel"
+    "verify": "lerna run verify --parallel",
+    "lint-staged": "lint-staged",
+    "precommit": "run-s verify lint-staged lint"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
@@ -45,6 +48,7 @@
     "ethereumjs-wallet": "1.0.1",
     "lint-staged": "10.4.0",
     "prettier": "2.1.2",
+    "husky": "4.3.0",
     "ethers": "5.4.4",
     "eth-sig-util": "3.0.1",
     "@rarible/action": "0.2.0",

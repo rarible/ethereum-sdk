@@ -21,11 +21,18 @@
     "verify": "tsc --noEmit"
   },
   "dependencies": {
+    "@rarible/action": "0.1.2",
+    "@rarible/ethereum-provider": "^0.1.3",
+    "@rarible/protocol-api-client": "0.1.1",
     "eth-sig-util": "^3.0.1",
     "ethereumjs-util": "^7.1.0",
     "exponential-backoff": "^3.1.0"
   },
   "devDependencies": {
+    "@rarible/ethereum-sdk-test-common": "^0.1.3",
+    "@rarible/ethers-ethereum": "^0.1.3",
+    "@rarible/test-provider": "0.1.12",
+    "@rarible/web3-ethereum": "^0.1.3",
     "@truffle/hdwallet-provider": "1.4.1",
     "@types/jest": "26.0.24",
     "@types/node-fetch": "^2.5.11",
@@ -43,14 +50,5 @@
   "gitHead": "e1a77d6596ee3286e6f2d7c1db5f69489c10f10c",
   "publishConfig": {
     "access": "public"
-  },
-  "peerDependencies": {
-    "@rarible/action": "0.1.2",
-    "@rarible/ethereum-provider": "^0.1.3",
-    "@rarible/protocol-api-client": "0.1.1",
-    "@rarible/ethereum-sdk-test-common": "^0.1.3",
-    "@rarible/ethers-ethereum": "^0.1.3",
-    "@rarible/test-provider": "0.1.12",
-    "@rarible/web3-ethereum": "^0.1.3"
   }
 }

@@ -1,57 +1,95 @@
 import fetch from "node-fetch"
 import { toAddress, toBigNumber } from "@rarible/types"
-import { Contract } from "web3-eth-contract"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { createRaribleSdk } from "../index"
+import { EthereumContract } from "@rarible/ethereum-provider"
+import {
+	Binary,
+	Configuration,
+	NftCollection,
+	NftCollectionControllerApi,
+	NftItemControllerApi,
+	NftLazyMintControllerApi,
+} from "@rarible/protocol-api-client"
+import { retry } from "../common/retry"
+import { createErc721LazyContract } from "../nft/contracts/erc721/erc721-lazy"
 import { checkAssetType } from "./check-asset-type"
-import { deployTestErc20 } from "./contracts/test/test-erc20"
-import { deployTestErc721 } from "./contracts/test/test-erc721"
+import { isLazyErc721Collection, mint } from "../nft/mint"
+import { signNft, SimpleLazyNft } from "../nft/sign-nft"
 
 
 describe("check-asset-type test", function () {
 	const { provider, wallet } = createE2eProvider()
+	const from = toAddress(wallet.getAddressString())
 	const web3 = new Web3(provider)
-	const sdk = createRaribleSdk(new Web3Ethereum({ web3 }), "e2e", { fetchApi: fetch })
-	let testErc20: Contract
-	let testErc721: Contract
+	const ethereum = new Web3Ethereum({ web3, from })
+
+	const e2eErc721ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
+
+	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org", fetchApi: fetch })
+	const nftCollectionApi = new NftCollectionControllerApi(configuration)
+	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
+	const nftItemApi = new NftItemControllerApi(configuration)
+
+	let testErc721: EthereumContract
+	let sign: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>
+
 	beforeAll(async () => {
-		testErc20 = await deployTestErc20(web3, "Test", "Test")
-		testErc721 = await deployTestErc721(web3, "TST", "TST")
+		testErc721 = await createErc721LazyContract(ethereum, e2eErc721ContractAddress)
+		sign = signNft.bind(null, ethereum, await web3.eth.getChainId())
 	})
 	test("should set assetClass if type not present", async () => {
-
-		await testErc721.methods.mint(wallet.getAddressString(), "1", "").send({
-			from: wallet.getAddressString(),
-			gas: 200000,
+		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
+			id: toAddress(e2eErc721ContractAddress),
+			type: "ERC721",
+			features: ["MINT_WITH_ADDRESS"],
+		}
+		let tokenId: string
+		if (isLazyErc721Collection(collection))
+			tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
+				collection,
+				uri: 'uri',
+				creators: [{ account: from, value: 10000 }],
+				royalties: [],
+			})
+		await retry(10, async () => {
+			const assetType = await checkAssetType(
+				nftItemApi,
+				nftCollectionApi,
+				{
+					contract: e2eErc721ContractAddress,
+					tokenId: toBigNumber(tokenId),
+				},
+			)
+			expect(assetType.assetClass).toEqual("ERC721")
 		})
-
-		const assetType = await checkAssetType(
-			sdk.apis.nftItem,
-			sdk.apis.nftCollection,
-			{
-				contract: toAddress(testErc721.options.address),
-				tokenId: toBigNumber("1"),
-			},
-		)
-		expect(assetType.assetClass).toEqual("ERC721")
 	}, 50000)
 
 	test("should leave as is if assetClass present", async () => {
-
-		await testErc721.methods.mint(wallet.getAddressString(), "2", "").send({
-			from: wallet.getAddressString(),
-			gas: 200000,
-		})
-
+		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
+			id: toAddress(e2eErc721ContractAddress),
+			type: "ERC721",
+			features: ["MINT_WITH_ADDRESS"],
+		}
+		let tokenId: string
+		if (isLazyErc721Collection(collection)) {
+			tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
+				collection,
+				uri: 'uri',
+				creators: [{ account: from, value: 10000 }],
+				royalties: [],
+			})
+		} else {
+			tokenId = ""
+		}
 		const assetType = await checkAssetType(
-			sdk.apis.nftItem,
-			sdk.apis.nftCollection,
+			nftItemApi,
+			nftCollectionApi,
 			{
 				assetClass: 'ERC721',
-				contract: toAddress(testErc721.options.address),
-				tokenId: toBigNumber("2"),
+				contract: e2eErc721ContractAddress,
+				tokenId: toBigNumber(tokenId),
 			},
 		)
 		expect(assetType.assetClass).toEqual("ERC721")

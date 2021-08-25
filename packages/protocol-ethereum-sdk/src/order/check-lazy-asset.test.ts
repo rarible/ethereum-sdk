@@ -9,8 +9,10 @@ import { checkLazyAsset } from "./check-lazy-asset"
 
 (global as any).FormData = FormData
 
-//@ts-ignore
-const client = new NftItemControllerApi(new Configuration({ basePath: "https://ethereum-api-dev.rarible.org", fetchApi: fetch }))
+const client = new NftItemControllerApi(new Configuration({
+	basePath: "https://ethereum-api-dev.rarible.org",
+	fetchApi: fetch,
+}))
 const partial = checkLazyAssetType.bind(null, client)
 
 describe("checkLazyAsset", () => {

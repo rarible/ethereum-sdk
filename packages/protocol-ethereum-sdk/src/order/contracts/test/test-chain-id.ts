@@ -1,7 +1,8 @@
 import Web3 from "web3"
 import { Address } from "@rarible/protocol-api-client"
+import { AbiItem } from "web3-utils"
 
-const abi = [
+const abi: AbiItem[] = [
 	{
 		"inputs": [],
 		"name": "getChainID",
@@ -28,6 +29,5 @@ export async function deployTestChainId(web3: Web3) {
 }
 
 function createTestChaiId(web3: Web3, address?: Address) {
-	// @ts-ignore
 	return new web3.eth.Contract(abi, address)
 }

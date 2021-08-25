@@ -9,7 +9,6 @@ import { TEST_ORDER_TEMPLATE } from "./test/order"
 describe("signOrder", () => {
 
 	const { provider } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
-	// @ts-ignore
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
 	const signOrderE2e = signOrder.bind(null, ethereum, E2E_CONFIG)

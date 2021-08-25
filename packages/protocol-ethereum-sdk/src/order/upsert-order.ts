@@ -2,15 +2,15 @@
 
 import { Address, Asset, Binary, Order, OrderControllerApi, OrderForm, Word } from "@rarible/protocol-api-client"
 import { Action, ActionBuilder } from "@rarible/action"
-import { SimpleOrder } from "./sign-order"
-import { toBn } from "../common/to-bn"
 import { toBinary } from "@rarible/types"
+import { toBn } from "../common/to-bn"
+import { SimpleOrder } from "./sign-order"
 import { addFee } from "./add-fee"
 import { GetMakeFeeFunction } from "./get-make-fee"
 
-export type UpserOrderStageId = "checkLazyOrder" | "approve" | "sign" | "post"
+export type UpsertOrderStageId = "approve" | "sign" | "post"
 
-export type UpsertOrderFunction = (order: OrderForm, infinite?: boolean) => Promise<Action<UpserOrderStageId, [string | undefined, Binary, Order]>>
+export type UpsertOrderFunction = (order: OrderForm, infinite?: boolean) => Promise<Action<UpsertOrderStageId, [string | undefined, Binary, Order]>>
 
 /**
  * Updates or inserts the order. Also, calls approve (or setApprovalForAll) if needed, signs order message
@@ -29,7 +29,7 @@ export async function upsertOrder(
 	const checkedOrder = await checkLazyOrder(order)
 	const makeFee = getMakeFee(orderFormToSimpleOrder(checkedOrder))
 	const make = addFee(checkedOrder.make, makeFee)
-	return ActionBuilder.create<UpserOrderStageId>()
+	return ActionBuilder.create<UpsertOrderStageId>()
 		.then({ id: "approve", run: () => approve(checkedOrder.maker, make, infinite) })
 		.then({ id: "sign", run: () => signOrder(orderFormToSimpleOrder(checkedOrder)) })
 		.then({ id: "post", run: signature => orderApi.upsertOrder({ orderForm: { ...checkedOrder, signature } }) })

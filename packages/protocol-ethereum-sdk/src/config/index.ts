@@ -7,5 +7,5 @@ export const CONFIGS = {
 	e2e: E2E_CONFIG,
 	ropsten: ROPSTEN_CONFIG,
 	rinkeby: RINKEBY_CONFIG,
-	mainnet: MAINNET_CONFIG
+	mainnet: MAINNET_CONFIG,
 }

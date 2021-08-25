@@ -15,9 +15,9 @@ import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { toStructLegacyOrder } from "./to-struct-legacy-order"
 
 export type FillOrderRequest = {
-	amount: number,
-	payouts?: Array<Part>,
-	originFees?: Array<Part>,
+	amount: number
+	payouts?: Array<Part>
+	originFees?: Array<Part>
 	infinite?: boolean
 }
 
@@ -52,7 +52,7 @@ export async function fillOrderSendTx(
 	config: ExchangeAddresses,
 	orderApi: OrderControllerApi,
 	order: SimpleOrder,
-	request: FillOrderRequest,
+	request: FillOrderRequest
 ): Promise<string> {
 	switch (order.type) {
 		case 'RARIBLE_V1': {
@@ -76,7 +76,7 @@ async function fillOrderV2(
 	ethereum: Ethereum,
 	contract: Address,
 	order: SimpleOrder,
-	request: FillOrderRequest,
+	request: FillOrderRequest
 ): Promise<string> {
 	const address = toAddress(await ethereum.getFrom())
 	const orderRight = {
@@ -95,7 +95,7 @@ async function matchOrders(
 	ethereum: Ethereum,
 	contract: Address,
 	left: SimpleOrder,
-	right: SimpleOrder,
+	right: SimpleOrder
 ): Promise<string> {
 	const exchangeContract = createExchangeV2Contract(ethereum, contract)
 	let options: EthereumSendOptions
@@ -106,13 +106,15 @@ async function matchOrders(
 	} else {
 		options = {}
 	}
-	const tx = await exchangeContract.functionCall(
-		"matchOrders",
-		orderToStruct(left),
-		left.signature || "0x",
-		orderToStruct(right),
-		right.signature || "0x",
-	).send(options)
+	const tx = await exchangeContract
+		.functionCall(
+			"matchOrders",
+			orderToStruct(left),
+			left.signature || "0x",
+			orderToStruct(right),
+			right.signature || "0x"
+		)
+		.send(options)
 	return tx.hash
 }
 

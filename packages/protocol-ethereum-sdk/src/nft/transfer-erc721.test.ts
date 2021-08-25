@@ -4,8 +4,8 @@ import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { deployTestErc721 } from "../order/contracts/test/test-erc721"
-import { transferErc721 } from "./transfer-erc721"
 import { awaitAll } from "../common/await-all"
+import { transferErc721 } from "./transfer-erc721"
 
 describe("transfer Erc721", () => {
 	const { provider, addresses } = createGanacheProvider()

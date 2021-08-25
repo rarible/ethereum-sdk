@@ -6,7 +6,7 @@ export async function approveErc1155(
 	ethereum: Ethereum,
 	contract: Address,
 	owner: Address,
-	operator: Address,
+	operator: Address
 ): Promise<string | undefined> {
 	const erc1155 = createErc1155Contract(ethereum, contract)
 	const allowance: boolean = await erc1155.functionCall("isApprovedForAll", owner, operator).call()

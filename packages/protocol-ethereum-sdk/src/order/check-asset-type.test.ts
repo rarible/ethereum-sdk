@@ -13,7 +13,6 @@ import { mint } from "../nft/mint"
 import { signNft } from "../nft/sign-nft"
 import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
 
-
 describe("check-asset-type test", function () {
 	const { provider, wallet } = createE2eProvider()
 	const from = toAddress(wallet.getAddressString())
@@ -68,5 +67,4 @@ describe("check-asset-type test", function () {
 		)
 		expect(assetType.assetClass).toEqual("ERC721")
 	}, 50000)
-
 })

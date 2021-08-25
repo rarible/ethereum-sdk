@@ -10,7 +10,7 @@ export async function approve(
 	config: TransferProxies,
 	owner: Address,
 	asset: Asset,
-	infinite: undefined | boolean = true,
+	infinite: undefined | boolean = true
 ): Promise<string | undefined> {
 	switch (asset.assetType.assetClass) {
 		case "ERC20": {
@@ -40,4 +40,3 @@ export async function approve(
 	}
 	return undefined
 }
-

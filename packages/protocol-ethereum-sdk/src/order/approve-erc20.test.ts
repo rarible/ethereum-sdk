@@ -9,7 +9,9 @@ import { approveErc20 as approveErc20Template } from "./approve-erc20"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 
 describe("approveErc20", () => {
-	const { provider, addresses } = createGanacheProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
+	const { provider, addresses } = createGanacheProvider(
+		"d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469"
+	)
 	const web3 = new Web3(provider as any)
 	const ethereum = new Web3Ethereum({ web3 })
 	const [testAddress] = addresses
@@ -24,7 +26,6 @@ describe("approveErc20", () => {
 	})
 
 	test("should approve exact value if not infinite", async () => {
-
 		const operator = randomAddress()
 		await approveErc20(toAddress(it.testErc20.options.address), testAddress, operator, toBn(100), false)
 

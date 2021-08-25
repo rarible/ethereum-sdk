@@ -7,12 +7,15 @@ import { assetTypeToStruct } from "./asset-type-to-struct"
 import { EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES } from "./eip712"
 import { encodeData } from "./encode-data"
 
-export type SimpleOrder = Pick<Order, "data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature">
+export type SimpleOrder = Pick<
+	Order,
+	"data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature"
+>
 
 export async function signOrder(
 	ethereum: Ethereum,
 	config: Pick<Config, "exchange" | "chainId">,
-	order: SimpleOrder,
+	order: SimpleOrder
 ): Promise<Binary> {
 	switch (order.type) {
 		case "RARIBLE_V1": {
@@ -32,7 +35,6 @@ export async function signOrder(
 	}
 	throw new Error(`Unsupported order type: ${order.type}`)
 }
-
 
 function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712Domain {
 	return {

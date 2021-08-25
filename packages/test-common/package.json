@@ -2,6 +2,10 @@
   "name": "@rarible/ethereum-sdk-test-common",
   "version": "0.1.3",
   "description": "",
+  "keywords": [
+    "ethereum",
+    "provider"
+  ],
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
@@ -9,28 +13,24 @@
     "build": "tsc --project tsconfig-build.json",
     "clean": "rimraf ./build"
   },
-  "keywords": [
-    "ethereum",
-    "provider"
-  ],
   "dependencies": {
-    "ganache-core": "2.13.2",
     "@rarible/ethereum-provider": "0.1.3",
     "@rarible/test-provider": "0.1.12",
-    "@types/web3-provider-engine": "14.0.1"
+    "@types/web3-provider-engine": "14.0.1",
+    "ganache-core": "2.13.2"
   },
   "devDependencies": {
     "typescript": "4.3.5"
   },
   "peerDependencies": {
-    "web3-provider-engine": "^16.0.1",
     "@rarible/types": "^0.1.3",
-    "ethereumjs-wallet": "^1.0.1",
     "eth-sig-util": "^3.0.1",
-    "tslib": "^2.3.1"
+    "ethereumjs-wallet": "^1.0.1",
+    "tslib": "^2.3.1",
+    "web3-provider-engine": "^16.0.1"
   },
-  "gitHead": "e1a77d6596ee3286e6f2d7c1db5f69489c10f10c",
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "gitHead": "e1a77d6596ee3286e6f2d7c1db5f69489c10f10c"
 }

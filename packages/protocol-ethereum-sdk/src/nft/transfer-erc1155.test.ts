@@ -1,11 +1,10 @@
 import { randomAddress, toAddress } from "@rarible/types"
-import { Contract } from "web3-eth-contract"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
-import { transferErc1155 } from "./transfer-erc1155"
 import { awaitAll } from "../common/await-all"
+import { transferErc1155 } from "./transfer-erc1155"
 
 describe("transfer Erc1155", () => {
 	const { provider, addresses } = createGanacheProvider()

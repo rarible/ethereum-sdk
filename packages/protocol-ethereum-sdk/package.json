@@ -1,8 +1,6 @@
 {
   "name": "@rarible/protocol-ethereum-sdk",
   "version": "0.1.3",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
   "keywords": [
     "axios",
     "typescript",
@@ -10,6 +8,8 @@
     "openapi-generator",
     "api_documentation"
   ],
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
     "build",
     "typings.d.ts"
@@ -21,13 +21,13 @@
     "verify": "tsc --noEmit"
   },
   "dependencies": {
-    "exponential-backoff": "3.1.0"
+    "exponential-backoff": "3.1.0",
+    "@rarible/ethereum-sdk-test-common": "^0.1.3",
+    "@rarible/ethers-ethereum": "^0.1.3",
+    "@rarible/test-provider": "^0.1.12",
+    "@rarible/web3-ethereum": "^0.1.3"
   },
   "devDependencies": {
-    "@rarible/ethereum-sdk-test-common": "0.1.3",
-    "@rarible/ethers-ethereum": "0.1.3",
-    "@rarible/test-provider": "0.1.12",
-    "@rarible/web3-ethereum": "0.1.3",
     "@types/jest": "26.0.24",
     "@types/node-fetch": "2.5.11",
     "form-data": "4.0.0",
@@ -37,16 +37,16 @@
     "typescript": "4.3.5"
   },
   "peerDependencies": {
-    "web3": "^1.2.11",
-    "web3-utils": "^1.2.11",
-    "web3-eth-contract": "^1.2.11",
-    "@rarible/action": "^0.2.0",
+    "@rarible/action": "^0.2.4",
     "@rarible/ethereum-provider": "^0.1.3",
+    "@rarible/protocol-api-client": "^0.1.1",
     "tslib": "^2.3.1",
-    "@rarible/protocol-api-client": "^0.1.1"
+    "web3": "^1.2.11",
+    "web3-eth-contract": "^1.2.11",
+    "web3-utils": "^1.2.11"
   },
-  "gitHead": "e1a77d6596ee3286e6f2d7c1db5f69489c10f10c",
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "gitHead": "e1a77d6596ee3286e6f2d7c1db5f69489c10f10c"
 }

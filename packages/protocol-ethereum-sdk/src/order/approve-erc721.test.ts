@@ -40,5 +40,4 @@ describe("approveErc721", () => {
 
 		expect(result === undefined).toBeTruthy()
 	})
-
 })

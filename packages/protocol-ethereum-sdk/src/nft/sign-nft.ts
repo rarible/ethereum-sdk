@@ -14,12 +14,8 @@ import {
 
 export type SimpleLazyNft<K extends keyof any> = Omit<LazyErc721, K> | Omit<LazyErc1155, K>
 
-export async function signNft(
-	ethereum: Ethereum,
-	chainId: number,
-	nft: SimpleLazyNft<"signatures">,
-): Promise<Binary> {
-	switch (nft['@type']) {
+export async function signNft(ethereum: Ethereum, chainId: number, nft: SimpleLazyNft<"signatures">): Promise<Binary> {
+	switch (nft["@type"]) {
 		case "ERC721": {
 			const domain = createEIP712NftDomain(chainId, nft.contract, "ERC721")
 
@@ -44,8 +40,11 @@ export async function signNft(
 	}
 }
 
-
-function createEIP712NftDomain(chainId: number, verifyingContract: Address, nftType: 'ERC721' | 'ERC1155'): EIP712Domain {
+function createEIP712NftDomain(
+	chainId: number,
+	verifyingContract: Address,
+	nftType: "ERC721" | "ERC1155"
+): EIP712Domain {
 	switch (nftType) {
 		case "ERC721": {
 			return {
@@ -63,5 +62,3 @@ function createEIP712NftDomain(chainId: number, verifyingContract: Address, nftT
 		}
 	}
 }
-
-

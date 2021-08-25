@@ -1,8 +1,8 @@
+import { randomAddress } from "@rarible/types"
+import { toBigNumber } from "@rarible/types/build/big-number"
 import { SimpleOrder } from "./sign-order"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
-import { randomAddress } from "@rarible/types"
 import { getMakeFee } from "./get-make-fee"
-import { toBigNumber } from "@rarible/types/build/big-number"
 
 describe("getMakeFee", () => {
 	it("should calculate fee for v2 orders", () => {
@@ -13,15 +13,18 @@ describe("getMakeFee", () => {
 			...TEST_ORDER_TEMPLATE,
 			make: {
 				assetType: {
-					assetClass: "ETH"
+					assetClass: "ETH",
 				},
-				value: toBigNumber("100")
+				value: toBigNumber("100"),
 			},
 			type: "RARIBLE_V2",
 			data: {
 				dataType: "RARIBLE_V2_DATA_V1",
 				payouts: [],
-				originFees: [{ account: randomAddress(), value: fee1 }, { account: randomAddress(), value: fee2 }],
+				originFees: [
+					{ account: randomAddress(), value: fee1 },
+					{ account: randomAddress(), value: fee2 },
+				],
 			},
 		}
 

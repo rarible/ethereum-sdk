@@ -47,7 +47,6 @@ export async function signTypedData(ethereum: Ethereum, data: any) {
 	}
 }
 
-
 async function tryToSign(ethereum: Ethereum, type: SignTypedDataTypes, signer: string, data: any): Promise<string> {
 	return await ethereum.send(type, [signer, data])
 }
@@ -55,6 +54,5 @@ async function tryToSign(ethereum: Ethereum, type: SignTypedDataTypes, signer: s
 enum SignTypedDataTypes {
 	SIGN_TYPED_DATA = "eth_signTypedData",
 	SIGN_TYPED_DATA_V3 = "eth_signTypedData_v3",
-	SIGN_TYPED_DATA_V4 = "eth_signTypedData_v4"
+	SIGN_TYPED_DATA_V4 = "eth_signTypedData_v4",
 }
-

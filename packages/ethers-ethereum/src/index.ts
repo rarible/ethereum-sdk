@@ -9,8 +9,7 @@ import {
 } from "@rarible/ethereum-provider"
 
 export class EthersEthereum implements Ethereum {
-	constructor(readonly web3Provider: ethers.providers.Web3Provider, readonly from?: string) {
-	}
+	constructor(readonly web3Provider: ethers.providers.Web3Provider, readonly from?: string) {}
 
 	createContract(abi: any, address?: string): EthereumContract {
 		return new EthersContract(new ethers.Contract(address!, abi, this.web3Provider.getSigner()))
@@ -33,18 +32,15 @@ export class EthersEthereum implements Ethereum {
 }
 
 export class EthersContract implements EthereumContract {
-	constructor(private readonly contract: Contract) {
-	}
+	constructor(private readonly contract: Contract) {}
 
 	functionCall(name: string, ...args: any): EthereumFunctionCall {
 		return new EthersFunctionCall(this.contract, this.contract.methods[name].bind(null, ...args))
 	}
-
 }
 
 export class EthersFunctionCall implements EthereumFunctionCall {
-	constructor(private readonly contract: Contract, private readonly func: any) {
-	}
+	constructor(private readonly contract: Contract, private readonly func: any) {}
 
 	call(options: EthereumSendOptions): Promise<any> {
 		return this.func(options)
@@ -57,8 +53,7 @@ export class EthersFunctionCall implements EthereumFunctionCall {
 }
 
 export class EthersTransaction implements EthereumTransaction {
-	constructor(private readonly tx: TransactionResponse) {
-	}
+	constructor(private readonly tx: TransactionResponse) {}
 
 	get hash(): string {
 		return this.tx.hash!
@@ -68,5 +63,3 @@ export class EthersTransaction implements EthereumTransaction {
 		await this.tx.wait()
 	}
 }
-
-

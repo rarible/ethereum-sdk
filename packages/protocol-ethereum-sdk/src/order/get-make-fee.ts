@@ -1,5 +1,5 @@
-import { SimpleOrder } from "./sign-order"
 import { ExchangeFees } from "../config/type"
+import { SimpleOrder } from "./sign-order"
 import { isNft } from "./is-nft"
 
 export type GetMakeFeeFunction = (order: SimpleOrder) => number
@@ -8,7 +8,7 @@ export function getMakeFee(fees: ExchangeFees, order: SimpleOrder): number {
 	if (order.type === "RARIBLE_V2") {
 		return getMakeFeeV2(fees, order)
 	} else {
-		return 0;
+		return 0
 	}
 }
 

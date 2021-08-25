@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import {
 	Address,
 	Binary,
@@ -9,10 +10,10 @@ import {
 } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { LazyErc721 } from "@rarible/protocol-api-client/build/models/LazyNft"
+import { NftCollection_Features } from "@rarible/protocol-api-client/build/models/NftCollection"
 import { mintOffChain } from "./mint-off-chain"
 import { mintErc1155Legacy, mintErc1155New, mintErc721Legacy, mintErc721New } from "./mint-on-chain"
 import { SimpleLazyNft } from "./sign-nft"
-import { NftCollection_Features } from "@rarible/protocol-api-client/build/models/NftCollection"
 
 export type MintRequest = LazyErc721Request | LazyErc1155Request | LegacyERC721Request | LegacyERC1155Request
 

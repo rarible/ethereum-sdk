@@ -2,6 +2,10 @@
   "name": "@rarible/web3-ethereum",
   "version": "0.1.3",
   "description": "",
+  "keywords": [
+    "ethereum",
+    "provider"
+  ],
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
@@ -9,28 +13,24 @@
     "build": "tsc --project tsconfig-build.json",
     "clean": "rimraf ./build"
   },
-  "keywords": [
-    "ethereum",
-    "provider"
-  ],
   "dependencies": {
     "@rarible/ethereum-provider": "^0.1.3",
     "@rarible/ethereum-sdk-test-common": "^0.1.3"
   },
   "devDependencies": {
-    "typescript": "4.3.5",
     "@types/jest": "26.0.24",
     "jest": "27.0.6",
-    "ts-jest": "27.0.3"
+    "ts-jest": "27.0.3",
+    "typescript": "4.3.5"
   },
   "peerDependencies": {
+    "tslib": "^2.3.1",
     "web3": "^1.2.11",
-    "web3-eth-contract": "^1.2.11",
-		"web3-core": "^1.2.11",
-    "tslib": "^2.3.1"
+    "web3-core": "^1.2.11",
+    "web3-eth-contract": "^1.2.11"
   },
-  "gitHead": "e1a77d6596ee3286e6f2d7c1db5f69489c10f10c",
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "gitHead": "e1a77d6596ee3286e6f2d7c1db5f69489c10f10c"
 }

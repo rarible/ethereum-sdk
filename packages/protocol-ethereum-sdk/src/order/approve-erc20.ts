@@ -12,7 +12,7 @@ export async function approveErc20(
 	owner: Address,
 	operator: Address,
 	value: BigNumber | BN,
-	infinite: boolean = true,
+	infinite: boolean = true
 ): Promise<string | undefined> {
 	const erc20 = createErc20Contract(ethereum, contract)
 	const allowance = toBn(await erc20.functionCall("allowance", owner, operator).call())
@@ -29,4 +29,3 @@ export async function approveErc20(
 		return undefined
 	}
 }
-

@@ -21,31 +21,26 @@ export async function mint(
 	nftLazyMintApi: NftLazyMintControllerApi,
 	data: MintRequest,
 ): Promise<string> {
-	if ("creators" in data) {
-		if (data.lazy) {
-			/**
-			 * Lazy minting
-			 */
-			return await mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, data)
+	if (isLazy721Collection(data.collection)) {
+		const dataLazy = data as LazyErc721Request
+		if (dataLazy.lazy) {
+			return await mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, dataLazy)
 		} else {
-			/**
-			 * On chain minting on new contracts
-			 */
-			if ("supply" in data) {
-				return await mintErc1155New(ethereum, signNft, nftCollectionApi, data)
-			} else {
-				return await mintErc721New(ethereum, signNft, nftCollectionApi, data)
-			}
+			return await mintErc721New(ethereum, signNft, nftCollectionApi, dataLazy)
 		}
+	} else if (isLazy1155Collection(data.collection)) {
+		const dataLazy = data as LazyErc1155Request
+		if (dataLazy.lazy) {
+			return await mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, dataLazy)
+		} else {
+			return await mintErc1155New(ethereum, signNft, nftCollectionApi, dataLazy)
+		}
+	} else if (isLegacyErc721Collection(data.collection)) {
+		return await mintErc721Legacy(ethereum, signNft, nftCollectionApi, data as LegacyERC721Request)
+	} else if (isLegacyErc1155Collection(data.collection)) {
+		return await mintErc1155Legacy(ethereum, signNft, nftCollectionApi, data as LegacyERC1155Request)
 	} else {
-		/**
-		 * On chain minting on legacy contracts
-		 */
-		if ("supply" in data) {
-			return await mintErc1155Legacy(ethereum, signNft, nftCollectionApi, data)
-		} else {
-			return await mintErc721Legacy(ethereum, signNft, nftCollectionApi, data)
-		}
+		throw new Error("Mint request is not correct")
 	}
 }
 

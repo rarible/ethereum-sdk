@@ -15,17 +15,27 @@
     "build-sdk": "yarn workspace @rarible/protocol-ethereum-sdk run build",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx ./",
     "release": "lerna publish from-package",
-    "prettify": "prettier --write **/src/**/*",
+    "prettify:packages": "lerna exec -- sort-package-json && sort-package-json",
+    "prettify:code": "prettier --write **/src/**/*",
+    "prettify": "run-s prettify:*",
     "test": "lerna run test --parallel",
     "verify": "lerna run verify --parallel"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
-      "yarn run prettify"
+      "yarn run prettify:code"
+    ],
+    "**/src/package.json": [
+      "yarn run prettify:packages"
+    ],
+    "package.json": [
+      "yarn run prettify:packages"
     ]
   },
   "devDependencies": {
     "web3": "1.2.11",
+    "npm-run-all": "4.1.5",
+    "sort-package-json": "1.50.0",
     "web3-eth-contract": "1.2.11",
 		"web3-core": "1.2.11",
     "@roborox/eslint-config-default": "2.2.0",

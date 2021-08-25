@@ -77,9 +77,6 @@
   "exclude": [
     "build",
     "node_modules",
-    "stories",
-    "src/**/*.test.ts",
-    "src/**/test",
-    "src/**/test*.ts"
+    "stories"
   ]
 }

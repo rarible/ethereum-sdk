@@ -4,6 +4,7 @@ import fetch from "node-fetch"
 import {
 	Binary,
 	Configuration,
+	NftCollection,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
@@ -13,9 +14,10 @@ import { randomAddress, toAddress } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { signNft, SimpleLazyNft } from "./sign-nft"
-import { mint, MintLazyRequest } from "./mint"
+import { isLazyErc721Collection, mint } from "./mint"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
 import { transfer } from "./transfer"
+import { checkAssetType } from "../order/check-asset-type"
 
 describe("transfer Erc721 lazy", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -27,6 +29,7 @@ describe("transfer Erc721 lazy", () => {
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)
+	const checkAssetTypeImpl = checkAssetType.bind(null, nftItemApi, nftCollectionApi)
 
 	let sign: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>
 
@@ -40,18 +43,32 @@ describe("transfer Erc721 lazy", () => {
 		const recipient = randomAddress()
 		const contract = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 
-		const mintNftTemplate: MintLazyRequest = {
-			"@type": 'ERC721',
-			contract,
-			uri: '//uri',
-			creators: [{ account: from, value: 10000 }],
-			royalties: [],
-			isLazy: true,
+		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
+			id: contract,
+			type: "ERC721",
+			features: ["MINT_WITH_ADDRESS"],
 		}
-		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintControllerApi, mintNftTemplate)
+		let tokenId: string
+		if (isLazyErc721Collection(collection)) {
+			tokenId = await mint(
+				ethereum,
+				sign,
+				nftCollectionApi,
+				nftLazyMintControllerApi, {
+					collection,
+					uri: '//uri',
+					creators: [{ account: from, value: 10000 }],
+					royalties: [],
+					lazy: true,
+				})
+		} else {
+			tokenId = ""
+		}
+
 		await transfer(
 			ethereum,
 			sign,
+			checkAssetTypeImpl,
 			nftItemApi,
 			nftOwnershipApi,
 			{

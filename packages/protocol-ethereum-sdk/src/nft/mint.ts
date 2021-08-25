@@ -21,14 +21,14 @@ export async function mint(
 	nftLazyMintApi: NftLazyMintControllerApi,
 	data: MintRequest,
 ): Promise<string> {
-	if (isLazyErc721Collection(data.collection)) {
+	if (isLazy721Collection(data.collection)) {
 		const dataLazy = data as LazyErc721Request
 		if (dataLazy.lazy) {
 			return await mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, dataLazy)
 		} else {
 			return await mintErc721New(ethereum, signNft, nftCollectionApi, dataLazy)
 		}
-	} else if (isLazyErc1155Collection(data.collection)) {
+	} else if (isLazy1155Collection(data.collection)) {
 		const dataLazy = data as LazyErc1155Request
 		if (dataLazy.lazy) {
 			return await mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, dataLazy)
@@ -48,7 +48,7 @@ type ERC721Collection = Pick<NftCollection, "id" | "features"> & { type: "ERC721
 type LegacyERC721Collection = ERC721Collection & { [lazySupported]: false }
 type LazyERC721Collection = ERC721Collection & { [lazySupported]: true }
 
-export function isLazyErc721Collection(
+export function isLazy721Collection(
 	collection: Pick<NftCollection, "id" | "type" | "features">,
 ): collection is LazyERC721Collection {
 	return collection.type === "ERC721" && collection.features.indexOf("MINT_WITH_ADDRESS") !== -1
@@ -75,7 +75,7 @@ type ERC1155Collection = Pick<NftCollection, "id" | "features"> & { type: "ERC11
 type LegacyERC1155Collection = ERC1155Collection & { [lazySupported]: false }
 type LazyERC1155Collection = ERC1155Collection & { [lazySupported]: true }
 
-export function isLazyErc1155Collection(
+export function isLazy1155Collection(
 	collection: Pick<NftCollection, "id" | "type" | "features">,
 ): collection is LazyERC1155Collection {
 	return collection.type === "ERC1155" && collection.features.indexOf("MINT_WITH_ADDRESS") !== -1

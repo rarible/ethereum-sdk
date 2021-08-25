@@ -6,8 +6,8 @@
   ],
   "scripts": {
     "bootstrap": "lerna bootstrap && lerna link",
-    "clean": "yarn workspaces run clean",
-    "build-all": "sh build-all.sh",
+    "clean": "lerna run clean --parallel",
+    "build-all": "sh ./scripts/build.sh",
     "build-test-common": "yarn workspace @rarible/ethereum-sdk-test-common run build",
     "build-ethereum-provider": "yarn workspace @rarible/ethereum-provider run build",
     "build-ethers-ethereum": "yarn workspace @rarible/ethers-ethereum run build",
@@ -16,8 +16,8 @@
     "lint": "eslint --ext .js,.jsx,.ts,.tsx ./",
     "release": "lerna publish from-package",
     "prettify": "prettier --write **/src/**/*",
-    "test": "yarn workspaces run test",
-    "verify": "yarn workspaces run verify"
+    "test": "lerna run test --parallel",
+    "verify": "lerna run verify --parallel"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
@@ -25,11 +25,24 @@
     ]
   },
   "devDependencies": {
+    "web3": "1.2.11",
+    "web3-eth-contract": "1.2.11",
+		"web3-core": "1.2.11",
     "@roborox/eslint-config-default": "2.2.0",
     "eslint": "7.10.0",
     "eslint-config-prettier": "6.11.0",
-    "lerna": "^3.22.1",
+    "lerna": "4.0.0",
+    "ethereumjs-wallet": "1.0.1",
     "lint-staged": "10.4.0",
-    "prettier": "2.1.2"
+    "prettier": "2.1.2",
+    "ethers": "5.4.4",
+    "eth-sig-util": "3.0.1",
+    "@rarible/action": "0.2.0",
+    "@rarible/types": "0.1.3",
+    "@rarible/ethereum-provider": "0.1.3",
+    "@rarible/protocol-api-client": "0.1.1",
+    "tslib": "2.3.1",
+    "web3-utils": "1.2.11",
+    "web3-provider-engine": "16.0.1"
   }
 }

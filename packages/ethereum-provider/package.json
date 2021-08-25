@@ -5,7 +5,7 @@
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
-    "test": "echo 'There has no tests'",
+    "test": "echo \"There's no tests yet\"",
     "build": "tsc --project tsconfig-build.json",
     "clean": "rimraf ./build"
   },
@@ -13,8 +13,11 @@
     "ethereum",
     "provider"
   ],
-  "dependencies": {
+  "devDependencies": {
     "typescript": "4.3.5"
+  },
+  "peerDependencies": {
+    "tslib": "^2.3.1"
   },
   "gitHead": "e1a77d6596ee3286e6f2d7c1db5f69489c10f10c",
   "publishConfig": {

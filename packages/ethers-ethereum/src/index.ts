@@ -1,5 +1,5 @@
 import { Contract, ethers } from "ethers"
-import { TransactionResponse } from "@ethersproject/abstract-provider"
+import type { TransactionResponse } from "@ethersproject/abstract-provider"
 import {
 	Ethereum,
 	EthereumContract,

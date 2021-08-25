@@ -1,13 +1,17 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "build"
+    "outDir": "build",
+    "lib": [
+      "es6",
+      "dom"
+		],
+    "declaration": true,
   },
   "include": [
     "src/**/*",
-    "./typings.d.ts"
   ],
   "exclude": [
-    "**/*.test.ts*"
+    "src/**/*.test.ts",
   ]
 }

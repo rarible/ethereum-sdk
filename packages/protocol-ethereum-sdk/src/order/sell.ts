@@ -1,16 +1,9 @@
-import {
-	Address,
-	Erc20AssetType,
-	EthAssetType,
-	NftItemControllerApi,
-	OrderForm,
-	Part,
-} from "@rarible/protocol-api-client"
+import type { Address, Erc20AssetType, EthAssetType, NftItemControllerApi, OrderForm, Part } from "@rarible/protocol-api-client"
 import { randomWord, toBigNumber } from "@rarible/types"
 import BN from "bignumber.js"
 import { toBn } from "../common/to-bn"
-import { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type"
-import { UpsertOrderFunction } from "./upsert-order"
+import type { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type";
+import type { UpsertOrderFunction } from "./upsert-order"
 
 export type SellRequest = {
 	maker: Address
@@ -47,5 +40,5 @@ export async function sell(
 		},
 		salt: toBigNumber(toBn(randomWord(), 16).toString(10)),
 	}
-	return await upsertOrder(order, false)
+	return upsertOrder(order, false)
 }

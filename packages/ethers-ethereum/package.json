@@ -16,8 +16,17 @@
   "dependencies": {
     "@rarible/ethereum-provider": "^0.1.3",
     "@rarible/ethereum-sdk-test-common": "^0.1.3",
-    "ethers": "5.4.4",
-    "typescript": "4.3.5"
+    "@ethersproject/abstract-provider": "5.4.1"
+  },
+  "devDependencies": {
+    "typescript": "4.3.5",
+    "@types/jest": "26.0.24",
+    "jest": "27.0.6",
+    "ts-jest": "27.0.3"
+  },
+  "peerDependencies": {
+    "ethers": "^5.4.4",
+    "tslib": "^2.3.1"
   },
   "gitHead": "e1a77d6596ee3286e6f2d7c1db5f69489c10f10c",
   "publishConfig": {

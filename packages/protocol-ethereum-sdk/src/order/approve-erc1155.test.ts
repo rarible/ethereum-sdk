@@ -1,22 +1,16 @@
-// @ts-ignore
-import RpcSubprovider from "web3-provider-engine/subproviders/rpc"
 import { randomAddress, toAddress } from "@rarible/types"
-import { Contract } from "web3-eth-contract"
-import { deployTestErc1155 } from "./contracts/test/test-erc1155"
-import { approveErc1155 } from "./approve-erc1155"
-import { toBn } from "../common/to-bn"
-import { sentTx } from "../common/send-transaction"
+import type { Contract } from "web3-eth-contract"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
+import { sentTx } from "../common/send-transaction"
+import { toBn } from "../common/to-bn"
+import { approveErc1155 } from "./approve-erc1155"
+import { deployTestErc1155 } from "./contracts/test/test-erc1155"
 
 describe("approveErc1155", () => {
-	const {
-		provider,
-		addresses,
-	} = createGanacheProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
-	// @ts-ignore
-	const web3 = new Web3(provider)
+	const { provider, addresses } = createGanacheProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
+	const web3 = new Web3(provider as any)
 	const ethereum = new Web3Ethereum({ web3 })
 	const [testAddress] = addresses
 

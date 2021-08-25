@@ -114,7 +114,7 @@ describe("mint test", () => {
 
 	test("mint with new contract Erc1155", async () => {
 		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
-			id: toAddress(e2eErc721ContractAddress),
+			id: toAddress(e2eErc1155ContractAddress),
 			type: "ERC1155",
 			features: ["MINT_WITH_ADDRESS"],
 		}
@@ -126,7 +126,6 @@ describe("mint test", () => {
 				supply: toBigNumber('100'),
 				creators: [{ account: toAddress(minter), value: 10000 }],
 				royalties: [],
-				lazy: false,
 			})
 		contract = createErc1155LazyContract(ethereum, toAddress(e2eErc1155ContractAddress))
 		const balanceOfMinter: string = await contract.functionCall('balanceOf', minter, tokenId).call()

@@ -4,6 +4,7 @@ import fetch from "node-fetch"
 import {
 	Binary,
 	Configuration,
+	NftCollection,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
@@ -13,7 +14,7 @@ import { randomAddress, toAddress } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { signNft, SimpleLazyNft } from "./sign-nft"
-import { mint, MintLazyRequest } from "./mint"
+import { isLazyErc1155Collection, mint } from "./mint"
 import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
 import { transfer } from "./transfer"
 import { checkAssetType } from "../order/check-asset-type"
@@ -40,17 +41,24 @@ describe("transfer Erc721 lazy", () => {
 	test('should transfer erc1155 lazy token', async () => {
 		const recipient = randomAddress()
 		const contract = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
-
-		const mintNftTemplate: MintLazyRequest = {
-			"@type": 'ERC1155',
-			contract,
-			uri: '//uri',
-			creators: [{ account: toAddress(wallet.getAddressString()), value: 10000 }],
-			royalties: [],
-			supply: toBigNumber('100'),
-			isLazy: true,
+		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
+			type: "ERC1155",
+			id: contract,
+			features: ["MINT_WITH_ADDRESS"],
 		}
-		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintControllerApi, mintNftTemplate)
+		let tokenId: string
+		if (isLazyErc1155Collection(collection)) {
+			tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintControllerApi, {
+				collection,
+				uri: '//uri',
+				creators: [{ account: toAddress(wallet.getAddressString()), value: 10000 }],
+				royalties: [],
+				supply: toBigNumber('100'),
+				lazy: true,
+			})
+		} else {
+			tokenId = ""
+		}
 		await transfer(
 			ethereum,
 			sign,

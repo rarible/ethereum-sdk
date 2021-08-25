@@ -16,8 +16,8 @@ import { toBigNumber } from "@rarible/types/build/big-number"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { signNft, SimpleLazyNft } from "./sign-nft"
 import {
-	isLazy1155Collection,
-	isLazy721Collection,
+	isLazyErc1155Collection,
+	isLazyErc721Collection,
 	isLegacyErc1155Collection,
 	isLegacyErc721Collection,
 	mint,
@@ -100,7 +100,7 @@ describe("mint test", () => {
 			features: ["MINT_WITH_ADDRESS"],
 		}
 		let tokenId
-		if (isLazy721Collection(collection))
+		if (isLazyErc721Collection(collection))
 			tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
 				collection,
 				uri: 'uri',
@@ -119,7 +119,7 @@ describe("mint test", () => {
 			features: ["MINT_WITH_ADDRESS"],
 		}
 		let tokenId
-		if (isLazy1155Collection(collection))
+		if (isLazyErc1155Collection(collection))
 			tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
 				collection,
 				uri: 'uri',
@@ -140,7 +140,7 @@ describe("mint test", () => {
 			features: ["MINT_WITH_ADDRESS"],
 		}
 		let tokenId
-		if (isLazy721Collection(collection))
+		if (isLazyErc721Collection(collection))
 			tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
 				collection,
 				uri: 'uri',
@@ -159,7 +159,7 @@ describe("mint test", () => {
 			features: ["MINT_WITH_ADDRESS"],
 		}
 		let tokenId
-		if (isLazy1155Collection(collection))
+		if (isLazyErc1155Collection(collection))
 			tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
 				collection,
 				uri: 'uri',

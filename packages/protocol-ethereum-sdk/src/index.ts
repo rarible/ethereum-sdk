@@ -18,7 +18,7 @@ import { Action } from "@rarible/action"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
 import { CONFIGS } from "./config"
-import { UpsertOrderStageId, upsertOrder as upsertOrderTemplate } from "./order/upsert-order"
+import { upsertOrder as upsertOrderTemplate, UpsertOrderStageId } from "./order/upsert-order"
 import { approve as approveTemplate } from "./order/approve"
 import { sell as sellTemplate, SellRequest } from "./order/sell"
 import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
@@ -162,3 +162,8 @@ type Arr = readonly unknown[];
 function partialCall<T extends Arr, U extends Arr, R>(f: (...args: [...T, ...U]) => R, ...headArgs: T): (...tailArgs: U) => R {
 	return (...tailArgs: U) => f(...headArgs, ...tailArgs)
 }
+
+export {
+	isLazyErc721Collection, isLazyErc1155Collection, isLegacyErc721Collection, isLegacyErc1155Collection,
+} from "./nft/mint"
+

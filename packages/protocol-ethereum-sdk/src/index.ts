@@ -5,6 +5,7 @@ import {
 	Configuration,
 	ConfigurationParameters,
 	GatewayControllerApi,
+	NftCollection,
 	NftCollectionControllerApi,
 	NftItem,
 	NftItemControllerApi,
@@ -18,7 +19,7 @@ import { Action } from "@rarible/action"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
 import { CONFIGS } from "./config"
-import { UpsertOrderStageId, upsertOrder as upsertOrderTemplate } from "./order/upsert-order"
+import { upsertOrder as upsertOrderTemplate, UpsertOrderStageId } from "./order/upsert-order"
 import { approve as approveTemplate } from "./order/approve"
 import { sell as sellTemplate, SellRequest } from "./order/sell"
 import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
@@ -31,12 +32,21 @@ import {
 	checkLazyOrder as checkLazyOrderTemplate,
 } from "./order"
 import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
-import { mint as mintTemplate, MintRequest } from "./nft/mint"
+import {
+	isLazyErc1155Collection,
+	isLazyErc721Collection,
+	isLegacyErc1155Collection,
+	isLegacyErc721Collection,
+	mint as mintTemplate,
+	MintRequest,
+} from "./nft/mint"
 import { transfer as transferTemplate, TransferAsset } from "./nft/transfer"
 import { signNft as signNftTemplate } from "./nft/sign-nft"
 import { getMakeFee as getMakeFeeTemplate } from "./order/get-make-fee"
 
 export interface RaribleSdk {
+	utils: RaribleUtils
+
 	order: RaribleOrderSdk
 
 	nft: RaribleNftSdk
@@ -50,6 +60,16 @@ export interface RaribleSdk {
 	approve(owner: Address, asset: Asset, infinite?: (boolean | undefined)): Promise<string | undefined>
 
 	apis: RaribleApis
+}
+
+export interface RaribleUtils {
+	isLazyErc721Collection(collection: Pick<NftCollection, "id" | "type" | "features">): boolean
+
+	isLazyErc1155Collection(collection: Pick<NftCollection, "id" | "type" | "features">): boolean
+
+	isLegacyErc721Collection(collection: Pick<NftCollection, "id" | "type" | "features">): boolean
+
+	isLegacyErc1155Collection(collection: Pick<NftCollection, "id" | "type" | "features">): boolean
 }
 
 export interface RaribleApis {
@@ -137,6 +157,12 @@ export function createRaribleSdk(
 	const transfer = partialCall(transferTemplate, ethereum, signNft, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi)
 
 	return {
+		utils: {
+			isLazyErc721Collection,
+			isLazyErc1155Collection,
+			isLegacyErc721Collection,
+			isLegacyErc1155Collection,
+		},
 		apis: {
 			nftItem: nftItemControllerApi,
 			nftOwnership: nftOwnershipControllerApi,

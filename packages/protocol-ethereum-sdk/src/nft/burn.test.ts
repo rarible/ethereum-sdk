@@ -3,8 +3,13 @@ import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
-import { mint } from "./mint"
-import { Configuration, NftCollectionControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
+import { isLegacyErc1155Collection, isLegacyErc721Collection, mint } from "./mint"
+import {
+	Configuration,
+	NftCollection,
+	NftCollectionControllerApi,
+	NftLazyMintControllerApi,
+} from "@rarible/protocol-api-client"
 import fetch from "node-fetch"
 import { signNft } from './sign-nft'
 import { EthereumContract } from "@rarible/ethereum-provider"
@@ -35,13 +40,24 @@ describe("burn nft's", () => {
 		testErc1155 = await createRaribleTokenContract(ethereum, contractErc1155)
 	})
 
-	test("should burn ERC721 token", async () => {
-		const tokenId = await mint(ethereum, sign, collectionApi, mintLazyApi, {
-			"@type": "ERC721",
-			contract: contractErc721,
-			uri: "//test",
-		})
+	test("should burn ERC721 legacy token", async () => {
+		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
+			id: contractErc721,
+			type: "ERC721",
+			features: [],
+		}
+		let tokenId: string
+		if (isLegacyErc721Collection(collection)) {
+			tokenId = await mint(ethereum, sign, collectionApi, mintLazyApi, {
+				collection,
+				uri: "//test",
+				royalties: [],
+			})
+		} else {
+			tokenId = ""
+		}
 		const testBalance = await testErc721.functionCall("balanceOf", testAddress).call()
+		expect(testBalance).toBe("1")
 		await burn(ethereum, {
 			assetClass: "ERC721",
 			contract: contractErc721,
@@ -51,18 +67,28 @@ describe("burn nft's", () => {
 		expect(testBalanceAfterBurn).toBe("0")
 	})
 
-	test("should burn ERC1155 token", async () => {
-		const tokenId = await mint(ethereum, sign, collectionApi, mintLazyApi, {
-			"@type": "ERC1155",
-			contract: contractErc1155,
-			uri: "//test",
-			amount: 100,
-		})
+	test("should burn ERC1155 legacy token", async () => {
+		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
+			id: contractErc1155,
+			type: "ERC1155",
+			features: [],
+		}
+		let tokenId: string
+		if (isLegacyErc1155Collection(collection)) {
+			tokenId = await mint(ethereum, sign, collectionApi, mintLazyApi, {
+				collection,
+				uri: "//test",
+				royalties: [],
+				supply: 100,
+			})
+		} else {
+			tokenId = ""
+		}
 
 		await burn(ethereum, {
 			assetClass: "ERC1155",
 			contract: contractErc1155,
-			tokenId: toBigNumber(tokenId)
+			tokenId: toBigNumber(tokenId),
 		}, 50)
 
 		const testBalanceAfterBurn = await testErc1155.functionCall("balanceOf", testAddress, tokenId).call()

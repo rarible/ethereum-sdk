@@ -1,4 +1,3 @@
-import { UpsertOrderFunction } from "./upsert-order"
 import {
 	Address,
 	Erc20AssetType,
@@ -8,9 +7,10 @@ import {
 	Part,
 } from "@rarible/protocol-api-client"
 import { randomWord, toBigNumber } from "@rarible/types"
-import { toBn } from "../common/to-bn"
-import {AssetTypeRequest, AssetTypeResponse} from "./check-asset-type";
 import BN from "bignumber.js"
+import { toBn } from "../common/to-bn"
+import { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type"
+import { UpsertOrderFunction } from "./upsert-order"
 
 export type SellRequest = {
 	maker: Address
@@ -43,9 +43,9 @@ export async function sell(
 		data: {
 			dataType: "RARIBLE_V2_DATA_V1",
 			payouts: request.payouts,
-			originFees: request.originFees
+			originFees: request.originFees,
 		},
-		salt: toBigNumber(toBn(randomWord(), 16).toString(10))
+		salt: toBigNumber(toBn(randomWord(), 16).toString(10)),
 	}
 	return await upsertOrder(order, false)
 }

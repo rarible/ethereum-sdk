@@ -12,7 +12,8 @@
   "scripts": {
     "test": "echo 'There has no tests'",
     "build": "tsc --project tsconfig-build.json",
-    "clean": "rimraf ./build"
+    "clean": "rimraf ./build",
+    "verify": "tsc --noEmit"
   },
   "dependencies": {
     "@rarible/ethereum-provider": "^0.1.4",

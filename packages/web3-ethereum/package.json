@@ -12,9 +12,11 @@
   "scripts": {
     "test": "jest",
     "build": "tsc --project tsconfig-build.json",
-    "clean": "rimraf ./build"
+    "clean": "rimraf ./build",
+    "verify": "tsc --noEmit"
   },
   "dependencies": {
+    "eth-rpc-errors": "4.0.3",
     "@rarible/ethereum-provider": "^0.1.4",
     "@rarible/ethereum-sdk-test-common": "^0.1.4"
   },

@@ -1,19 +1,10 @@
-import Web3 from "web3"
-import { Contract } from "web3-eth-contract"
-import { PromiEvent } from "web3-core"
-import {
-	Ethereum,
-	EthereumContract,
-	EthereumFunctionCall,
-	EthereumSendOptions,
-	EthereumTransaction,
-} from "@rarible/ethereum-provider"
-
-type Web3EthereumConfig = {
-	web3: Web3
-	from?: string
-	gas?: number
-}
+import type { Contract, ContractSendMethod } from "web3-eth-contract"
+import type { PromiEvent } from "web3-core"
+import type { Ethereum, EthereumContract, EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
+import { waitForHash } from "./utils/wait-for-hash"
+import type { Web3EthereumConfig } from "./domain"
+import { waitForConfirmation } from "./utils/wait-for-confirmation"
+import { providerRequest } from "./utils/provider-request"
 
 export class Web3Ethereum implements Ethereum {
 	constructor(private readonly config: Web3EthereumConfig) {}
@@ -22,41 +13,20 @@ export class Web3Ethereum implements Ethereum {
 		return new Web3Contract(this.config, new this.config.web3.eth.Contract(abi, address))
 	}
 
-	async send(method: string, params: any): Promise<any> {
-		const signer = await this.getFrom()
-		return await new Promise<string>((resolve, reject) => {
-			function cb(err: any, result: any) {
-				if (err) return reject(err)
-				if (result.error) return reject(result.error)
-				resolve(result.result)
-			}
-
-			// @ts-ignore
-			return this.config.web3.currentProvider.sendAsync(
-				{
-					method,
-					params: [signer, params[1]],
-					signer,
-				},
-				cb
-			)
+	async send(method: string, params: unknown[]): Promise<any> {
+		return providerRequest(this.config.web3.currentProvider, {
+			method,
+			params
 		})
 	}
 
 	async personalSign(message: string): Promise<string> {
 		const signer = await this.getFrom()
-		return (this.config.web3.eth.personal as any).sign(message, signer).catch((error: any) => {
-			if (error.code === 4001) {
-				return Promise.reject(new Error("Cancelled"))
-			}
-			return Promise.reject(error)
-		})
+		return (this.config.web3.eth.personal as any).sign(message, signer)
 	}
 
 	async getFrom(): Promise<string> {
-		if (this.config.from) {
-			return this.config.from
-		}
+		if (this.config.from) return this.config.from
 		return this.config.web3.eth.getAccounts().then(([first]) => first)
 	}
 }
@@ -65,50 +35,46 @@ export class Web3Contract implements EthereumContract {
 	constructor(private readonly config: Web3EthereumConfig, private readonly contract: Contract) {}
 
 	functionCall(name: string, ...args: any): EthereumFunctionCall {
-		return new Web3FunctionCall(this.config, this.contract, this.contract.methods[name].bind(null, ...args))
+		return new Web3FunctionCall(this.config, this.contract.methods[name].bind(null, ...args))
 	}
 }
 
 export class Web3FunctionCall implements EthereumFunctionCall {
 	constructor(
 		private readonly config: Web3EthereumConfig,
-		private readonly contract: Contract,
-		private readonly func: any
+		private readonly getSendMethod: () => ContractSendMethod
 	) {}
 
-	call(options?: EthereumSendOptions): Promise<any> {
-		return this.func().call({ ...options })
+	call(options: EthereumSendOptions = {}): Promise<any> {
+		return this.getSendMethod().call({
+			from: this.config.from,
+			gas: options.gas,
+			gasPrice: options.gasPrice?.toString(),
+		})
 	}
 
-	async send(options?: EthereumSendOptions): Promise<EthereumTransaction> {
-		const address = await this.getFrom()
-		const promiEvent: PromiEvent<any> = this.func().send({
-			from: address,
-			gas: this.config.gas,
-			...options,
+	async send(options: EthereumSendOptions = {}): Promise<EthereumTransaction> {
+		const promiEvent: PromiEvent<any> = this.getSendMethod().send({
+			from: this.config.from || await this.getFrom(),
+			gas: this.config.gas || options.gas,
+			value: options.value,
+			gasPrice: options.gasPrice?.toString()
 		})
-		const hash = await new Promise<string>((resolve, reject) => {
-			promiEvent.on("transactionHash", resolve)
-			promiEvent.on("error", reject)
-		})
+		const hash = await waitForHash(promiEvent)
 		return new Web3Transaction(hash, promiEvent)
 	}
 
 	async getFrom(): Promise<string> {
-		if (this.config.from) {
-			return this.config.from
-		}
-		return this.config.web3.eth.getAccounts().then(([first]) => first)
+		const [account] = await this.config.web3.eth.getAccounts()
+		return account
 	}
 }
 
 export class Web3Transaction implements EthereumTransaction {
-	constructor(readonly hash: string, private readonly promiEvent: PromiEvent<any>) {}
+	constructor(
+		public readonly hash: string, 
+		private readonly promiEvent: PromiEvent<any>
+	) {}
 
-	wait(): Promise<void> {
-		return new Promise((resolve, reject) => {
-			this.promiEvent.on("receipt", r => resolve())
-			this.promiEvent.on("error", reject)
-		})
-	}
+	wait = () => waitForConfirmation(this.promiEvent) 
 }

@@ -12,7 +12,8 @@
   "scripts": {
     "test": "jest",
     "build": "tsc --project tsconfig-build.json",
-    "clean": "rimraf ./build"
+    "clean": "rimraf ./build",
+    "verify": "tsc --noEmit"
   },
   "dependencies": {
     "@ethersproject/abstract-provider": "5.4.1",

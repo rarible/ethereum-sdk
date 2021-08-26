@@ -44,7 +44,6 @@ describe("transfer Erc721 lazy", () => {
 				collection: {
 					id: contract,
 					type: "ERC721",
-					features: ["MINT_AND_TRANSFER"],
 					supportsLazyMint: true,
 				},
 				uri: '//uri',

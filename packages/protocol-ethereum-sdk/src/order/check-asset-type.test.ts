@@ -54,7 +54,6 @@ describe("check-asset-type test", function () {
 			collection: {
 				id: toAddress(e2eErc721ContractAddress),
 				type: "ERC721",
-				features: ["MINT_AND_TRANSFER"],
 				supportsLazyMint: true,
 			},
 			uri: 'uri',

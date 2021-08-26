@@ -8,14 +8,15 @@ import {
 	Configuration,
 	NftCollection,
 	NftCollectionControllerApi,
+	NftItemControllerApi,
 	NftLazyMintControllerApi,
 } from "@rarible/protocol-api-client"
 import fetch from "node-fetch"
 import { signNft } from './sign-nft'
-import { EthereumContract } from "@rarible/ethereum-provider"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
-import { burn } from "./burn"
+import { burn as burnTemplate } from "./burn"
 import { toBigNumber } from "@rarible/types/build/big-number"
+import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 
 describe("burn nft's", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -28,17 +29,14 @@ describe("burn nft's", () => {
 	const collectionApi = new NftCollectionControllerApi(configuration)
 	const mintLazyApi = new NftLazyMintControllerApi(configuration)
 
+	const checkAssetType = checkAssetTypeTemplate.bind(null, new NftItemControllerApi(configuration), collectionApi)
 	const sign = signNft.bind(null, ethereum, 17)
+	const burn = burnTemplate.bind(null, ethereum, checkAssetType)
 
 	const contractErc721 = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
 	const contractErc1155 = toAddress("0x8812cFb55853da0968a02AaaEA84CD93EC4b42A1")
-	let testErc721: EthereumContract
-	let testErc1155: EthereumContract
-
-	beforeAll(async () => {
-		testErc721 = await createMintableTokenContract(ethereum, contractErc721)
-		testErc1155 = await createRaribleTokenContract(ethereum, contractErc1155)
-	})
+	const testErc721 = createMintableTokenContract(ethereum, contractErc721)
+	const testErc1155 = createRaribleTokenContract(ethereum, contractErc1155)
 
 	test("should burn ERC721 legacy token", async () => {
 		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
@@ -58,8 +56,7 @@ describe("burn nft's", () => {
 		}
 		const testBalance = await testErc721.functionCall("balanceOf", testAddress).call()
 		expect(testBalance).toBe("1")
-		await burn(ethereum, {
-			assetClass: "ERC721",
+		await burn({
 			contract: contractErc721,
 			tokenId: toBigNumber(tokenId),
 		})
@@ -85,8 +82,7 @@ describe("burn nft's", () => {
 			tokenId = ""
 		}
 
-		await burn(ethereum, {
-			assetClass: "ERC1155",
+		await burn({
 			contract: contractErc1155,
 			tokenId: toBigNumber(tokenId),
 		}, 50)

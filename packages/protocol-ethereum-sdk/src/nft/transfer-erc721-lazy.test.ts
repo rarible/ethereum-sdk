@@ -2,9 +2,7 @@ import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import fetch from "node-fetch"
 import {
-	Binary,
 	Configuration,
-	NftCollection,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
@@ -13,11 +11,11 @@ import {
 import { randomAddress, toAddress } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toBigNumber } from "@rarible/types/build/big-number"
-import { signNft, SimpleLazyNft } from "./sign-nft"
-import { isLazyErc721Collection, mint } from "./mint"
+import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
+import { signNft } from "./sign-nft"
+import { mint } from "./mint"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
 import { transfer } from "./transfer"
-import { checkAssetType } from "../order/check-asset-type"
 
 describe("transfer Erc721 lazy", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -29,46 +27,36 @@ describe("transfer Erc721 lazy", () => {
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)
-	const checkAssetTypeImpl = checkAssetType.bind(null, nftItemApi, nftCollectionApi)
+	const checkAssetType = checkAssetTypeTemplate.bind(null, nftItemApi, nftCollectionApi)
 
-	let sign: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>
-
-	beforeAll(async () => {
-		const chainId = await web3.eth.getChainId()
-		sign = signNft.bind(null, ethereum, chainId)
-	})
+	const sign = signNft.bind(null, ethereum, 17)
 
 	test('should transfer erc721 lazy token', async () => {
 		const from = toAddress(wallet.getAddressString())
 		const recipient = randomAddress()
 		const contract = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 
-		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
-			id: contract,
-			type: "ERC721",
-			features: ["MINT_AND_TRANSFER"],
-		}
-		let tokenId: string
-		if (isLazyErc721Collection(collection)) {
-			tokenId = await mint(
-				ethereum,
-				sign,
-				nftCollectionApi,
-				nftLazyMintControllerApi, {
-					collection,
-					uri: '//uri',
-					creators: [{ account: from, value: 10000 }],
-					royalties: [],
-					lazy: true,
-				})
-		} else {
-			tokenId = ""
-		}
+		const tokenId = await mint(
+			ethereum,
+			sign,
+			nftCollectionApi,
+			nftLazyMintControllerApi, {
+				collection: {
+					id: contract,
+					type: "ERC721",
+					features: ["MINT_AND_TRANSFER"],
+					supportsLazyMint: true,
+				},
+				uri: '//uri',
+				creators: [{ account: from, value: 10000 }],
+				royalties: [],
+				lazy: true,
+			})
 
 		await transfer(
 			ethereum,
 			sign,
-			checkAssetTypeImpl,
+			checkAssetType,
 			nftItemApi,
 			nftOwnershipApi,
 			{

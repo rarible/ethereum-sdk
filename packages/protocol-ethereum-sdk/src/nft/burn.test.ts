@@ -2,21 +2,20 @@ import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
-import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
-import { isLegacyErc1155Collection, isLegacyErc721Collection, mint } from "./mint"
 import {
 	Configuration,
-	NftCollection,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
 } from "@rarible/protocol-api-client"
 import fetch from "node-fetch"
+import { toBigNumber } from "@rarible/types/build/big-number"
+import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
+import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
+import { mint as mintTemplate } from "./mint"
 import { signNft } from './sign-nft'
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { burn as burnTemplate } from "./burn"
-import { toBigNumber } from "@rarible/types/build/big-number"
-import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 
 describe("burn nft's", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -28,9 +27,10 @@ describe("burn nft's", () => {
 	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org", fetchApi: fetch })
 	const collectionApi = new NftCollectionControllerApi(configuration)
 	const mintLazyApi = new NftLazyMintControllerApi(configuration)
+	const sign = signNft.bind(null, ethereum, 17)
+	const mint = mintTemplate.bind(null, ethereum, sign, collectionApi, mintLazyApi)
 
 	const checkAssetType = checkAssetTypeTemplate.bind(null, new NftItemControllerApi(configuration), collectionApi)
-	const sign = signNft.bind(null, ethereum, 17)
 	const burn = burnTemplate.bind(null, ethereum, checkAssetType)
 
 	const contractErc721 = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
@@ -38,24 +38,17 @@ describe("burn nft's", () => {
 	const testErc721 = createMintableTokenContract(ethereum, contractErc721)
 	const testErc1155 = createRaribleTokenContract(ethereum, contractErc1155)
 
+
 	test("should burn ERC721 legacy token", async () => {
-		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
-			id: contractErc721,
-			type: "ERC721",
-			features: [],
-		}
-		let tokenId: string
-		if (isLegacyErc721Collection(collection)) {
-			tokenId = await mint(ethereum, sign, collectionApi, mintLazyApi, {
-				collection,
-				uri: "//test",
-				royalties: [],
-			})
-		} else {
-			tokenId = ""
-		}
+		const tokenId = await mint({
+			collection: { id: contractErc721, type: "ERC721", supportsLazyMint: false },
+			uri: "//test",
+			royalties: [],
+		})
+
 		const testBalance = await testErc721.functionCall("balanceOf", testAddress).call()
 		expect(testBalance).toBe("1")
+
 		await burn({
 			contract: contractErc721,
 			tokenId: toBigNumber(tokenId),
@@ -65,7 +58,7 @@ describe("burn nft's", () => {
 	})
 
 	test("should burn ERC1155 legacy token", async () => {
-		const tokenId = await mint(ethereum, sign, collectionApi, mintLazyApi, {
+		const tokenId = await mint({
 			collection: { id: contractErc1155, type: "ERC1155", supportsLazyMint: false },
 			uri: "//test",
 			royalties: [],

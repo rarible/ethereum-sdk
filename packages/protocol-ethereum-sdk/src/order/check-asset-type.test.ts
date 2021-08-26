@@ -3,20 +3,16 @@ import { toAddress, toBigNumber } from "@rarible/types"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { EthereumContract } from "@rarible/ethereum-provider"
 import {
-	Binary,
 	Configuration,
-	NftCollection,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
 } from "@rarible/protocol-api-client"
 import { retry } from "../common/retry"
-import { createErc721LazyContract } from "../nft/contracts/erc721/erc721-lazy"
-import { checkAssetType } from "./check-asset-type"
-import { isLazyErc721Collection, mint } from "../nft/mint"
-import { signNft, SimpleLazyNft } from "../nft/sign-nft"
+import { mint } from "../nft/mint"
+import { signNft } from "../nft/sign-nft"
+import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
 
 
 describe("check-asset-type test", function () {
@@ -31,14 +27,8 @@ describe("check-asset-type test", function () {
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)
-
-	let testErc721: EthereumContract
-	let sign: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>
-
-	beforeAll(async () => {
-		testErc721 = await createErc721LazyContract(ethereum, e2eErc721ContractAddress)
-		sign = signNft.bind(null, ethereum, await web3.eth.getChainId())
-	})
+	const sign = signNft.bind(null, ethereum, 17)
+	const checkAssetType = checkAssetTypeTemplate.bind(null, nftItemApi, nftCollectionApi)
 
 	test("should set assetClass if type not present", async () => {
 		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
@@ -50,8 +40,6 @@ describe("check-asset-type test", function () {
 
 		await retry(10, async () => {
 			const assetType = await checkAssetType(
-				nftItemApi,
-				nftCollectionApi,
 				{
 					contract: e2eErc721ContractAddress,
 					tokenId: toBigNumber(tokenId),
@@ -62,25 +50,19 @@ describe("check-asset-type test", function () {
 	}, 50000)
 
 	test("should leave as is if assetClass present", async () => {
-		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
-			id: toAddress(e2eErc721ContractAddress),
-			type: "ERC721",
-			features: ["MINT_AND_TRANSFER"],
-		}
-		let tokenId: string
-		if (isLazyErc721Collection(collection)) {
-			tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
-				collection,
-				uri: 'uri',
-				creators: [{ account: from, value: 10000 }],
-				royalties: [],
-			})
-		} else {
-			tokenId = ""
-		}
+		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
+			collection: {
+				id: toAddress(e2eErc721ContractAddress),
+				type: "ERC721",
+				features: ["MINT_AND_TRANSFER"],
+				supportsLazyMint: true,
+			},
+			uri: 'uri',
+			creators: [{ account: from, value: 10000 }],
+			royalties: [],
+		})
+
 		const assetType = await checkAssetType(
-			nftItemApi,
-			nftCollectionApi,
 			{
 				assetClass: 'ERC721',
 				contract: e2eErc721ContractAddress,

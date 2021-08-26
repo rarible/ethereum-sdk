@@ -8,10 +8,10 @@ import fetch from "node-fetch"
 import { CONFIGS } from "../config"
 import { toBn } from "../common/to-bn"
 import { retry } from "../common/retry"
+import { awaitAll } from "../common/await-all"
 import { signOrder, SimpleOrder } from "./sign-order"
 import { fillOrderSendTx } from "./fill-order"
 import { getMakeFee } from "./get-make-fee"
-import { awaitAll } from "../common/await-all"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
 
 describe("test exchange v1 order", () => {
@@ -74,7 +74,7 @@ describe("test exchange v1 order", () => {
 		await it.testErc721.methods.setApprovalForAll(CONFIGS.e2e.transferProxies.nft, true)
 			.send({ from: seller })
 
-		const hash = await fillOrderSendTx(
+		await fillOrderSendTx(
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum2,
 			CONFIGS.e2e.exchange,

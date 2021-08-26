@@ -39,7 +39,7 @@ describe("approveErc1155", () => {
 		expect(result).toBeTruthy()
 	})
 
-	test("should not approve", async () => {
+	test("should not approve if already approved", async () => {
 		const tokenId = testAddress + "b00000000000000000000002"
 		await testErc1155.methods.mint(testAddress, tokenId, toBn(5), '123').send({ from: testAddress, gas: 200000 })
 

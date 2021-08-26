@@ -2,7 +2,6 @@ import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import fetch from "node-fetch"
 import {
-	Binary,
 	Configuration,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
@@ -12,11 +11,11 @@ import {
 import { randomAddress, toAddress } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toBigNumber } from "@rarible/types/build/big-number"
-import { signNft, SimpleLazyNft } from "./sign-nft"
+import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
+import { signNft } from "./sign-nft"
 import { mint } from "./mint"
 import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
 import { transfer } from "./transfer"
-import { checkAssetType } from "../order/check-asset-type"
 
 describe("transfer Erc721 lazy", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -28,14 +27,8 @@ describe("transfer Erc721 lazy", () => {
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)
-	const checkAssetTypeImpl = checkAssetType.bind(null, nftItemApi, nftCollectionApi)
-
-	let sign: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>
-
-	beforeAll(async () => {
-		const chainId = await web3.eth.getChainId()
-		sign = signNft.bind(null, ethereum, chainId)
-	})
+	const checkAssetType = checkAssetTypeTemplate.bind(null, nftItemApi, nftCollectionApi)
+	const sign = signNft.bind(null, ethereum, 17)
 
 	test('should transfer erc1155 lazy token', async () => {
 		const recipient = randomAddress()
@@ -55,7 +48,7 @@ describe("transfer Erc721 lazy", () => {
 		await transfer(
 			ethereum,
 			sign,
-			checkAssetTypeImpl,
+			checkAssetType,
 			nftItemApi,
 			nftOwnershipApi,
 			{

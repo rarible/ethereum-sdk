@@ -65,22 +65,12 @@ describe("burn nft's", () => {
 	})
 
 	test("should burn ERC1155 legacy token", async () => {
-		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
-			id: contractErc1155,
-			type: "ERC1155",
-			features: [],
-		}
-		let tokenId: string
-		if (isLegacyErc1155Collection(collection)) {
-			tokenId = await mint(ethereum, sign, collectionApi, mintLazyApi, {
-				collection,
-				uri: "//test",
-				royalties: [],
-				supply: 100,
-			})
-		} else {
-			tokenId = ""
-		}
+		const tokenId = await mint(ethereum, sign, collectionApi, mintLazyApi, {
+			collection: { id: contractErc1155, type: "ERC1155", supportsLazyMint: false },
+			uri: "//test",
+			royalties: [],
+			supply: 100,
+		})
 
 		await burn({
 			contract: contractErc1155,

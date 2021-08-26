@@ -39,20 +39,15 @@ describe("check-asset-type test", function () {
 		testErc721 = await createErc721LazyContract(ethereum, e2eErc721ContractAddress)
 		sign = signNft.bind(null, ethereum, await web3.eth.getChainId())
 	})
+
 	test("should set assetClass if type not present", async () => {
-		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
-			id: toAddress(e2eErc721ContractAddress),
-			type: "ERC721",
-			features: ["MINT_WITH_ADDRESS"],
-		}
-		let tokenId: string
-		if (isLazyErc721Collection(collection))
-			tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
-				collection,
-				uri: 'uri',
-				creators: [{ account: from, value: 10000 }],
-				royalties: [],
-			})
+		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
+			collection: { id: e2eErc721ContractAddress, type: "ERC721", supportsLazyMint: true },
+			uri: 'uri',
+			creators: [{ account: from, value: 10000 }],
+			royalties: [],
+		})
+
 		await retry(10, async () => {
 			const assetType = await checkAssetType(
 				nftItemApi,
@@ -70,7 +65,7 @@ describe("check-asset-type test", function () {
 		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
 			id: toAddress(e2eErc721ContractAddress),
 			type: "ERC721",
-			features: ["MINT_WITH_ADDRESS"],
+			features: ["MINT_AND_TRANSFER"],
 		}
 		let tokenId: string
 		if (isLazyErc721Collection(collection)) {

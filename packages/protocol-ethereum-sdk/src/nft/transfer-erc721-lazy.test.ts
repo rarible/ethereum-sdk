@@ -46,7 +46,7 @@ describe("transfer Erc721 lazy", () => {
 		const collection: Pick<NftCollection, "id" | "type" | "features"> = {
 			id: contract,
 			type: "ERC721",
-			features: ["MINT_WITH_ADDRESS"],
+			features: ["MINT_AND_TRANSFER"],
 		}
 		let tokenId: string
 		if (isLazyErc721Collection(collection)) {

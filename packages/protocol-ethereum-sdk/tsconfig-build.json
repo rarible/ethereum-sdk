@@ -2,13 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "build",
-    "declaration": true,
   },
   "include": [
     "src/**/*",
     "./typings.d.ts"
   ],
-  "exclude": [
-    "src/**/*.test.ts",
-  ]
+  "exclude": ["src/**/*.test.ts"]
 }

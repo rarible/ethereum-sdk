@@ -6,6 +6,7 @@
 		"incremental": true,
 		"skipLibCheck": true,
 		"importHelpers": true,
+		"declaration": true,
 		"strict": true,
 		"noImplicitReturns": true,
 		"moduleResolution": "node",

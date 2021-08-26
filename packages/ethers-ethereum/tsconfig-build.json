@@ -2,16 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "build",
-    "lib": [
-      "es6",
-      "dom"
-		],
-    "declaration": true,
   },
-  "include": [
-    "src/**/*",
-  ],
-  "exclude": [
-    "src/**/*.test.ts",
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.test.ts"]
 }

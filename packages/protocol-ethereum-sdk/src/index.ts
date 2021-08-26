@@ -20,11 +20,11 @@ import { Action } from "@rarible/action"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
 import { CONFIGS } from "./config"
-import { upsertOrder as upsertOrderTemplate, UpsertOrderStageId } from "./order/upsert-order"
+import { upsertOrder as upsertOrderTemplate, UpsertOrderAction, UpsertOrderStageId } from "./order/upsert-order"
 import { approve as approveTemplate } from "./order/approve"
 import { sell as sellTemplate, SellRequest } from "./order/sell"
 import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
-import { fillOrder, FillOrderRequest, FillOrderStageId } from "./order/fill-order"
+import { fillOrder, FillOrderAction, FillOrderRequest, FillOrderStageId } from "./order/fill-order"
 import { createPendingLogs, sendTransaction } from "./common/send-transaction"
 import { bid as bidTemplate, BidRequest } from "./order/bid"
 import {
@@ -67,12 +67,12 @@ export interface RaribleOrderSdk {
 	/**
 	 * Sell asset (create off-chain order and check if approval is needed)
 	 */
-	sell(request: SellRequest): Promise<Action<UpsertOrderStageId, [(string | undefined), Binary, Order]>>
+	sell(request: SellRequest): Promise<UpsertOrderAction>
 
 	/**
 	 * Create bid (create off-chain order and check if approval is needed)
 	 */
-	bid(request: BidRequest): Promise<Action<UpsertOrderStageId, [(string | undefined), Binary, Order]>>
+	bid(request: BidRequest): Promise<UpsertOrderAction>
 
 	/**
 	 * Fill order (buy or accept bid - depending on the order type)
@@ -80,7 +80,7 @@ export interface RaribleOrderSdk {
 	 * @param order order to fill
 	 * @param request parameters - what amount
 	 */
-	fill(order: SimpleOrder, request: FillOrderRequest): Promise<Action<FillOrderStageId, [(string | undefined), string]>>
+	fill(order: SimpleOrder, request: FillOrderRequest): Promise<FillOrderAction>
 }
 
 export interface RaribleNftSdk {
@@ -146,7 +146,7 @@ export function createRaribleSdk(
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
 	const mint = partialCall(mintTemplate, ethereum, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
 	const transfer = partialCall(transferTemplate, ethereum, signNft, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi)
-	const burn = partialCall(burnTemplate, ethereum)
+	const burn = partialCall(burnTemplate, ethereum, checkAssetType)
 
 	return {
 		apis: {

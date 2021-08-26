@@ -10,7 +10,9 @@ import { GetMakeFeeFunction } from "./get-make-fee"
 
 export type UpsertOrderStageId = "approve" | "sign" | "post"
 
-export type UpsertOrderFunction = (order: OrderForm, infinite?: boolean) => Promise<Action<UpsertOrderStageId, [string | undefined, Binary, Order]>>
+export type UpsertOrderAction = Action<UpsertOrderStageId, void, [string | undefined, Binary, Order]>
+
+export type UpsertOrderFunction = (order: OrderForm, infinite?: boolean) => Promise<UpsertOrderAction>
 
 /**
  * Updates or inserts the order. Also, calls approve (or setApprovalForAll) if needed, signs order message
@@ -25,14 +27,13 @@ export async function upsertOrder(
 	orderApi: OrderControllerApi,
 	order: OrderForm,
 	infinite: boolean = false,
-) {
+): Promise<UpsertOrderAction> {
 	const checkedOrder = await checkLazyOrder(order)
 	const makeFee = getMakeFee(orderFormToSimpleOrder(checkedOrder))
 	const make = addFee(checkedOrder.make, makeFee)
-	return ActionBuilder.create<UpsertOrderStageId>()
-		.then({ id: "approve", run: () => approve(checkedOrder.maker, make, infinite) })
-		.then({ id: "sign", run: () => signOrder(orderFormToSimpleOrder(checkedOrder)) })
-		.then({ id: "post", run: signature => orderApi.upsertOrder({ orderForm: { ...checkedOrder, signature } }) })
+	return ActionBuilder.create({ id: "approve" as const, run: () => approve(checkedOrder.maker, make, infinite) })
+		.then({ id: "sign" as const, run: () => signOrder(orderFormToSimpleOrder(checkedOrder)) })
+		.then({ id: "post" as const, run: signature => orderApi.upsertOrder({ orderForm: { ...checkedOrder, signature } }) })
 		.build()
 }
 

@@ -160,7 +160,7 @@ describe("fillOrder", () => {
 		const before1 = toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call())
 		const before2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call())
 
-		const hash = await fillOrderSendTx(
+		await fillOrderSendTx(
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },

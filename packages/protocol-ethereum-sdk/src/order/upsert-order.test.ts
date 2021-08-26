@@ -32,7 +32,7 @@ describe("upsertOrder", () => {
 			},
 		}
 		const checkLazyOrder = async () => Promise.resolve(order)
-		const upsert = await upsertOrder(getMakeFee.bind(null, { v2: 0 }), checkLazyOrder, approve, sign, orderApi, order)
+		const upsert = (await upsertOrder(getMakeFee.bind(null, { v2: 0 }), checkLazyOrder, approve, sign, orderApi, order)).build()
 		await upsert.run(0)
 		await upsert.run(1)
 		await upsert.run(2)

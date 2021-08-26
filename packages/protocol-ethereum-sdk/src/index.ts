@@ -1,7 +1,6 @@
 import {
 	Address,
 	Asset,
-	Binary,
 	Configuration,
 	ConfigurationParameters,
 	Erc1155AssetType,

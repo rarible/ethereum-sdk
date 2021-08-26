@@ -1823,10 +1823,10 @@
   dependencies:
     "@octokit/openapi-types" "^9.4.0"
 
-"@rarible/action@0.2.2":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.2.2.tgz#1af43645e08b40b89954c02a1093e581e8a7f2ba"
-  integrity sha512-FnMvjPMxNKL+WRN8D8mGolCyCGT+k6+zY/31mgy7U0XuD7tPE5qHjPXQ4Dj3kMVjzjZoi7YM39bHXUbRt8HWLg==
+"@rarible/action@0.2.4":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.2.4.tgz#fe77a7991f1f7a245a41236ffe3fb6e9fd47f416"
+  integrity sha512-eViNnqoukEnyMHP6WChN+UM/G3Ecm1oPLNMGgMelyikO3dQw1iwHtXHoqt6EgDnCHaapHuRpEJeZ74m3pJF4Ng==
 
 "@rarible/protocol-api-client@0.1.1":
   version "0.1.1"

@@ -1,6 +1,6 @@
 import { Asset, OrderControllerApi, OrderForm, Part } from "@rarible/protocol-api-client"
 import { Address, toWord, ZERO_ADDRESS } from "@rarible/types"
-import { Action, ActionBuilder } from "@rarible/action"
+import { ActionBuilder } from "@rarible/action"
 import { Ethereum, EthereumSendOptions } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types/build/address"
 import { toBigNumber } from "@rarible/types/build/big-number"
@@ -21,7 +21,7 @@ export type FillOrderRequest = {
 	infinite?: boolean
 }
 
-export type FillOrderAction = Action<string, void, [string | undefined, string]>
+export type FillOrderAction = ActionBuilder<string, void, [string | undefined, string]>
 export type FillOrderStageId = "approve" | "send-tx"
 
 export async function fillOrder(
@@ -35,9 +35,9 @@ export async function fillOrder(
 ): Promise<FillOrderAction> {
 	const makeAsset = getMakeAssetV2(getMakeFee, order, request.amount)
 	//todo we should wait for approve to be mined
-	return ActionBuilder.create({ id: "approve" as const, run: () => approve(order.maker, makeAsset, Boolean(request.infinite)) })
-		.then({ id: "send-tx" as const, run: () => fillOrderSendTx(getMakeFee, ethereum, config, orderApi, order, request) })
-		.build()
+	return ActionBuilder
+		.create({ id: "approve" as const, run: () => approve(order.maker, makeAsset, Boolean(request.infinite)) })
+		.thenStage({ id: "send-tx" as const, run: () => fillOrderSendTx(getMakeFee, ethereum, config, orderApi, order, request) })
 }
 
 function getMakeAssetV2(getMakeFee: GetMakeFeeFunction, order: SimpleOrder, amount: number) {

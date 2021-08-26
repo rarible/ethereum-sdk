@@ -1,7 +1,7 @@
 // noinspection JSCommentMatchesSignature
 
 import { Address, Asset, Binary, Order, OrderControllerApi, OrderForm, Word } from "@rarible/protocol-api-client"
-import { Action, ActionBuilder } from "@rarible/action"
+import { ActionBuilder } from "@rarible/action"
 import { toBinary } from "@rarible/types"
 import { toBn } from "../common/to-bn"
 import { SimpleOrder } from "./sign-order"
@@ -10,7 +10,7 @@ import { GetMakeFeeFunction } from "./get-make-fee"
 
 export type UpsertOrderStageId = "approve" | "sign" | "post"
 
-export type UpsertOrderAction = Action<UpsertOrderStageId, void, [string | undefined, Binary, Order]>
+export type UpsertOrderAction = ActionBuilder<UpsertOrderStageId, void, [(string | undefined), Binary, Order]>
 
 export type UpsertOrderFunction = (order: OrderForm, infinite?: boolean) => Promise<UpsertOrderAction>
 
@@ -31,10 +31,15 @@ export async function upsertOrder(
 	const checkedOrder = await checkLazyOrder(order)
 	const makeFee = getMakeFee(orderFormToSimpleOrder(checkedOrder))
 	const make = addFee(checkedOrder.make, makeFee)
-	return ActionBuilder.create({ id: "approve" as const, run: () => approve(checkedOrder.maker, make, infinite) })
-		.then({ id: "sign" as const, run: () => signOrder(orderFormToSimpleOrder(checkedOrder)) })
-		.then({ id: "post" as const, run: signature => orderApi.upsertOrder({ orderForm: { ...checkedOrder, signature } }) })
-		.build()
+	return Promise.resolve(
+		ActionBuilder
+			.create({ id: "approve" as const, run: () => approve(checkedOrder.maker, make, infinite) })
+			.thenStage({ id: "sign" as const, run: () => signOrder(orderFormToSimpleOrder(checkedOrder)) })
+			.thenStage({
+				id: "post" as const,
+				run: sig => orderApi.upsertOrder({ orderForm: { ...checkedOrder, signature: sig } }),
+			})
+	)
 }
 
 function orderFormToSimpleOrder(form: OrderForm): SimpleOrder {

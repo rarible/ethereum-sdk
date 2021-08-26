@@ -1831,6 +1831,13 @@
   resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.1.7.tgz#b88eeb7961f461067207c9f9cab73cf23dba1da3"
   integrity sha512-rq0vGMQlnTQstTPwmFy8lajkOaCTOe7Odf/W1g6o3uLUD6Dlj0Vroh2/erfiyA6vuDALrATWsP5mw2berdwrTw==
 
+"@rarible/utils@0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@rarible/utils/-/utils-0.0.3.tgz#543001a4373153936a1621917817f4d72121eea6"
+  integrity sha512-C2zh2SO1tWAMFrcYHMzyXFAj+gccGGcWFIHq7d7g/A/h3PKeeJCWjLquoIFzbCBebxIlMnadGs7+64lPt6nejg==
+  dependencies:
+    bignumber.js "9.0.1"
+
 "@roborox/eslint-config-default@2.2.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@roborox/eslint-config-default/-/eslint-config-default-2.2.0.tgz#697be781ce62a9f016952e8ee4f1b72f7ec53afb"
@@ -3269,7 +3276,7 @@ bignumber.js@7.2.1:
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-7.2.1.tgz#80c048759d826800807c4bfd521e50edbba57a5f"
   integrity sha512-S4XzBk5sMB+Rcb/LNcpzXr57VRTxgAvaAEDAl1AwRx27j00hT84O6OkteE7u8UB3NuaaygCRrEpqox4uDOrbdQ==
 
-bignumber.js@^9.0.0:
+bignumber.js@9.0.1, bignumber.js@^9.0.0:
   version "9.0.1"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.0.1.tgz#8d7ba124c882bfd8e43260c67475518d0689e4e5"
   integrity sha512-IdZR9mh6ahOBv/hYGiXyVuyCetmGJhtYkqLBpTStdhEGjegpPlUawydyaF3pbIOFynJTpllEs+NP+CS9jKFLjA==

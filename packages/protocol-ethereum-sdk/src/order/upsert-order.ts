@@ -4,7 +4,7 @@ import { Binary, Order, OrderControllerApi, OrderForm, Word } from "@rarible/pro
 import { ActionBuilder } from "@rarible/action"
 import { toBinary } from "@rarible/types"
 import { EthereumTransaction } from "@rarible/ethereum-provider"
-import { toBn } from "../common/to-bn"
+import { toBn } from "@rarible/utils/build/bn"
 import { SimpleOrder } from "./sign-order"
 import { addFee } from "./add-fee"
 import { GetMakeFeeFunction } from "./get-make-fee"
@@ -28,14 +28,13 @@ export async function upsertOrder(
 	signOrder: (order: SimpleOrder) => Promise<Binary>,
 	orderApi: OrderControllerApi,
 	order: OrderForm,
-	infinite: boolean = false,
+	infinite: boolean = false
 ): Promise<UpsertOrderAction> {
 	const checkedOrder = await checkLazyOrder(order)
 	const makeFee = getMakeFee(orderFormToSimpleOrder(checkedOrder))
 	const make = addFee(checkedOrder.make, makeFee)
 	return Promise.resolve(
-		ActionBuilder
-			.create({ id: "approve" as const, run: () => approve(checkedOrder.maker, make, infinite) })
+		ActionBuilder.create({ id: "approve" as const, run: () => approve(checkedOrder.maker, make, infinite) })
 			.thenStage({ id: "sign" as const, run: () => signOrder(orderFormToSimpleOrder(checkedOrder)) })
 			.thenStage({
 				id: "post" as const,
@@ -47,7 +46,6 @@ export async function upsertOrder(
 function orderFormToSimpleOrder(form: OrderForm): SimpleOrder {
 	return {
 		...form,
-		// @ts-ignore
-		salt: toBinary(toBn(form.salt).toString(16)) as Word,
+		salt: toBinary(toBn(form.salt).toString(16)) as any,
 	}
 }

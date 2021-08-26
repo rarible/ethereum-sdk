@@ -1,11 +1,11 @@
 import { Configuration, NftOwnershipControllerApi, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
-import { toBigNumber, toBinary, Word } from "@rarible/types"
+import { toBigNumber, toBinary } from "@rarible/types"
 import { toAddress } from "@rarible/types/build/address"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
+import { toBn } from "@rarible/utils/build/bn"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { CONFIGS } from "../config"
-import { toBn } from "../common/to-bn"
 import { retry } from "../common/retry"
 import { awaitAll } from "../common/await-all"
 import { signOrder, SimpleOrder } from "./sign-order"
@@ -75,15 +75,11 @@ describe("test exchange v1 order", () => {
 
 		await it.testErc721.methods.setApprovalForAll(CONFIGS.e2e.transferProxies.nft, true).send({ from: seller })
 
-		await fillOrderSendTx(
-			getMakeFee.bind(null, { v2: 100 }),
-			ethereum2,
-			CONFIGS.e2e.exchange,
-			orderApi,
-			// @ts-ignore
-			order,
-			{ amount: 1, payouts: [], originFees: [] }
-		)
+		await fillOrderSendTx(getMakeFee.bind(null, { v2: 100 }), ethereum2, CONFIGS.e2e.exchange, orderApi, order, {
+			amount: 1,
+			payouts: [],
+			originFees: [],
+		})
 
 		await retry(10, async () => {
 			const ownership = await ownershipApi.getNftOwnershipById({
@@ -97,7 +93,6 @@ describe("test exchange v1 order", () => {
 function orderFormToSimpleOrder(form: OrderForm): SimpleOrder {
 	return {
 		...form,
-		// @ts-ignore
-		salt: toBinary(toBn(form.salt).toString(16)) as Word,
+		salt: toBinary(toBn(form.salt).toString(16)) as any,
 	}
 }

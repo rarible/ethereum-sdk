@@ -44,6 +44,7 @@
     "@ethereumjs/tx": "^3.3.0",
     "@rarible/action": "0.2.5",
     "@rarible/protocol-api-client": "0.1.4",
+    "@rarible/utils": "^0.0.3",
     "ethereumjs-util": "^7.1.0",
     "tslib": "^2.3.1",
     "web3": "1.2.11",

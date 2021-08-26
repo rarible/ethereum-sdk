@@ -9,7 +9,7 @@ import {
 import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
 import { toAddress } from "@rarible/types/build/address"
-import { toBn } from "../common/to-bn"
+import { toBn } from "@rarible/utils/build/bn"
 import { CheckAssetTypeFunction, NftAssetType } from "../order/check-asset-type"
 import { getOwnershipId } from "../common/get-ownership-id"
 import { transferErc721 } from "./transfer-erc721"
@@ -27,7 +27,7 @@ export async function transfer(
 	nftOwnershipApi: NftOwnershipControllerApi,
 	asset: TransferAsset,
 	to: Address,
-	amount?: BigNumber,
+	amount?: BigNumber
 ): Promise<string> {
 	const from = toAddress(await ethereum.getFrom())
 	const ownership = await nftOwnershipApi.getNftOwnershipByIdRaw({
@@ -49,4 +49,3 @@ export async function transfer(
 		throw new Error(`Address ${from} has not any ownerships of token with Id ${asset.tokenId}`)
 	}
 }
-

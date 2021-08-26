@@ -42,6 +42,7 @@
     "@rarible/action": "0.2.5",
     "@rarible/protocol-api-client": "0.1.4",
     "@rarible/types": "0.1.7",
+    "@rarible/utils": "0.0.3",
     "@roborox/eslint-config-default": "2.2.0",
     "eslint": "7.10.0",
     "eslint-config-prettier": "6.11.0",

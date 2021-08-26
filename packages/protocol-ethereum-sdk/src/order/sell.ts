@@ -32,7 +32,7 @@ export async function sell(
 		maker: request.maker,
 		make: {
 			assetType: await checkAssetType(request.makeAssetType),
-			value: toBigNumber(`${request.amount}`),
+			value: toBigNumber(request.amount.toString()),
 		},
 		take: {
 			assetType: request.takeAssetType,
@@ -44,7 +44,7 @@ export async function sell(
 			payouts: request.payouts,
 			originFees: request.originFees,
 		},
-		salt: toBigNumber(toBn(randomWord(), 16).toString(10)),
+		salt: toBigNumber(toBn(randomWord(), 16).toString(10)) as any,
 	}
 	return upsertOrder(order, false)
 }

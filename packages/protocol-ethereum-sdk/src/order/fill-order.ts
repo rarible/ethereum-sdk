@@ -152,15 +152,17 @@ async function fillOrderV1(
 	}
 
 	const exchangeContract = createExchangeV1Contract(ethereum, contract)
-	const tx = await exchangeContract.functionCall(
-		"exchange",
-		toStructLegacyOrder(order),
-		toVrs(order.signature!),
-		fee,
-		toVrs(buyerFeeSig),
-		orderRight.take.value,
-		getSingleBuyer(request.payouts),
-	).send(options)
+	const tx = await exchangeContract
+		.functionCall(
+			"exchange",
+			toStructLegacyOrder(order),
+			toVrs(order.signature!),
+			fee,
+			toVrs(buyerFeeSig),
+			orderRight.take.value,
+			getSingleBuyer(request.payouts)
+		)
+		.send(options)
 	return tx.hash
 }
 
@@ -173,7 +175,10 @@ function getSingleBuyer(payouts?: Array<Part>): Address {
 }
 
 function fromSimpleOrderToOrderForm(order: SimpleOrder) {
-	return { ...order, salt: toBigNumber(order.salt) } as OrderForm
+	return {
+		...order,
+		salt: toBigNumber(order.salt) as any,
+	} as OrderForm
 }
 
 function toVrs(sig: string) {

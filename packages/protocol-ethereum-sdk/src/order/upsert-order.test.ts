@@ -21,7 +21,7 @@ describe("upsertOrder", () => {
 		const orderApi = new OrderControllerApi(configuration)
 		const order: OrderForm = {
 			...TEST_ORDER_TEMPLATE,
-			salt: toBigNumber("10"),
+			salt: toBigNumber("10") as any,
 			maker: toAddress(wallet.getAddressString()),
 			type: "RARIBLE_V2",
 			data: {
@@ -31,7 +31,9 @@ describe("upsertOrder", () => {
 			},
 		}
 		const checkLazyOrder = async () => Promise.resolve(order)
-		const upsert = (await upsertOrder(getMakeFee.bind(null, { v2: 0 }), checkLazyOrder, approve, sign, orderApi, order)).build()
+		const upsert = (
+			await upsertOrder(getMakeFee.bind(null, { v2: 0 }), checkLazyOrder, approve, sign, orderApi, order)
+		).build()
 		await upsert.run(0)
 		await upsert.run(1)
 		await upsert.run(2)

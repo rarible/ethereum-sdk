@@ -1799,17 +1799,15 @@
   dependencies:
     "@octokit/openapi-types" "^9.5.0"
 
-"@rarible/action@0.2.4":
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.2.4.tgz#fe77a7991f1f7a245a41236ffe3fb6e9fd47f416"
-  integrity sha512-eViNnqoukEnyMHP6WChN+UM/G3Ecm1oPLNMGgMelyikO3dQw1iwHtXHoqt6EgDnCHaapHuRpEJeZ74m3pJF4Ng==
+"@rarible/action@0.2.5":
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.2.5.tgz#d3da64c6350e0f72bd0a603145e1a740c962283a"
+  integrity sha512-KoqXJRAYe63rP4JnxuKRc12sWK2Fi+87yNYsSTSlYzCdHs2XB7S/nZCgEJgp9gdmfZ9ACNt9sIWn/P1huFElcw==
 
-"@rarible/protocol-api-client@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@rarible/protocol-api-client/-/protocol-api-client-0.1.1.tgz#0669d24280874f025db0fd9be3d43d731a57fb0f"
-  integrity sha512-GCUzDEryVav+83YzfqWqDemdSHWhsO9DyK7ILa1NHuOdUPrZWjjiZIjX4kegsigL5nlo2EhrcGgHnSMtWm9s1g==
-  dependencies:
-    "@rarible/types" "0.1.3"
+"@rarible/protocol-api-client@0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@rarible/protocol-api-client/-/protocol-api-client-0.1.4.tgz#9903732c6dbdd828f38a6f8b7250e38537c92e0d"
+  integrity sha512-pnjTYw2W/SJt4X9f0HFwKaceGFIGUVeaS+CmugzQNktgBh19ITaa0mrD4cP45NbehN1XRNow7ubwaBpXPefZgA==
 
 "@rarible/test-provider@0.1.12":
   version "0.1.12"
@@ -1828,10 +1826,10 @@
   resolved "https://registry.yarnpkg.com/@rarible/test-provider/-/test-provider-0.1.17.tgz#317c4aef8188043f8d1be80f270c3005b91daf65"
   integrity sha512-Jwc7f6GsVz/YdJo6XzSOruontt9GL3kYcB39z4H+1TeeYbi9mu9TufR5ltJ8g29SO7CGVtgxAoTGQhBbKk7QlA==
 
-"@rarible/types@0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.1.3.tgz#c706ee0b1535b2d0d84dee54fb33c4aabacc72aa"
-  integrity sha512-cKZ6Pl8hP6IXvuIjBHi84IHd871M8dJRiSTgBNVgtht4ul0aFowAmHJCzj+Y8kTDvfFdgj5wDm6TNYM0C5KnGA==
+"@rarible/types@0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.1.7.tgz#b88eeb7961f461067207c9f9cab73cf23dba1da3"
+  integrity sha512-rq0vGMQlnTQstTPwmFy8lajkOaCTOe7Odf/W1g6o3uLUD6Dlj0Vroh2/erfiyA6vuDALrATWsP5mw2berdwrTw==
 
 "@roborox/eslint-config-default@2.2.0":
   version "2.2.0"

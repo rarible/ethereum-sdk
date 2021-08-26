@@ -44,7 +44,7 @@ export async function bid(
 			payouts: request.payouts,
 			originFees: request.originFees,
 		},
-		salt: toBigNumber(toBn(randomWord(), 16).toString(10)),
+		salt: toBigNumber(toBn(randomWord(), 16).toString(10)) as any,
 	}
 	return upsertOrder(order, false)
 }

@@ -36,11 +36,12 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "7.15.0",
     "@ethereumjs/common": "2.4.0",
     "@ethereumjs/tx": "3.3.0",
-    "@rarible/action": "0.2.4",
-    "@rarible/protocol-api-client": "0.1.1",
-    "@rarible/types": "0.1.3",
+    "@rarible/action": "0.2.5",
+    "@rarible/protocol-api-client": "0.1.4",
+    "@rarible/types": "0.1.7",
     "@roborox/eslint-config-default": "2.2.0",
     "eslint": "7.10.0",
     "eslint-config-prettier": "6.11.0",

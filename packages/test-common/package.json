@@ -24,7 +24,7 @@
     "typescript": "4.3.5"
   },
   "peerDependencies": {
-    "@rarible/types": "^0.1.3",
+    "@rarible/types": "^0.1.7",
     "eth-sig-util": "^3.0.1",
     "ethereumjs-wallet": "^1.0.1",
     "tslib": "^2.3.1",

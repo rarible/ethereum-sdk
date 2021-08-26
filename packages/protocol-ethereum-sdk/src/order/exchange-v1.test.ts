@@ -15,10 +15,9 @@ import { deployTestErc721 } from "./contracts/test/test-erc721"
 
 describe("test exchange v1 order", () => {
 	const { provider: provider1, wallet: wallet1 } = createE2eProvider()
-	const {
-		provider: provider2,
-		wallet: wallet2,
-	} = createE2eProvider("ded057615d97f0f1c751ea2795bc4b03bbf44844c13ab4f5e6fd976506c276b9")
+	const { provider: provider2, wallet: wallet2 } = createE2eProvider(
+		"ded057615d97f0f1c751ea2795bc4b03bbf44844c13ab4f5e6fd976506c276b9"
+	)
 	const web31 = new Web3(provider1)
 	const web32 = new Web3(provider2)
 	const ethereum1 = new Web3Ethereum({ web3: web31 })
@@ -55,7 +54,7 @@ describe("test exchange v1 order", () => {
 				},
 				value: toBigNumber("100000"),
 			},
-			salt: toBigNumber("10"),
+			salt: toBigNumber("10") as any,
 			type: "RARIBLE_V1",
 			data: {
 				dataType: "LEGACY",
@@ -63,15 +62,18 @@ describe("test exchange v1 order", () => {
 			},
 		}
 
-		const leftSignature = await signOrder(ethereum1, {
-			chainId: 17,
-			exchange: CONFIGS.e2e.exchange,
-		}, orderFormToSimpleOrder(order))
+		const leftSignature = await signOrder(
+			ethereum1,
+			{
+				chainId: 17,
+				exchange: CONFIGS.e2e.exchange,
+			},
+			orderFormToSimpleOrder(order)
+		)
 
 		order = { ...order, signature: leftSignature }
 
-		await it.testErc721.methods.setApprovalForAll(CONFIGS.e2e.transferProxies.nft, true)
-			.send({ from: seller })
+		await it.testErc721.methods.setApprovalForAll(CONFIGS.e2e.transferProxies.nft, true).send({ from: seller })
 
 		await fillOrderSendTx(
 			getMakeFee.bind(null, { v2: 100 }),
@@ -80,16 +82,17 @@ describe("test exchange v1 order", () => {
 			orderApi,
 			// @ts-ignore
 			order,
-			{ amount: 1, payouts: [], originFees: [] },
+			{ amount: 1, payouts: [], originFees: [] }
 		)
 
 		await retry(10, async () => {
-			const ownership = await ownershipApi.getNftOwnershipById({ ownershipId: `${it.testErc721.options.address}:${tokenId}:${buyer}` })
+			const ownership = await ownershipApi.getNftOwnershipById({
+				ownershipId: `${it.testErc721.options.address}:${tokenId}:${buyer}`,
+			})
 			expect(ownership.value).toBe("1")
 		})
 	}, 30000)
 })
-
 
 function orderFormToSimpleOrder(form: OrderForm): SimpleOrder {
 	return {

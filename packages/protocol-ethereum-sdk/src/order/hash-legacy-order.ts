@@ -1,5 +1,5 @@
-import { toLegacyAssetType } from "./to-legacy-asset-type"
 import Web3 from "web3"
+import { toLegacyAssetType } from "./to-legacy-asset-type"
 import { abi } from "./abi"
 import { SimpleOrder } from "./sign-order"
 
@@ -24,26 +24,26 @@ export function hashLegacyOrder(order: SimpleOrder): string {
 		},
 		selling: order.make.value,
 		buying: order.take.value,
-		sellerFee: data.fee
+		sellerFee: data.fee,
 	}
 
-	return Web3.utils.sha3(abi.encodeParameter({ "Order": ORDER }, struct)) as string
+	return Web3.utils.sha3(abi.encodeParameter({ Order: ORDER }, struct)) as string
 }
 
 const ASSET = {
-	"token": "address",
-	"tokenId": "uint256",
-	"assetType": "uint8",
+	token: "address",
+	tokenId: "uint256",
+	assetType: "uint8",
 }
 
 const ORDER = {
-	"key": {
-		"owner": "address",
-		"salt": "uint256",
-		"sellAsset": ASSET,
-		"buyAsset": ASSET,
+	key: {
+		owner: "address",
+		salt: "uint256",
+		sellAsset: ASSET,
+		buyAsset: ASSET,
 	},
-	"selling": "uint256",
-	"buying": "uint256",
-	"sellerFee": "uint256",
+	selling: "uint256",
+	buying: "uint256",
+	sellerFee: "uint256",
 }

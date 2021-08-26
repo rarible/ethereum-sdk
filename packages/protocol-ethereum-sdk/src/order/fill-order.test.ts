@@ -1,4 +1,3 @@
-import { BN } from "ethereumjs-util"
 import { randomAddress, randomWord, toAddress, toBigNumber } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
@@ -13,7 +12,7 @@ import { deployTransferProxy } from "./contracts/test/test-transfer-proxy"
 import { deployErc20TransferProxy } from "./contracts/test/test-erc20-transfer-proxy"
 import { deployTestExchangeV2 } from "./contracts/test/test-exchange-v2"
 import { deployTestRoyaltiesProvider } from "./contracts/test/test-royalties-provider"
-import { fillOrder, fillOrderSendTx } from "./fill-order"
+import { fillOrderSendTx } from "./fill-order"
 import { signOrder, SimpleOrder } from "./sign-order"
 import { deployTestErc1155 } from "./contracts/test/test-erc1155"
 import { getMakeFee } from "./get-make-fee"
@@ -21,8 +20,7 @@ import { getMakeFee } from "./get-make-fee"
 describe("fillOrder", () => {
 	const { addresses, provider } = createGanacheProvider()
 	const [sender1Address, sender2Address] = addresses
-	//@ts-ignore
-	const web3 = new Web3(provider)
+	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
@@ -42,18 +40,25 @@ describe("fillOrder", () => {
 		/**
 		 * Configuring
 		 */
-		await sentTx(it.exchangeV2.methods.__ExchangeV2_init(
-			toAddress(it.transferProxy.options.address),
-			toAddress(it.erc20TransferProxy.options.address),
-			toBigNumber('100'),
-			sender1Address,
-			toAddress(it.royaltiesProvider.options.address),
-		), { from: sender1Address })
-		await sentTx(it.transferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), { from: sender1Address })
-		await sentTx(it.erc20TransferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), { from: sender1Address })
+		await sentTx(
+			it.exchangeV2.methods.__ExchangeV2_init(
+				toAddress(it.transferProxy.options.address),
+				toAddress(it.erc20TransferProxy.options.address),
+				toBigNumber("100"),
+				sender1Address,
+				toAddress(it.royaltiesProvider.options.address)
+			),
+			{ from: sender1Address }
+		)
+		await sentTx(it.transferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
+			from: sender1Address,
+		})
+		await sentTx(it.erc20TransferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
+			from: sender1Address,
+		})
 	})
 
-	test('should match order(buy erc1155 for erc20)', async () => {
+	test("should match order(buy erc1155 for erc20)", async () => {
 		//sender1 has ERC20, sender2 has ERC1155
 
 		await sentTx(it.testErc20.methods.mint(sender1Address, 100), { from: sender1Address })
@@ -77,7 +82,7 @@ describe("fillOrder", () => {
 				value: toBigNumber("10"),
 			},
 			salt: randomWord(),
-			type: 'RARIBLE_V2',
+			type: "RARIBLE_V2",
 			data: {
 				dataType: "RARIBLE_V2_DATA_V1",
 				payouts: [],
@@ -86,18 +91,13 @@ describe("fillOrder", () => {
 		}
 
 		//todo approve using our functions
-		await sentTx(
-			it.testErc20.methods.approve(
-				it.erc20TransferProxy.options.address,
-				new BN(10),
-			),
-			{ from: sender1Address },
-		)
+		await sentTx(it.testErc20.methods.approve(it.erc20TransferProxy.options.address, toBn(10)), {
+			from: sender1Address,
+		})
 
-		await sentTx(
-			it.testErc1155.methods.setApprovalForAll(it.transferProxy.options.address, true),
-			{ from: sender2Address },
-		)
+		await sentTx(it.testErc1155.methods.setApprovalForAll(it.transferProxy.options.address, true), {
+			from: sender2Address,
+		})
 
 		const a = toAddress(it.exchangeV2.options.address)
 		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
@@ -108,17 +108,15 @@ describe("fillOrder", () => {
 			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
 			orderApi,
 			{ ...left, signature },
-			{ amount: 2, payouts: [], originFees: [] },
+			{ amount: 2, payouts: [], originFees: [] }
 		)
 		await web3.eth.getTransactionReceipt(hash as string)
 
-		expect(toBn(await it.testErc20.methods.balanceOf(sender2Address).call()).toString())
-			.toBe("4")
-		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString())
-			.toBe("2")
+		expect(toBn(await it.testErc20.methods.balanceOf(sender2Address).call()).toString()).toBe("4")
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString()).toBe("2")
 	})
 
-	test('should match order(buy erc1155 for eth)', async () => {
+	test("should match order(buy erc1155 for eth)", async () => {
 		//sender1 has ETH, sender2 has ERC1155
 
 		await sentTx(it.testErc1155.methods.mint(sender2Address, 1, 10, "0x"), { from: sender1Address })
@@ -140,7 +138,7 @@ describe("fillOrder", () => {
 				value: toBigNumber("1000000"),
 			},
 			salt: randomWord(),
-			type: 'RARIBLE_V2',
+			type: "RARIBLE_V2",
 			data: {
 				dataType: "RARIBLE_V2_DATA_V1",
 				payouts: [],
@@ -149,10 +147,9 @@ describe("fillOrder", () => {
 		}
 
 		//todo approve using our functions
-		await sentTx(
-			it.testErc1155.methods.setApprovalForAll(it.transferProxy.options.address, true),
-			{ from: sender2Address },
-		)
+		await sentTx(it.testErc1155.methods.setApprovalForAll(it.transferProxy.options.address, true), {
+			from: sender2Address,
+		})
 
 		const a = toAddress(it.exchangeV2.options.address)
 		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
@@ -166,12 +163,14 @@ describe("fillOrder", () => {
 			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
 			orderApi,
 			{ ...left, signature },
-			{ amount: 2, payouts: [], originFees: [{ account: randomAddress(), value: 100 }] },
+			{ amount: 2, payouts: [], originFees: [{ account: randomAddress(), value: 100 }] }
 		)
 
-		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString())
-			.toBe(before2.minus(2).toFixed())
-		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString())
-			.toBe(before1.plus(2).toFixed())
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString()).toBe(
+			before2.minus(2).toFixed()
+		)
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString()).toBe(
+			before1.plus(2).toFixed()
+		)
 	})
 })

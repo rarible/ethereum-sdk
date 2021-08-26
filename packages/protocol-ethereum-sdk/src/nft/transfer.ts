@@ -11,11 +11,11 @@ import { BigNumber } from "@rarible/types"
 import { toAddress } from "@rarible/types/build/address"
 import { toBn } from "../common/to-bn"
 import { CheckAssetTypeFunction, NftAssetType } from "../order/check-asset-type"
+import { getOwnershipId } from "../common/get-ownership-id"
 import { transferErc721 } from "./transfer-erc721"
 import { transferErc1155 } from "./transfer-erc1155"
 import { SimpleLazyNft } from "./sign-nft"
 import { transferNftLazy } from "./transfer-nft-lazy"
-import { getOwnershipId } from "../common/get-ownership-id"
 
 export type TransferAsset = NftAssetType | Erc721AssetType | Erc1155AssetType
 

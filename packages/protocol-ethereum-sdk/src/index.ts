@@ -5,26 +5,22 @@ import {
 	ConfigurationParameters,
 	Erc1155AssetType,
 	Erc721AssetType,
-	GatewayControllerApi,
 	NftCollectionControllerApi,
 	NftItem,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
 	NftOwnershipControllerApi,
-	Order,
 	OrderActivityControllerApi,
 	OrderControllerApi,
 } from "@rarible/protocol-api-client"
-import { Action } from "@rarible/action"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
 import { CONFIGS } from "./config"
-import { upsertOrder as upsertOrderTemplate, UpsertOrderAction, UpsertOrderStageId } from "./order/upsert-order"
+import { upsertOrder as upsertOrderTemplate, UpsertOrderAction } from "./order/upsert-order"
 import { approve as approveTemplate } from "./order/approve"
 import { sell as sellTemplate, SellRequest } from "./order/sell"
 import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
-import { fillOrder, FillOrderAction, FillOrderRequest, FillOrderStageId } from "./order/fill-order"
-import { createPendingLogs, sendTransaction } from "./common/send-transaction"
+import { fillOrder, FillOrderAction, FillOrderRequest } from "./order/fill-order"
 import { bid as bidTemplate, BidRequest } from "./order/bid"
 import {
 	checkLazyAsset as checkLazyAssetTemplate,
@@ -49,16 +45,16 @@ export interface RaribleSdk {
 	 * @param asset - asset needed to be checked (ERC-20, ERC-721 etc are supported)
 	 * @param infinite - only valid for ERC-20 (if true, then infinite approval is used)
 	 */
-	approve(owner: Address, asset: Asset, infinite?: (boolean | undefined)): Promise<string | undefined>
+	approve(owner: Address, asset: Asset, infinite?: boolean | undefined): Promise<string | undefined>
 
 	apis: RaribleApis
 }
 
 export interface RaribleApis {
 	nftItem: NftItemControllerApi
-	nftOwnership: NftOwnershipControllerApi,
-	order: OrderControllerApi,
-	orderActivity: OrderActivityControllerApi,
+	nftOwnership: NftOwnershipControllerApi
+	order: OrderControllerApi
+	orderActivity: OrderActivityControllerApi
 	nftCollection: NftCollectionControllerApi
 }
 
@@ -106,9 +102,8 @@ export interface RaribleNftSdk {
 export function createRaribleSdk(
 	ethereum: Ethereum,
 	env: keyof typeof CONFIGS,
-	configurationParameters?: ConfigurationParameters,
+	configurationParameters?: ConfigurationParameters
 ): RaribleSdk {
-
 	const config = CONFIGS[env]
 	const apiConfiguration = new Configuration({ ...configurationParameters, basePath: config.basePath })
 
@@ -118,15 +113,15 @@ export function createRaribleSdk(
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(apiConfiguration)
 	const orderControllerApi = new OrderControllerApi(apiConfiguration)
 	const orderActivitiesControllerApi = new OrderActivityControllerApi(apiConfiguration)
-	const gatewayControllerApi = new GatewayControllerApi(apiConfiguration)
+	// const gatewayControllerApi = new GatewayControllerApi(apiConfiguration)
 
 	// @ts-ignore
-	const notify = createPendingLogs.bind(null, gatewayControllerApi, ethereum)
+	// const notify = createPendingLogs.bind(null, gatewayControllerApi, ethereum)
 
 	//todo we should notify API about pending tx
-	const sendTx = partialCall(sendTransaction, async hash => {
-		await notify(hash)
-	})
+	// const sendTx = partialCall(sendTransaction, async hash => {
+	// 	await notify(hash)
+	// })
 
 	const checkLazyAssetType = partialCall(checkLazyAssetTypeTemplate, nftItemControllerApi)
 	const checkLazyAsset = partialCall(checkLazyAssetTemplate, checkLazyAssetType)
@@ -137,7 +132,14 @@ export function createRaribleSdk(
 	const approve = partialCall(approveTemplate, ethereum, config.transferProxies)
 	const signOrder = partialCall(signOrderTemplate, ethereum, config)
 	const getMakeFee = partialCall(getMakeFeeTemplate, config.fees)
-	const upsertOrder = partialCall(upsertOrderTemplate, getMakeFee, checkLazyOrder, approve, signOrder, orderControllerApi)
+	const upsertOrder = partialCall(
+		upsertOrderTemplate,
+		getMakeFee,
+		checkLazyOrder,
+		approve,
+		signOrder,
+		orderControllerApi
+	)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const fill = partialCall(fillOrder, getMakeFee, ethereum, orderControllerApi, approve, config.exchange)
@@ -169,7 +171,7 @@ export function createRaribleSdk(
 	}
 }
 
-type Arr = readonly unknown[];
+type Arr = readonly unknown[]
 
 function partialCall<T extends Arr, U extends Arr, R>(f: (...args: [...T, ...U]) => R, ...headArgs: T): (...tailArgs: U) => R {
 	return (...tailArgs: U) => f(...headArgs, ...tailArgs)

@@ -16,8 +16,7 @@ type Web3EthereumConfig = {
 }
 
 export class Web3Ethereum implements Ethereum {
-	constructor(private readonly config: Web3EthereumConfig) {
-	}
+	constructor(private readonly config: Web3EthereumConfig) {}
 
 	createContract(abi: any, address?: string): EthereumContract {
 		return new Web3Contract(this.config, new this.config.web3.eth.Contract(abi, address))
@@ -33,24 +32,25 @@ export class Web3Ethereum implements Ethereum {
 			}
 
 			// @ts-ignore
-			return this.config.web3.currentProvider.sendAsync({
-				method,
-				params: [signer, params[1]],
-				signer,
-			}, cb)
+			return this.config.web3.currentProvider.sendAsync(
+				{
+					method,
+					params: [signer, params[1]],
+					signer,
+				},
+				cb
+			)
 		})
 	}
 
 	async personalSign(message: string): Promise<string> {
 		const signer = await this.getFrom()
-		return (this.config.web3.eth.personal as any)
-			.sign(message, signer)
-			.catch((error: any) => {
-				if (error.code === 4001) {
-					return Promise.reject(new Error("Cancelled"))
-				}
-				return Promise.reject(error)
-			})
+		return (this.config.web3.eth.personal as any).sign(message, signer).catch((error: any) => {
+			if (error.code === 4001) {
+				return Promise.reject(new Error("Cancelled"))
+			}
+			return Promise.reject(error)
+		})
 	}
 
 	async getFrom(): Promise<string> {
@@ -61,10 +61,8 @@ export class Web3Ethereum implements Ethereum {
 	}
 }
 
-
 export class Web3Contract implements EthereumContract {
-	constructor(private readonly config: Web3EthereumConfig, private readonly contract: Contract) {
-	}
+	constructor(private readonly config: Web3EthereumConfig, private readonly contract: Contract) {}
 
 	functionCall(name: string, ...args: any): EthereumFunctionCall {
 		return new Web3FunctionCall(this.config, this.contract, this.contract.methods[name].bind(null, ...args))
@@ -75,9 +73,8 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 	constructor(
 		private readonly config: Web3EthereumConfig,
 		private readonly contract: Contract,
-		private readonly func: any,
-	) {
-	}
+		private readonly func: any
+	) {}
 
 	call(options?: EthereumSendOptions): Promise<any> {
 		return this.func().call({ ...options })
@@ -90,10 +87,10 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 			gas: this.config.gas,
 			...options,
 		})
-		const hash = await new Promise<string>(((resolve, reject) => {
+		const hash = await new Promise<string>((resolve, reject) => {
 			promiEvent.on("transactionHash", resolve)
 			promiEvent.on("error", reject)
-		}))
+		})
 		return new Web3Transaction(hash, promiEvent)
 	}
 
@@ -106,15 +103,12 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 }
 
 export class Web3Transaction implements EthereumTransaction {
-	constructor(readonly hash: string, private readonly promiEvent: PromiEvent<any>) {
-	}
+	constructor(readonly hash: string, private readonly promiEvent: PromiEvent<any>) {}
 
 	wait(): Promise<void> {
-		return new Promise(((resolve, reject) => {
+		return new Promise((resolve, reject) => {
 			this.promiEvent.on("receipt", r => resolve())
 			this.promiEvent.on("error", reject)
-		}))
+		})
 	}
 }
-
-

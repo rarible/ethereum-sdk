@@ -1,18 +1,10 @@
 import { Configuration, NftItemControllerApi } from "@rarible/protocol-api-client"
 import { toAddress } from "@rarible/types/build/address"
 import { toBigNumber } from "@rarible/types/build/big-number"
-// @ts-ignore
-import FormData from "form-data"
-import fetch from "node-fetch"
 import { checkLazyAssetType } from "./check-lazy-asset-type"
 import { checkLazyAsset } from "./check-lazy-asset"
 
-(global as any).FormData = FormData
-
-const client = new NftItemControllerApi(new Configuration({
-	basePath: "https://ethereum-api-dev.rarible.org",
-	fetchApi: fetch,
-}))
+const client = new NftItemControllerApi(new Configuration({ basePath: "https://ethereum-api-dev.rarible.org" }))
 const partial = checkLazyAssetType.bind(null, client)
 
 describe("checkLazyAsset", () => {

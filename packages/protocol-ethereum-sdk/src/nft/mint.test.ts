@@ -8,7 +8,6 @@ import {
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
 } from "@rarible/protocol-api-client"
-import fetch from "node-fetch"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { signNft } from "./sign-nft"
@@ -24,7 +23,7 @@ describe("mint test", () => {
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3, from: minter })
 
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org", fetchApi: fetch })
+	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)

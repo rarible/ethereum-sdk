@@ -42,14 +42,18 @@ describe("sendTransaction", () => {
 		let notified: CreateTransactionRequest | null = null
 		// noinspection JSUnusedGlobalSymbols
 		const api = {
-			createGatewayPendingTransactions(requestParameters: CreateGatewayPendingTransactionsRequest): Promise<Array<LogEvent>> {
+			createGatewayPendingTransactions(
+				requestParameters: CreateGatewayPendingTransactionsRequest
+			): Promise<Array<LogEvent>> {
 				notified = requestParameters.createTransactionRequest
-				return Promise.resolve([{
-					transactionHash: randomWord(),
-					status: "PENDING",
-					address: randomAddress(),
-					topic: randomWord(),
-				}])
+				return Promise.resolve([
+					{
+						transactionHash: randomWord(),
+						status: "PENDING",
+						address: randomAddress(),
+						topic: randomWord(),
+					},
+				])
 			},
 		}
 		const logs = await createPendingLogs(api as GatewayControllerApi, web3, hash)

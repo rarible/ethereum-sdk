@@ -1,4 +1,3 @@
-import fetch from "node-fetch"
 import { toAddress, toBigNumber } from "@rarible/types"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
@@ -14,7 +13,6 @@ import { mint } from "../nft/mint"
 import { signNft } from "../nft/sign-nft"
 import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
 
-
 describe("check-asset-type test", function () {
 	const { provider, wallet } = createE2eProvider()
 	const from = toAddress(wallet.getAddressString())
@@ -22,8 +20,7 @@ describe("check-asset-type test", function () {
 	const ethereum = new Web3Ethereum({ web3, from })
 
 	const e2eErc721ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
-
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org", fetchApi: fetch })
+	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)
@@ -70,5 +67,4 @@ describe("check-asset-type test", function () {
 		)
 		expect(assetType.assetClass).toEqual("ERC721")
 	}, 50000)
-
 })

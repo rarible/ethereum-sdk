@@ -1,4 +1,4 @@
-import {
+import type {
 	Address,
 	Erc20AssetType,
 	EthAssetType,
@@ -9,12 +9,12 @@ import {
 import { randomWord, toBigNumber } from "@rarible/types"
 import BN from "bignumber.js"
 import { toBn } from "../common/to-bn"
-import { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type"
-import { UpsertOrderFunction } from "./upsert-order"
+import type { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type"
+import type { UpsertOrderFunction } from "./upsert-order"
 
 export type SellRequest = {
 	maker: Address
-	makeAssetType: AssetTypeRequest,
+	makeAssetType: AssetTypeRequest
 	amount: number
 	takeAssetType: EthAssetType | Erc20AssetType
 	price: BN.Value
@@ -26,9 +26,8 @@ export async function sell(
 	api: NftItemControllerApi,
 	upsertOrder: UpsertOrderFunction,
 	checkAssetType: (asset: AssetTypeRequest) => Promise<AssetTypeResponse>,
-	request: SellRequest,
+	request: SellRequest
 ) {
-
 	const order: OrderForm = {
 		maker: request.maker,
 		make: {
@@ -37,7 +36,7 @@ export async function sell(
 		},
 		take: {
 			assetType: request.takeAssetType,
-			value: toBigNumber(toBn(request.price).multipliedBy(request.amount).toString())
+			value: toBigNumber(toBn(request.price).multipliedBy(request.amount).toString()),
 		},
 		type: "RARIBLE_V2",
 		data: {
@@ -47,5 +46,5 @@ export async function sell(
 		},
 		salt: toBigNumber(toBn(randomWord(), 16).toString(10)),
 	}
-	return await upsertOrder(order, false)
+	return upsertOrder(order, false)
 }

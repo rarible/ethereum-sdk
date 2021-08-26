@@ -1,6 +1,5 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
-import fetch from "node-fetch"
 import {
 	Configuration,
 	NftCollectionControllerApi,
@@ -22,7 +21,7 @@ describe("transfer Erc721 lazy", () => {
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
 
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org", fetchApi: fetch })
+	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
 	const nftOwnershipApi = new NftOwnershipControllerApi(configuration)
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(configuration)

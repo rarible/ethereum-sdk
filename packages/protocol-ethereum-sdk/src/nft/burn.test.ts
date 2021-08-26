@@ -8,7 +8,6 @@ import {
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
 } from "@rarible/protocol-api-client"
-import fetch from "node-fetch"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
@@ -24,7 +23,7 @@ describe("burn nft's", () => {
 	const ethereum = new Web3Ethereum({ web3 })
 	const testAddress = toAddress(wallet.getAddressString())
 
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org", fetchApi: fetch })
+	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
 	const collectionApi = new NftCollectionControllerApi(configuration)
 	const mintLazyApi = new NftLazyMintControllerApi(configuration)
 	const sign = signNft.bind(null, ethereum, 17)

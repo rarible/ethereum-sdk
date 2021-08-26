@@ -22,13 +22,13 @@ const erc20Abi: AbiItem[] = [
 		type: "function",
 	},
 	{
-		"constant": false,
-		"inputs": [],
-		"name": "deposit",
-		"outputs": [],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "function",
+		constant: false,
+		inputs: [],
+		name: "deposit",
+		outputs: [],
+		payable: true,
+		stateMutability: "payable",
+		type: "function",
 	},
 	{
 		constant: false,
@@ -237,4 +237,3 @@ const erc20Abi: AbiItem[] = [
 		type: "event",
 	},
 ]
-

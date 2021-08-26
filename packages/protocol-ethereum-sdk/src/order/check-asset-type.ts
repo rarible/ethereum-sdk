@@ -1,14 +1,15 @@
-import {BigNumber} from "@rarible/types";
+import { BigNumber } from "@rarible/types"
 import {
-    Address,
-    Erc1155AssetType, Erc721AssetType,
-    NftCollectionControllerApi,
-    NftItemControllerApi
-} from "@rarible/protocol-api-client";
+	Address,
+	Erc1155AssetType,
+	Erc721AssetType,
+	NftCollectionControllerApi,
+	NftItemControllerApi,
+} from "@rarible/protocol-api-client"
 
 export type NftAssetType = {
-    contract: Address;
-    tokenId: BigNumber;
+	contract: Address
+	tokenId: BigNumber
 }
 
 export type AssetTypeRequest = Erc721AssetType | Erc1155AssetType | NftAssetType

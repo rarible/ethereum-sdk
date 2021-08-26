@@ -4,7 +4,6 @@ import { toAddress } from "@rarible/types/build/address"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import fetch from "node-fetch"
 import { CONFIGS } from "../config"
 import { toBn } from "../common/to-bn"
 import { retry } from "../common/retry"
@@ -25,7 +24,7 @@ describe("test exchange v1 order", () => {
 	const ethereum1 = new Web3Ethereum({ web3: web31 })
 	const ethereum2 = new Web3Ethereum({ web3: web32 })
 
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org", fetchApi: fetch })
+	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
 	const orderApi = new OrderControllerApi(configuration)
 	const ownershipApi = new NftOwnershipControllerApi(configuration)
 

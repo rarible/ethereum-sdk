@@ -1,4 +1,5 @@
 set -e
+yarn run clean
 yarn run build-ethereum-provider
 yarn run build-test-common
 yarn run build-ethers-ethereum

@@ -1,8 +1,7 @@
-import { hashLegacyOrder } from "./hash-legacy-order"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { toAddress } from "@rarible/types/build/address"
 import { toWord } from "@rarible/types"
-import { toBn } from "../common/to-bn"
+import { hashLegacyOrder } from "./hash-legacy-order"
 
 describe("hashLegacyOrder", () => {
 	test("simple order is hashed correctly", () => {

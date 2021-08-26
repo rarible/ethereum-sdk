@@ -6,15 +6,15 @@ export const EIP712_ORDER_TYPE = "Order"
 
 export const EIP712_DOMAIN_TEMPLATE = {
 	name: EIP712_ORDER_NAME,
-	version: EIP712_ORDER_VERSION
+	version: EIP712_ORDER_VERSION,
 }
 
 export const EIP712_ORDER_TYPES = {
 	EIP712Domain: [
-		{	type: "string", name: "name" },
+		{ type: "string", name: "name" },
 		{ type: "string", name: "version" },
 		{ type: "uint256", name: "chainId" },
-		{ type: "address", name: "verifyingContract" }
+		{ type: "address", name: "verifyingContract" },
 	],
 	AssetType: [
 		{ name: "assetClass", type: "bytes4" },

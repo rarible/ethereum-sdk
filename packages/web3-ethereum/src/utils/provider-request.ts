@@ -1,17 +1,10 @@
 import type { JsonRpcPayload, JsonRpcResponse } from "web3-core-helpers"
-import type { JsonRpcPayloadReduced } from "./domain"
 
 export async function providerRequest(provider: any, method: string, params: unknown[]): Promise<any> {
 	if ("request" in provider && typeof provider.request === "function") {
-		return provider.request({
-			method,
-			params,
-		})
+		return provider.request({ method, params })
 	} else {
-		return requestLegacy(provider, {
-			method,
-			params,
-		})
+		return requestLegacy(provider, method, params)
 	}
 }
 
@@ -31,13 +24,14 @@ function legacySend(
 	throw new Error("No send method defined")
 }
 
-function requestLegacy(provider: any, payload: JsonRpcPayloadReduced): Promise<any> {
+function requestLegacy(provider: any, method: string, params: unknown[]): Promise<any> {
 	return new Promise<any>((resolve, reject) => {
 		try {
 			return legacySend(provider, {
 				jsonrpc: "2.0",
 				id: new Date().getTime(),
-				...payload,
+				method,
+				params,
 			}, (error, result) => {
 				const err = error || result?.error
 				if (err) {

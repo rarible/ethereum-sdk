@@ -17,10 +17,9 @@ describe("Web3Ethereum", () => {
 	})
 
 	it("should correctly parse error for invalid method request", async () => {
-        await eth.send("unknown method", []).catch((err) => {
+		await eth.send("unknown method", []).catch((err) => {
 			const error = parseRequestError(err)
-			expect(error?.type).toEqual("rpc")
-			expect(error?.reason.code).toEqual(-32601)
+			expect(error?.code).toEqual(-32601)
 		})
 	})
 })

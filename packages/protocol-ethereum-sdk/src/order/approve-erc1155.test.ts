@@ -1,10 +1,10 @@
 import { randomAddress, toAddress } from "@rarible/types"
 import type { Contract } from "web3-eth-contract"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
+import { toBn } from "@rarible/utils/build/bn"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { sentTx } from "../common/send-transaction"
-import { toBn } from "../common/to-bn"
 import { approveErc1155 } from "./approve-erc1155"
 import { deployTestErc1155 } from "./contracts/test/test-erc1155"
 

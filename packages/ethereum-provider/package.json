@@ -12,7 +12,8 @@
   "scripts": {
     "test": "echo \"There's no tests yet\"",
     "build": "tsc --project tsconfig-build.json",
-    "clean": "rimraf ./build"
+    "clean": "rimraf ./build",
+    "verify": "tsc --noEmit"
   },
   "devDependencies": {
     "typescript": "4.3.5"

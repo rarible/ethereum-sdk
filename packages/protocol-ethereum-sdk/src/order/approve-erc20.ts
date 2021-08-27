@@ -1,7 +1,6 @@
 import { Address, BigNumber } from "@rarible/protocol-api-client"
-import BN from "bignumber.js"
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
-import { toBn } from "../common/to-bn"
+import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import { createErc20Contract } from "./contracts/erc20"
 
 const infiniteBn = toBn(2).pow(256).minus(1)
@@ -11,7 +10,7 @@ export async function approveErc20(
 	contract: Address,
 	owner: Address,
 	operator: Address,
-	value: BigNumber | BN,
+	value: BigNumber | BigNumberValue,
 	infinite: boolean = true
 ): Promise<EthereumTransaction | undefined> {
 	const erc20 = createErc20Contract(ethereum, contract)

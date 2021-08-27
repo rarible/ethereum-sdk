@@ -7,8 +7,7 @@ import type {
 	Part,
 } from "@rarible/protocol-api-client"
 import { randomWord, toBigNumber } from "@rarible/types"
-import BN from "bignumber.js"
-import { toBn } from "../common/to-bn"
+import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import type { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type"
 import type { UpsertOrderFunction } from "./upsert-order"
 
@@ -17,7 +16,7 @@ export type SellRequest = {
 	makeAssetType: AssetTypeRequest
 	amount: number
 	takeAssetType: EthAssetType | Erc20AssetType
-	price: BN.Value
+	price: BigNumberValue
 	payouts: Array<Part>
 	originFees: Array<Part>
 }
@@ -32,7 +31,7 @@ export async function sell(
 		maker: request.maker,
 		make: {
 			assetType: await checkAssetType(request.makeAssetType),
-			value: toBigNumber(`${request.amount}`),
+			value: toBigNumber(request.amount.toString()),
 		},
 		take: {
 			assetType: request.takeAssetType,
@@ -44,7 +43,7 @@ export async function sell(
 			payouts: request.payouts,
 			originFees: request.originFees,
 		},
-		salt: toBigNumber(toBn(randomWord(), 16).toString(10)),
+		salt: toBigNumber(toBn(randomWord(), 16).toString(10)) as any,
 	}
 	return upsertOrder(order, false)
 }

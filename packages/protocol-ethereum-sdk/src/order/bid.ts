@@ -7,8 +7,7 @@ import {
 	Erc20AssetType,
 } from "@rarible/protocol-api-client"
 import { randomWord, toBigNumber } from "@rarible/types"
-import BN from "bignumber.js"
-import { toBn } from "../common/to-bn"
+import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import { UpsertOrderFunction } from "./upsert-order"
 import { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type"
 
@@ -17,7 +16,7 @@ export type BidRequest = {
 	makeAssetType: EthAssetType | Erc20AssetType
 	amount: number
 	takeAssetType: AssetTypeRequest
-	price: BN.Value
+	price: BigNumberValue
 	payouts: Array<Part>
 	originFees: Array<Part>
 }
@@ -44,7 +43,7 @@ export async function bid(
 			payouts: request.payouts,
 			originFees: request.originFees,
 		},
-		salt: toBigNumber(toBn(randomWord(), 16).toString(10)),
+		salt: toBigNumber(toBn(randomWord(), 16).toString(10)) as any,
 	}
 	return upsertOrder(order, false)
 }

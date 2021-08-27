@@ -35,5 +35,5 @@ export function toLegacyAssetType(assetType: AssetType): LegacyAssetType {
 				tokenId: assetType.tokenId,
 			}
 	}
-	throw new Error(`Unsupported `)
+	throw new Error("Unsupported ")
 }

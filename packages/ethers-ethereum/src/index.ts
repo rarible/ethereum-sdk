@@ -5,7 +5,7 @@ import {
 	EthereumContract,
 	EthereumFunctionCall,
 	EthereumSendOptions,
-	EthereumTransaction,
+	EthereumTransaction
 } from "@rarible/ethereum-provider"
 
 export class EthersEthereum implements Ethereum {

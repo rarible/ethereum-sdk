@@ -14,7 +14,7 @@ export async function transferNftLazy(
 	asset: TransferAsset,
 	from: Address,
 	to: Address,
-	amount?: BigNumber,
+	amount?: BigNumber
 ): Promise<string> {
 	const lazyNft = await nftItemApi.getNftLazyItemById({ itemId: `${asset.contract}:${asset.tokenId}` })
 	const params = {

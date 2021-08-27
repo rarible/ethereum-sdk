@@ -8,8 +8,8 @@ import { EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES } from ".
 import { encodeData } from "./encode-data"
 
 export type SimpleOrder = Pick<
-	Order,
-	"data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature"
+Order,
+"data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature"
 >
 
 export async function signOrder(

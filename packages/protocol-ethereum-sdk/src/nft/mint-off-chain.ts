@@ -7,7 +7,7 @@ export async function mintOffChain(
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	nftLazyMintApi: NftLazyMintControllerApi,
-	data: LazyErc721Request | LazyErc1155Request,
+	data: LazyErc721Request | LazyErc1155Request
 ): Promise<string> {
 	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, data.creators[0].account)
 	let nftData: SimpleLazyNft<"signatures">
@@ -15,7 +15,7 @@ export async function mintOffChain(
 		nftData = {
 			"@type": data.collection.type,
 			contract: data.collection.id,
-			uri: '',
+			uri: "",
 			royalties: data.royalties,
 			creators: data.creators,
 			tokenId,
@@ -25,7 +25,7 @@ export async function mintOffChain(
 		nftData = {
 			"@type": data.collection.type,
 			contract: data.collection.id,
-			uri: '',
+			uri: "",
 			royalties: data.royalties,
 			creators: data.creators,
 			tokenId,

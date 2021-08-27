@@ -5,7 +5,10 @@ import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
 
 export async function burn(
-	ethereum: Ethereum, checkAssetType: CheckAssetTypeFunction, asset: Erc721AssetType | Erc1155AssetType | NftAssetType, amount?: number
+	ethereum: Ethereum,
+	checkAssetType: CheckAssetTypeFunction,
+	asset: Erc721AssetType | Erc1155AssetType | NftAssetType,
+	amount?: number
 ) {
 	const checked = await checkAssetType(asset)
 	switch (checked.assetClass) {

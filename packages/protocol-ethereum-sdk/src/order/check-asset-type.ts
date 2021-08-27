@@ -4,7 +4,7 @@ import {
 	Erc1155AssetType,
 	Erc721AssetType,
 	NftCollectionControllerApi,
-	NftItemControllerApi,
+	NftItemControllerApi
 } from "@rarible/protocol-api-client"
 
 export type NftAssetType = {

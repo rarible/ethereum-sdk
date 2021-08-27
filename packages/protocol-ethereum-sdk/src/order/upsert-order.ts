@@ -12,7 +12,8 @@ import { ApproveFunction } from "./approve"
 
 export type UpsertOrderStageId = "approve" | "sign" | "post"
 
-export type UpsertOrderAction = ActionBuilder<UpsertOrderStageId, void, [(EthereumTransaction | undefined), Binary, Order]>
+export type UpsertOrderAction =
+	ActionBuilder<UpsertOrderStageId, void, [(EthereumTransaction | undefined), Binary, Order]>
 
 export type UpsertOrderFunction = (order: OrderForm, infinite?: boolean) => Promise<UpsertOrderAction>
 
@@ -39,7 +40,7 @@ export async function upsertOrder(
 			.thenStage({
 				id: "post" as const,
 				run: sig => orderApi.upsertOrder({ orderForm: { ...checkedOrder, signature: sig } }),
-			}),
+			})
 	)
 }
 

@@ -21,7 +21,7 @@ describe("approveErc721", () => {
 
 	test("should approve", async () => {
 		const tokenId = from + "b00000000000000000000001"
-		await it.testErc721.methods.mint(from, tokenId, 'https://example.com').send({ from, gas: 200000 })
+		await it.testErc721.methods.mint(from, tokenId, "https://example.com").send({ from, gas: 200000 })
 
 		const operator = randomAddress()
 		await approveErc721(toAddress(it.testErc721.options.address), from, operator)
@@ -32,7 +32,7 @@ describe("approveErc721", () => {
 
 	test("should not approve if already approved", async () => {
 		const tokenId = from + "b00000000000000000000002"
-		await it.testErc721.methods.mint(from, tokenId, 'https://example.com').send({ from, gas: 200000 })
+		await it.testErc721.methods.mint(from, tokenId, "https://example.com").send({ from, gas: 200000 })
 
 		const operator = randomAddress()
 		await sentTx(it.testErc721.methods.setApprovalForAll(operator, true), { from })

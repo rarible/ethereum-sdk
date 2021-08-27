@@ -5,7 +5,7 @@ import {
 	NftCollectionControllerApi,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
-	NftOwnershipControllerApi,
+	NftOwnershipControllerApi
 } from "@rarible/protocol-api-client"
 import { randomAddress, toAddress } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
@@ -29,7 +29,7 @@ describe("transfer Erc721 lazy", () => {
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftItemApi, nftCollectionApi)
 	const sign = signNft.bind(null, ethereum, 17)
 
-	test('should transfer erc1155 lazy token', async () => {
+	test("should transfer erc1155 lazy token", async () => {
 		const recipient = randomAddress()
 		const contract = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
 		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintControllerApi, {
@@ -38,10 +38,10 @@ describe("transfer Erc721 lazy", () => {
 				id: contract,
 				supportsLazyMint: true,
 			},
-			uri: '//uri',
+			uri: "//uri",
 			creators: [{ account: toAddress(wallet.getAddressString()), value: 10000 }],
 			royalties: [],
-			supply: toBigNumber('100'),
+			supply: toBigNumber("100"),
 			lazy: true,
 		})
 		await transfer(
@@ -55,7 +55,7 @@ describe("transfer Erc721 lazy", () => {
 				contract: contract,
 			},
 			recipient,
-			toBigNumber('50'),
+			toBigNumber("50")
 		)
 
 		const erc1155Lazy = createErc1155LazyContract(ethereum, contract)

@@ -4,7 +4,7 @@ import {
 	OrderForm,
 	Part,
 	EthAssetType,
-	Erc20AssetType,
+	Erc20AssetType
 } from "@rarible/protocol-api-client"
 import { randomWord, toBigNumber } from "@rarible/types"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"

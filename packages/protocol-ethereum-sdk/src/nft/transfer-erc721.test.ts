@@ -16,15 +16,15 @@ describe("transfer Erc721", () => {
 	const to = randomAddress()
 
 	const it = awaitAll({
-		testErc721: deployTestErc721(web3, "TST", "TST")
+		testErc721: deployTestErc721(web3, "TST", "TST"),
 	})
 
-	test('should transfer erc721 token', async () => {
+	test("should transfer erc721 token", async () => {
 		const tokenId = from + "b00000000000000000000001"
-		await it.testErc721.methods.mint(from, tokenId, 'https://example.com').send({ from, gas: 500000 })
+		await it.testErc721.methods.mint(from, tokenId, "https://example.com").send({ from, gas: 500000 })
 
 		const senderBalance = await it.testErc721.methods.balanceOf(from).call()
-		expect(senderBalance === '1').toBeTruthy()
+		expect(senderBalance === "1").toBeTruthy()
 
 		const ownership: Address = await it.testErc721.methods.ownerOf(tokenId).call()
 		expect(toAddress(ownership) === toAddress(from)).toBeTruthy()

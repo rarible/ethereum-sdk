@@ -4,7 +4,7 @@ import type {
 	EthAssetType,
 	NftItemControllerApi,
 	OrderForm,
-	Part,
+	Part
 } from "@rarible/protocol-api-client"
 import { randomWord, toBigNumber } from "@rarible/types"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"

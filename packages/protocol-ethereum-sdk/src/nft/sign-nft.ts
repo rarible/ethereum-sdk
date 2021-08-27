@@ -9,7 +9,7 @@ import {
 	EIP1155_NFT_TYPES,
 	EIP721_DOMAIN_NFT_TEMPLATE,
 	EIP721_NFT_TYPE,
-	EIP721_NFT_TYPES,
+	EIP721_NFT_TYPES
 } from "./eip712"
 
 export type SimpleLazyNft<K extends keyof any> = Omit<LazyErc721, K> | Omit<LazyErc1155, K>

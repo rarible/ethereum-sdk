@@ -6,7 +6,7 @@ import {
 	NftCollection_Type,
 	NftCollectionControllerApi,
 	NftLazyMintControllerApi,
-	Part,
+	Part
 } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { LazyErc721 } from "@rarible/protocol-api-client/build/models/LazyNft"
@@ -22,7 +22,7 @@ export async function mint(
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	nftLazyMintApi: NftLazyMintControllerApi,
-	data: MintRequest,
+	data: MintRequest
 ): Promise<string> {
 	if (isLazyErc721Collection(data.collection)) {
 		const dataLazy = data as LazyErc721Request
@@ -54,13 +54,13 @@ type LegacyERC721Collection = ERC721Collection & { supportsLazyMint: false }
 type LazyERC721Collection = ERC721Collection & { supportsLazyMint: true }
 
 export function isLazyErc721Collection(
-	collection: Collection,
+	collection: Collection
 ): collection is LazyERC721Collection {
 	return collection.type === "ERC721" && isLazy(collection)
 }
 
 export function isLegacyErc721Collection(
-	collection: Collection,
+	collection: Collection
 ): collection is LegacyERC721Collection {
 	return collection.type === "ERC721" && !isLazy(collection)
 }
@@ -81,13 +81,13 @@ type LegacyERC1155Collection = ERC1155Collection & { supportsLazyMint: false }
 type LazyERC1155Collection = ERC1155Collection & { supportsLazyMint: true }
 
 export function isLazyErc1155Collection(
-	collection: Collection,
+	collection: Collection
 ): collection is LazyERC1155Collection {
 	return collection.type === "ERC1155" && isLazy(collection)
 }
 
 export function isLegacyErc1155Collection(
-	collection: Collection,
+	collection: Collection
 ): collection is LegacyERC1155Collection {
 	return collection.type === "ERC1155" && !isLazy(collection)
 }

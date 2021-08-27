@@ -22,7 +22,7 @@
     "test": "lerna run test --parallel",
     "verify": "lerna run verify --parallel",
     "lint-staged": "lint-staged",
-    "precommit": "run-s verify lint-staged lint"
+    "precommit": "run-s verify lint"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [

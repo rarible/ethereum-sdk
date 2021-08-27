@@ -21,7 +21,7 @@
     "test": "lerna run test --parallel",
     "verify": "lerna run verify --parallel",
     "lint-staged": "lint-staged",
-    "publish-all": "lerna publish from-git",
+    "publish-all": "lerna publish from-package",
     "precommit": "run-s verify lint"
   },
   "lint-staged": {

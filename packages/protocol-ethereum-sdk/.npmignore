@@ -1,7 +1,0 @@
-publish.sh
-templates
-node_modules
-.idea
-*.iml
-.openapi-generator
-api-docs

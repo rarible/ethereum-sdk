@@ -32,7 +32,8 @@
     "web3-provider-engine": "^16.0.1"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
   "gitHead": "e1a77d6596ee3286e6f2d7c1db5f69489c10f10c"
 }

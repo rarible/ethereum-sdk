@@ -21,13 +21,10 @@
     "test": "lerna run test --parallel",
     "verify": "lerna run verify --parallel",
     "lint-staged": "lint-staged",
-    "publish-all": "lerna exec npm publish",
+    "publish-all": "lerna publish from-git",
     "precommit": "run-s verify lint"
   },
   "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": [
-      "yarn run prettify:code"
-    ],
     "**/src/package.json": [
       "yarn run prettify:packages"
     ],

@@ -9,7 +9,7 @@ import {
 	NftLazyMintControllerApi,
 	NftOwnershipControllerApi,
 	OrderActivityControllerApi,
-	OrderControllerApi,
+	OrderControllerApi
 } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
@@ -23,7 +23,7 @@ import { bid as bidTemplate, BidRequest } from "./order/bid"
 import {
 	checkLazyAsset as checkLazyAssetTemplate,
 	checkLazyAssetType as checkLazyAssetTypeTemplate,
-	checkLazyOrder as checkLazyOrderTemplate,
+	checkLazyOrder as checkLazyOrderTemplate
 } from "./order"
 import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
 import { mint as mintTemplate, MintRequest } from "./nft/mint"
@@ -31,14 +31,6 @@ import { transfer as transferTemplate, TransferAsset } from "./nft/transfer"
 import { signNft as signNftTemplate } from "./nft/sign-nft"
 import { getMakeFee as getMakeFeeTemplate } from "./order/get-make-fee"
 import { burn as burnTemplate } from "./nft/burn"
-
-export interface RaribleSdk {
-	order: RaribleOrderSdk
-
-	nft: RaribleNftSdk
-
-	apis: RaribleApis
-}
 
 export interface RaribleApis {
 	nftItem: NftItemControllerApi
@@ -89,10 +81,18 @@ export interface RaribleNftSdk {
 	burn(asset: Erc721AssetType | Erc1155AssetType, amount?: number): Promise<string>
 }
 
+export interface RaribleSdk {
+	order: RaribleOrderSdk
+
+	nft: RaribleNftSdk
+
+	apis: RaribleApis
+}
+
 export function createRaribleSdk(
 	ethereum: Ethereum,
 	env: keyof typeof CONFIGS,
-	configurationParameters?: ConfigurationParameters,
+	configurationParameters?: ConfigurationParameters
 ): RaribleSdk {
 	const config = CONFIGS[env]
 	const apiConfiguration = new Configuration({ ...configurationParameters, basePath: config.basePath })
@@ -128,7 +128,7 @@ export function createRaribleSdk(
 		checkLazyOrder,
 		approve,
 		signOrder,
-		orderControllerApi,
+		orderControllerApi
 	)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
@@ -136,7 +136,9 @@ export function createRaribleSdk(
 
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
 	const mint = partialCall(mintTemplate, ethereum, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
-	const transfer = partialCall(transferTemplate, ethereum, signNft, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi)
+	const transfer = partialCall(
+		transferTemplate, ethereum, signNft, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi
+	)
 	const burn = partialCall(burnTemplate, ethereum, checkAssetType)
 
 	return {
@@ -162,10 +164,12 @@ export function createRaribleSdk(
 
 type Arr = readonly unknown[]
 
-function partialCall<T extends Arr, U extends Arr, R>(f: (...args: [...T, ...U]) => R, ...headArgs: T): (...tailArgs: U) => R {
+function partialCall<T extends Arr, U extends Arr, R>(
+	f: (...args: [...T, ...U]) => R, ...headArgs: T
+): (...tailArgs: U) => R {
 	return (...tailArgs: U) => f(...headArgs, ...tailArgs)
 }
 
 export {
-	isLazyErc721Collection, isLazyErc1155Collection, isLegacyErc721Collection, isLegacyErc1155Collection,
+	isLazyErc721Collection, isLazyErc1155Collection, isLegacyErc721Collection, isLegacyErc1155Collection
 } from "./nft/mint"

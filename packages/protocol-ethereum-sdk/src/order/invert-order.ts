@@ -1,11 +1,15 @@
 import { Address, toBigNumber, toWord, Word } from "@rarible/types"
-import BN from "bignumber.js"
-import { toBn } from "../common/to-bn"
+import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import { SimpleOrder } from "./sign-order"
 import { isNft } from "./is-nft"
 
 const ZERO = toWord("0x0000000000000000000000000000000000000000000000000000000000000000")
-export function invertOrder(order: SimpleOrder, amount: BN, maker: Address, salt: Word = ZERO): SimpleOrder {
+export function invertOrder(
+	order: SimpleOrder,
+	amount: BigNumberValue,
+	maker: Address,
+	salt: Word = ZERO
+): SimpleOrder {
 	const [makeValue, takeValue] = calculateAmounts(
 		toBn(order.make.value),
 		toBn(order.take.value),
@@ -29,10 +33,15 @@ export function invertOrder(order: SimpleOrder, amount: BN, maker: Address, salt
 	}
 }
 
-function calculateAmounts(make: BN, take: BN, amount: BN, bid: boolean): [BN, BN] {
+function calculateAmounts(
+	make: BigNumberValue,
+	take: BigNumberValue,
+	amount: BigNumberValue,
+	bid: boolean
+): [BigNumberValue, BigNumberValue] {
 	if (bid) {
-		return [amount, amount.multipliedBy(make).div(take)]
+		return [amount, toBn(amount).multipliedBy(make).div(take)]
 	} else {
-		return [amount.multipliedBy(take).div(make), amount]
+		return [toBn(amount).multipliedBy(take).div(make), amount]
 	}
 }

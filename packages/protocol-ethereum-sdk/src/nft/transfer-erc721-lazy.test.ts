@@ -5,7 +5,7 @@ import {
 	NftCollectionControllerApi,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
-	NftOwnershipControllerApi,
+	NftOwnershipControllerApi
 } from "@rarible/protocol-api-client"
 import { randomAddress, toAddress } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
@@ -30,7 +30,7 @@ describe("transfer Erc721 lazy", () => {
 
 	const sign = signNft.bind(null, ethereum, 17)
 
-	test('should transfer erc721 lazy token', async () => {
+	test("should transfer erc721 lazy token", async () => {
 		const from = toAddress(wallet.getAddressString())
 		const recipient = randomAddress()
 		const contract = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
@@ -45,7 +45,7 @@ describe("transfer Erc721 lazy", () => {
 					type: "ERC721",
 					supportsLazyMint: true,
 				},
-				uri: '//uri',
+				uri: "//uri",
 				creators: [{ account: from, value: 10000 }],
 				royalties: [],
 				lazy: true,
@@ -61,7 +61,7 @@ describe("transfer Erc721 lazy", () => {
 				tokenId: toBigNumber(tokenId),
 				contract: contract,
 			},
-			recipient,
+			recipient
 		)
 		const erc721Lazy = createErc721LazyContract(ethereum, contract)
 		const recipientBalance = await erc721Lazy.functionCall("balanceOf", recipient).call()

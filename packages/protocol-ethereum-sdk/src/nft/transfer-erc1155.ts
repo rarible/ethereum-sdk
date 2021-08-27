@@ -8,7 +8,7 @@ export async function transferErc1155(
 	from: Address,
 	to: Address,
 	tokenId: string | string[],
-	tokenAmount: string | string[],
+	tokenAmount: string | string[]
 ): Promise<string> {
 	if (Array.isArray(tokenId) && Array.isArray((tokenAmount))) {
 		if (tokenId.length === tokenAmount.length) {
@@ -27,13 +27,13 @@ async function sendTransaction(
 	from: Address,
 	to: Address,
 	tokenId: string | string[],
-	tokenAmount: string | string[],
+	tokenAmount: string | string[]
 ) {
 	const erc1155 = createErc1155Contract(ethereum, contract)
 	if (Array.isArray(tokenId) && Array.isArray(tokenAmount)) {
-		const tx = await erc1155.functionCall("safeBatchTransferFrom", from, to, tokenId, tokenAmount, '0x0').send()
+		const tx = await erc1155.functionCall("safeBatchTransferFrom", from, to, tokenId, tokenAmount, "0x0").send()
 		return tx.hash
 	}
-	const tx = await erc1155.functionCall("safeTransferFrom", from, to, tokenId, tokenAmount, '0x0').send()
+	const tx = await erc1155.functionCall("safeTransferFrom", from, to, tokenId, tokenAmount, "0x0").send()
 	return tx.hash
 }

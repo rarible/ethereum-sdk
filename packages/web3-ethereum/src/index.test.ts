@@ -1,5 +1,6 @@
 import Web3 from "web3"
 import { createE2eProvider, testTypedSignature, testPersonalSign } from "@rarible/ethereum-sdk-test-common"
+import { parseRequestError } from "./utils/parse-request-error"
 import { Web3Ethereum } from "./index"
 
 describe("Web3Ethereum", () => {
@@ -13,5 +14,12 @@ describe("Web3Ethereum", () => {
 
 	it("signs personal message correctly", async () => {
 		await testPersonalSign(eth)
+	})
+
+	it("should correctly parse error for invalid method request", async () => {
+		await eth.send("unknown method", []).catch((err) => {
+			const error = parseRequestError(err)
+			expect(error?.code).toEqual(-32601)
+		})
 	})
 })

@@ -6,13 +6,13 @@ import {
 	Configuration,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
-	NftLazyMintControllerApi,
+	NftLazyMintControllerApi
 } from "@rarible/protocol-api-client"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
 import { mint as mintTemplate } from "./mint"
-import { signNft } from './sign-nft'
+import { signNft } from "./sign-nft"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { burn as burnTemplate } from "./burn"
 

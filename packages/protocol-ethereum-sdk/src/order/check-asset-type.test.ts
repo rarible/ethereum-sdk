@@ -6,7 +6,7 @@ import {
 	Configuration,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
-	NftLazyMintControllerApi,
+	NftLazyMintControllerApi
 } from "@rarible/protocol-api-client"
 import { retry } from "../common/retry"
 import { mint } from "../nft/mint"
@@ -30,7 +30,7 @@ describe("check-asset-type test", function () {
 	test("should set assetClass if type not present", async () => {
 		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
 			collection: { id: e2eErc721ContractAddress, type: "ERC721", supportsLazyMint: true },
-			uri: 'uri',
+			uri: "uri",
 			creators: [{ account: from, value: 10000 }],
 			royalties: [],
 		})
@@ -40,7 +40,7 @@ describe("check-asset-type test", function () {
 				{
 					contract: e2eErc721ContractAddress,
 					tokenId: toBigNumber(tokenId),
-				},
+				}
 			)
 			expect(assetType.assetClass).toEqual("ERC721")
 		})
@@ -53,17 +53,17 @@ describe("check-asset-type test", function () {
 				type: "ERC721",
 				supportsLazyMint: true,
 			},
-			uri: 'uri',
+			uri: "uri",
 			creators: [{ account: from, value: 10000 }],
 			royalties: [],
 		})
 
 		const assetType = await checkAssetType(
 			{
-				assetClass: 'ERC721',
+				assetClass: "ERC721",
 				contract: e2eErc721ContractAddress,
 				tokenId: toBigNumber(tokenId),
-			},
+			}
 		)
 		expect(assetType.assetClass).toEqual("ERC721")
 	}, 50000)

@@ -1,4 +1,4 @@
-export const EIP721_NFT_TYPE = 'MintAndTransfer'
+export const EIP721_NFT_TYPE = "MintAndTransfer"
 export const NFT_DOMAIN_TYPE = [
 	{ type: "string", name: "name" },
 	{ type: "string", name: "version" },
@@ -8,14 +8,14 @@ export const NFT_DOMAIN_TYPE = [
 export const EIP721_NFT_TYPES = {
 	EIP712Domain: NFT_DOMAIN_TYPE,
 	Part: [
-		{ name: 'account', type: 'address' },
-		{ name: 'value', type: 'uint96' },
+		{ name: "account", type: "address" },
+		{ name: "value", type: "uint96" },
 	],
 	MintAndTransfer: [
-		{ name: 'tokenId', type: 'uint256' },
-		{ name: 'uri', type: 'string' },
-		{ name: 'creators', type: 'Part[]' },
-		{ name: 'royalties', type: 'Part[]' },
+		{ name: "tokenId", type: "uint256" },
+		{ name: "uri", type: "string" },
+		{ name: "creators", type: "Part[]" },
+		{ name: "royalties", type: "Part[]" },
 	],
 }
 

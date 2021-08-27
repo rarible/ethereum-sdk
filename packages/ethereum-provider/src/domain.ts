@@ -4,14 +4,6 @@ export enum SignTypedDataMethodEnum {
 	DEFAULT = "eth_signTypedData"
 }
 
-export type TypedSignatureResult = {
-	data: TypedSignatureData
-	sig: string
-	v: number
-	r: string
-	s: string
-}
-
 export type DomainData = {
 	name: string
 	version: string

@@ -1,17 +1,9 @@
 import { SignTypedDataMethodEnum, TypedSignatureData } from "./domain"
 
-export interface Ethereum {
-	createContract(abi: any, address?: string): EthereumContract
+export interface EthereumTransaction {
+	hash: string
 
-	send(method: string, params: any): Promise<any>
-
-	getFrom(): Promise<string>
-
-	personalSign(message: string): Promise<string>
-}
-
-export interface EthereumContract {
-	functionCall(name: string, ...args: any): EthereumFunctionCall
+	wait(): Promise<void>
 }
 
 export interface EthereumSendOptions {
@@ -26,10 +18,18 @@ export interface EthereumFunctionCall {
 	send(options?: EthereumSendOptions): Promise<EthereumTransaction>
 }
 
-export interface EthereumTransaction {
-	hash: string
+export interface EthereumContract {
+	functionCall(name: string, ...args: any): EthereumFunctionCall
+}
 
-	wait(): Promise<void>
+export interface Ethereum {
+	createContract(abi: any, address?: string): EthereumContract
+
+	send(method: string, params: any): Promise<any>
+
+	getFrom(): Promise<string>
+
+	personalSign(message: string): Promise<string>
 }
 
 export async function signTypedData(ethereum: Ethereum, data: TypedSignatureData) {

@@ -1,15 +1,12 @@
 import { Address } from "@rarible/protocol-api-client"
 
-export type Config = {
-	basePath: string
-	chainId: number
-	exchange: ExchangeAddresses
-	transferProxies: TransferProxies
-	fees: ExchangeFees
-}
-
 export type ExchangeFees = {
 	v2: number
+}
+
+export type ExchangeAddresses = {
+	v1: Address
+	v2: Address
 }
 
 export type TransferProxies = {
@@ -19,7 +16,10 @@ export type TransferProxies = {
 	erc1155Lazy: Address
 }
 
-export type ExchangeAddresses = {
-	v1: Address
-	v2: Address
+export type Config = {
+	basePath: string
+	chainId: number
+	exchange: ExchangeAddresses
+	transferProxies: TransferProxies
+	fees: ExchangeFees
 }

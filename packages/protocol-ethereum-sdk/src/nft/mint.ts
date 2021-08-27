@@ -15,6 +15,39 @@ import { mintOffChain } from "./mint-off-chain"
 import { mintErc1155Legacy, mintErc1155New, mintErc721Legacy, mintErc721New } from "./mint-on-chain"
 import { SimpleLazyNft } from "./sign-nft"
 
+type Collection = { id: Address, features?: NftCollection_Features[], type: NftCollection_Type }
+
+type ERC721Collection = Collection & { type: "ERC721" }
+type LegacyERC721Collection = ERC721Collection & { supportsLazyMint: false }
+type LazyERC721Collection = ERC721Collection & { supportsLazyMint: true }
+
+export type LegacyERC721Request = {
+	collection: LegacyERC721Collection
+	uri: string
+	royalties: Array<Part>
+}
+
+export type LazyErc721Request = {
+	collection: LazyERC721Collection,
+	lazy?: boolean
+} & Omit<LazyErc721, "signatures" | "contract" | "tokenId" | "@type">
+
+type ERC1155Collection = Collection & { type: "ERC1155" }
+type LegacyERC1155Collection = ERC1155Collection & { supportsLazyMint: false }
+type LazyERC1155Collection = ERC1155Collection & { supportsLazyMint: true }
+
+export type LegacyERC1155Request = {
+	collection: LegacyERC1155Collection
+	uri: string
+	supply: number
+	royalties: Array<Part>
+}
+
+export type LazyErc1155Request = {
+	collection: LazyERC1155Collection,
+	lazy?: boolean
+} & Omit<LazyErc1155, "signatures" | "contract" | "tokenId" | "@type">
+
 export type MintRequest = LazyErc721Request | LazyErc1155Request | LegacyERC721Request | LegacyERC1155Request
 
 export async function mint(
@@ -47,12 +80,6 @@ export async function mint(
 	}
 }
 
-type Collection = { id: Address, features?: NftCollection_Features[], type: NftCollection_Type }
-
-type ERC721Collection = Collection & { type: "ERC721" }
-type LegacyERC721Collection = ERC721Collection & { supportsLazyMint: false }
-type LazyERC721Collection = ERC721Collection & { supportsLazyMint: true }
-
 export function isLazyErc721Collection(
 	collection: Collection
 ): collection is LazyERC721Collection {
@@ -65,21 +92,6 @@ export function isLegacyErc721Collection(
 	return collection.type === "ERC721" && !isLazy(collection)
 }
 
-export type LegacyERC721Request = {
-	collection: LegacyERC721Collection
-	uri: string
-	royalties: Array<Part>
-}
-
-export type LazyErc721Request = {
-	collection: LazyERC721Collection,
-	lazy?: boolean
-} & Omit<LazyErc721, "signatures" | "contract" | "tokenId" | "@type">
-
-type ERC1155Collection = Collection & { type: "ERC1155" }
-type LegacyERC1155Collection = ERC1155Collection & { supportsLazyMint: false }
-type LazyERC1155Collection = ERC1155Collection & { supportsLazyMint: true }
-
 export function isLazyErc1155Collection(
 	collection: Collection
 ): collection is LazyERC1155Collection {
@@ -91,18 +103,6 @@ export function isLegacyErc1155Collection(
 ): collection is LegacyERC1155Collection {
 	return collection.type === "ERC1155" && !isLazy(collection)
 }
-
-export type LegacyERC1155Request = {
-	collection: LegacyERC1155Collection
-	uri: string
-	supply: number
-	royalties: Array<Part>
-}
-
-export type LazyErc1155Request = {
-	collection: LazyERC1155Collection,
-	lazy?: boolean
-} & Omit<LazyErc1155, "signatures" | "contract" | "tokenId" | "@type">
 
 function isLazy(collection: { features?: string[] }) {
 	return (collection.features || []).indexOf("MINT_AND_TRANSFER") !== -1 || Boolean((collection as any).supportsLazyMint)

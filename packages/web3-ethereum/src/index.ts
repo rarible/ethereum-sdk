@@ -14,10 +14,7 @@ export class Web3Ethereum implements Ethereum {
 	}
 
 	async send(method: string, params: unknown[]): Promise<any> {
-		return providerRequest(this.config.web3.currentProvider, {
-			method,
-			params
-		})
+		return providerRequest(this.config.web3.currentProvider, method, params)
 	}
 
 	async personalSign(message: string): Promise<string> {
@@ -58,23 +55,26 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 			from: this.config.from || await this.getFrom(),
 			gas: this.config.gas || options.gas,
 			value: options.value,
-			gasPrice: options.gasPrice?.toString()
+			gasPrice: options.gasPrice?.toString(),
 		})
 		const hash = await waitForHash(promiEvent)
 		return new Web3Transaction(hash, promiEvent)
 	}
 
 	async getFrom(): Promise<string> {
-		const [account] = await this.config.web3.eth.getAccounts()
-		return account
+		if (this.config.from) {
+			return this.config.from
+		}
+		const [first] = await this.config.web3.eth.getAccounts()
+		return first
 	}
 }
 
 export class Web3Transaction implements EthereumTransaction {
 	constructor(
-		public readonly hash: string, 
+		public readonly hash: string,
 		private readonly promiEvent: PromiEvent<any>
 	) {}
 
-	wait = () => waitForConfirmation(this.promiEvent) 
+	wait = () => waitForConfirmation(this.promiEvent)
 }

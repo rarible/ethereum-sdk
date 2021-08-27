@@ -1,57 +1,55 @@
-import type { JsonRpcPayloadReduced, LegacySendMethod, RequestParams } from "./domain"
+import type { JsonRpcPayload, JsonRpcResponse } from "web3-core-helpers"
+import type { JsonRpcPayloadReduced } from "./domain"
 
-export async function providerRequest(provider: any, config: RequestParams): Promise<any> {
-    if ("request" in provider && typeof provider.request === "function") {
-        return provider.request(config)
-    } else {
-        return requestLegacy(provider, requestParamsToRpcRequest(config))
-    }
+export async function providerRequest(provider: any, method: string, params: unknown[]): Promise<any> {
+	if ("request" in provider && typeof provider.request === "function") {
+		return provider.request({
+			method,
+			params,
+		})
+	} else {
+		return requestLegacy(provider, {
+			method,
+			params,
+		})
+	}
 }
 
-function getSendLegacy(provider: any): LegacySendMethod {
-    return (...args) => {
-        if (provider !== null && typeof provider === "object") {
-            if ("sendAsync" in provider && typeof provider.sendAsync === "function") {
-                return provider.sendAsync.call(provider, ...args)
-            }
-            if ("send" in provider && typeof provider.send === "function") {
-                return provider.send.call(provider, ...args)
-            }
-        }
-        throw new Error("No send method defined")
-    }
+function legacySend(
+	provider: any,
+	payload: JsonRpcPayload,
+	callback: (error: Error | null, result?: JsonRpcResponse | undefined) => void
+) {
+	if (provider !== null && typeof provider === "object") {
+		if ("sendAsync" in provider && typeof provider.sendAsync === "function") {
+			return provider.sendAsync(payload, callback)
+		}
+		if ("send" in provider && typeof provider.send === "function") {
+			return provider.send(payload, callback)
+		}
+	}
+	throw new Error("No send method defined")
 }
 
 function requestLegacy(provider: any, payload: JsonRpcPayloadReduced): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
-        try {
-            const legacySend = getSendLegacy(provider)
-            return legacySend({
-                jsonrpc: "2.0",
-                id: new Date().getTime(),
-                ...payload,
-            }, (error, result) => {
-                const err = error || result?.error
-                if (err) {
-                    return reject(err)
-                }
-                if (result?.result) {
-                    return resolve(result.result)
-                }
-                return reject(new Error("Can't handle JSON-RPC request"))
-            })
-        } catch (error) {
-            return reject(error)
-        }
-    })
-}
-
-export function requestParamsToRpcRequest(config: RequestParams): JsonRpcPayloadReduced {
-	if (!config.params) {
-		throw new Error("Unconvertable request payload")
-	}
-	return {
-		params: config.params,
-		method: config.method,
-	}
+	return new Promise<any>((resolve, reject) => {
+		try {
+			return legacySend(provider, {
+				jsonrpc: "2.0",
+				id: new Date().getTime(),
+				...payload,
+			}, (error, result) => {
+				const err = error || result?.error
+				if (err) {
+					return reject(err)
+				}
+				if (result?.result) {
+					return resolve(result.result)
+				}
+				return reject(new Error("Can't handle JSON-RPC request"))
+			})
+		} catch (error) {
+			return reject(error)
+		}
+	})
 }

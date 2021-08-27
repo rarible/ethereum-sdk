@@ -21,7 +21,7 @@
     "test": "lerna run test --parallel",
     "verify": "lerna run verify --parallel",
     "lint-staged": "lint-staged",
-    "publish-all": "lerna publish --repo-version-exact",
+    "publish-all": "lerna exec --bail=false npx can-npm-publish && npm publish",
     "precommit": "run-s verify lint"
   },
   "lint-staged": {

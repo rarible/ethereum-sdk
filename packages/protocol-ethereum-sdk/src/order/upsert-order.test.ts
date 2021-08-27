@@ -14,7 +14,7 @@ describe("upsertOrder", () => {
 	const { provider, wallet } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
 
 	test("sign and upsert works", async () => {
-		const approve = () => Promise.resolve("")
+		const approve = () => Promise.resolve(undefined)
 		const web3 = new Web3(provider)
 		const sign = signOrder.bind(null, new Web3Ethereum({ web3 }), E2E_CONFIG)
 		const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })

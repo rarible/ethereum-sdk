@@ -13,6 +13,7 @@ import { addFee } from "./add-fee"
 import { GetMakeFeeFunction } from "./get-make-fee"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { toStructLegacyOrder } from "./to-struct-legacy-order"
+import { ApproveFunction } from "./approve"
 
 export type FillOrderRequest = {
 	amount: number
@@ -21,23 +22,29 @@ export type FillOrderRequest = {
 	infinite?: boolean
 }
 
-export type FillOrderAction = ActionBuilder<string, void, [string | undefined, string]>
+export type FillOrderAction = ActionBuilder<string, void, [void, string]>
 export type FillOrderStageId = "approve" | "send-tx"
 
 export async function fillOrder(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
 	orderApi: OrderControllerApi,
-	approve: (owner: Address, asset: Asset, infinite: boolean) => Promise<string | undefined>,
+	approve: ApproveFunction,
 	config: ExchangeAddresses,
 	order: SimpleOrder,
-	request: FillOrderRequest,
+	request: FillOrderRequest
 ): Promise<FillOrderAction> {
 	const makeAsset = getMakeAssetV2(getMakeFee, order, request.amount)
-	//todo we should wait for approve to be mined
-	return ActionBuilder
-		.create({ id: "approve" as const, run: () => approve(order.maker, makeAsset, Boolean(request.infinite)) })
-		.thenStage({ id: "send-tx" as const, run: () => fillOrderSendTx(getMakeFee, ethereum, config, orderApi, order, request) })
+	const approveAndWait = async () => {
+		const tx = await approve(order.maker, makeAsset, Boolean(request.infinite))
+		if (tx !== undefined) {
+			await tx.wait()
+		}
+	}
+	return ActionBuilder.create({ id: "approve" as const, run: () => approveAndWait() }).thenStage({
+		id: "send-tx" as const,
+		run: () => fillOrderSendTx(getMakeFee, ethereum, config, orderApi, order, request),
+	})
 }
 
 function getMakeAssetV2(getMakeFee: GetMakeFeeFunction, order: SimpleOrder, amount: number) {
@@ -55,17 +62,11 @@ export async function fillOrderSendTx(
 	request: FillOrderRequest
 ): Promise<string> {
 	switch (order.type) {
-		case 'RARIBLE_V1': {
+		case "RARIBLE_V1": {
 			return await fillOrderV1(ethereum, orderApi, config.v1, order, request)
 		}
-		case 'RARIBLE_V2': {
-			return await fillOrderV2(
-				getMakeFee,
-				ethereum,
-				config.v2,
-				order,
-				request,
-			)
+		case "RARIBLE_V2": {
+			return await fillOrderV2(getMakeFee, ethereum, config.v2, order, request)
 		}
 	}
 	throw new Error(`Unsupported type: ${order.type}`)
@@ -123,7 +124,7 @@ async function fillOrderV1(
 	orderApi: OrderControllerApi,
 	contract: Address,
 	order: SimpleOrder,
-	request: FillOrderRequest,
+	request: FillOrderRequest
 ): Promise<string> {
 	const getAssetWithFee = (asset: Asset, fee: number) => {
 		if (asset.assetType.assetClass === "ETH" || asset.assetType.assetClass === "ERC20") {
@@ -180,9 +181,8 @@ function toVrs(sig: string) {
 	const r = "0x" + sig0.substring(0, 64)
 	const s = "0x" + sig0.substring(64, 128)
 	const v = parseInt(sig0.substring(128, 130), 16)
-	return { r, v: (v < 27 ? v + 27 : v), s }
+	return { r, v: v < 27 ? v + 27 : v, s }
 }
-
 
 function getRealValue(getMakeFee: GetMakeFeeFunction, order: SimpleOrder) {
 	const fee = getMakeFee(order)

@@ -1,9 +1,12 @@
 import { Address, Asset } from "@rarible/protocol-api-client"
-import { Ethereum } from "@rarible/ethereum-provider"
+import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { TransferProxies } from "../config/type"
 import { approveErc20 } from "./approve-erc20"
 import { approveErc721 } from "./approve-erc721"
 import { approveErc1155 } from "./approve-erc1155"
+
+export type ApproveFunction =
+	(owner: Address, asset: Asset, infinite: undefined | boolean) => Promise<EthereumTransaction | undefined>
 
 export async function approve(
 	ethereum: Ethereum,
@@ -11,7 +14,7 @@ export async function approve(
 	owner: Address,
 	asset: Asset,
 	infinite: undefined | boolean = true
-): Promise<string | undefined> {
+): Promise<EthereumTransaction | undefined> {
 	switch (asset.assetType.assetClass) {
 		case "ERC20": {
 			const contract = asset.assetType.contract

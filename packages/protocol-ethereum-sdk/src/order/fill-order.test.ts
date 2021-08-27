@@ -90,7 +90,6 @@ describe("fillOrder", () => {
 			},
 		}
 
-		//todo approve using our functions
 		await sentTx(it.testErc20.methods.approve(it.erc20TransferProxy.options.address, toBn(10)), {
 			from: sender1Address,
 		})
@@ -146,7 +145,6 @@ describe("fillOrder", () => {
 			},
 		}
 
-		//todo approve using our functions
 		await sentTx(it.testErc1155.methods.setApprovalForAll(it.transferProxy.options.address, true), {
 			from: sender2Address,
 		})

@@ -1,6 +1,5 @@
 import {
 	Address,
-	Asset,
 	Configuration,
 	ConfigurationParameters,
 	Erc1155AssetType,
@@ -38,14 +37,6 @@ export interface RaribleSdk {
 	order: RaribleOrderSdk
 
 	nft: RaribleNftSdk
-
-	/**
-	 * Checks if approval is needed and executes approve transaction
-	 * @param owner - owner of the asset
-	 * @param asset - asset needed to be checked (ERC-20, ERC-721 etc are supported)
-	 * @param infinite - only valid for ERC-20 (if true, then infinite approval is used)
-	 */
-	approve(owner: Address, asset: Asset, infinite?: boolean | undefined): Promise<string | undefined>
 
 	apis: RaribleApis
 }
@@ -157,7 +148,6 @@ export function createRaribleSdk(
 			orderActivity: orderActivitiesControllerApi,
 			nftCollection: nftCollectionControllerApi,
 		},
-		approve,
 		order: {
 			sell,
 			fill,
@@ -180,4 +170,3 @@ function partialCall<T extends Arr, U extends Arr, R>(f: (...args: [...T, ...U])
 export {
 	isLazyErc721Collection, isLazyErc1155Collection, isLegacyErc721Collection, isLegacyErc1155Collection,
 } from "./nft/mint"
-

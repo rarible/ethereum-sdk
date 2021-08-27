@@ -15,6 +15,7 @@ pipeline {
 					sh 'yarn clean'
 					sh 'yarn build-all'
 					sh 'yarn test'
+					sh 'lerna exec --bail=false can-npm-publish && npm publish'
         }
       }
     }

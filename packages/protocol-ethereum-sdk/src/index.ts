@@ -5,7 +5,6 @@ import {
 	Erc1155AssetType,
 	Erc721AssetType,
 	NftCollectionControllerApi,
-	NftItem,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
 	NftOwnershipControllerApi,
@@ -74,7 +73,7 @@ export interface RaribleNftSdk {
 	 *
 	 * @param request parameters for item to mint
 	 */
-	mint(request: MintRequest): Promise<NftItem | string | undefined>
+	mint(request: MintRequest): Promise<string>
 
 	/**
 	 * @param asset asset for transfer
@@ -93,7 +92,7 @@ export interface RaribleNftSdk {
 export function createRaribleSdk(
 	ethereum: Ethereum,
 	env: keyof typeof CONFIGS,
-	configurationParameters?: ConfigurationParameters
+	configurationParameters?: ConfigurationParameters,
 ): RaribleSdk {
 	const config = CONFIGS[env]
 	const apiConfiguration = new Configuration({ ...configurationParameters, basePath: config.basePath })
@@ -129,7 +128,7 @@ export function createRaribleSdk(
 		checkLazyOrder,
 		approve,
 		signOrder,
-		orderControllerApi
+		orderControllerApi,
 	)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)

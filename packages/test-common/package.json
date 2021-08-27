@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@rarible/ethereum-provider": "^0.1.4",
-    "@rarible/test-provider": "0.1.12",
+    "@rarible/test-provider": "0.1.19",
     "@types/web3-provider-engine": "14.0.1",
     "ganache-core": "2.13.2"
   },

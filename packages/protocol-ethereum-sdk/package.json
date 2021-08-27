@@ -25,7 +25,7 @@
     "@rarible/ethereum-provider": "^0.1.4",
     "@rarible/ethereum-sdk-test-common": "^0.1.4",
     "@rarible/ethers-ethereum": "^0.1.4",
-    "@rarible/test-provider": "0.1.17",
+    "@rarible/test-provider": "0.1.19",
     "@rarible/web3-ethereum": "^0.1.4",
     "exponential-backoff": "3.1.0"
   },
@@ -42,7 +42,7 @@
     "@babel/core": ">=7.4.0",
     "@ethereumjs/common": "^2.4.0",
     "@ethereumjs/tx": "^3.3.0",
-    "@rarible/action": "0.2.5",
+    "@rarible/action": "0.2.7",
     "@rarible/protocol-api-client": "0.1.4",
     "@rarible/utils": "^0.0.3",
     "ethereumjs-util": "^7.1.0",

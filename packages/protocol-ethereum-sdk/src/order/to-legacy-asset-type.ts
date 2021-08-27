@@ -34,6 +34,8 @@ export function toLegacyAssetType(assetType: AssetType): LegacyAssetType {
 				token: assetType.contract,
 				tokenId: assetType.tokenId,
 			}
+		default: {
+			throw new Error("Unsupported")
+		}
 	}
-	throw new Error("Unsupported ")
 }

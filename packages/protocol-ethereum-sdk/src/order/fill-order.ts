@@ -68,8 +68,10 @@ export async function fillOrderSendTx(
 		case "RARIBLE_V2": {
 			return await fillOrderV2(getMakeFee, ethereum, config.v2, order, request)
 		}
+		default: {
+			throw new Error(`Unsupported type: ${order.type}`)
+		}
 	}
-	throw new Error(`Unsupported type: ${order.type}`)
 }
 
 async function fillOrderV2(

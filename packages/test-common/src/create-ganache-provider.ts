@@ -7,7 +7,7 @@ export function createGanacheProvider(...pk: string[]) {
 	if (pk.length > 0) {
 		wallets = pk.map(single => new Wallet(Buffer.from(single, "hex")))
 	} else {
-		wallets = Array.from(Array(10).keys()).map(pk => new Wallet(Buffer.from(randomWord().substring(2), "hex")))
+		wallets = Array.from(Array(10).keys()).map(() => new Wallet(Buffer.from(randomWord().substring(2), "hex")))
 	}
 	const accounts = wallets.map(wallet => ({
 		secretKey: wallet.getPrivateKey(),

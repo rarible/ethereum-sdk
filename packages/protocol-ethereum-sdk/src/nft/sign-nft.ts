@@ -27,7 +27,7 @@ export async function signNft(ethereum: Ethereum, chainId: number, nft: SimpleLa
 			}
 			return toBinary(await signTypedData(ethereum, data))
 		}
-		case "ERC1155":
+		case "ERC1155": {
 			const domain = createEIP712NftDomain(chainId, nft.contract, "ERC1155")
 
 			const data = {
@@ -37,6 +37,10 @@ export async function signNft(ethereum: Ethereum, chainId: number, nft: SimpleLa
 				message: { ...nft, tokenURI: nft.uri },
 			}
 			return toBinary(await signTypedData(ethereum, data))
+		}
+		default: {
+			throw new Error("Unexpected")
+		}
 	}
 }
 
@@ -59,6 +63,9 @@ function createEIP712NftDomain(
 				chainId,
 				verifyingContract: verifyingContract,
 			}
+		}
+		default: {
+			throw new Error("Unexpected")
 		}
 	}
 }

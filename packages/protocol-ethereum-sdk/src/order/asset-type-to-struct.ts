@@ -63,8 +63,10 @@ export function assetTypeToStruct(assetType: AssetType) {
 				data: `0x${encoded.substring(66)}`,
 			}
 		}
+		default: {
+			throw new Error(`Unsupported asset class: ${assetType.assetClass}`)
+		}
 	}
-	throw new Error(`Unsupported asset class: ${assetType.assetClass}`)
 }
 
 const ETH = id("ETH")

@@ -27,5 +27,8 @@ export async function burn(
 				throw new Error(`amount is ${amount}. Amount for burn ERC1155 is required`)
 			}
 		}
+		default: {
+			throw new Error("Unexpected asset class")
+		}
 	}
 }

@@ -40,6 +40,6 @@ export async function approve(
 			const operator = config.erc1155Lazy
 			return approveErc1155(ethereum, contract, owner, operator)
 		}
+		default: return undefined
 	}
-	return undefined
 }

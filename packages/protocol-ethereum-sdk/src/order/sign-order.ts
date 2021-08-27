@@ -32,8 +32,10 @@ export async function signOrder(
 			})
 			return toBinary(signature)
 		}
+		default: {
+			throw new Error(`Unsupported order type: ${order.type}`)
+		}
 	}
-	throw new Error(`Unsupported order type: ${order.type}`)
 }
 
 function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712Domain {

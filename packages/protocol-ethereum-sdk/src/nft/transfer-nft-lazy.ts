@@ -36,5 +36,8 @@ export async function transferNftLazy(
 			const tx = await erc1155Lazy.functionCall("transferFromOrMint", params, from, to, amount).send()
 			return tx.hash
 		}
+		default: {
+			throw new Error("Unexpected")
+		}
 	}
 }

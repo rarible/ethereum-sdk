@@ -42,7 +42,7 @@
     "@rarible/protocol-api-client": "0.1.4",
     "@rarible/types": "0.1.7",
     "@rarible/utils": "0.0.3",
-    "@rarible/eslint-config-ts": "0.0.3",
+    "@rarible/eslint-config-ts": "0.0.4",
     "eslint": "7.32.0",
     "eth-sig-util": "3.0.1",
     "ethereumjs-util": "7.1.0",

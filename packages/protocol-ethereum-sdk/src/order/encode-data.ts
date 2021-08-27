@@ -15,8 +15,10 @@ export function encodeData(data: OrderData, wrongEncode: Boolean = false): [stri
 			}
 			return [id("V1"), encoded]
 		}
+		default: {
+			throw new Error(`Data type not supported: ${data.dataType}`)
+		}
 	}
-	throw new Error(`Data type not supported: ${data.dataType}`)
 }
 
 const DATA_V1_TYPE = {

@@ -24,10 +24,11 @@ export async function checkLazyAssetType(itemApi: NftItemControllerApi, type: As
 							assetClass: "ERC721_LAZY",
 						}
 					}
+					default: return type
 				}
 			}
 			return type
 		}
+		default: return type
 	}
-	return type
 }

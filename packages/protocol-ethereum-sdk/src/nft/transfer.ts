@@ -39,10 +39,15 @@ export async function transfer(
 			return await transferNftLazy(ethereum, signNft, nftItemApi, nftOwnershipApi, asset, toAddress(from), to, amount)
 		} else {
 			switch (checkedAssetType.assetClass) {
-				case "ERC721":
+				case "ERC721": {
 					return transferErc721(ethereum, asset.contract, from, to, asset.tokenId)
-				case "ERC1155":
+				}
+				case "ERC1155": {
 					return transferErc1155(ethereum, asset.contract, from, to, asset.tokenId, amount || "1")
+				}
+				default: {
+					throw new Error(`Address ${from} has not any ownerships of token with Id ${asset.tokenId}`)
+				}
 			}
 		}
 	} else {

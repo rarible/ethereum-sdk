@@ -1,13 +1,21 @@
 import type { Contract, ContractSendMethod } from "web3-eth-contract"
 import type { PromiEvent } from "web3-core"
-import type { Ethereum, EthereumContract, EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
+import type {
+	Ethereum,
+	EthereumContract,
+	EthereumFunctionCall,
+	EthereumSendOptions,
+	EthereumTransaction
+} from "@rarible/ethereum-provider"
+import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
 import { waitForHash } from "./utils/wait-for-hash"
 import type { Web3EthereumConfig } from "./domain"
 import { waitForConfirmation } from "./utils/wait-for-confirmation"
 import { providerRequest } from "./utils/provider-request"
 
 export class Web3Ethereum implements Ethereum {
-	constructor(private readonly config: Web3EthereumConfig) {}
+	constructor(private readonly config: Web3EthereumConfig) {
+	}
 
 	createContract(abi: any, address?: string): EthereumContract {
 		return new Web3Contract(this.config, new this.config.web3.eth.Contract(abi, address))
@@ -29,18 +37,23 @@ export class Web3Ethereum implements Ethereum {
 }
 
 export class Web3Contract implements EthereumContract {
-	constructor(private readonly config: Web3EthereumConfig, private readonly contract: Contract) {}
+	constructor(private readonly config: Web3EthereumConfig, private readonly contract: Contract) {
+	}
 
 	functionCall(name: string, ...args: any): EthereumFunctionCall {
-		return new Web3FunctionCall(this.config, this.contract.methods[name].bind(null, ...args))
+		return new Web3FunctionCall(
+			this.config, this.contract.methods[name].bind(null, ...args), toAddress(this.contract.options.address)
+		)
 	}
 }
 
 export class Web3FunctionCall implements EthereumFunctionCall {
 	constructor(
 		private readonly config: Web3EthereumConfig,
-		private readonly getSendMethod: () => ContractSendMethod
-	) {}
+		private readonly getSendMethod: () => ContractSendMethod,
+		private readonly contract: Address
+	) {
+	}
 
 	call(options: EthereumSendOptions = {}): Promise<any> {
 		return this.getSendMethod().call({
@@ -51,14 +64,22 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 	}
 
 	async send(options: EthereumSendOptions = {}): Promise<EthereumTransaction> {
-		const promiEvent: PromiEvent<any> = this.getSendMethod().send({
-			from: this.config.from || await this.getFrom(),
+		const sendMethod = this.getSendMethod()
+		const from = toAddress(await this.getFrom())
+		const promiEvent: PromiEvent<any> = sendMethod.send({
+			from,
 			gas: this.config.gas || options.gas,
 			value: options.value,
 			gasPrice: options.gasPrice?.toString(),
 		})
 		const hash = await waitForHash(promiEvent)
-		return new Web3Transaction(hash, promiEvent)
+		return new Web3Transaction(
+			promiEvent,
+			toWord(hash),
+			toBinary(sendMethod.encodeABI()),
+			from,
+			this.contract
+		)
 	}
 
 	async getFrom(): Promise<string> {
@@ -72,9 +93,13 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 
 export class Web3Transaction implements EthereumTransaction {
 	constructor(
-		public readonly hash: string,
-		private readonly promiEvent: PromiEvent<any>
-	) {}
+		private readonly promiEvent: PromiEvent<any>,
+		public readonly hash: Word,
+		public readonly data: Binary,
+		public readonly from: Address,
+		public readonly to?: Address
+	) {
+	}
 
 	wait = () => waitForConfirmation(this.promiEvent)
 }

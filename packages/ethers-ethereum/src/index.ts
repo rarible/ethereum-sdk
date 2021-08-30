@@ -7,6 +7,7 @@ import {
 	EthereumSendOptions,
 	EthereumTransaction
 } from "@rarible/ethereum-provider"
+import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
 
 export class EthersEthereum implements Ethereum {
 	constructor(readonly web3Provider: ethers.providers.Web3Provider, readonly from?: string) {}
@@ -58,11 +59,23 @@ export class EthersFunctionCall implements EthereumFunctionCall {
 export class EthersTransaction implements EthereumTransaction {
 	constructor(private readonly tx: TransactionResponse) {}
 
-	get hash(): string {
-		return this.tx.hash
+	get hash(): Word {
+		return toWord(this.tx.hash)
 	}
 
 	async wait(): Promise<void> {
 		await this.tx.wait()
+	}
+
+	get to(): Address | undefined {
+		return this.tx.to ? toAddress(this.tx.to) : undefined
+	}
+
+	get from(): Address {
+		return toAddress(this.tx.from)
+	}
+
+	get data(): Binary {
+		return toBinary(this.tx.data)
 	}
 }

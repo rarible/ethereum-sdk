@@ -8,7 +8,7 @@ import {
 	EthereumTransaction
 } from "@rarible/ethereum-provider"
 import { GetTransactionResponse } from "@rarible/ethereum-provider/src"
-import { encodeParameters } from "./api-coder"
+import { encodeParameters } from "./abi-coder"
 
 export class EthersEthereum implements Ethereum {
 	constructor(readonly web3Provider: ethers.providers.Web3Provider, readonly from?: string) {

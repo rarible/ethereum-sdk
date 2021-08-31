@@ -5,6 +5,7 @@ import { CreateGatewayPendingTransactionsRequest } from "@rarible/protocol-api-c
 import { GatewayControllerApi } from "@rarible/protocol-api-client"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
+import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { createPendingLogs, sendTransaction } from "./send-transaction"
 import { simpleSend } from "./simple-send"
@@ -13,6 +14,7 @@ describe("sendTransaction", () => {
 	const { provider, addresses } = createGanacheProvider()
 	// @ts-ignore
 	const web3 = new Web3(provider)
+	const ethereum = new Web3Ethereum({ web3 })
 	const [testAddress] = addresses
 
 	let testErc20: Contract
@@ -56,7 +58,7 @@ describe("sendTransaction", () => {
 				])
 			},
 		}
-		const logs = await createPendingLogs(api as GatewayControllerApi, web3, hash)
+		const logs = await createPendingLogs(api as GatewayControllerApi, ethereum, hash)
 		expect(logs.length).toBe(1)
 		expect(notified).toBeTruthy()
 		expect(notified!.hash).toBe(tx.hash.toLowerCase())

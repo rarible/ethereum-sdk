@@ -1,6 +1,6 @@
-import { AbiItem } from "web3-utils"
 import { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
 import { Address } from "@rarible/protocol-api-client"
+import { AbiItem } from "../../../common/abi-item"
 
 export function createRaribleTokenContract(ethereum: Ethereum, address?: Address): EthereumContract {
 	return ethereum.createContract(raribleTokenAbi, address)

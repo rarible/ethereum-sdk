@@ -1,3 +1,4 @@
+import { BigNumber } from "ethers"
 import { SignTypedDataMethodEnum, TypedSignatureData } from "./domain"
 
 export interface EthereumTransaction {
@@ -30,6 +31,43 @@ export interface Ethereum {
 	getFrom(): Promise<string>
 
 	personalSign(message: string): Promise<string>
+
+	sha3(string: string): string | null
+
+	encodeParameter(type: any, parameter: any): string
+
+	getTransaction(hash: string): Promise<GetTransactionResponse>
+}
+
+export interface GetTransactionResponse {
+	hash: string
+	nonce: number
+	blockHash?: string | null
+	blockNumber?: number | null
+	transactionIndex?: number | null
+	from: string
+	to?: string | null // - String: Address of the receiver. null if it’s a contract creation transaction.
+	value: BigNumber | string
+	gasPrice?: BigNumber | string
+	gas?: number
+	input?: string
+
+	accessList?: AccessListItem[],
+	chainId?: number,
+	confirmations?: number,
+	creates?: string
+	data?: string
+	gasLimit?: BigNumber,
+	v?: number,
+	r?: string
+	s?: string
+	type?: number | null,
+	wait?: Function
+}
+
+export type AccessListItem = {
+	address: string
+	storageKeys: string[]
 }
 
 export async function signTypedData(ethereum: Ethereum, data: TypedSignatureData) {

@@ -1,9 +1,16 @@
 import { toAddress, toBigNumber, toBinary } from "@rarible/types"
+import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
+import Web3 from "web3"
+import { Web3Ethereum } from "@rarible/web3-ethereum"
+import { provider } from "web3-core"
 import { assetTypeToStruct } from "./asset-type-to-struct"
 
 describe("assetTypeToStruct", () => {
+	const { provider } = createGanacheProvider()
+	const web3 = new Web3(provider as unknown as provider)
+	const ethereum = new Web3Ethereum({ web3 })
 	test("encodes ERC20", () => {
-		const result = assetTypeToStruct({
+		const result = assetTypeToStruct(ethereum, {
 			assetClass: "ERC20",
 			contract: toAddress("0x44953ab2e88391176576d49ca23df0b8acd793be"),
 		})
@@ -14,7 +21,7 @@ describe("assetTypeToStruct", () => {
 	})
 
 	test("encodes ERC721_LAZY", () => {
-		const result = assetTypeToStruct({
+		const result = assetTypeToStruct(ethereum, {
 			assetClass: "ERC721_LAZY",
 			...COMMON_PART,
 		})
@@ -26,7 +33,7 @@ describe("assetTypeToStruct", () => {
 	})
 
 	test("encodes ERC1155_LAZY", () => {
-		const result = assetTypeToStruct({
+		const result = assetTypeToStruct(ethereum, {
 			assetClass: "ERC1155_LAZY",
 			...COMMON_PART,
 			supply: toBigNumber("10"),

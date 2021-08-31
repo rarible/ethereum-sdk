@@ -1,9 +1,8 @@
-import Web3 from "web3"
+import { Ethereum } from "@rarible/ethereum-provider"
 import { toLegacyAssetType } from "./to-legacy-asset-type"
-import { abi } from "./abi"
 import { SimpleOrder } from "./sign-order"
 
-export function hashLegacyOrder(order: SimpleOrder): string {
+export function hashLegacyOrder(ethereum: Ethereum, order: SimpleOrder): string {
 	if (order.type !== "RARIBLE_V1") {
 		throw new Error(`Not supported type: ${order.type}`)
 	}
@@ -27,7 +26,7 @@ export function hashLegacyOrder(order: SimpleOrder): string {
 		sellerFee: data.fee,
 	}
 
-	return Web3.utils.sha3(abi.encodeParameter({ Order: ORDER }, struct)) as string
+	return ethereum.sha3(ethereum.encodeParameter({ Order: ORDER }, struct)) as string
 }
 
 const ASSET = {

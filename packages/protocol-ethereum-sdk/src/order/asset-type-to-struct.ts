@@ -1,8 +1,7 @@
 import { AssetType } from "@rarible/protocol-api-client"
-import { id } from "../common/id"
-import { abi } from "./abi"
+import { Ethereum } from "@rarible/ethereum-provider"
 
-export function assetTypeToStruct(assetType: AssetType) {
+export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 	switch (assetType.assetClass) {
 		case "ETH":
 			return {
@@ -12,12 +11,12 @@ export function assetTypeToStruct(assetType: AssetType) {
 		case "ERC20":
 			return {
 				assetClass: ERC20,
-				data: abi.encodeParameter("address", assetType.contract),
+				data: ethereum.encodeParameter("address", assetType.contract),
 			}
 		case "ERC721":
 			return {
 				assetClass: ERC721,
-				data: abi.encodeParameter(
+				data: ethereum.encodeParameter(
 					{ root: CONTRACT_TOKEN_ID },
 					{ contract: assetType.contract, tokenId: assetType.tokenId }
 				),
@@ -25,13 +24,13 @@ export function assetTypeToStruct(assetType: AssetType) {
 		case "ERC1155":
 			return {
 				assetClass: ERC1155,
-				data: abi.encodeParameter(
+				data: ethereum.encodeParameter(
 					{ root: CONTRACT_TOKEN_ID },
 					{ contract: assetType.contract, tokenId: assetType.tokenId }
 				),
 			}
 		case "ERC721_LAZY": {
-			const encoded = abi.encodeParameter(ERC721_LAZY_TYPE, {
+			const encoded = ethereum.encodeParameter(ERC721_LAZY_TYPE, {
 				contract: assetType.contract,
 				data: {
 					tokenId: assetType.tokenId,
@@ -47,7 +46,7 @@ export function assetTypeToStruct(assetType: AssetType) {
 			}
 		}
 		case "ERC1155_LAZY": {
-			const encoded = abi.encodeParameter(ERC1155_LAZY_TYPE, {
+			const encoded = ethereum.encodeParameter(ERC1155_LAZY_TYPE, {
 				contract: assetType.contract,
 				data: {
 					tokenId: assetType.tokenId,
@@ -69,12 +68,12 @@ export function assetTypeToStruct(assetType: AssetType) {
 	}
 }
 
-const ETH = id("ETH")
-const ERC20 = id("ERC20")
-const ERC721 = id("ERC721")
-const ERC1155 = id("ERC1155")
-const ERC721_LAZY = id("ERC721_LAZY")
-const ERC1155_LAZY = id("ERC1155_LAZY")
+const ETH = "0xaaaebeba" //id("ETH")
+const ERC20 = "0x8ae85d84" //id("ERC20")
+const ERC721 = "0x73ad2146" //id("ERC721")
+const ERC1155 = "0x973bb640" //id("ERC1155")
+const ERC721_LAZY = "0xd8f960c1" //id("ERC721_LAZY")
+const ERC1155_LAZY = "0x1cdfaa40" //id("ERC1155_LAZY")
 
 const CONTRACT_TOKEN_ID = {
 	contract: "address",

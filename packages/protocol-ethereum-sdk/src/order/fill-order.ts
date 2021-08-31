@@ -112,9 +112,9 @@ async function matchOrders(
 	const tx = await exchangeContract
 		.functionCall(
 			"matchOrders",
-			orderToStruct(left),
+			orderToStruct(ethereum, left),
 			left.signature || "0x",
-			orderToStruct(right),
+			orderToStruct(ethereum, right),
 			right.signature || "0x"
 		)
 		.send(options)

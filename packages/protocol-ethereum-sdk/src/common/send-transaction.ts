@@ -36,6 +36,7 @@ export async function createPendingLogs(
 		to: tx.to ? toAddress(tx.to) : undefined,
 		input: toBinary(tx?.input || ""),
 	}
+	// @ts-ignore //todo remove when updates protocol-api-client without nonce param
 	return api.createGatewayPendingTransactions({ createTransactionRequest })
 }
 

@@ -5,8 +5,7 @@ import type {
 	EthereumContract,
 	EthereumFunctionCall,
 	EthereumSendOptions,
-	EthereumTransaction,
-	GetTransactionResponse
+	EthereumTransaction
 } from "@rarible/ethereum-provider"
 import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
 import { waitForHash } from "./utils/wait-for-hash"
@@ -44,8 +43,18 @@ export class Web3Ethereum implements Ethereum {
 		return this.config.web3.eth.abi.encodeParameter(type, parameter)
 	}
 
-	getTransaction(hash: string): Promise<GetTransactionResponse> {
-		return this.config.web3.eth.getTransaction(hash)
+	async getTransaction(hash: Word): Promise<EthereumTransaction> {
+		const txResponse = await this.config.web3.eth.getTransaction(hash)
+		return {
+			input: txResponse.input,
+			from: toAddress(txResponse.from),
+			hash: toWord(txResponse.hash),
+			to: txResponse.to ? toAddress(txResponse.to) : undefined,
+			data: toBinary(""),
+			wait() {
+				return Promise.resolve()
+			},
+		}
 	}
 }
 

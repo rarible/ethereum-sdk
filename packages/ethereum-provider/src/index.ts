@@ -1,8 +1,15 @@
+import { Address, Binary, Word } from "@rarible/types"
 import { BigNumber } from "ethers"
 import { SignTypedDataMethodEnum, TypedSignatureData } from "./domain"
 
 export interface EthereumTransaction {
-	hash: string
+	hash: Word
+
+	from: Address
+
+	to?: Address
+
+	data: Binary
 
 	wait(): Promise<void>
 }

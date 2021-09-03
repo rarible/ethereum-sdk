@@ -1,21 +1,22 @@
 import { AssetType } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
+import { id } from "../common/id"
 
 export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 	switch (assetType.assetClass) {
 		case "ETH":
 			return {
-				assetClass: ETH,
+				assetClass: id(ethereum, "ETH"),
 				data: "0x",
 			}
 		case "ERC20":
 			return {
-				assetClass: ERC20,
+				assetClass: id(ethereum, "ERC20"),
 				data: ethereum.encodeParameter("address", assetType.contract),
 			}
 		case "ERC721":
 			return {
-				assetClass: ERC721,
+				assetClass: id(ethereum, "ERC721"),
 				data: ethereum.encodeParameter(
 					{ root: CONTRACT_TOKEN_ID },
 					{ contract: assetType.contract, tokenId: assetType.tokenId }
@@ -23,7 +24,7 @@ export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 			}
 		case "ERC1155":
 			return {
-				assetClass: ERC1155,
+				assetClass: id(ethereum, "ERC1155"),
 				data: ethereum.encodeParameter(
 					{ root: CONTRACT_TOKEN_ID },
 					{ contract: assetType.contract, tokenId: assetType.tokenId }
@@ -41,7 +42,7 @@ export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 				},
 			})
 			return {
-				assetClass: ERC721_LAZY,
+				assetClass: id(ethereum, "ERC721_LAZY"),
 				data: `0x${encoded.substring(66)}`,
 			}
 		}
@@ -58,7 +59,7 @@ export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 				},
 			})
 			return {
-				assetClass: ERC1155_LAZY,
+				assetClass: id(ethereum, "ERC1155_LAZY"),
 				data: `0x${encoded.substring(66)}`,
 			}
 		}
@@ -67,13 +68,6 @@ export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 		}
 	}
 }
-
-const ETH = "0xaaaebeba" //id("ETH")
-const ERC20 = "0x8ae85d84" //id("ERC20")
-const ERC721 = "0x73ad2146" //id("ERC721")
-const ERC1155 = "0x973bb640" //id("ERC1155")
-const ERC721_LAZY = "0xd8f960c1" //id("ERC721_LAZY")
-const ERC1155_LAZY = "0x1cdfaa40" //id("ERC1155_LAZY")
 
 const CONTRACT_TOKEN_ID = {
 	contract: "address",

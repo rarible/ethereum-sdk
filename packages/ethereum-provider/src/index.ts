@@ -38,7 +38,7 @@ export interface Ethereum {
 
 	personalSign(message: string): Promise<string>
 
-	sha3(string: string): string | null
+	sha3(string: string): string
 
 	encodeParameter(type: any, parameter: any): string
 }

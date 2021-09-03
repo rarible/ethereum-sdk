@@ -37,8 +37,8 @@ export class EthersEthereum implements Ethereum {
 		return this.from
 	}
 
-	sha3(string: string): string | null {
-		return ethers.utils.id(string)
+	sha3(string: string): string {
+		return ethers.utils.keccak256(Buffer.from(string))
 	}
 
 	encodeParameter(type: any, parameter: any): string {

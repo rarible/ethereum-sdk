@@ -35,8 +35,8 @@ export class Web3Ethereum implements Ethereum {
 		return this.config.web3.eth.getAccounts().then(([first]) => first)
 	}
 
-	sha3(string: string): string | null {
-		return this.config.web3.utils.sha3(string)
+	sha3(string: string): string {
+		return this.config.web3.utils.sha3(string)!
 	}
 
 	encodeParameter(type: any, parameter: any): string {

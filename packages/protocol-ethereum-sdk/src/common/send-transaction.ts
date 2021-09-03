@@ -16,6 +16,11 @@ export async function send(
 	options?: EthereumSendOptions
 ): Promise<EthereumTransaction> {
 	const tx = await functionCall.send(options)
+	await createPendingLogs(api, tx)
+	return tx
+}
+
+export async function createPendingLogs(api: GatewayControllerApi, tx: EthereumTransaction) {
 	const createTransactionRequest = {
 		hash: toWord(tx.hash),
 		from: toAddress(tx.from),
@@ -23,8 +28,7 @@ export async function send(
 		input: toBinary(tx.data),
 	}
 	// @ts-ignore //todo remove ts-ignore when updates protocol-api-client without nonce param
-	await api.createGatewayPendingTransactions({ createTransactionRequest })
-	return tx
+	return await api.createGatewayPendingTransactions({ createTransactionRequest })
 }
 
 export async function waitForHash<T>(promiEvent: PromiEvent<T>): Promise<string> {

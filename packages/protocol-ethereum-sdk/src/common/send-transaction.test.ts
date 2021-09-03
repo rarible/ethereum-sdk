@@ -4,10 +4,9 @@ import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types/build/address"
-import { toBinary, toWord } from "@rarible/types"
 import { getTokenId as getTokenIdTemplate } from "../nft/get-token-id"
 import { createMintableTokenContract } from "../nft/contracts/erc721/mintable-token"
-import { send as sendTemplate } from "./send-transaction"
+import { createPendingLogs, send as sendTemplate } from "./send-transaction"
 
 describe("sendTransaction", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -30,14 +29,8 @@ describe("sendTransaction", () => {
 		const { tokenId, signature: { v, r, s } } = await getTokenId(collectionId, minter)
 		const functionCall = testErc721.functionCall("mint", tokenId, v, r, s, [], "uri")
 		const tx = await send(functionCall)
-		const createTransactionRequest = {
-			hash: toWord(tx.hash),
-			from: toAddress(tx.from),
-			to: tx.to ? toAddress(tx.to) : undefined,
-			input: toBinary(tx.data),
-		}
-		// @ts-ignore //todo remove ts-ignore when updates protocol-api-client without nonce param
-		const logs = await gatewayApi.createGatewayPendingTransactions({ createTransactionRequest })
+
+		const logs = await createPendingLogs(gatewayApi, tx)
 		expect(logs).toBeTruthy()
 		expect(tx.from.toLowerCase()).toBe(minter.toLowerCase())
 	})

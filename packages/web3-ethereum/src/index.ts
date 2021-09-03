@@ -8,6 +8,7 @@ import type {
 	EthereumTransaction
 } from "@rarible/ethereum-provider"
 import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
+import { backOff } from "exponential-backoff"
 import { waitForHash } from "./utils/wait-for-hash"
 import type { Web3EthereumConfig } from "./domain"
 import { waitForConfirmation } from "./utils/wait-for-confirmation"
@@ -81,7 +82,12 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 			gasPrice: options.gasPrice?.toString(),
 		})
 		const hash = await waitForHash(promiEvent)
-		const tx = await this.config.web3.eth.getTransaction(hash)
+		const tx = await backOff(() => this.config.web3.eth.getTransaction(hash), {
+			maxDelay: 5000,
+			numOfAttempts: 10,
+			delayFirstAttempt: true,
+			startingDelay: 300,
+		})
 		return new Web3Transaction(
 			promiEvent,
 			toWord(hash),

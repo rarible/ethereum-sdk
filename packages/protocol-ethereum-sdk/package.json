@@ -26,8 +26,7 @@
     "@rarible/ethereum-sdk-test-common": "^0.1.5",
     "@rarible/ethers-ethereum": "^0.1.5",
     "@rarible/test-provider": "0.1.19",
-    "@rarible/web3-ethereum": "^0.1.5",
-    "exponential-backoff": "3.1.0"
+    "@rarible/web3-ethereum": "^0.1.5"
   },
   "devDependencies": {
     "@types/jest": "26.0.24",

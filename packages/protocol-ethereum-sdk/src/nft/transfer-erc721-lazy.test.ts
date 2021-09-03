@@ -2,6 +2,7 @@ import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import {
 	Configuration,
+	GatewayControllerApi,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
@@ -11,6 +12,7 @@ import { randomAddress, toAddress } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
+import { send as sendTemplate } from "../common/send-transaction"
 import { signNft } from "./sign-nft"
 import { mint } from "./mint"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
@@ -26,6 +28,8 @@ describe("transfer Erc721 lazy", () => {
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)
+	const gatewayApi = new GatewayControllerApi(configuration)
+	const send = sendTemplate.bind(null, gatewayApi)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftItemApi, nftCollectionApi)
 
 	const sign = signNft.bind(null, ethereum, 17)
@@ -37,6 +41,7 @@ describe("transfer Erc721 lazy", () => {
 
 		const tokenId = await mint(
 			ethereum,
+			send,
 			sign,
 			nftCollectionApi,
 			nftLazyMintControllerApi, {
@@ -53,6 +58,7 @@ describe("transfer Erc721 lazy", () => {
 
 		await transfer(
 			ethereum,
+			send,
 			sign,
 			checkAssetType,
 			nftItemApi,

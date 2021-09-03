@@ -10,8 +10,6 @@ export interface EthereumTransaction {
 
 	data: Binary
 
-	input?: string
-
 	wait(): Promise<void>
 }
 
@@ -43,8 +41,6 @@ export interface Ethereum {
 	sha3(string: string): string | null
 
 	encodeParameter(type: any, parameter: any): string
-
-	getTransaction(hash: string): Promise<EthereumTransaction>
 }
 
 

@@ -6,7 +6,7 @@ import {
 	NftItemControllerApi,
 	NftOwnershipControllerApi
 } from "@rarible/protocol-api-client"
-import { Ethereum } from "@rarible/ethereum-provider"
+import { Ethereum, EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
 import { toAddress } from "@rarible/types/build/address"
 import { toBn } from "@rarible/utils/build/bn"
@@ -21,6 +21,7 @@ export type TransferAsset = NftAssetType | Erc721AssetType | Erc1155AssetType
 
 export async function transfer(
 	ethereum: Ethereum,
+	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	checkAssetType: CheckAssetTypeFunction,
 	nftItemApi: NftItemControllerApi,
@@ -36,14 +37,21 @@ export async function transfer(
 	if (ownership.status === 200) {
 		const checkedAssetType = await checkAssetType(asset)
 		if (toBn(ownership.value.lazyValue).gt(0)) {
-			return await transferNftLazy(ethereum, signNft, nftItemApi, nftOwnershipApi, asset, toAddress(from), to, amount)
+			return await transferNftLazy(
+				ethereum,
+				send,
+				signNft,
+				nftItemApi,
+				nftOwnershipApi,
+				asset,
+				toAddress(from), to, amount)
 		} else {
 			switch (checkedAssetType.assetClass) {
 				case "ERC721": {
-					return transferErc721(ethereum, asset.contract, from, to, asset.tokenId)
+					return transferErc721(ethereum, send, asset.contract, from, to, asset.tokenId)
 				}
 				case "ERC1155": {
-					return transferErc1155(ethereum, asset.contract, from, to, asset.tokenId, amount || "1")
+					return transferErc1155(ethereum, send, asset.contract, from, to, asset.tokenId, amount || "1")
 				}
 				default: {
 					throw new Error(`Address ${from} has not any ownerships of token with Id ${asset.tokenId}`)

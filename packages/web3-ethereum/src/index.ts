@@ -42,20 +42,6 @@ export class Web3Ethereum implements Ethereum {
 	encodeParameter(type: any, parameter: any): string {
 		return this.config.web3.eth.abi.encodeParameter(type, parameter)
 	}
-
-	async getTransaction(hash: Word): Promise<EthereumTransaction> {
-		const txResponse = await this.config.web3.eth.getTransaction(hash)
-		return {
-			input: txResponse.input,
-			from: toAddress(txResponse.from),
-			hash: toWord(txResponse.hash),
-			to: txResponse.to ? toAddress(txResponse.to) : undefined,
-			data: toBinary(""),
-			wait() {
-				return Promise.resolve()
-			},
-		}
-	}
 }
 
 export class Web3Contract implements EthereumContract {

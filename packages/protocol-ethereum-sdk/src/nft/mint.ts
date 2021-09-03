@@ -8,7 +8,7 @@ import {
 	NftLazyMintControllerApi,
 	Part
 } from "@rarible/protocol-api-client"
-import { Ethereum } from "@rarible/ethereum-provider"
+import { Ethereum, EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { LazyErc721 } from "@rarible/protocol-api-client/build/models/LazyNft"
 import { NftCollection_Features } from "@rarible/protocol-api-client/build/models/NftCollection"
 import { mintOffChain } from "./mint-off-chain"
@@ -52,6 +52,7 @@ export type MintRequest = LazyErc721Request | LazyErc1155Request | LegacyERC721R
 
 export async function mint(
 	ethereum: Ethereum,
+	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	nftLazyMintApi: NftLazyMintControllerApi,
@@ -62,19 +63,19 @@ export async function mint(
 		if (dataLazy.lazy) {
 			return await mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, dataLazy)
 		} else {
-			return await mintErc721New(ethereum, signNft, nftCollectionApi, dataLazy)
+			return await mintErc721New(ethereum, send, signNft, nftCollectionApi, dataLazy)
 		}
 	} else if (isLazyErc1155Collection(data.collection)) {
 		const dataLazy = data as LazyErc1155Request
 		if (dataLazy.lazy) {
 			return await mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, dataLazy)
 		} else {
-			return await mintErc1155New(ethereum, signNft, nftCollectionApi, dataLazy)
+			return await mintErc1155New(ethereum, send, signNft, nftCollectionApi, dataLazy)
 		}
 	} else if (isLegacyErc721Collection(data.collection)) {
-		return await mintErc721Legacy(ethereum, signNft, nftCollectionApi, data as LegacyERC721Request)
+		return await mintErc721Legacy(ethereum, send, signNft, nftCollectionApi, data as LegacyERC721Request)
 	} else if (isLegacyErc1155Collection(data.collection)) {
-		return await mintErc1155Legacy(ethereum, signNft, nftCollectionApi, data as LegacyERC1155Request)
+		return await mintErc1155Legacy(ethereum, send, signNft, nftCollectionApi, data as LegacyERC1155Request)
 	} else {
 		throw new Error("Mint request is not correct")
 	}

@@ -4,6 +4,7 @@ import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import {
 	Configuration,
+	GatewayControllerApi,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
 	NftLazyMintControllerApi
@@ -11,6 +12,7 @@ import {
 import { retry } from "../common/retry"
 import { mint } from "../nft/mint"
 import { signNft } from "../nft/sign-nft"
+import { send as sendTemplate } from "../common/send-transaction"
 import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
 
 describe("check-asset-type test", function () {
@@ -24,11 +26,13 @@ describe("check-asset-type test", function () {
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)
+	const gatewayApi = new GatewayControllerApi(configuration)
 	const sign = signNft.bind(null, ethereum, 17)
+	const send = sendTemplate.bind(null, gatewayApi)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftItemApi, nftCollectionApi)
 
 	test("should set assetClass if type not present", async () => {
-		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
+		const tokenId = await mint(ethereum, send, sign, nftCollectionApi, nftLazyMintApi, {
 			collection: { id: e2eErc721ContractAddress, type: "ERC721", supportsLazyMint: true },
 			uri: "uri",
 			creators: [{ account: from, value: 10000 }],
@@ -47,7 +51,7 @@ describe("check-asset-type test", function () {
 	}, 50000)
 
 	test("should leave as is if assetClass present", async () => {
-		const tokenId = await mint(ethereum, sign, nftCollectionApi, nftLazyMintApi, {
+		const tokenId = await mint(ethereum, send, sign, nftCollectionApi, nftLazyMintApi, {
 			collection: {
 				id: toAddress(e2eErc721ContractAddress),
 				type: "ERC721",

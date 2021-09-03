@@ -2,7 +2,7 @@ import { Asset, OrderControllerApi, OrderForm, Part } from "@rarible/protocol-ap
 import { Address, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { ActionBuilder } from "@rarible/action"
 import { toBn } from "@rarible/utils/build/bn"
-import { Ethereum, EthereumSendOptions } from "@rarible/ethereum-provider"
+import { Ethereum, EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types/build/address"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { ExchangeAddresses } from "../config/type"
@@ -28,6 +28,7 @@ export type FillOrderStageId = "approve" | "send-tx"
 export async function fillOrder(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
+	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
 	orderApi: OrderControllerApi,
 	approve: ApproveFunction,
 	config: ExchangeAddresses,
@@ -43,7 +44,7 @@ export async function fillOrder(
 	}
 	return ActionBuilder.create({ id: "approve" as const, run: () => approveAndWait() }).thenStage({
 		id: "send-tx" as const,
-		run: () => fillOrderSendTx(getMakeFee, ethereum, config, orderApi, order, request),
+		run: () => fillOrderSendTx(getMakeFee, ethereum, send, config, orderApi, order, request),
 	})
 }
 
@@ -56,6 +57,7 @@ function getMakeAssetV2(getMakeFee: GetMakeFeeFunction, order: SimpleOrder, amou
 export async function fillOrderSendTx(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
+	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
 	config: ExchangeAddresses,
 	orderApi: OrderControllerApi,
 	order: SimpleOrder,
@@ -63,10 +65,10 @@ export async function fillOrderSendTx(
 ): Promise<string> {
 	switch (order.type) {
 		case "RARIBLE_V1": {
-			return await fillOrderV1(ethereum, orderApi, config.v1, order, request)
+			return await fillOrderV1(ethereum, send, orderApi, config.v1, order, request)
 		}
 		case "RARIBLE_V2": {
-			return await fillOrderV2(getMakeFee, ethereum, config.v2, order, request)
+			return await fillOrderV2(getMakeFee, ethereum, send, config.v2, order, request)
 		}
 		default: {
 			throw new Error(`Unsupported type: ${order.type}`)
@@ -77,6 +79,7 @@ export async function fillOrderSendTx(
 async function fillOrderV2(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
+	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
 	contract: Address,
 	order: SimpleOrder,
 	request: FillOrderRequest
@@ -90,12 +93,13 @@ async function fillOrderV2(
 			originFees: request.originFees || [],
 		},
 	}
-	return await matchOrders(getMakeFee, ethereum, contract, order, orderRight)
+	return await matchOrders(getMakeFee, ethereum, send, contract, order, orderRight)
 }
 
 async function matchOrders(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
+	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
 	contract: Address,
 	left: SimpleOrder,
 	right: SimpleOrder
@@ -109,20 +113,20 @@ async function matchOrders(
 	} else {
 		options = {}
 	}
-	const tx = await exchangeContract
+	const tx = await send(exchangeContract
 		.functionCall(
 			"matchOrders",
 			orderToStruct(ethereum, left),
 			left.signature || "0x",
 			orderToStruct(ethereum, right),
 			right.signature || "0x"
-		)
-		.send(options)
+		), options)
 	return tx.hash
 }
 
 async function fillOrderV1(
 	ethereum: Ethereum,
+	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
 	orderApi: OrderControllerApi,
 	contract: Address,
 	order: SimpleOrder,
@@ -153,8 +157,11 @@ async function fillOrderV1(
 		options = {}
 	}
 
-	const exchangeContract = createExchangeV1Contract(ethereum, contract)
-	const tx = await exchangeContract
+	const exchangeContract = createExchangeV1Contract(
+		ethereum,
+		contract
+	)
+	const tx = await send(exchangeContract
 		.functionCall(
 			"exchange",
 			toStructLegacyOrder(order),
@@ -163,8 +170,7 @@ async function fillOrderV1(
 			toVrs(buyerFeeSig),
 			orderRight.take.value,
 			getSingleBuyer(request.payouts)
-		)
-		.send(options)
+		), options)
 	return tx.hash
 }
 

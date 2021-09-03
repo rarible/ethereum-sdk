@@ -44,10 +44,6 @@ export class EthersEthereum implements Ethereum {
 	encodeParameter(type: any, parameter: any): string {
 		return encodeParameters([type], [parameter])
 	}
-
-	async getTransaction(hash: Word): Promise<EthereumTransaction> {
-		return new EthersTransaction(await this.web3Provider.getTransaction(hash))
-	}
 }
 
 export class EthersContract implements EthereumContract {

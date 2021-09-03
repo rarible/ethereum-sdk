@@ -2,8 +2,10 @@ import { randomAddress, toAddress } from "@rarible/types"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
+import { Configuration, GatewayControllerApi } from "@rarible/protocol-api-client"
 import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
 import { awaitAll } from "../common/await-all"
+import { send as sendTemplate } from "../common/send-transaction"
 import { transferErc1155 } from "./transfer-erc1155"
 
 describe("transfer Erc1155", () => {
@@ -12,6 +14,10 @@ describe("transfer Erc1155", () => {
 	const ethereum = new Web3Ethereum({ web3, gas: 500000 })
 	const [from] = addresses
 	const to = randomAddress()
+
+	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
+	const gatewayApi = new GatewayControllerApi(configuration)
+	const send = sendTemplate.bind(null, gatewayApi)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3, "TST"),
@@ -25,7 +31,7 @@ describe("transfer Erc1155", () => {
 		const senderBalance: string = await it.testErc1155.methods.balanceOf(from, token1Id).call()
 		expect(senderBalance === token1Balance).toBeTruthy()
 
-		const hash = await transferErc1155(ethereum, toAddress(it.testErc1155.options.address), from, to, token1Id, "5")
+		const hash = await transferErc1155(ethereum, send, toAddress(it.testErc1155.options.address), from, to, token1Id, "5")
 		expect(!!hash).toBeTruthy()
 
 		const senderResultBalance: string = await it.testErc1155.methods.balanceOf(from, token1Id).call()
@@ -61,6 +67,7 @@ describe("transfer Erc1155", () => {
 
 		const hash = await transferErc1155(
 			ethereum,
+			send,
 			toAddress(it.testErc1155.options.address),
 			from,
 			to,
@@ -83,38 +90,37 @@ describe("transfer Erc1155", () => {
 		expect(resultToken4Balances).toEqual(["0", "300"])
 	})
 
-	test(`the transferErc1155 should throw error,
-    because the length of identifiers and quantities,
-    the parameters of the sum do not match`,
-	async () => {
-		const [token2Id, token3Id]: string[] = [
-			from + "b00000000000000000000005",
-			from + "b00000000000000000000006",
-		]
-		const [token2Balance, token3Balance]: string[] = ["100", "100"]
-		await it.testErc1155.methods.mint(from, token2Id, token2Balance, "123").send({ from: from, gas: 200000 })
-		await it.testErc1155.methods.mint(from, token3Id, token3Balance, "123").send({ from: from, gas: 200000 })
+	test("the transferErc1155 should throw error, because the length of identifiers and quantities, the parameters of the sum do not match",
+		async () => {
+			const [token2Id, token3Id]: string[] = [
+				from + "b00000000000000000000005",
+				from + "b00000000000000000000006",
+			]
+			const [token2Balance, token3Balance]: string[] = ["100", "100"]
+			await it.testErc1155.methods.mint(from, token2Id, token2Balance, "123").send({ from: from, gas: 200000 })
+			await it.testErc1155.methods.mint(from, token3Id, token3Balance, "123").send({ from: from, gas: 200000 })
 
-		const [
-			token2Balances,
-			token3Balances,
-		] = [
-			await it.testErc1155.methods.balanceOfBatch([from, to], [token2Id, token2Id]).call(),
-			await it.testErc1155.methods.balanceOfBatch([from, to], [token3Id, token3Id]).call(),
-		]
-		expect(token2Balances).toEqual(["100", "0"])
-		expect(token3Balances).toEqual(["100", "0"])
-		expect.assertions(3)
-		try {
-			await transferErc1155(
-				ethereum,
-				toAddress(it.testErc1155.options.address),
-				from,
-				to,
-				[token2Id, token3Id],
-				["50", "50", "10"])
-		} catch (e) {
-			expect(e.message).toEqual("Length of token amounts and token id's isn't equal")
-		}
-	})
+			const [
+				token2Balances,
+				token3Balances,
+			] = [
+				await it.testErc1155.methods.balanceOfBatch([from, to], [token2Id, token2Id]).call(),
+				await it.testErc1155.methods.balanceOfBatch([from, to], [token3Id, token3Id]).call(),
+			]
+			expect(token2Balances).toEqual(["100", "0"])
+			expect(token3Balances).toEqual(["100", "0"])
+			expect.assertions(3)
+			try {
+				await transferErc1155(
+					ethereum,
+					send,
+					toAddress(it.testErc1155.options.address),
+					from,
+					to,
+					[token2Id, token3Id],
+					["50", "50", "10"])
+			} catch (e) {
+				expect(e.message).toEqual("Length of token amounts and token id's isn't equal")
+			}
+		})
 })

@@ -81,10 +81,12 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 			gasPrice: options.gasPrice?.toString(),
 		})
 		const hash = await waitForHash(promiEvent)
+		const tx = await this.config.web3.eth.getTransaction(hash)
 		return new Web3Transaction(
 			promiEvent,
 			toWord(hash),
 			toBinary(sendMethod.encodeABI()),
+			tx.nonce,
 			from,
 			this.contract
 		)
@@ -104,6 +106,7 @@ export class Web3Transaction implements EthereumTransaction {
 		private readonly promiEvent: PromiEvent<any>,
 		public readonly hash: Word,
 		public readonly data: Binary,
+		public readonly nonce: number,
 		public readonly from: Address,
 		public readonly to?: Address
 	) {

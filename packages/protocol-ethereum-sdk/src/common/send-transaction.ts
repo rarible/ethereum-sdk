@@ -25,8 +25,8 @@ export async function createPendingLogs(api: GatewayControllerApi, tx: EthereumT
 		from: toAddress(tx.from),
 		to: tx.to ? toAddress(tx.to) : undefined,
 		input: toBinary(tx.data),
+		nonce: tx.nonce,
 	}
-	// @ts-ignore //todo remove ts-ignore when updates protocol-api-client without nonce param
 	return await api.createGatewayPendingTransactions({ createTransactionRequest })
 }
 

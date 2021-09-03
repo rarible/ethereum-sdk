@@ -10,6 +10,8 @@ export interface EthereumTransaction {
 
 	data: Binary
 
+	nonce: number
+
 	wait(): Promise<void>
 }
 

@@ -91,4 +91,8 @@ export class EthersTransaction implements EthereumTransaction {
 	get data(): Binary {
 		return toBinary(this.tx.data)
 	}
+
+	get nonce(): number {
+		return this.tx.nonce
+	}
 }

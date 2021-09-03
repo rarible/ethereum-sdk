@@ -10,10 +10,13 @@ mpn install -D @rarible/protocol-ethereum-sdk
 
 ### With protocol-ethereum-sdk, you can:
 
-- Create Lazy Mint NFT ERC721 and ERC1155 tokens
 - Create sell orders
 - Create/accept bid for auctions
 - Buy tokens for regular sell orders
+- Create Lazy Mint NFT ERC721 and ERC1155 tokens
+- Make regular mint
+- Transfer tokens
+- Burn tokens
 
 ### Usage
 
@@ -30,25 +33,6 @@ const sdk = createRaribleSdk(web3, env, { fetchApi: fetch })
 - web3 - configured with your provider [web3js](https://github.com/ChainSafe/web3.js/tree/v1.4.0) client
 - env - environment configuration name, it should accept one of these values
   ``` 'ropsten' | 'rinkeby' | 'mainnet' | 'e2e'```
-
-#### Lazy Mint NFT Tokens
-
-Creates lazy mint NFT
-
-```typescript
-
-const item = await sdk.nft.mintLazy({
-	"@type": "ERC721", // type of token to mint
-	contract: "0x0", // lazy mint contract contract address
-	uri: '//testUri', // token URI
-	creators: [{ account: "0x0", value: 10000 }], // array of creators object
-	royalties: [], // array of royalties
-})
-```
-
-Return minted item object.
-
-[Sell e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/lazy-mint.test.ts)
 
 #### Create sell order
 
@@ -136,6 +120,140 @@ sdk.order.fill(
 For example, you can get the `order` object using our sdk api methods `sdk.apis.order.getSellOrders({})` and pass it
 to `fill` function. You can get more information in the test
 repository [sell e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/erc721-sale.test.ts)
+
+#### Mint NFT Tokens
+
+There are support two ways of minting ERC721 and ERC1155 tokens:
+
+1. Regular "on chain" minting using contract.
+2. Off chain minting (the transaction itself and payment for gas occurs at the time of purchase or transfer)
+
+Mint request object
+
+```typescript
+const mintRequest = {
+	collection: {
+		id: toAddress(contractAddress), // contract address
+		type: "ERC1155", // type of asset to mint, "ERC721" || "ERC1155"
+		supportsLazyMint: true, // true if contract supports lazy minting  
+	},
+	uri: 'uri', // token uri
+	supply: toBigNumber('100'), // supply - used only for ERC1155 tokens
+	creators: [{ account: toAddress(minter), value: 10000 }], // creators of token
+	royalties: [], // royalties
+	lazy: true, // true if mint lazy or false when mint onchain
+}
+```
+
+### Mint examples
+
+Mint function always return tokenId as string
+
+#### ERC721 Lazy
+
+```typescript
+const tokenId = await mint({
+	collection: {
+		id: toAddress(contractAddress),
+		type: "ERC721",
+		supportsLazyMint: true,
+	},
+	uri: 'uri',
+	creators: [{ account: toAddress(minter), value: 10000 }],
+	royalties: [],
+	lazy: true,
+})
+```
+
+#### ERC1155 Lazy
+
+```typescript
+const tokenId = await mint({
+	collection: {
+		id: toAddress(contractAddress),
+		type: "ERC1155",
+		supportsLazyMint: true,
+	},
+	uri: 'uri',
+	supply: toBigNumber('100'),
+	creators: [{ account: toAddress(minter), value: 10000 }],
+	royalties: [],
+	lazy: true,
+})
+```
+
+#### ERC721
+
+```typescript
+await mint({
+	collection: {
+		id: toAddress(contractAddress),
+		type: "ERC721",
+		supportsLazyMint: true,
+	},
+	uri: 'uri',
+	creators: [{ account: toAddress(minter), value: 10000 }],
+	royalties: [],
+})
+```
+
+#### ERC1155
+
+```typescript
+const tokenId = await mint({
+	collection: {
+		id: toAddress(contractAddress),
+		type: "ERC1155",
+		supportsLazyMint: true,
+	},
+	uri: 'uri',
+	supply: toBigNumber('100'),
+	creators: [{ account: toAddress(minter), value: 10000 }],
+	royalties: [],
+})
+```
+
+[Mint e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/lazy-mint.test.ts)
+
+#### Transfer
+
+```
+transfer(asset, to[, amount])
+
+Transfer request params:
+
+asset: {
+    tokenId: BigNumber, // - id of token to transfer
+    contract: Address, // - address of token contract
+    assetClass?: "ERC721" | "ERC1155" // - not required, type of asset
+}
+to: Address, // - ethereum address of receiver of token
+amount: BigNumber // - amount of asset to transfer, used only for ERC1155 assets
+```
+
+Example
+
+```typescript
+const hash = await sdk.nft.transfer(
+	{
+		assetClass: "ERC1155",
+		contract: toAddress(contractAddress),
+		tokenId: toBigNumber(tokenId),
+	},
+	receiverAddress,
+	toAddress('10')
+)
+
+```
+
+#### Burn
+
+```typescript
+const hash = await sdk.nft.burn({
+	contract: contractAddress,
+	tokenId: toBigNumber(tokenId),
+})
+```
 
 ### Suggestions
 

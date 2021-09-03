@@ -1,6 +1,7 @@
-import { Ethereum, EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
+import { Ethereum } from "@rarible/ethereum-provider"
 import { Binary, NftCollectionControllerApi } from "@rarible/protocol-api-client"
 import { toAddress } from "@rarible/types"
+import { SendFunction } from "../common/send-transaction"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
 import { SimpleLazyNft } from "./sign-nft"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
@@ -11,7 +12,7 @@ import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
 
 export async function mintErc721Legacy(
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	data: LegacyERC721Request
@@ -25,7 +26,7 @@ export async function mintErc721Legacy(
 
 export async function mintErc721New(
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	data: LazyErc721Request
@@ -61,7 +62,7 @@ export async function mintErc721New(
 
 export async function mintErc1155Legacy(
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	data: LegacyERC1155Request
@@ -75,7 +76,7 @@ export async function mintErc1155Legacy(
 
 export async function mintErc1155New(
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	data: LazyErc1155Request

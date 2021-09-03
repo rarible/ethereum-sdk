@@ -8,9 +8,10 @@ import {
 	NftLazyMintControllerApi,
 	Part
 } from "@rarible/protocol-api-client"
-import { Ethereum, EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
+import { Ethereum } from "@rarible/ethereum-provider"
 import { LazyErc721 } from "@rarible/protocol-api-client/build/models/LazyNft"
 import { NftCollection_Features } from "@rarible/protocol-api-client/build/models/NftCollection"
+import { SendFunction } from "../common/send-transaction"
 import { mintOffChain } from "./mint-off-chain"
 import { mintErc1155Legacy, mintErc1155New, mintErc721Legacy, mintErc721New } from "./mint-on-chain"
 import { SimpleLazyNft } from "./sign-nft"
@@ -52,7 +53,7 @@ export type MintRequest = LazyErc721Request | LazyErc1155Request | LegacyERC721R
 
 export async function mint(
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	nftLazyMintApi: NftLazyMintControllerApi,

@@ -2,10 +2,11 @@ import { Asset, OrderControllerApi, OrderForm, Part } from "@rarible/protocol-ap
 import { Address, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { ActionBuilder } from "@rarible/action"
 import { toBn } from "@rarible/utils/build/bn"
-import { Ethereum, EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
+import { Ethereum, EthereumSendOptions } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types/build/address"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { ExchangeAddresses } from "../config/type"
+import { SendFunction } from "../common/send-transaction"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import { orderToStruct, SimpleOrder } from "./sign-order"
 import { invertOrder } from "./invert-order"
@@ -28,7 +29,7 @@ export type FillOrderStageId = "approve" | "send-tx"
 export async function fillOrder(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	orderApi: OrderControllerApi,
 	approve: ApproveFunction,
 	config: ExchangeAddresses,
@@ -57,7 +58,7 @@ function getMakeAssetV2(getMakeFee: GetMakeFeeFunction, order: SimpleOrder, amou
 export async function fillOrderSendTx(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	config: ExchangeAddresses,
 	orderApi: OrderControllerApi,
 	order: SimpleOrder,
@@ -79,7 +80,7 @@ export async function fillOrderSendTx(
 async function fillOrderV2(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	contract: Address,
 	order: SimpleOrder,
 	request: FillOrderRequest
@@ -99,7 +100,7 @@ async function fillOrderV2(
 async function matchOrders(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	contract: Address,
 	left: SimpleOrder,
 	right: SimpleOrder
@@ -126,7 +127,7 @@ async function matchOrders(
 
 async function fillOrderV1(
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	orderApi: OrderControllerApi,
 	contract: Address,
 	order: SimpleOrder,

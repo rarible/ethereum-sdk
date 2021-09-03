@@ -1,10 +1,11 @@
 import { Address } from "@rarible/protocol-api-client"
-import { Ethereum, EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
+import { Ethereum } from "@rarible/ethereum-provider"
 import { createErc1155Contract } from "../order/contracts/erc1155"
+import { SendFunction } from "../common/send-transaction"
 
 export async function transferErc1155(
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	contract: Address,
 	from: Address,
 	to: Address,
@@ -24,7 +25,7 @@ export async function transferErc1155(
 
 async function sendTransaction(
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	contract: Address,
 	from: Address,
 	to: Address,

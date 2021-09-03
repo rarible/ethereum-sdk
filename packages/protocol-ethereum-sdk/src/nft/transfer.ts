@@ -6,12 +6,13 @@ import {
 	NftItemControllerApi,
 	NftOwnershipControllerApi
 } from "@rarible/protocol-api-client"
-import { Ethereum, EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
+import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
 import { toAddress } from "@rarible/types/build/address"
 import { toBn } from "@rarible/utils/build/bn"
 import { CheckAssetTypeFunction, NftAssetType } from "../order/check-asset-type"
 import { getOwnershipId } from "../common/get-ownership-id"
+import { SendFunction } from "../common/send-transaction"
 import { transferErc721 } from "./transfer-erc721"
 import { transferErc1155 } from "./transfer-erc1155"
 import { SimpleLazyNft } from "./sign-nft"
@@ -21,7 +22,7 @@ export type TransferAsset = NftAssetType | Erc721AssetType | Erc1155AssetType
 
 export async function transfer(
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	checkAssetType: CheckAssetTypeFunction,
 	nftItemApi: NftItemControllerApi,

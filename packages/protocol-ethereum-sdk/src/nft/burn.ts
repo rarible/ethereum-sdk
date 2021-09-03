@@ -1,12 +1,13 @@
-import { Ethereum, EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
+import { Ethereum } from "@rarible/ethereum-provider"
 import { Erc1155AssetType, Erc721AssetType } from "@rarible/protocol-api-client"
 import { CheckAssetTypeFunction, NftAssetType } from "../order/check-asset-type"
+import { SendFunction } from "../common/send-transaction"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
 
 export async function burn(
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	checkAssetType: CheckAssetTypeFunction,
 	asset: Erc721AssetType | Erc1155AssetType | NftAssetType,
 	amount?: number

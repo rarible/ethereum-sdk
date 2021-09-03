@@ -1,6 +1,7 @@
 import { Address, Binary, NftItemControllerApi, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
-import { Ethereum, EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
+import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
+import { SendFunction } from "../common/send-transaction"
 import { SimpleLazyNft } from "./sign-nft"
 import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
@@ -8,7 +9,7 @@ import { TransferAsset } from "./transfer"
 
 export async function transferNftLazy(
 	ethereum: Ethereum,
-	send: (functionCall: EthereumFunctionCall, options?: EthereumSendOptions) => Promise<EthereumTransaction>,
+	send: SendFunction,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftItemApi: NftItemControllerApi,
 	nftOwnershipApi: NftOwnershipControllerApi,

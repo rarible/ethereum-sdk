@@ -4,6 +4,7 @@ import {
 	ConfigurationParameters,
 	Erc1155AssetType,
 	Erc721AssetType,
+	GatewayControllerApi,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
@@ -31,6 +32,7 @@ import { transfer as transferTemplate, TransferAsset } from "./nft/transfer"
 import { signNft as signNftTemplate } from "./nft/sign-nft"
 import { getMakeFee as getMakeFeeTemplate } from "./order/get-make-fee"
 import { burn as burnTemplate } from "./nft/burn"
+import { send as sendTemplate } from "./common/send-transaction"
 
 export interface RaribleApis {
 	nftItem: NftItemControllerApi
@@ -103,15 +105,9 @@ export function createRaribleSdk(
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(apiConfiguration)
 	const orderControllerApi = new OrderControllerApi(apiConfiguration)
 	const orderActivitiesControllerApi = new OrderActivityControllerApi(apiConfiguration)
-	// const gatewayControllerApi = new GatewayControllerApi(apiConfiguration)
+	const gatewayControllerApi = new GatewayControllerApi(apiConfiguration)
 
-	// @ts-ignore
-	// const notify = createPendingLogs.bind(null, gatewayControllerApi, ethereum)
-
-	//todo we should notify API about pending tx
-	// const sendTx = partialCall(sendTransaction, async hash => {
-	// 	await notify(hash)
-	// })
+	const send = partialCall(sendTemplate, gatewayControllerApi)
 
 	const checkLazyAssetType = partialCall(checkLazyAssetTypeTemplate, nftItemControllerApi)
 	const checkLazyAsset = partialCall(checkLazyAssetTemplate, checkLazyAssetType)
@@ -132,14 +128,14 @@ export function createRaribleSdk(
 	)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
-	const fill = partialCall(fillOrder, getMakeFee, ethereum, orderControllerApi, approve, config.exchange)
+	const fill = partialCall(fillOrder, getMakeFee, ethereum, send, orderControllerApi, approve, config.exchange)
 
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
-	const mint = partialCall(mintTemplate, ethereum, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
+	const mint = partialCall(mintTemplate, ethereum, send, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
 	const transfer = partialCall(
-		transferTemplate, ethereum, signNft, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi
+		transferTemplate, ethereum, send, signNft, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi
 	)
-	const burn = partialCall(burnTemplate, ethereum, checkAssetType)
+	const burn = partialCall(burnTemplate, ethereum, send, checkAssetType)
 
 	return {
 		apis: {

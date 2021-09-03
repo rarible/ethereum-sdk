@@ -4,11 +4,13 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types/build/address"
 import {
 	Configuration,
+	GatewayControllerApi,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
 	NftLazyMintControllerApi
 } from "@rarible/protocol-api-client"
-import { toBigNumber } from "@rarible/types/build/big-number"
+import { toBigNumber } from "@rarible/types"
+import { send as sendTemplate } from "../common/send-transaction"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { signNft } from "./sign-nft"
 import { mint as mintTemplate } from "./mint"
@@ -27,9 +29,11 @@ describe("mint test", () => {
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)
-
+	const gatewayApi = new GatewayControllerApi(configuration)
+	const send = sendTemplate.bind(null, gatewayApi)
 	const sign = signNft.bind(null, ethereum, 17)
-	const mint = mintTemplate.bind(null, ethereum, sign, nftCollectionApi, nftLazyMintApi)
+	const mintHalfBind = mintTemplate.bind(null, ethereum, send, sign, nftCollectionApi)
+	const mint = mintHalfBind.bind(null, nftLazyMintApi)
 
 	const e2eErc721ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 	const e2eErc1155ContractAddress = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")

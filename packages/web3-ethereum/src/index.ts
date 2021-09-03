@@ -8,6 +8,7 @@ import type {
 	EthereumTransaction
 } from "@rarible/ethereum-provider"
 import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
+import { backOff } from "exponential-backoff"
 import { waitForHash } from "./utils/wait-for-hash"
 import type { Web3EthereumConfig } from "./domain"
 import { waitForConfirmation } from "./utils/wait-for-confirmation"
@@ -33,6 +34,14 @@ export class Web3Ethereum implements Ethereum {
 	async getFrom(): Promise<string> {
 		if (this.config.from) return this.config.from
 		return this.config.web3.eth.getAccounts().then(([first]) => first)
+	}
+
+	sha3(string: string): string {
+		return this.config.web3.utils.sha3(string)!
+	}
+
+	encodeParameter(type: any, parameter: any): string {
+		return this.config.web3.eth.abi.encodeParameter(type, parameter)
 	}
 }
 
@@ -73,10 +82,17 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 			gasPrice: options.gasPrice?.toString(),
 		})
 		const hash = await waitForHash(promiEvent)
+		const tx = await backOff(() => this.config.web3.eth.getTransaction(hash), {
+			maxDelay: 5000,
+			numOfAttempts: 10,
+			delayFirstAttempt: true,
+			startingDelay: 300,
+		})
 		return new Web3Transaction(
 			promiEvent,
 			toWord(hash),
 			toBinary(sendMethod.encodeABI()),
+			tx.nonce,
 			from,
 			this.contract
 		)
@@ -96,6 +112,7 @@ export class Web3Transaction implements EthereumTransaction {
 		private readonly promiEvent: PromiEvent<any>,
 		public readonly hash: Word,
 		public readonly data: Binary,
+		public readonly nonce: number,
 		public readonly from: Address,
 		public readonly to?: Address
 	) {

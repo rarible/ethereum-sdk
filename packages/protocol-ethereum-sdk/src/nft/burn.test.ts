@@ -4,12 +4,14 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
 import {
 	Configuration,
+	GatewayControllerApi,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
 	NftLazyMintControllerApi
 } from "@rarible/protocol-api-client"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
+import { send as sendTemplate } from "../common/send-transaction"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
 import { mint as mintTemplate } from "./mint"
 import { signNft } from "./sign-nft"
@@ -26,11 +28,13 @@ describe("burn nft's", () => {
 	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
 	const collectionApi = new NftCollectionControllerApi(configuration)
 	const mintLazyApi = new NftLazyMintControllerApi(configuration)
+	const gatewayApi = new GatewayControllerApi(configuration)
 	const sign = signNft.bind(null, ethereum, 17)
-	const mint = mintTemplate.bind(null, ethereum, sign, collectionApi, mintLazyApi)
-
+	const send = sendTemplate.bind(ethereum, gatewayApi)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, new NftItemControllerApi(configuration), collectionApi)
-	const burn = burnTemplate.bind(null, ethereum, checkAssetType)
+	const mint = mintTemplate.bind(null, ethereum, send, sign, collectionApi)
+	const burn = burnTemplate.bind(null, ethereum, send, checkAssetType)
+
 
 	const contractErc721 = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
 	const contractErc1155 = toAddress("0x8812cFb55853da0968a02AaaEA84CD93EC4b42A1")
@@ -39,7 +43,7 @@ describe("burn nft's", () => {
 
 
 	test("should burn ERC721 legacy token", async () => {
-		const tokenId = await mint({
+		const tokenId = await mint(mintLazyApi, {
 			collection: { id: contractErc721, type: "ERC721", supportsLazyMint: false },
 			uri: "//test",
 			royalties: [],
@@ -57,7 +61,7 @@ describe("burn nft's", () => {
 	})
 
 	test("should burn ERC1155 legacy token", async () => {
-		const tokenId = await mint({
+		const tokenId = await mint(mintLazyApi, {
 			collection: { id: contractErc1155, type: "ERC1155", supportsLazyMint: false },
 			uri: "//test",
 			royalties: [],

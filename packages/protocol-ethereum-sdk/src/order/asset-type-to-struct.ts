@@ -1,37 +1,37 @@
 import { AssetType } from "@rarible/protocol-api-client"
+import { Ethereum } from "@rarible/ethereum-provider"
 import { id } from "../common/id"
-import { abi } from "./abi"
 
-export function assetTypeToStruct(assetType: AssetType) {
+export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 	switch (assetType.assetClass) {
 		case "ETH":
 			return {
-				assetClass: ETH,
+				assetClass: id(ethereum, "ETH"),
 				data: "0x",
 			}
 		case "ERC20":
 			return {
-				assetClass: ERC20,
-				data: abi.encodeParameter("address", assetType.contract),
+				assetClass: id(ethereum, "ERC20"),
+				data: ethereum.encodeParameter("address", assetType.contract),
 			}
 		case "ERC721":
 			return {
-				assetClass: ERC721,
-				data: abi.encodeParameter(
+				assetClass: id(ethereum, "ERC721"),
+				data: ethereum.encodeParameter(
 					{ root: CONTRACT_TOKEN_ID },
 					{ contract: assetType.contract, tokenId: assetType.tokenId }
 				),
 			}
 		case "ERC1155":
 			return {
-				assetClass: ERC1155,
-				data: abi.encodeParameter(
+				assetClass: id(ethereum, "ERC1155"),
+				data: ethereum.encodeParameter(
 					{ root: CONTRACT_TOKEN_ID },
 					{ contract: assetType.contract, tokenId: assetType.tokenId }
 				),
 			}
 		case "ERC721_LAZY": {
-			const encoded = abi.encodeParameter(ERC721_LAZY_TYPE, {
+			const encoded = ethereum.encodeParameter(ERC721_LAZY_TYPE, {
 				contract: assetType.contract,
 				data: {
 					tokenId: assetType.tokenId,
@@ -42,12 +42,12 @@ export function assetTypeToStruct(assetType: AssetType) {
 				},
 			})
 			return {
-				assetClass: ERC721_LAZY,
+				assetClass: id(ethereum, "ERC721_LAZY"),
 				data: `0x${encoded.substring(66)}`,
 			}
 		}
 		case "ERC1155_LAZY": {
-			const encoded = abi.encodeParameter(ERC1155_LAZY_TYPE, {
+			const encoded = ethereum.encodeParameter(ERC1155_LAZY_TYPE, {
 				contract: assetType.contract,
 				data: {
 					tokenId: assetType.tokenId,
@@ -59,7 +59,7 @@ export function assetTypeToStruct(assetType: AssetType) {
 				},
 			})
 			return {
-				assetClass: ERC1155_LAZY,
+				assetClass: id(ethereum, "ERC1155_LAZY"),
 				data: `0x${encoded.substring(66)}`,
 			}
 		}
@@ -68,13 +68,6 @@ export function assetTypeToStruct(assetType: AssetType) {
 		}
 	}
 }
-
-const ETH = id("ETH")
-const ERC20 = id("ERC20")
-const ERC721 = id("ERC721")
-const ERC1155 = id("ERC1155")
-const ERC721_LAZY = id("ERC721_LAZY")
-const ERC1155_LAZY = id("ERC1155_LAZY")
 
 const CONTRACT_TOKEN_ID = {
 	contract: "address",

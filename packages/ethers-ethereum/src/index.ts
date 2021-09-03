@@ -8,9 +8,11 @@ import {
 	EthereumTransaction
 } from "@rarible/ethereum-provider"
 import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
+import { encodeParameters } from "./abi-coder"
 
 export class EthersEthereum implements Ethereum {
-	constructor(readonly web3Provider: ethers.providers.Web3Provider, readonly from?: string) {}
+	constructor(readonly web3Provider: ethers.providers.Web3Provider, readonly from?: string) {
+	}
 
 	createContract(abi: any, address?: string): EthereumContract {
 		if (!address) {
@@ -34,10 +36,19 @@ export class EthersEthereum implements Ethereum {
 		}
 		return this.from
 	}
+
+	sha3(string: string): string {
+		return ethers.utils.keccak256(Buffer.from(string))
+	}
+
+	encodeParameter(type: any, parameter: any): string {
+		return encodeParameters([type], [parameter])
+	}
 }
 
 export class EthersContract implements EthereumContract {
-	constructor(private readonly contract: Contract) {}
+	constructor(private readonly contract: Contract) {
+	}
 
 	functionCall(name: string, ...args: any): EthereumFunctionCall {
 		return new EthersFunctionCall(this.contract.methods[name].bind(null, ...args))
@@ -45,7 +56,8 @@ export class EthersContract implements EthereumContract {
 }
 
 export class EthersFunctionCall implements EthereumFunctionCall {
-	constructor(private readonly func: (options: EthereumSendOptions) => Promise<TransactionResponse>) {}
+	constructor(private readonly func: (options: EthereumSendOptions) => Promise<TransactionResponse>) {
+	}
 
 	call(options: EthereumSendOptions): Promise<any> {
 		return this.func(options)
@@ -57,7 +69,8 @@ export class EthersFunctionCall implements EthereumFunctionCall {
 }
 
 export class EthersTransaction implements EthereumTransaction {
-	constructor(private readonly tx: TransactionResponse) {}
+	constructor(private readonly tx: TransactionResponse) {
+	}
 
 	get hash(): Word {
 		return toWord(this.tx.hash)
@@ -77,5 +90,9 @@ export class EthersTransaction implements EthereumTransaction {
 
 	get data(): Binary {
 		return toBinary(this.tx.data)
+	}
+
+	get nonce(): number {
+		return this.tx.nonce
 	}
 }

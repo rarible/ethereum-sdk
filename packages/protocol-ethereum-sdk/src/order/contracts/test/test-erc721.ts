@@ -1,7 +1,7 @@
-import type { AbiItem } from "web3-utils"
 import Web3 from "web3"
 import { Address } from "@rarible/protocol-api-client"
 import { Contract } from "web3-eth-contract"
+import { AbiItem } from "../../../common/abi-item"
 
 const testErc721Abi: AbiItem[] = [
 	{

@@ -1,5 +1,5 @@
-import Web3 from "web3"
+import { Ethereum } from "@rarible/ethereum-provider"
 
-export function id(s: string) {
-	return Web3.utils.sha3(s)!.substring(0, 10)
+export function id(ethereum: Ethereum, value: string): string {
+	return ethereum.sha3(value).substring(0, 10)
 }

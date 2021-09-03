@@ -1,47 +1,38 @@
 import type { ContractSendMethod, SendOptions } from "web3-eth-contract"
 import { PromiEvent } from "web3-core"
-import Web3 from "web3"
-import { backOff } from "exponential-backoff"
 import { toBinary, toWord } from "@rarible/types"
 import { toAddress } from "@rarible/types/build/address"
 import { GatewayControllerApi } from "@rarible/protocol-api-client"
-import { LogEvent } from "@rarible/protocol-api-client/build/models"
+import { EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
+
+export type SendFunction = (
+	functionCall: EthereumFunctionCall, options?: EthereumSendOptions,
+) => Promise<EthereumTransaction>
+
+export async function send(
+	api: GatewayControllerApi,
+	functionCall: EthereumFunctionCall,
+	options?: EthereumSendOptions
+): Promise<EthereumTransaction> {
+	const tx = await functionCall.send(options)
+	await createPendingLogs(api, tx)
+	return tx
+}
+
+export async function createPendingLogs(api: GatewayControllerApi, tx: EthereumTransaction) {
+	const createTransactionRequest = {
+		hash: toWord(tx.hash),
+		from: toAddress(tx.from),
+		to: tx.to ? toAddress(tx.to) : undefined,
+		input: toBinary(tx.data),
+		nonce: tx.nonce,
+	}
+	return await api.createGatewayPendingTransactions({ createTransactionRequest })
+}
 
 export async function sentTx(source: ContractSendMethod, options: SendOptions): Promise<string> {
 	const event = source.send({ ...options, gas: 3000000 })
 	return waitForHash(event)
-}
-
-export async function sendTransaction(
-	notify: (hash: string) => Promise<void>,
-	source: ContractSendMethod,
-	options: SendOptions
-): Promise<string> {
-	const event = source.send(options)
-	const hash = await waitForHash(event)
-	await notify(hash)
-	return hash
-}
-
-export async function createPendingLogs(api: GatewayControllerApi, web3: Web3, hash: string): Promise<Array<LogEvent>> {
-	const tx = await getTransaction(web3, hash)
-	const createTransactionRequest = {
-		...tx,
-		hash: toWord(hash),
-		from: toAddress(tx.from),
-		to: tx.to ? toAddress(tx.to) : undefined,
-		input: toBinary(tx.input),
-	}
-	return api.createGatewayPendingTransactions({ createTransactionRequest })
-}
-
-function getTransaction(web3: Web3, hash: string) {
-	return backOff(() => web3.eth.getTransaction(hash), {
-		maxDelay: 5000,
-		numOfAttempts: 10,
-		delayFirstAttempt: true,
-		startingDelay: 300,
-	})
 }
 
 export async function waitForHash<T>(promiEvent: PromiEvent<T>): Promise<string> {

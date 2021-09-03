@@ -1,4 +1,10 @@
-import { Configuration, NftOwnershipControllerApi, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
+import {
+	Configuration,
+	GatewayControllerApi,
+	NftOwnershipControllerApi,
+	OrderControllerApi,
+	OrderForm
+} from "@rarible/protocol-api-client"
 import { toBigNumber, toBinary } from "@rarible/types"
 import { toAddress } from "@rarible/types/build/address"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
@@ -8,6 +14,7 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { CONFIGS } from "../config"
 import { retry } from "../common/retry"
 import { awaitAll } from "../common/await-all"
+import { send as sendTemplate } from "../common/send-transaction"
 import { signOrder, SimpleOrder } from "./sign-order"
 import { fillOrderSendTx } from "./fill-order"
 import { getMakeFee } from "./get-make-fee"
@@ -26,6 +33,8 @@ describe("test exchange v1 order", () => {
 	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
 	const orderApi = new OrderControllerApi(configuration)
 	const ownershipApi = new NftOwnershipControllerApi(configuration)
+	const gatewayApi = new GatewayControllerApi(configuration)
+	const send = sendTemplate.bind(null, gatewayApi)
 
 	const seller = toAddress(wallet1.getAddressString())
 	const buyer = toAddress(wallet2.getAddressString())
@@ -75,7 +84,7 @@ describe("test exchange v1 order", () => {
 
 		await it.testErc721.methods.setApprovalForAll(CONFIGS.e2e.transferProxies.nft, true).send({ from: seller })
 
-		await fillOrderSendTx(getMakeFee.bind(null, { v2: 100 }), ethereum2, CONFIGS.e2e.exchange, orderApi, order, {
+		await fillOrderSendTx(getMakeFee.bind(null, { v2: 100 }), ethereum2, send, CONFIGS.e2e.exchange, orderApi, order, {
 			amount: 1,
 			payouts: [],
 			originFees: [],

@@ -1,19 +1,18 @@
 import { OrderData } from "@rarible/protocol-api-client/build/models/OrderData"
-import { id } from "../common/id"
-import { abi } from "./abi"
+import { Ethereum } from "@rarible/ethereum-provider"
 
 //todo wrongEncode когда применять?
-export function encodeData(data: OrderData, wrongEncode: Boolean = false): [string, string] {
+export function encodeData(ethereum: Ethereum, data: OrderData, wrongEncode: Boolean = false): [string, string] {
 	switch (data.dataType) {
 		case "RARIBLE_V2_DATA_V1": {
-			const encoded = abi.encodeParameter(DATA_V1_TYPE, {
+			const encoded = ethereum.encodeParameter(DATA_V1_TYPE, {
 				payouts: data.payouts,
 				originFees: data.originFees,
 			})
 			if (wrongEncode) {
-				return [id("V1"), `0x${encoded.substring(66)}`]
+				return ["0x4c234266", `0x${encoded.substring(66)}`]
 			}
-			return [id("V1"), encoded]
+			return ["0x4c234266", encoded]
 		}
 		default: {
 			throw new Error(`Data type not supported: ${data.dataType}`)

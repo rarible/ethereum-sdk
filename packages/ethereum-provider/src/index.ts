@@ -10,6 +10,8 @@ export interface EthereumTransaction {
 
 	data: Binary
 
+	nonce: number
+
 	wait(): Promise<void>
 }
 
@@ -37,7 +39,12 @@ export interface Ethereum {
 	getFrom(): Promise<string>
 
 	personalSign(message: string): Promise<string>
+
+	sha3(string: string): string
+
+	encodeParameter(type: any, parameter: any): string
 }
+
 
 export async function signTypedData(ethereum: Ethereum, data: TypedSignatureData) {
 	const signer = await ethereum.getFrom()

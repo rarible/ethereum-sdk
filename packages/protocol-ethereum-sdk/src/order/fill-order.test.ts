@@ -3,8 +3,8 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils/build/bn"
-import { OrderControllerApi } from "@rarible/protocol-api-client"
-import { sentTx } from "../common/send-transaction"
+import { Configuration, GatewayControllerApi, OrderControllerApi } from "@rarible/protocol-api-client"
+import { send as sendTemplate, sentTx } from "../common/send-transaction"
 import { awaitAll } from "../common/await-all"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
@@ -23,6 +23,10 @@ describe("fillOrder", () => {
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
+
+	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
+	const gatewayApi = new GatewayControllerApi(configuration)
+	const send = sendTemplate.bind(ethereum1, gatewayApi)
 
 	let orderApi: OrderControllerApi
 
@@ -104,6 +108,7 @@ describe("fillOrder", () => {
 		const hash = await fillOrderSendTx(
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
+			send,
 			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
 			orderApi,
 			{ ...left, signature },
@@ -158,6 +163,7 @@ describe("fillOrder", () => {
 		await fillOrderSendTx(
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
+			send,
 			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
 			orderApi,
 			{ ...left, signature },

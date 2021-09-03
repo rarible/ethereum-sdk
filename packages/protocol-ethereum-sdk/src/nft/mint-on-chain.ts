@@ -1,6 +1,7 @@
 import { Ethereum } from "@rarible/ethereum-provider"
 import { Binary, NftCollectionControllerApi } from "@rarible/protocol-api-client"
 import { toAddress } from "@rarible/types"
+import { SendFunction } from "../common/send-transaction"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
 import { SimpleLazyNft } from "./sign-nft"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
@@ -11,6 +12,7 @@ import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
 
 export async function mintErc721Legacy(
 	ethereum: Ethereum,
+	send: SendFunction,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	data: LegacyERC721Request
@@ -18,12 +20,13 @@ export async function mintErc721Legacy(
 	const from = toAddress(await ethereum.getFrom())
 	const erc721Contract = createMintableTokenContract(ethereum, data.collection.id)
 	const { tokenId, signature: { v, r, s } } = await getTokenId(nftCollectionApi, data.collection.id, from)
-	await erc721Contract.functionCall("mint", tokenId, v, r, s, data.royalties, data.uri).send()
+	await send(erc721Contract.functionCall("mint", tokenId, v, r, s, data.royalties, data.uri))
 	return tokenId
 }
 
 export async function mintErc721New(
 	ethereum: Ethereum,
+	send: SendFunction,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	data: LazyErc721Request
@@ -43,7 +46,7 @@ export async function mintErc721New(
 	}
 	const signature = await signNft(nftData)
 
-	await erc721Contract.functionCall(
+	await send(erc721Contract.functionCall(
 		"mintAndTransfer",
 		{
 			tokenId,
@@ -53,12 +56,13 @@ export async function mintErc721New(
 			uri: data.uri,
 		},
 		from
-	).send()
+	))
 	return tokenId
 }
 
 export async function mintErc1155Legacy(
 	ethereum: Ethereum,
+	send: SendFunction,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	data: LegacyERC1155Request
@@ -66,12 +70,13 @@ export async function mintErc1155Legacy(
 	const from = toAddress(await ethereum.getFrom())
 	const erc155Contract = createRaribleTokenContract(ethereum, data.collection.id)
 	const { tokenId, signature: { v, r, s } } = await getTokenId(nftCollectionApi, data.collection.id, from)
-	await erc155Contract.functionCall("mint", tokenId, v, r, s, data.royalties, data.supply, data.uri).send()
+	await send(erc155Contract.functionCall("mint", tokenId, v, r, s, data.royalties, data.supply, data.uri))
 	return tokenId
 }
 
 export async function mintErc1155New(
 	ethereum: Ethereum,
+	send: SendFunction,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	data: LazyErc1155Request
@@ -90,7 +95,7 @@ export async function mintErc1155New(
 		supply: data.supply,
 	}
 	const signature = await signNft(nftData)
-	await erc1155Contract.functionCall(
+	await send(erc1155Contract.functionCall(
 		"mintAndTransfer",
 		{
 			tokenId,
@@ -102,6 +107,6 @@ export async function mintErc1155New(
 		},
 		from,
 		nftData.supply
-	).send()
+	))
 	return tokenId
 }

@@ -10,7 +10,8 @@ import {
 	NftLazyMintControllerApi,
 	NftOwnershipControllerApi,
 	OrderActivityControllerApi,
-	OrderControllerApi
+	OrderControllerApi,
+	OrderForm
 } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
@@ -60,6 +61,11 @@ export interface RaribleOrderSdk {
 	 * @param request parameters - what amount
 	 */
 	fill(order: SimpleOrder, request: FillOrderRequest): Promise<FillOrderAction>
+
+	/**
+	 * Sell or create bid. Low-level method
+	 */
+	upsertOrder(order: OrderForm, infinite?: (boolean | undefined)): Promise<UpsertOrderAction>
 }
 
 export interface RaribleNftSdk {
@@ -149,6 +155,7 @@ export function createRaribleSdk(
 			sell,
 			fill,
 			bid,
+			upsertOrder,
 		},
 		nft: {
 			mint,

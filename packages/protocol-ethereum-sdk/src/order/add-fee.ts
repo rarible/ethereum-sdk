@@ -1,6 +1,6 @@
 import { Asset } from "@rarible/protocol-api-client"
-import { toBigNumber } from "@rarible/types/build/big-number"
-import { BigNumber, toBn } from "@rarible/utils/build/bn"
+import { toBigNumber } from "@rarible/types"
+import { BigNumber, toBn } from "@rarible/utils"
 
 export function addFee(asset: Asset, fee: number): Asset {
 	const value = toBn(asset.value)

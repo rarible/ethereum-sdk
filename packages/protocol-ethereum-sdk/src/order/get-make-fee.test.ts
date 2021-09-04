@@ -1,5 +1,4 @@
-import { randomAddress } from "@rarible/types"
-import { toBigNumber } from "@rarible/types/build/big-number"
+import { randomAddress, toBigNumber } from "@rarible/types"
 import { SimpleOrder } from "./sign-order"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { getMakeFee } from "./get-make-fee"

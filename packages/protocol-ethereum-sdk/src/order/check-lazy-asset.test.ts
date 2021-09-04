@@ -1,6 +1,5 @@
 import { Configuration, NftItemControllerApi } from "@rarible/protocol-api-client"
-import { toAddress } from "@rarible/types/build/address"
-import { toBigNumber } from "@rarible/types/build/big-number"
+import { toAddress, toBigNumber } from "@rarible/types"
 import { checkLazyAssetType } from "./check-lazy-asset-type"
 import { checkLazyAsset } from "./check-lazy-asset"
 

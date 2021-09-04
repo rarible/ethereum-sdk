@@ -1,7 +1,7 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { toAddress } from "@rarible/types/build/address"
+import { toAddress, toBigNumber } from "@rarible/types"
 import {
 	Configuration,
 	GatewayControllerApi,
@@ -9,7 +9,6 @@ import {
 	NftItemControllerApi,
 	NftLazyMintControllerApi
 } from "@rarible/protocol-api-client"
-import { toBigNumber } from "@rarible/types"
 import { send as sendTemplate } from "../common/send-transaction"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { signNft } from "./sign-nft"
@@ -81,7 +80,7 @@ describe("mint test", () => {
 		const contract = createErc721LazyContract(ethereum, toAddress(e2eErc721ContractAddress))
 		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter).call()
 		expect(balanceOfMinter).toEqual("1")
-	})
+	}, 10000)
 
 	test("mint with new contract Erc1155", async () => {
 		const tokenId = await mint({
@@ -99,7 +98,7 @@ describe("mint test", () => {
 		const contract = createErc1155LazyContract(ethereum, toAddress(e2eErc1155ContractAddress))
 		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter, tokenId).call()
 		expect(balanceOfMinter).toEqual("100")
-	})
+	}, 10000)
 
 	test("mint lazy Erc721", async () => {
 		const tokenId = await mint({
@@ -115,7 +114,7 @@ describe("mint test", () => {
 		})
 		const resultNft = await nftItemApi.getNftItemById({ itemId: `${e2eErc721ContractAddress}:${tokenId}` })
 		expect(resultNft.lazySupply).toEqual("1")
-	})
+	}, 10000)
 
 	test("mint lazy Erc1155", async () => {
 		const tokenId = await mint({
@@ -133,5 +132,5 @@ describe("mint test", () => {
 
 		const resultNft = await nftItemApi.getNftItemById({ itemId: `${e2eErc1155ContractAddress}:${tokenId}` })
 		expect(resultNft.lazySupply).toEqual("100")
-	})
+	}, 10000)
 })

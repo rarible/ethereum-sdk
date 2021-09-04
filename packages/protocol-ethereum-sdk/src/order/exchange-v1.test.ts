@@ -5,8 +5,7 @@ import {
 	OrderControllerApi,
 	OrderForm
 } from "@rarible/protocol-api-client"
-import { toBigNumber, toBinary } from "@rarible/types"
-import { toAddress } from "@rarible/types/build/address"
+import { toAddress, toBigNumber, toBinary } from "@rarible/types"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils/build/bn"
 import Web3 from "web3"

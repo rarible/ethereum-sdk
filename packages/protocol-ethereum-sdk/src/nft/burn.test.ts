@@ -1,7 +1,7 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { toAddress } from "@rarible/types"
+import { toAddress, toBigNumber } from "@rarible/types"
 import {
 	Configuration,
 	GatewayControllerApi,
@@ -9,7 +9,6 @@ import {
 	NftItemControllerApi,
 	NftLazyMintControllerApi
 } from "@rarible/protocol-api-client"
-import { toBigNumber } from "@rarible/types/build/big-number"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { send as sendTemplate } from "../common/send-transaction"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
@@ -58,7 +57,7 @@ describe("burn nft's", () => {
 		})
 		const testBalanceAfterBurn = await testErc721.functionCall("balanceOf", testAddress).call()
 		expect(testBalanceAfterBurn).toBe("0")
-	})
+	}, 10000)
 
 	test("should burn ERC1155 legacy token", async () => {
 		const tokenId = await mint(mintLazyApi, {
@@ -75,5 +74,5 @@ describe("burn nft's", () => {
 
 		const testBalanceAfterBurn = await testErc1155.functionCall("balanceOf", testAddress, tokenId).call()
 		expect(testBalanceAfterBurn).toBe("50")
-	})
+	}, 10000)
 })

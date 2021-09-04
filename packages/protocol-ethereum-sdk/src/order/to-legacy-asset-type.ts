@@ -1,6 +1,5 @@
 import { Address, AssetType, BigNumber } from "@rarible/protocol-api-client"
-import { ZERO_ADDRESS } from "@rarible/types"
-import { toBigNumber } from "@rarible/types/build/big-number"
+import { toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 
 type LegacyAssetType = {
 	assetType: number

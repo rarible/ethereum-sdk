@@ -1,6 +1,4 @@
-import { toBigNumber } from "@rarible/types/build/big-number"
-import { toAddress } from "@rarible/types/build/address"
-import { toWord } from "@rarible/types"
+import { toAddress, toBigNumber, toWord } from "@rarible/types"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"

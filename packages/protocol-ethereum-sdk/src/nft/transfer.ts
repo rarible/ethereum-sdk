@@ -7,8 +7,7 @@ import {
 	NftOwnershipControllerApi
 } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
-import { BigNumber } from "@rarible/types"
-import { toAddress } from "@rarible/types/build/address"
+import { BigNumber, toAddress } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
 import { CheckAssetTypeFunction, NftAssetType } from "../order/check-asset-type"
 import { getOwnershipId } from "../common/get-ownership-id"

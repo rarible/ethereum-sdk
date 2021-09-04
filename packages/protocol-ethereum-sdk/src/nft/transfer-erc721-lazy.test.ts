@@ -8,9 +8,8 @@ import {
 	NftLazyMintControllerApi,
 	NftOwnershipControllerApi
 } from "@rarible/protocol-api-client"
-import { randomAddress, toAddress } from "@rarible/types"
+import { randomAddress, toAddress, toBigNumber } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { toBigNumber } from "@rarible/types/build/big-number"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { send as sendTemplate } from "../common/send-transaction"
 import { signNft } from "./sign-nft"

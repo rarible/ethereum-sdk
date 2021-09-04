@@ -1,6 +1,5 @@
-import { toAddress } from "@rarible/types/build/address"
+import { toAddress, toBigNumber } from "@rarible/types"
 import { Configuration, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
-import { toBigNumber } from "@rarible/types"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"

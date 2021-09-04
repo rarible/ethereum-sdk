@@ -1,7 +1,6 @@
 import type { ContractSendMethod, SendOptions } from "web3-eth-contract"
 import { PromiEvent } from "web3-core"
-import { toBinary, toWord } from "@rarible/types"
-import { toAddress } from "@rarible/types/build/address"
+import { toBinary, toWord, toAddress } from "@rarible/types"
 import { GatewayControllerApi } from "@rarible/protocol-api-client"
 import { EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 

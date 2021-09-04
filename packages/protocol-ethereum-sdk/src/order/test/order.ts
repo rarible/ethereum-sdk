@@ -1,6 +1,4 @@
-import { toAddress } from "@rarible/types/build/address"
-import { toBigNumber } from "@rarible/types/build/big-number"
-import { toWord } from "@rarible/types"
+import { toAddress, toBigNumber, toWord } from "@rarible/types"
 import { SimpleOrder } from "../sign-order"
 
 export const TEST_ORDER_TEMPLATE: Omit<SimpleOrder, "type" | "data"> = {

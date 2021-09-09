@@ -1,3 +1,5 @@
+import type { MessageTypes } from "packages/ethereum-provider/build/domain"
+
 export const EIP721_NFT_TYPE = "Mint721"
 export const NFT_DOMAIN_TYPE = [
 	{ type: "string", name: "name" },
@@ -5,7 +7,7 @@ export const NFT_DOMAIN_TYPE = [
 	{ type: "uint256", name: "chainId" },
 	{ type: "address", name: "verifyingContract" },
 ]
-export const EIP721_NFT_TYPES = {
+export const EIP721_NFT_TYPES: MessageTypes = {
 	EIP712Domain: NFT_DOMAIN_TYPE,
 	Part: [
 		{ name: "account", type: "address" },
@@ -19,7 +21,7 @@ export const EIP721_NFT_TYPES = {
 	],
 }
 
-export const EIP1155_NFT_TYPES = {
+export const EIP1155_NFT_TYPES: MessageTypes = {
 	EIP712Domain: NFT_DOMAIN_TYPE,
 	Part: [
 		{ name: "account", type: "address" },

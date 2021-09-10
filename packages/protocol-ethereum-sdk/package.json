@@ -18,7 +18,7 @@
   "scripts": {
     "build": "tsc --project tsconfig-build.json",
     "clean": "rimraf ./build",
-    "test": "jest --passWithNoTests",
+    "test": "jest --passWithNoTests --maxWorkers=1 --testTimeout=10000",
     "verify": "tsc --noEmit"
   },
   "dependencies": {

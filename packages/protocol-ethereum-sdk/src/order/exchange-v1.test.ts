@@ -2,13 +2,12 @@ import {
 	Configuration,
 	GatewayControllerApi,
 	NftOwnershipControllerApi,
-	OrderControllerApi
+	OrderControllerApi,
 } from "@rarible/protocol-api-client"
 import { toAddress, toBigNumber, toWord } from "@rarible/types"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { toBn } from "@rarible/utils/build/bn"
 import { CONFIGS } from "../config"
 import { retry } from "../common/retry"
 import { awaitAll } from "../common/await-all"

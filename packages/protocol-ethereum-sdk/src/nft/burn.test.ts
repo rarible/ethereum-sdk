@@ -7,7 +7,7 @@ import {
 	GatewayControllerApi,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
-	NftLazyMintControllerApi
+	NftLazyMintControllerApi,
 } from "@rarible/protocol-api-client"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { send as sendTemplate } from "../common/send-transaction"

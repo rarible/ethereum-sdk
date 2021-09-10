@@ -7,7 +7,7 @@ import {
 	NftCollection_Type,
 	NftCollectionControllerApi,
 	NftLazyMintControllerApi,
-	Part
+	Part,
 } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { NftCollection_Features } from "@rarible/protocol-api-client/build/models/NftCollection"

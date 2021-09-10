@@ -11,7 +11,7 @@ import {
 	NftOwnershipControllerApi,
 	OrderActivityControllerApi,
 	OrderControllerApi,
-	OrderForm
+	OrderForm,
 } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
@@ -25,7 +25,7 @@ import { bid as bidTemplate, BidRequest } from "./order/bid"
 import {
 	checkLazyAsset as checkLazyAssetTemplate,
 	checkLazyAssetType as checkLazyAssetTypeTemplate,
-	checkLazyOrder as checkLazyOrderTemplate
+	checkLazyOrder as checkLazyOrderTemplate,
 } from "./order"
 import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
 import { mint as mintTemplate, MintRequest } from "./nft/mint"
@@ -174,5 +174,5 @@ function partialCall<T extends Arr, U extends Arr, R>(
 }
 
 export {
-	isLazyErc721Collection, isLazyErc1155Collection, isLegacyErc721Collection, isLegacyErc1155Collection
+	isLazyErc721Collection, isLazyErc1155Collection, isLegacyErc721Collection, isLegacyErc1155Collection,
 } from "./nft/mint"

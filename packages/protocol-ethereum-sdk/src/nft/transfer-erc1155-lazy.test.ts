@@ -6,7 +6,7 @@ import {
 	NftCollectionControllerApi,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
-	NftOwnershipControllerApi
+	NftOwnershipControllerApi,
 } from "@rarible/protocol-api-client"
 import { randomAddress, toAddress, toBigNumber } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"

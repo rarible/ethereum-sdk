@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.9](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.1.8...v0.1.9) (2021-09-10)
+
+
+### Bug Fixes
+
+* fixed dependencies for sdk ([46176a8](https://github.com/rariblecom/protocol-ethereum-sdk/commit/46176a800ddba677881101d786ca002156de9486))
+
+
+
+
+
 ## [0.1.8](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.1.7...v0.1.8) (2021-09-10)
 
 

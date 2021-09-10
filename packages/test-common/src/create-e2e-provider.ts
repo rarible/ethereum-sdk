@@ -17,9 +17,8 @@ export function createE2eProvider(pk: string = randomWord()) {
 		provider.start()
 	})
 
-	afterAll((done) => {
+	afterAll(() => {
 		provider.stop()
-		done()
 	})
 
 	return {

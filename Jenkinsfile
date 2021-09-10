@@ -7,6 +7,9 @@ pipeline {
 
   stages {
     stage('test') {
+      environment {
+	      NPM_TOKEN = "na"
+      }
       agent any
       steps {
 				sh 'yarn'

@@ -1,6 +1,6 @@
 {
   "name": "@rarible/ethers-ethereum",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "",
   "keywords": [
     "ethereum",
@@ -17,8 +17,8 @@
   },
   "dependencies": {
     "@ethersproject/abstract-provider": "5.4.1",
-    "@rarible/ethereum-provider": "^0.1.6",
-    "@rarible/ethereum-sdk-test-common": "^0.1.6"
+    "@rarible/ethereum-provider": "^0.1.7",
+    "@rarible/ethereum-sdk-test-common": "^0.1.7"
   },
   "devDependencies": {
     "@types/jest": "26.0.24",

@@ -7,7 +7,7 @@ import {
 	GatewayControllerApi,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
-	NftLazyMintControllerApi
+	NftLazyMintControllerApi,
 } from "@rarible/protocol-api-client"
 import { send as sendTemplate } from "../common/send-transaction"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"

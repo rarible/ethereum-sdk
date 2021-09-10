@@ -4,7 +4,7 @@ import {
 	Erc1155AssetType,
 	Erc721AssetType,
 	NftItemControllerApi,
-	NftOwnershipControllerApi
+	NftOwnershipControllerApi,
 } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber, toAddress } from "@rarible/types"

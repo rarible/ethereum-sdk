@@ -1816,10 +1816,10 @@
   resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.2.7.tgz#8c137cccbb41a4d319614dfbe983cf378399ac2c"
   integrity sha512-BHF8O3ZigY943fSA1oy5iR7yvnENvOYIS/yUDnOhOuKcRH7JAHyrsfPi2DmzqZl1zK3V/O6WBmV+VRgWlPQ48w==
 
-"@rarible/eslint-config-ts@0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@rarible/eslint-config-ts/-/eslint-config-ts-0.0.4.tgz#a35ec9e8dc19f1c49d6d281b19c3e3427ed6604e"
-  integrity sha512-cVrBw0MW56ty0rCFFBC0q8j7jNPNwVw5xJnlSWf/bnzYBQWMq634SDldAjINyoYz6iszO8FInqtYMe6u4Cc7LQ==
+"@rarible/eslint-config-ts@0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@rarible/eslint-config-ts/-/eslint-config-ts-0.0.5.tgz#ef978e5d0a0b4edd5c5bde8d12fd4d2faaa72370"
+  integrity sha512-d5tJPoEHVyDQlUbVhUjy93sjbty/BIUk5XjxwSgYAIZcBu628AArtSuTn3DjcoSeAfsZvl8hezXt7ElsvpCCJA==
   dependencies:
     "@babel/eslint-parser" "7.15.0"
     "@typescript-eslint/eslint-plugin" "4.29.3"
@@ -1829,10 +1829,10 @@
     eslint-plugin-jest "24.4.0"
     eslint-plugin-unicorn "35.0.0"
 
-"@rarible/protocol-api-client@0.1.4":
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/@rarible/protocol-api-client/-/protocol-api-client-0.1.4.tgz#9903732c6dbdd828f38a6f8b7250e38537c92e0d"
-  integrity sha512-pnjTYw2W/SJt4X9f0HFwKaceGFIGUVeaS+CmugzQNktgBh19ITaa0mrD4cP45NbehN1XRNow7ubwaBpXPefZgA==
+"@rarible/protocol-api-client@0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@rarible/protocol-api-client/-/protocol-api-client-0.1.6.tgz#d3f8ac913cff2aae3774f47f5b1dc0c39c7aee1a"
+  integrity sha512-2O6vyuCiGRR0FVXoFNB+h+QKrKQbw7Kqst3nH4pTGrOuABZhvED8LV9am+cmQx4BghVle/I20XpxvmueWLBf8A==
 
 "@rarible/test-provider@0.1.19":
   version "0.1.19"

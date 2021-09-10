@@ -4,12 +4,12 @@ import { SimpleOrder } from "./sign-order"
 import { isNft } from "./is-nft"
 
 const ZERO = toWord("0x0000000000000000000000000000000000000000000000000000000000000000")
-export function invertOrder(
-	order: SimpleOrder,
+export function invertOrder<T extends SimpleOrder>(
+	order: T,
 	amount: BigNumberValue,
 	maker: Address,
 	salt: Word = ZERO
-): SimpleOrder {
+): T {
 	const [makeValue, takeValue] = calculateAmounts(
 		toBn(order.make.value),
 		toBn(order.take.value),

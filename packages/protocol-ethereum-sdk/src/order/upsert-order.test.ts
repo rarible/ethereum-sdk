@@ -38,5 +38,5 @@ describe("upsertOrder", () => {
 		await upsert.run(2)
 		const result = await upsert.result
 		expect(result.hash).toBeTruthy()
-	})
+	}, 10000)
 })

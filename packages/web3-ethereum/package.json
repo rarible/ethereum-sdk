@@ -1,6 +1,6 @@
 {
   "name": "@rarible/web3-ethereum",
-  "version": "0.1.6",
+  "version": "0.1.13",
   "description": "",
   "keywords": [
     "ethereum",
@@ -16,12 +16,12 @@
     "verify": "tsc --noEmit"
   },
   "dependencies": {
-    "@rarible/ethereum-provider": "^0.1.6",
-    "@rarible/ethereum-sdk-test-common": "^0.1.6",
+    "@rarible/ethereum-provider": "^0.1.11",
     "eth-rpc-errors": "4.0.3",
     "exponential-backoff": "3.1.0"
   },
   "devDependencies": {
+    "@rarible/ethereum-sdk-test-common": "^0.1.11",
     "@types/jest": "26.0.24",
     "jest": "27.0.6",
     "ts-jest": "27.0.3",
@@ -29,9 +29,7 @@
   },
   "peerDependencies": {
     "tslib": "^2.3.1",
-    "web3": "1.2.11",
-    "web3-core": "1.2.11",
-    "web3-eth-contract": "1.2.11"
+    "web3": "1.2.11"
   },
   "publishConfig": {
     "access": "public",

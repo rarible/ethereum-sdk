@@ -7,7 +7,7 @@ import {
 	GatewayControllerApi,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
-	NftLazyMintControllerApi
+	NftLazyMintControllerApi,
 } from "@rarible/protocol-api-client"
 import { retry } from "../common/retry"
 import { mint } from "../nft/mint"

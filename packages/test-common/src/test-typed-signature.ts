@@ -1,6 +1,10 @@
 import { Ethereum, signTypedData } from "@rarible/ethereum-provider"
+import { toAddress } from "@rarible/types"
+import * as sigUtil from "eth-sig-util"
+import { MessageTypes } from "packages/ethereum-provider/build/domain"
 
 export async function testTypedSignature(eth: Ethereum) {
+	const from = await eth.getFrom()
 	const domain = {
 		name: "Ether Mail",
 		version: "1",
@@ -35,14 +39,17 @@ export async function testTypedSignature(eth: Ethereum) {
 		},
 		contents: "Hello, Bob!",
 	}
-	const data = {
+	const data: sigUtil.TypedMessage<MessageTypes> = {
 		primaryType: "Mail",
 		domain,
 		types,
 		message,
 	}
 	const signature = await signTypedData(eth, data)
-	expect(signature).toBe(
-		"0xcdb06d43817c98f1aefb9e3ecdfc45c35a07795b89f15930913e9150442b157f7fb5b37ae49e3c8674857660c16f7512f140ed4594e6d426f4db5fae57701d491b"
-	)
+	expect(signature).toBe("0xcdb06d43817c98f1aefb9e3ecdfc45c35a07795b89f15930913e9150442b157f7fb5b37ae49e3c8674857660c16f7512f140ed4594e6d426f4db5fae57701d491b")
+	const result = sigUtil.recoverTypedSignature_v4({
+		data,
+		sig: signature,
+	})
+	expect(result).toEqual(toAddress(from))
 }

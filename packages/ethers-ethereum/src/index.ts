@@ -5,7 +5,7 @@ import {
 	EthereumContract,
 	EthereumFunctionCall,
 	EthereumSendOptions,
-	EthereumTransaction
+	EthereumTransaction,
 } from "@rarible/ethereum-provider"
 import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
 import { encodeParameters } from "./abi-coder"

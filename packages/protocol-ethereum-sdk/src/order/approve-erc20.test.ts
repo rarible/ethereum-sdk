@@ -2,9 +2,10 @@ import { randomAddress, toAddress } from "@rarible/types"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { toBn } from "@rarible/utils/build/bn"
+import { Configuration, GatewayControllerApi } from "@rarible/protocol-api-client"
 import { awaitAll } from "../common/await-all"
 import { Web3Ethereum } from "../../../web3-ethereum"
-import { sentTx } from "../common/send-transaction"
+import { send as sendTemplate, sentTx } from "../common/send-transaction"
 import { approveErc20 as approveErc20Template } from "./approve-erc20"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 
@@ -15,7 +16,10 @@ describe("approveErc20", () => {
 	const web3 = new Web3(provider as any)
 	const ethereum = new Web3Ethereum({ web3 })
 	const [testAddress] = addresses
-	const approveErc20 = approveErc20Template.bind(null, ethereum)
+	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
+	const gatewayApi = new GatewayControllerApi(configuration)
+	const send = sendTemplate.bind(null, gatewayApi)
+	const approveErc20 = approveErc20Template.bind(null, ethereum, send)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "TST", "TST"),

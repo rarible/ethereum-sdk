@@ -4,8 +4,9 @@ import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils/build/bn"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { sentTx } from "../common/send-transaction"
-import { approveErc1155 } from "./approve-erc1155"
+import { Configuration, GatewayControllerApi } from "@rarible/protocol-api-client"
+import { send as sendTemplate, sentTx } from "../common/send-transaction"
+import { approveErc1155 as approveErc1155Template } from "./approve-erc1155"
 import { deployTestErc1155 } from "./contracts/test/test-erc1155"
 
 describe("approveErc1155", () => {
@@ -15,6 +16,10 @@ describe("approveErc1155", () => {
 	const web3 = new Web3(provider as any)
 	const ethereum = new Web3Ethereum({ web3 })
 	const [testAddress] = addresses
+	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
+	const gatewayApi = new GatewayControllerApi(configuration)
+	const send = sendTemplate.bind(null, gatewayApi)
+	const approveErc1155 = approveErc1155Template.bind(null, ethereum, send)
 
 	let testErc1155: Contract
 	beforeAll(async () => {
@@ -29,7 +34,7 @@ describe("approveErc1155", () => {
 		expect(balance).toEqual("1")
 
 		const operator = randomAddress()
-		await approveErc1155(ethereum, toAddress(testErc1155.options.address), testAddress, operator)
+		await approveErc1155(toAddress(testErc1155.options.address), testAddress, operator)
 
 		const result: boolean = await testErc1155.methods.isApprovedForAll(testAddress, operator).call()
 		expect(result).toBeTruthy()
@@ -44,7 +49,7 @@ describe("approveErc1155", () => {
 
 		const operator = randomAddress()
 		await sentTx(testErc1155.methods.setApprovalForAll(operator, true), { from: testAddress })
-		const result = await approveErc1155(ethereum, toAddress(testErc1155.options.address), testAddress, operator)
+		const result = await approveErc1155(toAddress(testErc1155.options.address), testAddress, operator)
 
 		expect(result === undefined).toBeTruthy()
 	})

@@ -1,6 +1,8 @@
 import {
 	Configuration,
 	GatewayControllerApi,
+	NftCollectionControllerApi,
+	NftLazyMintControllerApi,
 	NftOwnershipControllerApi,
 	OrderControllerApi,
 	OrderForm
@@ -12,12 +14,12 @@ import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { CONFIGS } from "../config"
 import { retry } from "../common/retry"
-import { awaitAll } from "../common/await-all"
 import { send as sendTemplate } from "../common/send-transaction"
+import { signNft } from "../nft/sign-nft"
+import { mint as mintTemplate } from "../nft/mint"
 import { signOrder, SimpleOrder } from "./sign-order"
 import { fillOrderSendTx } from "./fill-order"
 import { getMakeFee } from "./get-make-fee"
-import { deployTestErc721 } from "./contracts/test/test-erc721"
 
 describe("test exchange v1 order", () => {
 	const { provider: provider1, wallet: wallet1 } = createE2eProvider()
@@ -32,25 +34,36 @@ describe("test exchange v1 order", () => {
 	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
 	const orderApi = new OrderControllerApi(configuration)
 	const ownershipApi = new NftOwnershipControllerApi(configuration)
+	const nftCollectionApi = new NftCollectionControllerApi(configuration)
+	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const send = sendTemplate.bind(null, gatewayApi)
+	const sign = signNft.bind(null, ethereum1, 17)
+	const mintHalfBind = mintTemplate.bind(null, ethereum1, send, sign, nftCollectionApi)
+	const mint = mintHalfBind.bind(null, nftLazyMintApi)
 
 	const seller = toAddress(wallet1.getAddressString())
 	const buyer = toAddress(wallet2.getAddressString())
 
-	const it = awaitAll({
-		testErc721: deployTestErc721(web31, "Test", "TST"),
-	})
+	const erc721ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 
 	test("", async () => {
-		const tokenId = toBigNumber("1")
-		await it.testErc721.methods.mint(seller, tokenId, "url").send({ from: seller })
+		const tokenId = await mint({
+			collection: {
+				id: erc721ContractAddress,
+				type: "ERC721",
+				supportsLazyMint: true,
+			},
+			uri: "uri",
+			creators: [{ account: toAddress(seller), value: 10000 }],
+			royalties: [],
+		})
 
 		let order: OrderForm = {
 			make: {
 				assetType: {
 					assetClass: "ERC721",
-					contract: toAddress(it.testErc721.options.address),
+					contract: erc721ContractAddress,
 					tokenId: toBigNumber(tokenId),
 				},
 				value: toBigNumber("1"),
@@ -81,8 +94,6 @@ describe("test exchange v1 order", () => {
 
 		order = { ...order, signature: leftSignature }
 
-		await it.testErc721.methods.setApprovalForAll(CONFIGS.e2e.transferProxies.nft, true).send({ from: seller })
-
 		await fillOrderSendTx(getMakeFee.bind(null, { v2: 100 }), ethereum2, send, CONFIGS.e2e.exchange, orderApi, order, {
 			amount: 1,
 			payouts: [],
@@ -91,7 +102,7 @@ describe("test exchange v1 order", () => {
 
 		await retry(10, async () => {
 			const ownership = await ownershipApi.getNftOwnershipById({
-				ownershipId: `${it.testErc721.options.address}:${tokenId}:${buyer}`,
+				ownershipId: `${erc721ContractAddress}:${tokenId}:${buyer}`,
 			})
 			expect(ownership.value).toBe("1")
 		})

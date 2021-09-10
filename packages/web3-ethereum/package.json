@@ -1,6 +1,6 @@
 {
   "name": "@rarible/web3-ethereum",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "description": "",
   "keywords": [
     "ethereum",
@@ -16,8 +16,8 @@
     "verify": "tsc --noEmit"
   },
   "dependencies": {
-    "@rarible/ethereum-provider": "^0.1.7",
-    "@rarible/ethereum-sdk-test-common": "^0.1.7",
+    "@rarible/ethereum-provider": "^0.1.10",
+    "@rarible/ethereum-sdk-test-common": "^0.1.10",
     "eth-rpc-errors": "4.0.3",
     "exponential-backoff": "3.1.0"
   },

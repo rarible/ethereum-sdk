@@ -10,12 +10,12 @@ export function createE2eProvider(pk: string = randomWord()) {
 	provider.addProvider(new TestSubprovider(wallet, { networkId: 17, chainId: 17 }))
 	provider.addProvider(new RpcSubprovider({ rpcUrl: "https://node-e2e.rarible.com" }))
 
-	beforeAll(() => {
-		provider.start()
+	beforeAll(async () => {
+		await provider.start()
 	})
 
-	afterAll(() => {
-		provider.stop()
+	afterAll(async () => {
+		await provider.stop()
 	})
 
 	return {

@@ -54,7 +54,7 @@ export async function signTypedData(ethereum: Ethereum, data: TypedSignatureData
 		try {
 			return await ethereum.send(SignTypedDataMethodEnum.V3, [signer, JSON.stringify(data)])
 		} catch (error) {
-			return ethereum.send(SignTypedDataMethodEnum.DEFAULT, [signer, data])
+			return await ethereum.send(SignTypedDataMethodEnum.DEFAULT, [signer, data])
 		}
 	}
 }

@@ -1,4 +1,4 @@
-import { Asset, OrderControllerApi, OrderForm, Part } from "@rarible/protocol-api-client"
+import { Asset, LegacyOrderForm, OrderControllerApi, Part } from "@rarible/protocol-api-client"
 import { Address, toAddress, toBigNumber, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { ActionBuilder } from "@rarible/action"
 import { toBn } from "@rarible/utils/build/bn"
@@ -6,7 +6,7 @@ import { Ethereum, EthereumSendOptions } from "@rarible/ethereum-provider"
 import { ExchangeAddresses } from "../config/type"
 import { SendFunction } from "../common/send-transaction"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
-import { orderToStruct, SimpleOrder } from "./sign-order"
+import { orderToStruct, SimpleLegacyOrder, SimpleOrder, SimpleRaribleV2Order } from "./sign-order"
 import { invertOrder } from "./invert-order"
 import { addFee } from "./add-fee"
 import { GetMakeFeeFunction } from "./get-make-fee"
@@ -80,7 +80,7 @@ async function fillOrderV2(
 	ethereum: Ethereum,
 	send: SendFunction,
 	contract: Address,
-	order: SimpleOrder,
+	order: SimpleRaribleV2Order,
 	request: FillOrderRequest
 ): Promise<string> {
 	const address = toAddress(await ethereum.getFrom())
@@ -100,8 +100,8 @@ async function matchOrders(
 	ethereum: Ethereum,
 	send: SendFunction,
 	contract: Address,
-	left: SimpleOrder,
-	right: SimpleOrder
+	left: SimpleRaribleV2Order,
+	right: SimpleRaribleV2Order
 ): Promise<string> {
 	const exchangeContract = createExchangeV2Contract(ethereum, contract)
 	let options: EthereumSendOptions
@@ -128,7 +128,7 @@ async function fillOrderV1(
 	send: SendFunction,
 	orderApi: OrderControllerApi,
 	contract: Address,
-	order: SimpleOrder,
+	order: SimpleLegacyOrder,
 	request: FillOrderRequest
 ): Promise<string> {
 	const getAssetWithFee = (asset: Asset, fee: number) => {
@@ -160,16 +160,15 @@ async function fillOrderV1(
 		ethereum,
 		contract
 	)
-	const tx = await send(exchangeContract
-		.functionCall(
-			"exchange",
-			toStructLegacyOrder(order),
-			toVrs(order.signature!),
-			fee,
-			toVrs(buyerFeeSig),
-			orderRight.take.value,
-			getSingleBuyer(request.payouts)
-		), options)
+	const tx = await send(exchangeContract.functionCall(
+		"exchange",
+		toStructLegacyOrder(order),
+		toVrs(order.signature!),
+		fee,
+		toVrs(buyerFeeSig),
+		orderRight.take.value,
+		getSingleBuyer(request.payouts)
+	), options)
 	return tx.hash
 }
 
@@ -181,11 +180,11 @@ function getSingleBuyer(payouts?: Array<Part>): Address {
 	}
 }
 
-function fromSimpleOrderToOrderForm(order: SimpleOrder) {
+function fromSimpleOrderToOrderForm(order: SimpleLegacyOrder): LegacyOrderForm {
 	return {
 		...order,
-		salt: toBigNumber(order.salt) as any,
-	} as OrderForm
+		salt: toBigNumber(toBn(order.salt).toString()),
+	}
 }
 
 function toVrs(sig: string) {

@@ -33,5 +33,5 @@ describe("sendTransaction", () => {
 		const logs = await createPendingLogs(gatewayApi, tx)
 		expect(logs).toBeTruthy()
 		expect(tx.from.toLowerCase()).toBe(minter.toLowerCase())
-	})
+	}, 10000)
 })

@@ -1829,10 +1829,10 @@
     eslint-plugin-jest "24.4.0"
     eslint-plugin-unicorn "35.0.0"
 
-"@rarible/protocol-api-client@0.1.4":
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/@rarible/protocol-api-client/-/protocol-api-client-0.1.4.tgz#9903732c6dbdd828f38a6f8b7250e38537c92e0d"
-  integrity sha512-pnjTYw2W/SJt4X9f0HFwKaceGFIGUVeaS+CmugzQNktgBh19ITaa0mrD4cP45NbehN1XRNow7ubwaBpXPefZgA==
+"@rarible/protocol-api-client@0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@rarible/protocol-api-client/-/protocol-api-client-0.1.6.tgz#d3f8ac913cff2aae3774f47f5b1dc0c39c7aee1a"
+  integrity sha512-2O6vyuCiGRR0FVXoFNB+h+QKrKQbw7Kqst3nH4pTGrOuABZhvED8LV9am+cmQx4BghVle/I20XpxvmueWLBf8A==
 
 "@rarible/test-provider@0.1.19":
   version "0.1.19"

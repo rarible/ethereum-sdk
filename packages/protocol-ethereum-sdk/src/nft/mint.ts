@@ -3,13 +3,13 @@ import {
 	Address,
 	Binary,
 	LazyErc1155,
+	LazyErc721,
 	NftCollection_Type,
 	NftCollectionControllerApi,
 	NftLazyMintControllerApi,
 	Part
 } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
-import { LazyErc721 } from "@rarible/protocol-api-client/build/models/LazyNft"
 import { NftCollection_Features } from "@rarible/protocol-api-client/build/models/NftCollection"
 import { SendFunction } from "../common/send-transaction"
 import { mintOffChain } from "./mint-off-chain"

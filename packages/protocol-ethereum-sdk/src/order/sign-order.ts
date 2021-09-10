@@ -1,4 +1,4 @@
-import { Asset, Binary, EIP712Domain, Order } from "@rarible/protocol-api-client"
+import { Asset, Binary, EIP712Domain, LegacyOrder, OpenSeaV1Order, RaribleV2Order } from "@rarible/protocol-api-client"
 import { Address, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { Ethereum, signTypedData } from "@rarible/ethereum-provider"
 import { Config } from "../config/type"
@@ -7,8 +7,19 @@ import { assetTypeToStruct } from "./asset-type-to-struct"
 import { EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES } from "./eip712"
 import { encodeData } from "./encode-data"
 
-export type SimpleOrder = Pick<Order,
-"data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature">
+export type SimpleLegacyOrder =
+	Pick<LegacyOrder, "data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature">
+
+export type SimpleRaribleV2Order =
+	Pick<RaribleV2Order, "data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature">
+
+export type SimpleOpenSeaV1Order =
+	Pick<OpenSeaV1Order, "data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature">
+
+export type SimpleOrder =
+	SimpleLegacyOrder |
+	SimpleRaribleV2Order |
+	SimpleOpenSeaV1Order
 
 export async function signOrder(
 	ethereum: Ethereum,

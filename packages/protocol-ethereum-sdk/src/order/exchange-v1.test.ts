@@ -2,14 +2,13 @@ import {
 	Configuration,
 	GatewayControllerApi,
 	NftOwnershipControllerApi,
-	OrderControllerApi,
-	OrderForm
+	OrderControllerApi
 } from "@rarible/protocol-api-client"
-import { toAddress, toBigNumber, toBinary } from "@rarible/types"
+import { toAddress, toBigNumber, toWord } from "@rarible/types"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
-import { toBn } from "@rarible/utils/build/bn"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
+import { toBn } from "@rarible/utils/build/bn"
 import { CONFIGS } from "../config"
 import { retry } from "../common/retry"
 import { awaitAll } from "../common/await-all"
@@ -42,11 +41,17 @@ describe("test exchange v1 order", () => {
 		testErc721: deployTestErc721(web31, "Test", "TST"),
 	})
 
+	const sign = signOrder.bind(null, ethereum1, { chainId: 17, exchange: CONFIGS.e2e.exchange })
+	const makeFee = getMakeFee.bind(null, { v2: 100 })
+	const fill = fillOrderSendTx
+		.bind(null, makeFee, ethereum2, send, CONFIGS.e2e.exchange)
+		.bind(null, orderApi)
+
 	test("", async () => {
 		const tokenId = toBigNumber("1")
 		await it.testErc721.methods.mint(seller, tokenId, "url").send({ from: seller })
 
-		let order: OrderForm = {
+		let order: SimpleOrder = {
 			make: {
 				assetType: {
 					assetClass: "ERC721",
@@ -62,7 +67,7 @@ describe("test exchange v1 order", () => {
 				},
 				value: toBigNumber("100000"),
 			},
-			salt: toBigNumber("10") as any,
+			salt: toWord("0x000000000000000000000000000000000000000000000000000000000000000a"),
 			type: "RARIBLE_V1",
 			data: {
 				dataType: "LEGACY",
@@ -70,24 +75,10 @@ describe("test exchange v1 order", () => {
 			},
 		}
 
-		const leftSignature = await signOrder(
-			ethereum1,
-			{
-				chainId: 17,
-				exchange: CONFIGS.e2e.exchange,
-			},
-			orderFormToSimpleOrder(order)
-		)
-
-		order = { ...order, signature: leftSignature }
-
 		await it.testErc721.methods.setApprovalForAll(CONFIGS.e2e.transferProxies.nft, true).send({ from: seller })
 
-		await fillOrderSendTx(getMakeFee.bind(null, { v2: 100 }), ethereum2, send, CONFIGS.e2e.exchange, orderApi, order, {
-			amount: 1,
-			payouts: [],
-			originFees: [],
-		})
+		const signedOrder = { ...order, signature: await sign(order) }
+		await fill(signedOrder, { amount: 1, payouts: [], originFees: [] })
 
 		await retry(10, async () => {
 			const ownership = await ownershipApi.getNftOwnershipById({
@@ -97,10 +88,3 @@ describe("test exchange v1 order", () => {
 		})
 	}, 30000)
 })
-
-function orderFormToSimpleOrder(form: OrderForm): SimpleOrder {
-	return {
-		...form,
-		salt: toBinary(toBn(form.salt).toString(16)) as any,
-	}
-}

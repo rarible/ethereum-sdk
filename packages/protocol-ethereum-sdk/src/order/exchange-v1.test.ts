@@ -1,3 +1,4 @@
+/*
 import {
 	Configuration,
 	GatewayControllerApi,
@@ -87,3 +88,4 @@ describe("test exchange v1 order", () => {
 		})
 	}, 30000)
 })
+*/

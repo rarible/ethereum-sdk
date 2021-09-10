@@ -1,6 +1,6 @@
 {
   "name": "@rarible/protocol-ethereum-sdk",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "keywords": [
     "axios",
     "typescript",
@@ -24,9 +24,9 @@
   "dependencies": {
     "@rarible/ethereum-provider": "^0.1.7",
     "@rarible/ethereum-sdk-test-common": "^0.1.7",
-    "@rarible/ethers-ethereum": "^0.1.7",
+    "@rarible/ethers-ethereum": "^0.1.8",
     "@rarible/test-provider": "0.1.19",
-    "@rarible/web3-ethereum": "^0.1.7"
+    "@rarible/web3-ethereum": "^0.1.8"
   },
   "devDependencies": {
     "@types/jest": "26.0.24",

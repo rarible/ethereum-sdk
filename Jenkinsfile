@@ -6,15 +6,25 @@ pipeline {
   }
 
   stages {
+    stage('test') {
+      agent any
+      steps {
+				sh 'yarn'
+				sh 'yarn bootstrap'
+				sh 'yarn clean'
+				sh 'yarn build-all'
+				sh 'yarn test'
+      }
+    }
     stage('build and deploy') {
       agent any
+      when { tag "v*" }
       steps {
         withCredentials([string(credentialsId: 'npm-token', variable: 'NPM_TOKEN')]) {
 					sh 'yarn'
 					sh 'yarn bootstrap'
 					sh 'yarn clean'
 					sh 'yarn build-all'
-					sh 'yarn test'
 					sh 'yarn publish-all'
         }
       }

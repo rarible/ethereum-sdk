@@ -6,16 +6,18 @@ import { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import { getTokenId as getTokenIdTemplate } from "../nft/get-token-id"
 import { createMintableTokenContract } from "../nft/contracts/erc721/mintable-token"
-import { createPendingLogs, send as sendTemplate } from "./send-transaction"
+import { createPendingLogs } from "./send-transaction"
 
 describe("sendTransaction", () => {
-	const { provider, wallet } = createE2eProvider()
+	const {
+		provider,
+		wallet,
+	} = createE2eProvider()
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
 	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const collectionApi = new NftCollectionControllerApi(configuration)
-	const send = sendTemplate.bind(null, gatewayApi)
 	const getTokenId = getTokenIdTemplate.bind(null, collectionApi)
 
 	let testErc721: EthereumContract
@@ -26,7 +28,14 @@ describe("sendTransaction", () => {
 
 	test("should send transaction and create pending logs", async () => {
 		const minter = toAddress(wallet.getAddressString())
-		const { tokenId, signature: { v, r, s } } = await getTokenId(collectionId, minter)
+		const {
+			tokenId,
+			signature: {
+				v,
+				r,
+				s,
+			},
+		} = await getTokenId(collectionId, minter)
 		const tx = await testErc721.functionCall("mint", tokenId, v, r, s, [], "uri").send()
 
 		const logs = await createPendingLogs(gatewayApi, tx)

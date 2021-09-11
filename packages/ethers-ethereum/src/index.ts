@@ -8,6 +8,7 @@ import {
 	EthereumTransaction,
 } from "@rarible/ethereum-provider"
 import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
+import { EthereumTransactionReceipt } from "@rarible/ethereum-provider/src"
 import { encodeParameters } from "./abi-coder"
 
 export class EthersEthereum implements Ethereum {
@@ -47,20 +48,28 @@ export class EthersContract implements EthereumContract {
 	}
 
 	functionCall(name: string, ...args: any): EthereumFunctionCall {
-		return new EthersFunctionCall(this.contract.methods[name].bind(null, ...args))
+		return new EthersFunctionCall(this.contract[name].bind(null, ...args))
 	}
 }
 
 export class EthersFunctionCall implements EthereumFunctionCall {
-	constructor(private readonly func: (options: EthereumSendOptions) => Promise<TransactionResponse>) {
+	constructor(private readonly func: (options?: EthereumSendOptions) => Promise<TransactionResponse>) {
 	}
 
-	call(options: EthereumSendOptions): Promise<any> {
-		return this.func(options)
+	call(options?: EthereumSendOptions): Promise<any> {
+		if (options) {
+			return this.func(options)
+		} else {
+			return this.func()
+		}
 	}
 
-	async send(options: EthereumSendOptions): Promise<EthereumTransaction> {
-		return new EthersTransaction(await this.func(options))
+	async send(options?: EthereumSendOptions): Promise<EthereumTransaction> {
+		if (options) {
+			return new EthersTransaction(await this.func(options))
+		} else {
+			return new EthersTransaction(await this.func())
+		}
 	}
 }
 
@@ -72,8 +81,13 @@ export class EthersTransaction implements EthereumTransaction {
 		return toWord(this.tx.hash)
 	}
 
-	async wait(): Promise<void> {
-		await this.tx.wait()
+	async wait(): Promise<EthereumTransactionReceipt> {
+		const receipt = await this.tx.wait()
+		return {
+			...receipt,
+			status: receipt.status === 1,
+			events: (receipt as any).events,
+		}
 	}
 
 	get to(): Address | undefined {

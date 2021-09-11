@@ -1,5 +1,5 @@
 import type { Contract, ContractSendMethod } from "web3-eth-contract"
-import type { PromiEvent } from "web3-core"
+import type { PromiEvent, TransactionReceipt } from "web3-core"
 import type {
 	Ethereum,
 	EthereumContract,
@@ -9,10 +9,10 @@ import type {
 } from "@rarible/ethereum-provider"
 import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
 import { backOff } from "exponential-backoff"
-import { waitForHash } from "./utils/wait-for-hash"
+import { EthereumTransactionEvent, EthereumTransactionReceipt } from "@rarible/ethereum-provider/src"
 import type { Web3EthereumConfig } from "./domain"
-import { waitForConfirmation } from "./utils/wait-for-confirmation"
 import { providerRequest } from "./utils/provider-request"
+import { toPromises } from "./utils/to-promises"
 
 export class Web3Ethereum implements Ethereum {
 	constructor(private readonly config: Web3EthereumConfig) {
@@ -77,16 +77,17 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 			value: options.value,
 			gasPrice: options.gasPrice?.toString(),
 		})
-		const hash = await waitForHash(promiEvent)
-		const tx = await backOff(() => this.config.web3.eth.getTransaction(hash), {
+		const { hash, receipt } = toPromises(promiEvent)
+		const realHash = await hash
+		const tx = await backOff(() => this.config.web3.eth.getTransaction(realHash), {
 			maxDelay: 5000,
 			numOfAttempts: 10,
 			delayFirstAttempt: true,
 			startingDelay: 300,
 		})
 		return new Web3Transaction(
-			promiEvent,
-			toWord(hash),
+			receipt,
+			toWord(realHash),
 			toBinary(sendMethod.encodeABI()),
 			tx.nonce,
 			from,
@@ -105,7 +106,7 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 
 export class Web3Transaction implements EthereumTransaction {
 	constructor(
-		private readonly promiEvent: PromiEvent<any>,
+		private readonly receipt: Promise<TransactionReceipt>,
 		public readonly hash: Word,
 		public readonly data: Binary,
 		public readonly nonce: number,
@@ -114,5 +115,17 @@ export class Web3Transaction implements EthereumTransaction {
 	) {
 	}
 
-	wait = () => waitForConfirmation(this.promiEvent)
+	async wait(): Promise<EthereumTransactionReceipt> {
+		const receipt = await this.receipt
+		const events: EthereumTransactionEvent[] = Object.keys(receipt.events!)
+			.map(ev => receipt.events![ev])
+			.map(ev => ({
+				...ev,
+				args: ev.returnValues,
+			}))
+		return {
+			...receipt,
+			events,
+		}
+	}
 }

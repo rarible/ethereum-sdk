@@ -2,13 +2,35 @@ import type { Address, Binary, Word } from "@rarible/types"
 import type { MessageTypes, TypedMessage } from "./domain"
 import { signTypedDataInternal } from "./utils"
 
+export type EthereumTransactionEvent = {
+	event: string,
+	address: string
+	args: any
+	logIndex: number
+	transactionIndex: number
+	transactionHash: string
+	blockHash: string
+}
+
+export type EthereumTransactionReceipt = {
+	to: string
+	from: string
+	contractAddress?: string
+	status: boolean
+	transactionIndex: number
+	transactionHash: string
+	blockHash: string
+	blockNumber: number
+	events: EthereumTransactionEvent[]
+}
+
 export interface EthereumTransaction {
 	hash: Word
 	from: Address
 	to?: Address
 	data: Binary
 	nonce: number
-	wait(): Promise<void>
+	wait(): Promise<EthereumTransactionReceipt>
 }
 
 export interface EthereumSendOptions {

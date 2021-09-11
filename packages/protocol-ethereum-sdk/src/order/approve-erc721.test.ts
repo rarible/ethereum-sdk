@@ -1,9 +1,8 @@
 import { randomAddress, toAddress } from "@rarible/types"
-import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { sentTx } from "../common/send-transaction"
-import { awaitAll } from "../common/await-all"
 import { approveErc721 as approveErc721Template } from "./approve-erc721"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
 

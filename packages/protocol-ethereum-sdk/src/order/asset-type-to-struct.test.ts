@@ -9,6 +9,7 @@ describe("assetTypeToStruct", () => {
 	const { provider } = createGanacheProvider()
 	const web3 = new Web3(provider as unknown as provider)
 	const ethereum = new Web3Ethereum({ web3 })
+
 	test("encodes ERC20", () => {
 		const result = assetTypeToStruct(ethereum, {
 			assetClass: "ERC20",
@@ -16,6 +17,17 @@ describe("assetTypeToStruct", () => {
 		})
 		expect(result).toStrictEqual({
 			assetClass: "0x8ae85d84",
+			data: "0x00000000000000000000000044953ab2e88391176576d49ca23df0b8acd793be",
+		})
+	})
+
+	test("encodes GEN_ART", () => {
+		const result = assetTypeToStruct(ethereum, {
+			assetClass: "GEN_ART",
+			contract: toAddress("0x44953ab2e88391176576d49ca23df0b8acd793be"),
+		})
+		expect(result).toStrictEqual({
+			assetClass: "0xa8c6716e",
 			data: "0x00000000000000000000000044953ab2e88391176576d49ca23df0b8acd793be",
 		})
 	})

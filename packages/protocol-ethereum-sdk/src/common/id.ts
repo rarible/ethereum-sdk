@@ -1,5 +1,5 @@
-import { Ethereum } from "@rarible/ethereum-provider"
+import { keccak256 } from "ethereumjs-util"
 
-export function id(ethereum: Ethereum, value: string): string {
-	return ethereum.sha3(value).substring(0, 10)
+export function id(value: string): string {
+	return `0x${keccak256(Buffer.from(value)).toString("hex").substring(0, 8)}`
 }

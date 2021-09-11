@@ -31,7 +31,6 @@ export interface Ethereum {
 	send(method: string, params: any): Promise<any>
 	getFrom(): Promise<string>
 	personalSign(message: string): Promise<string>
-	sha3(string: string): string
 	encodeParameter(type: any, parameter: any): string
 }
 

@@ -6,17 +6,22 @@ export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 	switch (assetType.assetClass) {
 		case "ETH":
 			return {
-				assetClass: id(ethereum, "ETH"),
+				assetClass: id("ETH"),
 				data: "0x",
 			}
 		case "ERC20":
 			return {
-				assetClass: id(ethereum, "ERC20"),
+				assetClass: id("ERC20"),
+				data: ethereum.encodeParameter("address", assetType.contract),
+			}
+		case "GEN_ART":
+			return {
+				assetClass: id("GEN_ART"),
 				data: ethereum.encodeParameter("address", assetType.contract),
 			}
 		case "ERC721":
 			return {
-				assetClass: id(ethereum, "ERC721"),
+				assetClass: id("ERC721"),
 				data: ethereum.encodeParameter(
 					{ root: CONTRACT_TOKEN_ID },
 					{ contract: assetType.contract, tokenId: assetType.tokenId }
@@ -24,7 +29,7 @@ export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 			}
 		case "ERC1155":
 			return {
-				assetClass: id(ethereum, "ERC1155"),
+				assetClass: id("ERC1155"),
 				data: ethereum.encodeParameter(
 					{ root: CONTRACT_TOKEN_ID },
 					{ contract: assetType.contract, tokenId: assetType.tokenId }
@@ -42,7 +47,7 @@ export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 				},
 			})
 			return {
-				assetClass: id(ethereum, "ERC721_LAZY"),
+				assetClass: id("ERC721_LAZY"),
 				data: `0x${encoded.substring(66)}`,
 			}
 		}
@@ -59,7 +64,7 @@ export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 				},
 			})
 			return {
-				assetClass: id(ethereum, "ERC1155_LAZY"),
+				assetClass: id("ERC1155_LAZY"),
 				data: `0x${encoded.substring(66)}`,
 			}
 		}

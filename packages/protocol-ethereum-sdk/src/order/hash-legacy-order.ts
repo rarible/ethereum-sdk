@@ -1,4 +1,5 @@
 import { Ethereum } from "@rarible/ethereum-provider"
+import { keccak256 } from "ethereumjs-util"
 import { toLegacyAssetType } from "./to-legacy-asset-type"
 import { SimpleOrder } from "./sign-order"
 
@@ -25,8 +26,8 @@ export function hashLegacyOrder(ethereum: Ethereum, order: SimpleOrder): string 
 		buying: order.take.value,
 		sellerFee: data.fee,
 	}
-
-	return ethereum.sha3(ethereum.encodeParameter({ Order: ORDER }, struct)) as string
+	const encodedOrder = ethereum.encodeParameter({ Order: ORDER }, struct)
+	return `0x${keccak256(new Buffer(encodedOrder.substring(2), "hex")).toString("hex")}`
 }
 
 const ASSET = {

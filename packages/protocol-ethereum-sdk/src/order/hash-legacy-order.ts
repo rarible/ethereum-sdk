@@ -27,7 +27,7 @@ export function hashLegacyOrder(ethereum: Ethereum, order: SimpleOrder): string 
 		sellerFee: data.fee,
 	}
 	const encodedOrder = ethereum.encodeParameter({ Order: ORDER }, struct)
-	return `0x${keccak256(new Buffer(encodedOrder.substring(2), "hex")).toString("hex")}`
+	return `0x${keccak256(Buffer.from(encodedOrder.substring(2), "hex")).toString("hex")}`
 }
 
 const ASSET = {

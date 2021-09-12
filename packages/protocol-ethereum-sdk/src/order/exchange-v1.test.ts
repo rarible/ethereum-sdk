@@ -1,4 +1,3 @@
-/*
 import {
 	Configuration,
 	GatewayControllerApi,
@@ -6,12 +5,11 @@ import {
 	OrderControllerApi,
 } from "@rarible/protocol-api-client"
 import { toAddress, toBigNumber, toWord } from "@rarible/types"
-import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { CONFIGS } from "../config"
 import { retry } from "../common/retry"
-import { awaitAll } from "../common/await-all"
 import { send as sendTemplate } from "../common/send-transaction"
 import { signOrder, SimpleOrder } from "./sign-order"
 import { fillOrderSendTx } from "./fill-order"
@@ -87,11 +85,4 @@ describe("test exchange v1 order", () => {
 			expect(ownership.value).toBe("1")
 		})
 	}, 30000)
-})
-*/
-
-describe("empty", function() {
-	test("", () => {
-
-	})
 })

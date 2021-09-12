@@ -15,19 +15,21 @@ function legacySend(
 ) {
 	if (provider !== null && typeof provider === "object") {
 		if ("sendAsync" in provider && typeof provider.sendAsync === "function") {
-			return provider.sendAsync(payload, callback)
+			provider.sendAsync(payload, callback)
+		} else if ("send" in provider && typeof provider.send === "function") {
+			provider.send(payload, callback)
+		} else {
+			throw new Error("No send method defined")
 		}
-		if ("send" in provider && typeof provider.send === "function") {
-			return provider.send(payload, callback)
-		}
+	} else {
+		throw new Error("No send method defined")
 	}
-	throw new Error("No send method defined")
 }
 
 function requestLegacy(provider: any, method: string, params: unknown[]): Promise<any> {
 	return new Promise<any>((resolve, reject) => {
 		try {
-			return legacySend(provider, {
+			legacySend(provider, {
 				jsonrpc: "2.0",
 				id: new Date().getTime(),
 				method,
@@ -35,15 +37,15 @@ function requestLegacy(provider: any, method: string, params: unknown[]): Promis
 			}, (error, result) => {
 				const err = error || result?.error
 				if (err) {
-					return reject(err)
+					reject(err)
 				}
 				if (result?.result) {
-					return resolve(result.result)
+					resolve(result.result)
 				}
-				return reject(new Error("Can't handle JSON-RPC request"))
+				reject(new Error("Can't handle JSON-RPC request"))
 			})
 		} catch (error) {
-			return reject(error)
+			reject(error)
 		}
 	})
 }

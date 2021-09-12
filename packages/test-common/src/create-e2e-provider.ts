@@ -5,7 +5,7 @@ import RpcSubprovider from "web3-provider-engine/subproviders/rpc"
 import { randomWord } from "@rarible/types"
 
 export function createE2eProvider(pk: string = randomWord()) {
-	const provider = new Web3ProviderEngine()
+	const provider = new Web3ProviderEngine({ pollingInterval: 100 })
 	const wallet = new Wallet(Buffer.from(fixPK(pk), "hex"))
 	provider.addProvider(new TestSubprovider(wallet, { networkId: 17, chainId: 17 }))
 	provider.addProvider(new RpcSubprovider({ rpcUrl: "https://node-e2e.rarible.com" }))

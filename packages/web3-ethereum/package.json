@@ -10,7 +10,7 @@
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
-    "test": "jest",
+    "test": "jest --testTimeout=10000",
     "build": "tsc --project tsconfig-build.json",
     "clean": "rimraf ./build",
     "verify": "tsc --noEmit"

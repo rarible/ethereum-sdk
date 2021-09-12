@@ -20,8 +20,10 @@ export function createGanacheProvider(...pk: string[]) {
 		_chainIdRpc: 17,
 	})
 
-	afterAll(() => {
-		provider.close(() => {})
+	afterAll((cb) => {
+		provider.close(() => {
+			setTimeout(cb, 500)
+		})
 	})
 
 	return {

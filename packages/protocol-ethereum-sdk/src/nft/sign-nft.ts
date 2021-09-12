@@ -1,7 +1,7 @@
 import type { Binary, EIP712Domain, LazyErc1155, LazyErc721 } from "@rarible/protocol-api-client"
 import { Address, toBinary } from "@rarible/types"
+import type { Ethereum } from "@rarible/ethereum-provider"
 import { signTypedData } from "@rarible/ethereum-provider"
-import type { Ethereum } from "@rarible/ethereum-provider/build"
 import type { TypedMessage } from "eth-sig-util"
 import {
 	EIP1155_DOMAIN_NFT_TEMPLATE,

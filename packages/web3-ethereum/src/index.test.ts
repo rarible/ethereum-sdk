@@ -26,10 +26,15 @@ describe("Web3Ethereum", () => {
 	})
 
 	test("should correctly parse error for invalid method request", async () => {
-		await e2eEthereum.send("unknown method", []).catch((err) => {
+		let ok = false
+		try {
+			await e2eEthereum.send("unknown method", [])
+			ok = true
+		} catch (err) {
 			const error = parseRequestError(err)
 			expect(error?.code).toEqual(-32601)
-		})
+		}
+		expect(ok).toBeFalsy()
 	})
 
 	test("allows to send transactions and call functions", async () => {

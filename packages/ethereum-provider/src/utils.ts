@@ -7,10 +7,12 @@ export async function signTypedDataInternal<T extends MessageTypes>(
 	try {
 		return await ethereum.send(SignTypedDataMethodEnum.V4, [signer, JSON.stringify(data)])
 	} catch (error) {
+		console.error("got error white executing sign typed data v4", error)
 		filterErrors(error)
 		try {
 			return await ethereum.send(SignTypedDataMethodEnum.V3, [signer, JSON.stringify(data)])
 		} catch (error) {
+			console.error("got error white executing sign typed data v3", error)
 			filterErrors(error)
 			return ethereum.send(SignTypedDataMethodEnum.DEFAULT, [signer, data])
 		}

@@ -15,7 +15,7 @@ export async function mintOffChain(
 		nftData = {
 			"@type": data.collection.type,
 			contract: data.collection.id,
-			uri: "",
+			uri: data.uri,
 			royalties: data.royalties,
 			creators: data.creators,
 			tokenId,
@@ -25,7 +25,7 @@ export async function mintOffChain(
 		nftData = {
 			"@type": data.collection.type,
 			contract: data.collection.id,
-			uri: "",
+			uri: data.uri,
 			royalties: data.royalties,
 			creators: data.creators,
 			tokenId,

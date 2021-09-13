@@ -64,19 +64,19 @@ export async function mint(
 		if (dataLazy.lazy) {
 			return await mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, dataLazy)
 		} else {
-			return await mintErc721New(ethereum, send, signNft, nftCollectionApi, dataLazy)
+			return await mintErc721New(ethereum, send, nftCollectionApi, dataLazy)
 		}
 	} else if (isLazyErc1155Collection(data.collection)) {
 		const dataLazy = data as LazyErc1155Request
 		if (dataLazy.lazy) {
 			return await mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, dataLazy)
 		} else {
-			return await mintErc1155New(ethereum, send, signNft, nftCollectionApi, dataLazy)
+			return await mintErc1155New(ethereum, send, nftCollectionApi, dataLazy)
 		}
 	} else if (isLegacyErc721Collection(data.collection)) {
-		return await mintErc721Legacy(ethereum, send, signNft, nftCollectionApi, data as LegacyERC721Request)
+		return await mintErc721Legacy(ethereum, send, nftCollectionApi, data as LegacyERC721Request)
 	} else if (isLegacyErc1155Collection(data.collection)) {
-		return await mintErc1155Legacy(ethereum, send, signNft, nftCollectionApi, data as LegacyERC1155Request)
+		return await mintErc1155Legacy(ethereum, send, nftCollectionApi, data as LegacyERC1155Request)
 	} else {
 		throw new Error("Mint request is not correct")
 	}

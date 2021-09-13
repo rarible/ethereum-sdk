@@ -114,6 +114,9 @@ describe("mint test", () => {
 		})
 		const resultNft = await nftItemApi.getNftItemById({ itemId: `${e2eErc721ContractAddress}:${tokenId}` })
 		expect(resultNft.lazySupply).toEqual("1")
+
+		const lazy = await nftItemApi.getNftLazyItemById({ itemId: resultNft.id })
+		expect(lazy.uri).toBe("uri")
 	}, 10000)
 
 	test("mint lazy Erc1155", async () => {
@@ -132,5 +135,8 @@ describe("mint test", () => {
 
 		const resultNft = await nftItemApi.getNftItemById({ itemId: `${e2eErc1155ContractAddress}:${tokenId}` })
 		expect(resultNft.lazySupply).toEqual("100")
+
+		const lazy = await nftItemApi.getNftLazyItemById({ itemId: resultNft.id })
+		expect(lazy.uri).toBe("uri")
 	}, 10000)
 })

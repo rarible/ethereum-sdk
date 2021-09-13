@@ -1,6 +1,6 @@
 {
   "name": "@rarible/ethers-ethereum",
-  "version": "0.1.11",
+  "version": "0.1.16",
   "description": "",
   "keywords": [
     "ethereum",
@@ -16,10 +16,10 @@
     "verify": "tsc --noEmit"
   },
   "dependencies": {
-    "@rarible/ethereum-provider": "^0.1.11"
+    "@rarible/ethereum-provider": "^0.1.16"
   },
   "devDependencies": {
-    "@rarible/ethereum-sdk-test-common": "^0.1.11",
+    "@rarible/ethereum-sdk-test-common": "^0.1.16",
     "@types/jest": "26.0.24",
     "jest": "27.0.6",
     "ts-jest": "27.0.3",

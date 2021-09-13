@@ -1829,17 +1829,19 @@
     eslint-plugin-jest "24.4.0"
     eslint-plugin-unicorn "35.0.0"
 
-"@rarible/protocol-api-client@0.1.6":
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/@rarible/protocol-api-client/-/protocol-api-client-0.1.6.tgz#d3f8ac913cff2aae3774f47f5b1dc0c39c7aee1a"
-  integrity sha512-2O6vyuCiGRR0FVXoFNB+h+QKrKQbw7Kqst3nH4pTGrOuABZhvED8LV9am+cmQx4BghVle/I20XpxvmueWLBf8A==
+"@rarible/protocol-api-client@0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@rarible/protocol-api-client/-/protocol-api-client-0.1.7.tgz#7a125eaed2083052deb5f7bf7dba409246011d47"
+  integrity sha512-MWNPJlil3Wg6R+bn2wDWdQVI22jo0C1H4ajudhceGpfMBLnB1lRM38SAdRfpm3FgLwB/N2I4FwVQIeZObZKgtA==
+  dependencies:
+    "@rarible/types" "^0.1.7"
 
 "@rarible/test-provider@0.1.19":
   version "0.1.19"
   resolved "https://registry.yarnpkg.com/@rarible/test-provider/-/test-provider-0.1.19.tgz#e885e01d03d034f6fe5eac791028fdaee7f943f4"
   integrity sha512-61RrOkd/iqh/2GuDX3BH0QF/a7DWGgnS0exu8NKzZmK1W+eqITyok6CcGz15192yEVfHEtHJfyrugU8YkIVQmA==
 
-"@rarible/types@0.1.7":
+"@rarible/types@0.1.7", "@rarible/types@^0.1.7":
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.1.7.tgz#b88eeb7961f461067207c9f9cab73cf23dba1da3"
   integrity sha512-rq0vGMQlnTQstTPwmFy8lajkOaCTOe7Odf/W1g6o3uLUD6Dlj0Vroh2/erfiyA6vuDALrATWsP5mw2berdwrTw==

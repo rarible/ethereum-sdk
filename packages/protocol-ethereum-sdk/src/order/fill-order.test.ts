@@ -104,7 +104,7 @@ describe("fillOrder", () => {
 		const a = toAddress(it.exchangeV2.options.address)
 		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
 
-		const hash = await fillOrderSendTx(
+		await fillOrderSendTx(
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			send,
@@ -113,7 +113,6 @@ describe("fillOrder", () => {
 			{ ...left, signature },
 			{ amount: 2, payouts: [], originFees: [] }
 		)
-		await web3.eth.getTransactionReceipt(hash as string)
 
 		expect(toBn(await it.testErc20.methods.balanceOf(sender2Address).call()).toString()).toBe("4")
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString()).toBe("2")

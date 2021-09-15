@@ -21,7 +21,7 @@ export type FillOrderRequest = {
 	infinite?: boolean
 }
 
-export type FillOrderAction = ActionBuilder<string, void, [void, string]>
+export type FillOrderAction = ActionBuilder<FillOrderStageId, void, [void, string]>
 export type FillOrderStageId = "approve" | "send-tx"
 
 export async function fillOrder(
@@ -32,7 +32,7 @@ export async function fillOrder(
 	approve: ApproveFunction,
 	config: ExchangeAddresses,
 	order: SimpleOrder,
-	request: FillOrderRequest
+	request: FillOrderRequest,
 ): Promise<FillOrderAction> {
 	const makeAsset = getMakeAssetV2(getMakeFee, order, request.amount)
 	const approveAndWait = async () => {
@@ -41,10 +41,12 @@ export async function fillOrder(
 			await tx.wait()
 		}
 	}
-	return ActionBuilder.create({ id: "approve" as const, run: () => approveAndWait() }).thenStage({
-		id: "send-tx" as const,
-		run: () => fillOrderSendTx(getMakeFee, ethereum, send, config, orderApi, order, request),
-	})
+	return ActionBuilder
+		.create({ id: "approve" as const, run: () => approveAndWait() })
+		.thenStage({
+			id: "send-tx" as const,
+			run: () => fillOrderSendTx(getMakeFee, ethereum, send, config, orderApi, order, request),
+		})
 }
 
 function getMakeAssetV2(getMakeFee: GetMakeFeeFunction, order: SimpleOrder, amount: number) {
@@ -60,14 +62,14 @@ export async function fillOrderSendTx(
 	config: ExchangeAddresses,
 	orderApi: OrderControllerApi,
 	order: SimpleOrder,
-	request: FillOrderRequest
+	request: FillOrderRequest,
 ): Promise<string> {
 	switch (order.type) {
 		case "RARIBLE_V1": {
-			return await fillOrderV1(ethereum, send, orderApi, config.v1, order, request)
+			return fillOrderV1(ethereum, send, orderApi, config.v1, order, request)
 		}
 		case "RARIBLE_V2": {
-			return await fillOrderV2(getMakeFee, ethereum, send, config.v2, order, request)
+			return fillOrderV2(getMakeFee, ethereum, send, config.v2, order, request)
 		}
 		default: {
 			throw new Error(`Unsupported type: ${order.type}`)
@@ -81,7 +83,7 @@ async function fillOrderV2(
 	send: SendFunction,
 	contract: Address,
 	order: SimpleRaribleV2Order,
-	request: FillOrderRequest
+	request: FillOrderRequest,
 ): Promise<string> {
 	const address = toAddress(await ethereum.getFrom())
 	const orderRight = {
@@ -92,7 +94,7 @@ async function fillOrderV2(
 			originFees: request.originFees || [],
 		},
 	}
-	return await matchOrders(getMakeFee, ethereum, send, contract, order, orderRight)
+	return matchOrders(getMakeFee, ethereum, send, contract, order, orderRight)
 }
 
 async function matchOrders(
@@ -101,7 +103,7 @@ async function matchOrders(
 	send: SendFunction,
 	contract: Address,
 	left: SimpleRaribleV2Order,
-	right: SimpleRaribleV2Order
+	right: SimpleRaribleV2Order,
 ): Promise<string> {
 	const exchangeContract = createExchangeV2Contract(ethereum, contract)
 	let options: EthereumSendOptions
@@ -118,7 +120,7 @@ async function matchOrders(
 			orderToStruct(ethereum, left),
 			left.signature || "0x",
 			orderToStruct(ethereum, right),
-			right.signature || "0x"
+			right.signature || "0x",
 		), options)
 	return tx.hash
 }
@@ -129,7 +131,7 @@ async function fillOrderV1(
 	orderApi: OrderControllerApi,
 	contract: Address,
 	order: SimpleLegacyOrder,
-	request: FillOrderRequest
+	request: FillOrderRequest,
 ): Promise<string> {
 	const getAssetWithFee = (asset: Asset, fee: number) => {
 		if (asset.assetType.assetClass === "ETH" || asset.assetType.assetClass === "ERC20") {
@@ -158,7 +160,7 @@ async function fillOrderV1(
 
 	const exchangeContract = createExchangeV1Contract(
 		ethereum,
-		contract
+		contract,
 	)
 	const tx = await send(exchangeContract.functionCall(
 		"exchange",
@@ -167,7 +169,7 @@ async function fillOrderV1(
 		fee,
 		toVrs(buyerFeeSig),
 		orderRight.take.value,
-		getSingleBuyer(request.payouts)
+		getSingleBuyer(request.payouts),
 	), options)
 	return tx.hash
 }

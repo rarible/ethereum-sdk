@@ -12,6 +12,7 @@ import { randomAddress, toAddress, toBigNumber } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { send as sendTemplate } from "../common/send-transaction"
+import { parseItemId } from "../common/parse-item-id"
 import { signNft } from "./sign-nft"
 import { mint } from "./mint"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
@@ -38,7 +39,7 @@ describe("transfer Erc721 lazy", () => {
 		const recipient = randomAddress()
 		const contract = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 
-		const tokenId = await mint(
+		const itemId = await mint(
 			ethereum,
 			send,
 			sign,
@@ -55,6 +56,7 @@ describe("transfer Erc721 lazy", () => {
 				lazy: true,
 			})
 
+		const { tokenId } = parseItemId(itemId)
 		await transfer(
 			ethereum,
 			send,

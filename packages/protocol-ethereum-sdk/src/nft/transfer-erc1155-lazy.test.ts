@@ -12,6 +12,7 @@ import { randomAddress, toAddress, toBigNumber } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { send as sendTemplate } from "../common/send-transaction"
+import { parseItemId } from "../common/parse-item-id"
 import { signNft } from "./sign-nft"
 import { mint } from "./mint"
 import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
@@ -35,7 +36,7 @@ describe("transfer Erc721 lazy", () => {
 	test("should transfer erc1155 lazy token", async () => {
 		const recipient = randomAddress()
 		const contract = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
-		const tokenId = await mint(ethereum, send, sign, nftCollectionApi, nftLazyMintControllerApi, {
+		const itemId = await mint(ethereum, send, sign, nftCollectionApi, nftLazyMintControllerApi, {
 			collection: {
 				type: "ERC1155",
 				id: contract,
@@ -47,6 +48,7 @@ describe("transfer Erc721 lazy", () => {
 			supply: toBigNumber("100"),
 			lazy: true,
 		})
+		const { tokenId } = parseItemId(itemId)
 		await transfer(
 			ethereum,
 			send,

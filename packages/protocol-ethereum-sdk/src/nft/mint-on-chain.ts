@@ -19,7 +19,7 @@ export async function mintErc721Legacy(
 	const erc721Contract = createMintableTokenContract(ethereum, data.collection.id)
 	const { tokenId, signature: { v, r, s } } = await getTokenId(nftCollectionApi, data.collection.id, from)
 	await send(erc721Contract.functionCall("mint", tokenId, v, r, s, data.royalties, data.uri))
-	return tokenId
+	return `${data.collection.id}:${tokenId}:${from}`
 }
 
 export async function mintErc721New(
@@ -44,7 +44,7 @@ export async function mintErc721New(
 		},
 		from
 	))
-	return tokenId
+	return `${data.collection.id}:${tokenId}:${from}`
 }
 
 export async function mintErc1155Legacy(
@@ -57,7 +57,7 @@ export async function mintErc1155Legacy(
 	const erc155Contract = createRaribleTokenContract(ethereum, data.collection.id)
 	const { tokenId, signature: { v, r, s } } = await getTokenId(nftCollectionApi, data.collection.id, from)
 	await send(erc155Contract.functionCall("mint", tokenId, v, r, s, data.royalties, data.supply, data.uri))
-	return tokenId
+	return `${data.collection.id}:${tokenId}:${from}`
 }
 
 export async function mintErc1155New(
@@ -83,5 +83,5 @@ export async function mintErc1155New(
 		from,
 		data.supply
 	))
-	return tokenId
+	return `${data.collection.id}:${tokenId}:${from}`
 }

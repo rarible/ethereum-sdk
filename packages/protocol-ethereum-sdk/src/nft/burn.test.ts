@@ -11,6 +11,7 @@ import {
 } from "@rarible/protocol-api-client"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { send as sendTemplate } from "../common/send-transaction"
+import { parseItemId } from "../common/parse-item-id"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
 import { mint as mintTemplate } from "./mint"
 import { signNft } from "./sign-nft"
@@ -42,7 +43,7 @@ describe("burn nft's", () => {
 
 
 	test("should burn ERC721 legacy token", async () => {
-		const tokenId = await mint(mintLazyApi, {
+		const itemId = await mint(mintLazyApi, {
 			collection: { id: contractErc721, type: "ERC721", supportsLazyMint: false },
 			uri: "//test",
 			royalties: [],
@@ -51,6 +52,7 @@ describe("burn nft's", () => {
 		const testBalance = await testErc721.functionCall("balanceOf", testAddress).call()
 		expect(testBalance).toBe("1")
 
+		const { tokenId } = parseItemId(itemId)
 		await burn({
 			contract: contractErc721,
 			tokenId: toBigNumber(tokenId),
@@ -60,13 +62,14 @@ describe("burn nft's", () => {
 	}, 10000)
 
 	test("should burn ERC1155 legacy token", async () => {
-		const tokenId = await mint(mintLazyApi, {
+		const itemId = await mint(mintLazyApi, {
 			collection: { id: contractErc1155, type: "ERC1155", supportsLazyMint: false },
 			uri: "//test",
 			royalties: [],
 			supply: 100,
 		})
 
+		const { tokenId } = parseItemId(itemId)
 		await burn({
 			contract: contractErc1155,
 			tokenId: toBigNumber(tokenId),

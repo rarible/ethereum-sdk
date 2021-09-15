@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.20](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.1.19...v0.1.20) (2021-09-15)
+
+
+### Bug Fixes
+
+* mint returns OwnershipId ([bc70c1c](https://github.com/rariblecom/protocol-ethereum-sdk/commit/bc70c1cb19efc38e184c09a1c4781317917b0e58))
+
+
+
+
+
 ## [0.1.19](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.1.18...v0.1.19) (2021-09-15)
 
 

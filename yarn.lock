@@ -1836,10 +1836,10 @@
   dependencies:
     "@rarible/types" "^0.1.7"
 
-"@rarible/test-provider@0.1.19":
-  version "0.1.19"
-  resolved "https://registry.yarnpkg.com/@rarible/test-provider/-/test-provider-0.1.19.tgz#e885e01d03d034f6fe5eac791028fdaee7f943f4"
-  integrity sha512-61RrOkd/iqh/2GuDX3BH0QF/a7DWGgnS0exu8NKzZmK1W+eqITyok6CcGz15192yEVfHEtHJfyrugU8YkIVQmA==
+"@rarible/test-provider@0.1.20":
+  version "0.1.20"
+  resolved "https://registry.yarnpkg.com/@rarible/test-provider/-/test-provider-0.1.20.tgz#de5a01f25db2487853060d7f88671794cb2fc20c"
+  integrity sha512-D5fLPg8eok4Rv19F7z53z7TG5WwICNmCLtz0mthKdXMIZoXIXC9BehZdyRxQu7PBQ2lTzwHAF0OITGrdSRkAnQ==
 
 "@rarible/types@0.1.7", "@rarible/types@^0.1.7":
   version "0.1.7"

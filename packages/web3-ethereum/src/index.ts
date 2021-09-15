@@ -9,7 +9,7 @@ import type {
 } from "@rarible/ethereum-provider"
 import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
 import { backOff } from "exponential-backoff"
-import { EthereumTransactionEvent, EthereumTransactionReceipt } from "@rarible/ethereum-provider/src"
+import { EthereumTransactionEvent, EthereumTransactionReceipt } from "@rarible/ethereum-provider"
 import type { Web3EthereumConfig } from "./domain"
 import { providerRequest } from "./utils/provider-request"
 import { toPromises } from "./utils/to-promises"

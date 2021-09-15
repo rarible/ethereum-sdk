@@ -8,7 +8,7 @@ import {
 	EthereumTransaction,
 } from "@rarible/ethereum-provider"
 import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
-import { EthereumTransactionReceipt } from "@rarible/ethereum-provider/src"
+import { EthereumTransactionReceipt } from "@rarible/ethereum-provider"
 import { encodeParameters } from "./abi-coder"
 
 export class EthersEthereum implements Ethereum {

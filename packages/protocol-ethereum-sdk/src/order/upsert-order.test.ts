@@ -33,9 +33,7 @@ describe("upsertOrder", () => {
 		const upsert = (
 			await upsertOrder(getMakeFee.bind(null, { v2: 0 }), checkLazyOrder, approve, sign, orderApi, order)
 		).build()
-		await upsert.run(0)
-		await upsert.run(1)
-		await upsert.run(2)
+		await upsert.runAll()
 		const result = await upsert.result
 		expect(result.hash).toBeTruthy()
 	}, 10000)

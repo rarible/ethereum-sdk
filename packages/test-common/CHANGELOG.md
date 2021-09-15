@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.1.21...v0.2.0) (2021-09-15)
+
+**Note:** Version bump only for package @rarible/ethereum-sdk-test-common
+
+
+
+
+
 ## [0.1.19](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.1.18...v0.1.19) (2021-09-15)
 
 

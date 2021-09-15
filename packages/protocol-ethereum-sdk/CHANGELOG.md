@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.1.21...v0.2.0) (2021-09-15)
+
+
+### Bug Fixes
+
+* better jest config ([8007d1e](https://github.com/rariblecom/protocol-ethereum-sdk/commit/8007d1e1d0040f67fc532a9dd802d79b8b774bfe))
+* mint owner fix ([9ae2b52](https://github.com/rariblecom/protocol-ethereum-sdk/commit/9ae2b52d7c0b76dbcf5fdbefb8cca6fbea784ce0))
+
+
+### Features
+
+* add transaction return for fill order action ([11da6fd](https://github.com/rariblecom/protocol-ethereum-sdk/commit/11da6fd1a21511f4056f4156907d612a30d8b0bc))
+* remove redunant step from upsert order action ([d09fce6](https://github.com/rariblecom/protocol-ethereum-sdk/commit/d09fce60c3797de5ac66ee3c7f3007787a26b372))
+
+
+
+
+
 ## [0.1.21](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.1.20...v0.1.21) (2021-09-15)
 
 **Note:** Version bump only for package @rarible/protocol-ethereum-sdk

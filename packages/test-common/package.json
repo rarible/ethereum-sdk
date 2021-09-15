@@ -18,6 +18,7 @@
   "dependencies": {
     "@rarible/ethereum-provider": "^0.1.16",
     "@rarible/test-provider": "0.1.20",
+    "@rarible/types": "0.1.7",
     "@types/web3-provider-engine": "14.0.1",
     "ganache-core": "2.13.2"
   },
@@ -25,7 +26,6 @@
     "typescript": "4.3.5"
   },
   "peerDependencies": {
-    "@rarible/types": "^0.1.7",
     "eth-sig-util": "^3.0.1",
     "ethereumjs-wallet": "^1.0.1",
     "tslib": "^2.3.1",

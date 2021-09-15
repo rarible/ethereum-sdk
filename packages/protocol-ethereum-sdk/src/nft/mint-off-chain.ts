@@ -39,5 +39,5 @@ export async function mintOffChain(
 			signatures: [signature],
 		},
 	})
-	return `${nftLazyItem.contract}:${nftLazyItem.tokenId}:${data.creators[0]}`
+	return `${nftLazyItem.contract}:${nftLazyItem.tokenId}:${data.creators[0].account}`
 }

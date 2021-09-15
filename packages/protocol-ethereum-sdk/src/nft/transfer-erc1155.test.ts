@@ -4,6 +4,7 @@ import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { Configuration, GatewayControllerApi } from "@rarible/protocol-api-client"
 import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
+import { getApiConfig } from "../config/api-config"
 import { send as sendTemplate } from "../common/send-transaction"
 import { transferErc1155 } from "./transfer-erc1155"
 
@@ -14,7 +15,7 @@ describe("transfer Erc1155", () => {
 	const [from] = addresses
 	const to = randomAddress()
 
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
+	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const send = sendTemplate.bind(null, gatewayApi)
 

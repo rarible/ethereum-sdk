@@ -3,6 +3,7 @@ import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-comm
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { Configuration, GatewayControllerApi } from "@rarible/protocol-api-client"
+import { getApiConfig } from "../config/api-config"
 import { sentTx, send as sendTemplate } from "../common/send-transaction"
 import { approveErc721 as approveErc721Template } from "./approve-erc721"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
@@ -12,7 +13,7 @@ describe("approveErc721", () => {
 	const web3 = new Web3(provider as any)
 	const ethereum = new Web3Ethereum({ web3 })
 	const [from] = addresses
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
+	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const send = sendTemplate.bind(null, gatewayApi)
 

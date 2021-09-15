@@ -4,6 +4,7 @@ import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
+import { getApiConfig } from "../config/api-config"
 import { getTokenId as getTokenIdTemplate } from "../nft/get-token-id"
 import { createMintableTokenContract } from "../nft/contracts/erc721/mintable-token"
 import { createPendingLogs, send as sendTemplate } from "./send-transaction"
@@ -12,7 +13,7 @@ describe("sendTransaction", () => {
 	const { provider, wallet } = createE2eProvider()
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
+	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const collectionApi = new NftCollectionControllerApi(configuration)
 	const send = sendTemplate.bind(null, gatewayApi)

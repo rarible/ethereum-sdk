@@ -28,7 +28,7 @@ import {
 	checkLazyOrder as checkLazyOrderTemplate,
 } from "./order"
 import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
-import { mint as mintTemplate, MintRequest } from "./nft/mint"
+import { mint as mintTemplate, MintOffChainResponse, MintOnChainResponse, MintRequest } from "./nft/mint"
 import { transfer as transferTemplate, TransferAsset } from "./nft/transfer"
 import { signNft as signNftTemplate } from "./nft/sign-nft"
 import { getMakeFee as getMakeFeeTemplate } from "./order/get-make-fee"
@@ -73,7 +73,7 @@ export interface RaribleNftSdk {
 	 *
 	 * @param request parameters for item to mint
 	 */
-	mint(request: MintRequest): Promise<string>
+	mint(request: MintRequest): Promise<MintOnChainResponse | MintOffChainResponse>
 
 	/**
 	 * @param asset asset for transfer
@@ -91,9 +91,7 @@ export interface RaribleNftSdk {
 
 export interface RaribleSdk {
 	order: RaribleOrderSdk
-
 	nft: RaribleNftSdk
-
 	apis: RaribleApis
 }
 
@@ -103,7 +101,10 @@ export function createRaribleSdk(
 	configurationParameters?: ConfigurationParameters
 ): RaribleSdk {
 	const config = CONFIGS[env]
-	const apiConfiguration = new Configuration({ ...configurationParameters, basePath: config.basePath })
+	const apiConfiguration = new Configuration({
+		...configurationParameters,
+		basePath: config.basePath,
+	})
 
 	const nftItemControllerApi = new NftItemControllerApi(apiConfiguration)
 	const nftOwnershipControllerApi = new NftOwnershipControllerApi(apiConfiguration)
@@ -118,8 +119,7 @@ export function createRaribleSdk(
 	const checkLazyAssetType = partialCall(checkLazyAssetTypeTemplate, nftItemControllerApi)
 	const checkLazyAsset = partialCall(checkLazyAssetTemplate, checkLazyAssetType)
 	const checkLazyOrder = partialCall(checkLazyOrderTemplate, checkLazyAsset)
-
-	const checkAssetType = partialCall(checkAssetTypeTemplate, nftItemControllerApi, nftCollectionControllerApi)
+	const checkAssetType = partialCall(checkAssetTypeTemplate, nftCollectionControllerApi)
 
 	const approve = partialCall(approveTemplate, ethereum, send, config.transferProxies)
 	const signOrder = partialCall(signOrderTemplate, ethereum, config)
@@ -172,7 +172,3 @@ function partialCall<T extends Arr, U extends Arr, R>(
 ): (...tailArgs: U) => R {
 	return (...tailArgs: U) => f(...headArgs, ...tailArgs)
 }
-
-export {
-	isLazyErc721Collection, isLazyErc1155Collection, isLegacyErc721Collection, isLegacyErc1155Collection,
-} from "./nft/mint"

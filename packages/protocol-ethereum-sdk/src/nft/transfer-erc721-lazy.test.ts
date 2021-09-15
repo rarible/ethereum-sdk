@@ -1,37 +1,30 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
-import {
-	Configuration,
-	GatewayControllerApi,
-	NftCollectionControllerApi,
-	NftItemControllerApi,
-	NftLazyMintControllerApi,
-	NftOwnershipControllerApi,
-} from "@rarible/protocol-api-client"
-import { randomAddress, toAddress, toBigNumber } from "@rarible/types"
+import { Configuration, GatewayControllerApi, NftCollectionControllerApi, NftItemControllerApi, NftLazyMintControllerApi, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
+import { randomAddress, toAddress } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { send as sendTemplate } from "../common/send-transaction"
-import { parseItemId } from "../common/parse-item-id"
+import { getApiConfig } from "../config/api-config"
 import { signNft } from "./sign-nft"
 import { mint } from "./mint"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
 import { transfer } from "./transfer"
+import { createErc721MintRequest } from "./mint-utils"
 
 describe("transfer Erc721 lazy", () => {
 	const { provider, wallet } = createE2eProvider()
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
 
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
+	const configuration = new Configuration(getApiConfig("e2e"))
 	const nftOwnershipApi = new NftOwnershipControllerApi(configuration)
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const send = sendTemplate.bind(null, gatewayApi)
-	const checkAssetType = checkAssetTypeTemplate.bind(null, nftItemApi, nftCollectionApi)
-
+	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
 	const sign = signNft.bind(null, ethereum, 17)
 
 	test("should transfer erc721 lazy token", async () => {
@@ -39,24 +32,22 @@ describe("transfer Erc721 lazy", () => {
 		const recipient = randomAddress()
 		const contract = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 
-		const itemId = await mint(
+		const request = createErc721MintRequest({
+			uri: "//uri",
+			creators: [{ account: from, value: 10000 }],
+			royalties: [],
+			lazy: true,
+		}, contract)
+
+		const minted = await mint(
 			ethereum,
 			send,
 			sign,
 			nftCollectionApi,
-			nftLazyMintControllerApi, {
-				collection: {
-					id: contract,
-					type: "ERC721",
-					supportsLazyMint: true,
-				},
-				uri: "//uri",
-				creators: [{ account: from, value: 10000 }],
-				royalties: [],
-				lazy: true,
-			})
+			nftLazyMintControllerApi,
+			request
+		)
 
-		const { tokenId } = parseItemId(itemId)
 		await transfer(
 			ethereum,
 			send,
@@ -65,7 +56,7 @@ describe("transfer Erc721 lazy", () => {
 			nftItemApi,
 			nftOwnershipApi,
 			{
-				tokenId: toBigNumber(tokenId),
+				tokenId: minted.nftTokenId.tokenId,
 				contract: contract,
 			},
 			recipient
@@ -74,5 +65,4 @@ describe("transfer Erc721 lazy", () => {
 		const recipientBalance = await erc721Lazy.functionCall("balanceOf", recipient).call()
 		expect(recipientBalance).toEqual("1")
 	}, 30000)
-
 })

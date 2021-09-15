@@ -1,55 +1,86 @@
 /* eslint-disable camelcase */
-import {
-	Address,
-	Binary,
-	LazyErc1155,
-	LazyErc721,
-	NftCollection_Type,
-	NftCollectionControllerApi,
-	NftLazyMintControllerApi,
-	Part,
-} from "@rarible/protocol-api-client"
-import { Ethereum } from "@rarible/ethereum-provider"
-import { NftCollection_Features } from "@rarible/protocol-api-client/build/models/NftCollection"
-import { SendFunction } from "../common/send-transaction"
+import type { Address, Binary, LazyErc1155, LazyErc721, NftCollectionControllerApi, NftLazyMintControllerApi, Part, NftTokenId, NftItem } from "@rarible/protocol-api-client"
+import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
+import type { NftCollection_Features } from "@rarible/protocol-api-client/build/models/NftCollection"
+import type { SendFunction } from "../common/send-transaction"
 import { mintOffChain } from "./mint-off-chain"
 import { mintErc1155Legacy, mintErc1155New, mintErc721Legacy, mintErc721New } from "./mint-on-chain"
-import { SimpleLazyNft } from "./sign-nft"
+import type { SimpleLazyNft } from "./sign-nft"
 
-type Collection = { id: Address, features?: NftCollection_Features[], type: NftCollection_Type }
+export enum NftCollectionTypeEnum {
+	ERC721_LEGACY = "ERC721-legacy",
+	ERC721 = "ERC721",
+	ERC1155_LEGACY = "ERC1155-legacy",
+	ERC1155 = "ERC1155",
+}
 
-type ERC721Collection = Collection & { type: "ERC721" }
-type LegacyERC721Collection = ERC721Collection & { supportsLazyMint: false }
-type LazyERC721Collection = ERC721Collection & { supportsLazyMint: true }
+type CollectionBase = {
+	id: Address
+	features?: NftCollection_Features[]
+	type: NftCollectionTypeEnum
+}
+
+export type LegacyERC721Collection = CollectionBase & { type: NftCollectionTypeEnum.ERC721_LEGACY }
+export type ERC721Collection = CollectionBase & { type: NftCollectionTypeEnum.ERC721 }
 
 export type LegacyERC721Request = {
+	type: NftCollectionTypeEnum.ERC721_LEGACY
 	collection: LegacyERC721Collection
 	uri: string
 	royalties: Array<Part>
 }
 
-export type LazyErc721Request = {
-	collection: LazyERC721Collection,
+export type ERC721Request = Omit<LazyErc721, "signatures" | "contract" | "tokenId" | "@type"> & {
+	type: NftCollectionTypeEnum.ERC721
+	collection: ERC721Collection
 	lazy?: boolean
-} & Omit<LazyErc721, "signatures" | "contract" | "tokenId" | "@type">
+}
 
-type ERC1155Collection = Collection & { type: "ERC1155" }
-type LegacyERC1155Collection = ERC1155Collection & { supportsLazyMint: false }
-type LazyERC1155Collection = ERC1155Collection & { supportsLazyMint: true }
+export type LegacyERC1155Collection = CollectionBase & { type: NftCollectionTypeEnum.ERC1155_LEGACY }
+export type ERC1155Collection = CollectionBase & { type: NftCollectionTypeEnum.ERC1155 }
+export type NftCollection =
+	| LegacyERC1155Collection
+	| ERC1155Collection
+	| LegacyERC721Collection
+	| ERC721Collection
 
 export type LegacyERC1155Request = {
+	type: NftCollectionTypeEnum.ERC1155_LEGACY
 	collection: LegacyERC1155Collection
 	uri: string
 	supply: number
 	royalties: Array<Part>
 }
 
-export type LazyErc1155Request = {
-	collection: LazyERC1155Collection,
+export type ERC1155Request = Omit<LazyErc1155, "signatures" | "contract" | "tokenId" | "@type"> & {
+	type: NftCollectionTypeEnum.ERC1155
+	collection: ERC1155Collection
 	lazy?: boolean
-} & Omit<LazyErc1155, "signatures" | "contract" | "tokenId" | "@type">
+}
 
-export type MintRequest = LazyErc721Request | LazyErc1155Request | LegacyERC721Request | LegacyERC1155Request
+export type MintRequest = ERC721Request | ERC1155Request | LegacyERC721Request | LegacyERC1155Request
+
+export type MintResponseCommon = {
+	contract: Address
+	nftTokenId: NftTokenId
+	owner: Address
+	itemId: string
+}
+
+export enum MintResponseTypeEnum {
+	OFF_CHAIN = "off-chain",
+	ON_CHAIN = "on-chain"
+}
+
+export type MintOffChainResponse = MintResponseCommon & {
+	type: MintResponseTypeEnum.OFF_CHAIN
+	item: NftItem
+}
+
+export type MintOnChainResponse = MintResponseCommon & {
+	type: MintResponseTypeEnum.ON_CHAIN
+	transaction: EthereumTransaction
+}
 
 export async function mint(
 	ethereum: Ethereum,
@@ -58,54 +89,20 @@ export async function mint(
 	nftCollectionApi: NftCollectionControllerApi,
 	nftLazyMintApi: NftLazyMintControllerApi,
 	data: MintRequest
-): Promise<string> {
-	if (isLazyErc721Collection(data.collection)) {
-		const dataLazy = data as LazyErc721Request
-		if (dataLazy.lazy) {
-			return mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, dataLazy)
-		} else {
-			return mintErc721New(ethereum, send, nftCollectionApi, dataLazy)
-		}
-	} else if (isLazyErc1155Collection(data.collection)) {
-		const dataLazy = data as LazyErc1155Request
-		if (dataLazy.lazy) {
-			return mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, dataLazy)
-		} else {
-			return mintErc1155New(ethereum, send, nftCollectionApi, dataLazy)
-		}
-	} else if (isLegacyErc721Collection(data.collection)) {
-		return mintErc721Legacy(ethereum, send, nftCollectionApi, data as LegacyERC721Request)
-	} else if (isLegacyErc1155Collection(data.collection)) {
-		return mintErc1155Legacy(ethereum, send, nftCollectionApi, data as LegacyERC1155Request)
-	} else {
-		throw new Error("Mint request is not correct")
+): Promise<MintOffChainResponse | MintOnChainResponse> {
+	if (data.type === NftCollectionTypeEnum.ERC721) {
+		if (data.lazy) return mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, data)
+		return mintErc721New(ethereum, send, nftCollectionApi, data)
 	}
-}
-
-export function isLazyErc721Collection(
-	collection: Collection
-): collection is LazyERC721Collection {
-	return collection.type === "ERC721" && isLazy(collection)
-}
-
-export function isLegacyErc721Collection(
-	collection: Collection
-): collection is LegacyERC721Collection {
-	return collection.type === "ERC721" && !isLazy(collection)
-}
-
-export function isLazyErc1155Collection(
-	collection: Collection
-): collection is LazyERC1155Collection {
-	return collection.type === "ERC1155" && isLazy(collection)
-}
-
-export function isLegacyErc1155Collection(
-	collection: Collection
-): collection is LegacyERC1155Collection {
-	return collection.type === "ERC1155" && !isLazy(collection)
-}
-
-function isLazy(collection: { features?: string[] }) {
-	return (collection.features || []).indexOf("MINT_AND_TRANSFER") !== -1 || Boolean((collection as any).supportsLazyMint)
+	if (data.type === NftCollectionTypeEnum.ERC1155) {
+		if (data.lazy) return mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, data)
+		return mintErc1155New(ethereum, send, nftCollectionApi, data)
+	}
+	if (data.type === NftCollectionTypeEnum.ERC721_LEGACY) {
+		return mintErc721Legacy(ethereum, send, nftCollectionApi, data)
+	}
+	if (data.type === NftCollectionTypeEnum.ERC1155_LEGACY) {
+		return mintErc1155Legacy(ethereum, send, nftCollectionApi, data)
+	}
+	throw new Error("Mint request is not correct")
 }

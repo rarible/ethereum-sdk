@@ -9,7 +9,7 @@ import type {
 } from "@rarible/ethereum-provider"
 import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
 import { backOff } from "exponential-backoff"
-import { EthereumTransactionEvent, EthereumTransactionReceipt } from "@rarible/ethereum-provider"
+import type { EthereumTransactionEvent, EthereumTransactionReceipt } from "@rarible/ethereum-provider"
 import type { Web3EthereumConfig } from "./domain"
 import { providerRequest } from "./utils/provider-request"
 import { toPromises } from "./utils/to-promises"
@@ -71,28 +71,38 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 	async send(options: EthereumSendOptions = {}): Promise<EthereumTransaction> {
 		const sendMethod = this.getSendMethod()
 		const from = toAddress(await this.getFrom())
-		const promiEvent: PromiEvent<any> = sendMethod.send({
+		const promiEvent: PromiEvent<Contract> = sendMethod.send({
 			from,
 			gas: this.config.gas || options.gas,
 			value: options.value,
 			gasPrice: options.gasPrice?.toString(),
 		})
 		const { hash, receipt } = toPromises(promiEvent)
-		const realHash = await hash
-		const tx = await backOff(() => this.config.web3.eth.getTransaction(realHash), {
-			maxDelay: 5000,
-			numOfAttempts: 10,
-			delayFirstAttempt: true,
-			startingDelay: 300,
-		})
+		const hashValue = await hash
+		const tx = await this.getTransaction(hashValue)
 		return new Web3Transaction(
 			receipt,
-			toWord(realHash),
+			toWord(hashValue),
 			toBinary(sendMethod.encodeABI()),
 			tx.nonce,
 			from,
 			this.contract
 		)
+	}
+
+	private getTransaction(hash: string) {
+		return backOff(async () => {
+			const value = await this.config.web3.eth.getTransaction(hash)
+			if (!value) {
+				throw new Error("No transaction found")
+			}
+			return value
+		}, {
+			maxDelay: 5000,
+			numOfAttempts: 10,
+			delayFirstAttempt: true,
+			startingDelay: 300,
+		})
 	}
 
 	async getFrom(): Promise<string> {

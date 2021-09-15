@@ -3,18 +3,15 @@
 import { Binary, Order, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
 import { ActionBuilder } from "@rarible/action"
 import { toBinary } from "@rarible/types"
-import { EthereumTransaction } from "@rarible/ethereum-provider"
+import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import { toBn } from "@rarible/utils/build/bn"
-import { SimpleOrder } from "./sign-order"
+import type { SimpleOrder } from "./sign-order"
 import { addFee } from "./add-fee"
-import { GetMakeFeeFunction } from "./get-make-fee"
-import { ApproveFunction } from "./approve"
+import type { GetMakeFeeFunction } from "./get-make-fee"
+import type { ApproveFunction } from "./approve"
 
-export type UpsertOrderStageId = "approve" | "sign" | "post"
-
-export type UpsertOrderAction =
-	ActionBuilder<UpsertOrderStageId, void, [(EthereumTransaction | undefined), Binary, Order]>
-
+export type UpsertOrderStageId = "approve" | "sign"
+export type UpsertOrderAction = ActionBuilder<UpsertOrderStageId, void, [EthereumTransaction | undefined, Order]>
 export type UpsertOrderFunction = (order: OrderForm, infinite?: boolean) => Promise<UpsertOrderAction>
 
 /**
@@ -34,14 +31,20 @@ export async function upsertOrder(
 	const checkedOrder = await checkLazyOrder(order)
 	const makeFee = getMakeFee(orderFormToSimpleOrder(checkedOrder))
 	const make = addFee(checkedOrder.make, makeFee)
-	return Promise.resolve(
-		ActionBuilder.create({ id: "approve" as const, run: () => approve(checkedOrder.maker, make, infinite) })
-			.thenStage({ id: "sign" as const, run: () => signOrder(orderFormToSimpleOrder(checkedOrder)) })
-			.thenStage({
-				id: "post" as const,
-				run: sig => orderApi.upsertOrder({ orderForm: { ...checkedOrder, signature: sig } }),
-			})
-	)
+	return ActionBuilder
+		.create({
+			id: "approve" as const,
+			run: () => approve(checkedOrder.maker, make, infinite),
+		})
+		.thenStage({
+			id: "sign" as const,
+			run: async () => orderApi.upsertOrder({
+				orderForm: {
+					...checkedOrder,
+					signature: await signOrder(orderFormToSimpleOrder(checkedOrder)),
+				},
+			}),
+		})
 }
 
 function orderFormToSimpleOrder(form: OrderForm): SimpleOrder {

@@ -2,17 +2,17 @@ import { Asset, LegacyOrderForm, OrderControllerApi, Part } from "@rarible/proto
 import { Address, toAddress, toBigNumber, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { ActionBuilder } from "@rarible/action"
 import { toBn } from "@rarible/utils/build/bn"
-import { Ethereum, EthereumSendOptions } from "@rarible/ethereum-provider"
-import { ExchangeAddresses } from "../config/type"
-import { SendFunction } from "../common/send-transaction"
+import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
+import type { ExchangeAddresses } from "../config/type"
+import type { SendFunction } from "../common/send-transaction"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import { orderToStruct, SimpleLegacyOrder, SimpleOrder, SimpleRaribleV2Order } from "./sign-order"
 import { invertOrder } from "./invert-order"
 import { addFee } from "./add-fee"
-import { GetMakeFeeFunction } from "./get-make-fee"
+import type { GetMakeFeeFunction } from "./get-make-fee"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { toStructLegacyOrder } from "./to-struct-legacy-order"
-import { ApproveFunction } from "./approve"
+import type { ApproveFunction } from "./approve"
 
 export type FillOrderRequest = {
 	amount: number
@@ -21,7 +21,7 @@ export type FillOrderRequest = {
 	infinite?: boolean
 }
 
-export type FillOrderAction = ActionBuilder<FillOrderStageId, void, [void, string]>
+export type FillOrderAction = ActionBuilder<FillOrderStageId, void, [void, EthereumTransaction]>
 export type FillOrderStageId = "approve" | "send-tx"
 
 export async function fillOrder(
@@ -63,7 +63,7 @@ export async function fillOrderSendTx(
 	orderApi: OrderControllerApi,
 	order: SimpleOrder,
 	request: FillOrderRequest,
-): Promise<string> {
+): Promise<EthereumTransaction> {
 	switch (order.type) {
 		case "RARIBLE_V1": {
 			return fillOrderV1(ethereum, send, orderApi, config.v1, order, request)
@@ -84,7 +84,7 @@ async function fillOrderV2(
 	contract: Address,
 	order: SimpleRaribleV2Order,
 	request: FillOrderRequest,
-): Promise<string> {
+): Promise<EthereumTransaction> {
 	const address = toAddress(await ethereum.getFrom())
 	const orderRight = {
 		...invertOrder(order, toBn(request.amount), address),
@@ -104,25 +104,28 @@ async function matchOrders(
 	contract: Address,
 	left: SimpleRaribleV2Order,
 	right: SimpleRaribleV2Order,
-): Promise<string> {
+): Promise<EthereumTransaction> {
 	const exchangeContract = createExchangeV2Contract(ethereum, contract)
-	let options: EthereumSendOptions
+	const method = exchangeContract.functionCall(
+		"matchOrders",
+		orderToStruct(ethereum, left),
+		left.signature || "0x",
+		orderToStruct(ethereum, right),
+		right.signature || "0x",
+	)
+	return send(method, getMatchV2Options(left, right, getMakeFee))
+}
+
+function getMatchV2Options(
+	left: SimpleRaribleV2Order, right: SimpleRaribleV2Order, getMakeFee: GetMakeFeeFunction
+): EthereumSendOptions {
 	if (left.make.assetType.assetClass === "ETH" && left.salt === ZERO) {
-		options = { value: getRealValue(getMakeFee, left) }
+		return { value: getRealValue(getMakeFee, left) }
 	} else if (right.make.assetType.assetClass === "ETH" && right.salt === ZERO) {
-		options = { value: getRealValue(getMakeFee, right) }
+		return { value: getRealValue(getMakeFee, right) }
 	} else {
-		options = {}
+		return {}
 	}
-	const tx = await send(exchangeContract
-		.functionCall(
-			"matchOrders",
-			orderToStruct(ethereum, left),
-			left.signature || "0x",
-			orderToStruct(ethereum, right),
-			right.signature || "0x",
-		), options)
-	return tx.hash
 }
 
 async function fillOrderV1(
@@ -132,15 +135,7 @@ async function fillOrderV1(
 	contract: Address,
 	order: SimpleLegacyOrder,
 	request: FillOrderRequest,
-): Promise<string> {
-	const getAssetWithFee = (asset: Asset, fee: number) => {
-		if (asset.assetType.assetClass === "ETH" || asset.assetType.assetClass === "ERC20") {
-			return addFee(asset, fee)
-		} else {
-			return asset
-		}
-	}
-
+): Promise<EthereumTransaction> {
 	const data = order.data
 	if (data.dataType !== "LEGACY") {
 		throw new Error(`Not supported data type: ${data.dataType}`)
@@ -149,20 +144,9 @@ async function fillOrderV1(
 	const buyerFeeSig = await orderApi.buyerFeeSignature({ fee, orderForm: fromSimpleOrderToOrderForm(order) })
 	const buyer = toAddress(await ethereum.getFrom())
 	const orderRight = invertOrder(order, toBn(request.amount), buyer)
+	const exchangeContract = createExchangeV1Contract(ethereum, contract)
 
-	let options: EthereumSendOptions
-	if (order.take.assetType.assetClass === "ETH") {
-		const makeAsset = getAssetWithFee(orderRight.make, fee)
-		options = { value: makeAsset.value }
-	} else {
-		options = {}
-	}
-
-	const exchangeContract = createExchangeV1Contract(
-		ethereum,
-		contract,
-	)
-	const tx = await send(exchangeContract.functionCall(
+	const method = exchangeContract.functionCall(
 		"exchange",
 		toStructLegacyOrder(order),
 		toVrs(order.signature!),
@@ -170,8 +154,28 @@ async function fillOrderV1(
 		toVrs(buyerFeeSig),
 		orderRight.take.value,
 		getSingleBuyer(request.payouts),
-	), options)
-	return tx.hash
+	)
+
+	return send(method, getMatchV1Options(order, orderRight, fee))
+}
+
+function getMatchV1Options(
+	order: SimpleLegacyOrder, orderRight: SimpleLegacyOrder, fee: number
+): EthereumSendOptions {
+	if (order.take.assetType.assetClass === "ETH") {
+		const makeAsset = getAssetWithFee(orderRight.make, fee)
+		return { value: makeAsset.value }
+	} else {
+		return {}
+	}
+}
+
+function getAssetWithFee(asset: Asset, fee: number) {
+	if (asset.assetType.assetClass === "ETH" || asset.assetType.assetClass === "ERC20") {
+		return addFee(asset, fee)
+	} else {
+		return asset
+	}
 }
 
 function getSingleBuyer(payouts?: Array<Part>): Address {

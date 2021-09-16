@@ -7,11 +7,10 @@ import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-t
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
-import { mint as mintTemplate } from "./mint"
+import { mint as mintTemplate, NftCollectionTypeEnum } from "./mint"
 import { signNft } from "./sign-nft"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { burn as burnTemplate } from "./burn"
-import { createErc1155LegacyMintRequest, createErc721LegacyMintRequest } from "./mint-utils"
 
 describe("burn nfts", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -33,7 +32,14 @@ describe("burn nfts", () => {
 	const testErc1155 = createRaribleTokenContract(ethereum, contractErc1155)
 
 	test("should burn ERC721 legacy token", async () => {
-		const minted = await mint(mintLazyApi, createErc721LegacyMintRequest({ uri: "//test", royalties: [] }, contractErc721))
+		const minted = await mint(mintLazyApi, {
+			type: NftCollectionTypeEnum.ERC721,
+			collection: {
+				id: contractErc721,
+			},
+			uri: "//test",
+			royalties: [],
+		})
 		const testBalance = await testErc721.functionCall("balanceOf", testAddress).call()
 		expect(testBalance).toBe("1")
 
@@ -46,12 +52,15 @@ describe("burn nfts", () => {
 	}, 10000)
 
 	test("should burn ERC1155 legacy token", async () => {
-		const props = {
+		const minted = await mint(mintLazyApi, {
+			type: NftCollectionTypeEnum.ERC1155,
+			collection: {
+				id: contractErc1155,
+			},
 			uri: "//test",
 			royalties: [],
 			supply: 100,
-		}
-		const minted = await mint(mintLazyApi, createErc1155LegacyMintRequest(props, contractErc1155))
+		})
 		await burn({
 			contract: contractErc1155,
 			tokenId: minted.nftTokenId.tokenId,

@@ -7,11 +7,10 @@ import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { signNft } from "./sign-nft"
-import { mint as mintTemplate } from "./mint"
+import { mint as mintTemplate, NftCollectionTypeEnum } from "./mint"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
 import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
-import { createErc1155LegacyMintRequest, createErc1155MintRequest, createErc721LegacyMintRequest, createErc721MintRequest } from "./mint-utils"
 
 describe("mint test", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -35,7 +34,14 @@ describe("mint test", () => {
 
 	test("mint legacy Erc721", async () => {
 		const mintableTokenE2eAddress = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
-		await mint(createErc721LegacyMintRequest({ uri: "uri", royalties: [] }, mintableTokenE2eAddress))
+		await mint({
+			type: NftCollectionTypeEnum.ERC721,
+			uri: "uri",
+			royalties: [],
+			collection: {
+				id: mintableTokenE2eAddress,
+			},
+		})
 		const contract = createMintableTokenContract(ethereum, toAddress(mintableTokenE2eAddress))
 		const balanceOfMinter = await contract.functionCall("balanceOf", minter).call()
 		expect(balanceOfMinter).toBe("1")
@@ -45,45 +51,65 @@ describe("mint test", () => {
 		const raribleTokenE2eAddress = toAddress("0x8812cFb55853da0968a02AaaEA84CD93EC4b42A1")
 		const uri = "test1155"
 		const supply = 101
-		const minted = await mint(createErc1155LegacyMintRequest({ uri, supply, royalties: [] }, raribleTokenE2eAddress))
+		const minted = await mint({
+			type: NftCollectionTypeEnum.ERC1155,
+			collection: {
+				id: raribleTokenE2eAddress,
+			},
+			uri,
+			supply,
+			royalties: [],
+		})
 		const contract = createRaribleTokenContract(ethereum, toAddress(raribleTokenE2eAddress))
 		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter, minted.nftTokenId.tokenId).call()
 		expect(balanceOfMinter).toBe(supply.toString())
 	})
 
 	test("mint with new contract Erc721", async () => {
-		const props = {
+		await mint({
+			type: NftCollectionTypeEnum.ERC721,
+			collection: {
+				id: e2eErc721ContractAddress,
+				supportsLazyMint: true,
+			},
 			uri: "uri",
 			creators: [{ account: toAddress(minter), value: 10000 }],
 			royalties: [],
-		}
-		await mint(createErc721MintRequest(props, e2eErc721ContractAddress))
+		})
 		const contract = createErc721LazyContract(ethereum, toAddress(e2eErc721ContractAddress))
 		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter).call()
 		expect(balanceOfMinter).toEqual("1")
 	}, 10000)
 
 	test("mint with new contract Erc1155", async () => {
-		const props = {
+		const minted = await mint({
+			type: NftCollectionTypeEnum.ERC1155,
+			collection: {
+				id: e2eErc1155ContractAddress,
+				supportsLazyMint: true,
+			},
 			uri: "uri",
 			supply: toBigNumber("100"),
 			creators: [{ account: toAddress(minter), value: 10000 }],
 			royalties: [],
-		}
-		const minted = await mint(createErc1155MintRequest(props, e2eErc1155ContractAddress))
+		})
 		const contract = createErc1155LazyContract(ethereum, toAddress(e2eErc1155ContractAddress))
 		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter, minted.nftTokenId.tokenId).call()
 		expect(balanceOfMinter).toEqual("100")
 	}, 10000)
 
 	test("mint lazy Erc721", async () => {
-		const props = {
+		const minted = await mint({
+			type: NftCollectionTypeEnum.ERC721,
+			collection: {
+				id: e2eErc721ContractAddress,
+				supportsLazyMint: true,
+			},
 			uri: "uri",
 			creators: [{ account: toAddress(minter), value: 10000 }],
 			royalties: [],
 			lazy: true,
-		}
-		const minted = await mint(createErc721MintRequest(props, e2eErc721ContractAddress))
+		})
 		const resultNft = await nftItemApi.getNftItemById({ itemId: minted.itemId })
 		expect(resultNft.lazySupply).toEqual("1")
 
@@ -92,14 +118,18 @@ describe("mint test", () => {
 	}, 10000)
 
 	test("mint lazy Erc1155", async () => {
-		const props = {
+		const minted = await mint({
+			type: NftCollectionTypeEnum.ERC1155,
+			collection: {
+				id: e2eErc1155ContractAddress,
+				supportsLazyMint: true,
+			},
 			uri: "uri",
 			supply: toBigNumber("100"),
 			creators: [{ account: toAddress(minter), value: 10000 }],
 			royalties: [],
 			lazy: true,
-		}
-		const minted = await mint(createErc1155MintRequest(props, e2eErc1155ContractAddress))
+		})
 		const resultNft = await nftItemApi.getNftItemById({ itemId: minted.itemId })
 		expect(resultNft.lazySupply).toEqual("100")
 

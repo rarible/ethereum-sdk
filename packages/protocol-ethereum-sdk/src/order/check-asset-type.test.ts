@@ -4,9 +4,8 @@ import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { Configuration, GatewayControllerApi, NftCollectionControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
 import { retry } from "../common/retry"
-import { mint } from "../nft/mint"
+import { mint, MintRequest, NftCollectionTypeEnum } from "../nft/mint"
 import { signNft } from "../nft/sign-nft"
-import { createErc721MintRequest } from "../nft/mint-utils"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
@@ -27,10 +26,15 @@ describe("check-asset-type test", function () {
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
 
 	test("should set assetClass if type not present", async () => {
-		const props = {
+		const request: MintRequest = {
+			type: NftCollectionTypeEnum.ERC721,
 			uri: "uri",
 			creators: [{ account: from, value: 10000 }],
 			royalties: [],
+			collection: {
+				supportsLazyMint: true,
+				id: e2eErc721ContractAddress,
+			},
 		}
 		const minted = await mint(
 			ethereum,
@@ -38,7 +42,7 @@ describe("check-asset-type test", function () {
 			sign,
 			nftCollectionApi,
 			nftLazyMintApi,
-			createErc721MintRequest(props, e2eErc721ContractAddress)
+			request
 		)
 
 		await retry(10, async () => {
@@ -51,10 +55,15 @@ describe("check-asset-type test", function () {
 	}, 50000)
 
 	test("should leave as is if assetClass present", async () => {
-		const props = {
+		const request: MintRequest = {
+			type: NftCollectionTypeEnum.ERC721,
 			uri: "uri",
 			creators: [{ account: from, value: 10000 }],
 			royalties: [],
+			collection: {
+				supportsLazyMint: true,
+				id: e2eErc721ContractAddress,
+			},
 		}
 		const minted = await mint(
 			ethereum,
@@ -62,7 +71,7 @@ describe("check-asset-type test", function () {
 			sign,
 			nftCollectionApi,
 			nftLazyMintApi,
-			createErc721MintRequest(props, e2eErc721ContractAddress)
+			request
 		)
 
 		const assetType = await checkAssetType({

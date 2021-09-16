@@ -1,6 +1,6 @@
 import { SimpleOrder } from "./sign-order"
 
-export function getBaseOrderFillFee(order: SimpleOrder): number {
+export async function getBaseOrderFillFee(order: SimpleOrder) {
 	if (order.type === "RARIBLE_V1") {
 		return 0
 	} else if (order.type === "RARIBLE_V2") {

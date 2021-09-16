@@ -15,11 +15,14 @@ import {
 } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
+import { getBaseOrderFee } from "./order/get-base-order-fee"
+import { getBaseOrderFillFee } from "./order/get-base-order-fill-fee"
 import { CONFIGS } from "./config"
 import { upsertOrder as upsertOrderTemplate, UpsertOrderAction } from "./order/upsert-order"
 import { approve as approveTemplate } from "./order/approve"
 import { sell as sellTemplate, SellRequest } from "./order/sell"
-import { signOrder as signOrderTemplate } from "./order/sign-order"
+import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
+
 import { fillOrder, FillOrderAction, FillOrderRequest } from "./order/fill-order"
 import { bid as bidTemplate, BidRequest } from "./order/bid"
 import {
@@ -65,6 +68,16 @@ export interface RaribleOrderSdk {
 	 * Sell or create bid. Low-level method
 	 */
 	upsertOrder(order: OrderForm, infinite?: (boolean | undefined)): Promise<UpsertOrderAction>
+
+	/**
+	 * Get base fee (this fee will be hold by the processing platform)
+	 */
+	getBaseOrderFee(order: OrderForm): Promise<number>
+
+	/**
+	 * Get base fee for filling an order (this fee will be hold by the processing platform)
+	 */
+	getBaseOrderFillFee(order: SimpleOrder): Promise<number>
 }
 
 export interface RaribleNftSdk {
@@ -155,6 +168,8 @@ export function createRaribleSdk(
 			fill,
 			bid,
 			upsertOrder,
+			getBaseOrderFee,
+			getBaseOrderFillFee,
 		},
 		nft: {
 			mint,
@@ -179,6 +194,3 @@ export {
 	isLegacyErc1155Collection,
 	isLazyCollection,
 } from "./nft/mint"
-
-export { getBaseOrderFee } from "./order/get-base-order-fee"
-export { getBaseOrderFillFee } from "./order/get-base-order-fill-fee"

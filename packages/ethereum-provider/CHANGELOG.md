@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.1](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.2.0...v0.2.1) (2021-09-16)
+
+
+### Bug Fixes
+
+* typed signature workaround for hardware wallets ([#27](https://github.com/rariblecom/protocol-ethereum-sdk/issues/27)) ([f61a07b](https://github.com/rariblecom/protocol-ethereum-sdk/commit/f61a07ba94aafbead2fde53993d396d928d51da0))
+
+
+
+
+
 # [0.2.0](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.1.21...v0.2.0) (2021-09-15)
 
 **Note:** Version bump only for package @rarible/ethereum-provider

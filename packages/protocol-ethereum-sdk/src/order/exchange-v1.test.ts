@@ -12,7 +12,7 @@ import { CONFIGS } from "../config"
 import { retry } from "../common/retry"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
-import { signOrder, SimpleOrder } from "./sign-order"
+import { signOrder, SimpleLegacyOrder, SimpleOrder } from "./sign-order"
 import { fillOrderSendTx } from "./fill-order"
 import { getMakeFee } from "./get-make-fee"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
@@ -76,8 +76,8 @@ describe("test exchange v1 order", () => {
 
 		await it.testErc721.methods.setApprovalForAll(CONFIGS.e2e.transferProxies.nft, true).send({ from: seller })
 
-		const signedOrder = { ...order, signature: await sign(order) }
-		await fill(signedOrder, { amount: 1, payouts: [], originFees: [] })
+		const signedOrder: SimpleLegacyOrder = { ...order, signature: await sign(order) }
+		await fill({ order: signedOrder, amount: 1, originFee: 0 })
 
 		await retry(10, async () => {
 			const ownership = await ownershipApi.getNftOwnershipById({

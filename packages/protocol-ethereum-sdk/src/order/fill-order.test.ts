@@ -105,14 +105,14 @@ describe("fillOrder", () => {
 		const a = toAddress(it.exchangeV2.options.address)
 		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
 
+		const finalOrder = { ...left, signature }
 		await fillOrderSendTx(
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			send,
 			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
 			orderApi,
-			{ ...left, signature },
-			{ amount: 2, payouts: [], originFees: [] }
+			{ order: finalOrder, amount: 2, payouts: [], originFees: [] }
 		)
 
 		expect(toBn(await it.testErc20.methods.balanceOf(sender2Address).call()).toString()).toBe("4")
@@ -159,14 +159,14 @@ describe("fillOrder", () => {
 		const before1 = toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call())
 		const before2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call())
 
+		const finalOrder = { ...left, signature }
 		await fillOrderSendTx(
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			send,
 			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
 			orderApi,
-			{ ...left, signature },
-			{ amount: 2, payouts: [], originFees: [{ account: randomAddress(), value: 100 }] }
+			{ order: finalOrder, amount: 2, originFees: [{ account: randomAddress(), value: 100 }] }
 		)
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString()).toBe(

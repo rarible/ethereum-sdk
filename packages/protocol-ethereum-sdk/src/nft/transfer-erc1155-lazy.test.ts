@@ -7,7 +7,7 @@ import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-t
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { signNft } from "./sign-nft"
-import { mint, MintRequest, NftCollectionTypeEnum } from "./mint"
+import { mint, MintRequest } from "./mint"
 import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
 import { transfer, TransferAsset } from "./transfer"
 
@@ -31,10 +31,10 @@ describe("transfer Erc721 lazy", () => {
 		const contract = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
 
 		const request: MintRequest = {
-			type: NftCollectionTypeEnum.ERC721,
 			uri: "//uri",
 			creators: [{ account: toAddress(wallet.getAddressString()), value: 10000 }],
 			collection: {
+				type: "ERC1155",
 				id: contract,
 				supportsLazyMint: true,
 			},

@@ -7,7 +7,7 @@ import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { signNft } from "./sign-nft"
-import { mint as mintTemplate, NftCollectionTypeEnum } from "./mint"
+import { mint as mintTemplate } from "./mint"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
 import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
 import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
@@ -35,10 +35,11 @@ describe("mint test", () => {
 	test("mint legacy Erc721", async () => {
 		const mintableTokenE2eAddress = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
 		await mint({
-			type: NftCollectionTypeEnum.ERC721,
 			uri: "uri",
 			royalties: [],
 			collection: {
+				supportsLazyMint: false,
+				type: "ERC721",
 				id: mintableTokenE2eAddress,
 			},
 		})
@@ -52,8 +53,9 @@ describe("mint test", () => {
 		const uri = "test1155"
 		const supply = 101
 		const minted = await mint({
-			type: NftCollectionTypeEnum.ERC1155,
 			collection: {
+				supportsLazyMint: false,
+				type: "ERC1155",
 				id: raribleTokenE2eAddress,
 			},
 			uri,
@@ -67,8 +69,8 @@ describe("mint test", () => {
 
 	test("mint with new contract Erc721", async () => {
 		await mint({
-			type: NftCollectionTypeEnum.ERC721,
 			collection: {
+				type: "ERC721",
 				id: e2eErc721ContractAddress,
 				supportsLazyMint: true,
 			},
@@ -83,8 +85,8 @@ describe("mint test", () => {
 
 	test("mint with new contract Erc1155", async () => {
 		const minted = await mint({
-			type: NftCollectionTypeEnum.ERC1155,
 			collection: {
+				type: "ERC1155",
 				id: e2eErc1155ContractAddress,
 				supportsLazyMint: true,
 			},
@@ -100,8 +102,8 @@ describe("mint test", () => {
 
 	test("mint lazy Erc721", async () => {
 		const minted = await mint({
-			type: NftCollectionTypeEnum.ERC721,
 			collection: {
+				type: "ERC721",
 				id: e2eErc721ContractAddress,
 				supportsLazyMint: true,
 			},
@@ -119,8 +121,8 @@ describe("mint test", () => {
 
 	test("mint lazy Erc1155", async () => {
 		const minted = await mint({
-			type: NftCollectionTypeEnum.ERC1155,
 			collection: {
+				type: "ERC1155",
 				id: e2eErc1155ContractAddress,
 				supportsLazyMint: true,
 			},

@@ -172,3 +172,11 @@ function partialCall<T extends Arr, U extends Arr, R>(
 ): (...tailArgs: U) => R {
 	return (...tailArgs: U) => f(...headArgs, ...tailArgs)
 }
+
+export {
+	isLazyErc721Collection,
+	isLazyErc1155Collection,
+	isLegacyErc721Collection,
+	isLegacyErc1155Collection,
+	isLazyCollection,
+} from "./nft/mint"

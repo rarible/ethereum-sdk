@@ -4,7 +4,7 @@ import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { Configuration, GatewayControllerApi, NftCollectionControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
 import { retry } from "../common/retry"
-import { mint, MintRequest, NftCollectionTypeEnum } from "../nft/mint"
+import { mint, MintRequest } from "../nft/mint"
 import { signNft } from "../nft/sign-nft"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
@@ -27,11 +27,11 @@ describe("check-asset-type test", function () {
 
 	test("should set assetClass if type not present", async () => {
 		const request: MintRequest = {
-			type: NftCollectionTypeEnum.ERC721,
 			uri: "uri",
 			creators: [{ account: from, value: 10000 }],
 			royalties: [],
 			collection: {
+				type: "ERC721",
 				supportsLazyMint: true,
 				id: e2eErc721ContractAddress,
 			},
@@ -56,11 +56,11 @@ describe("check-asset-type test", function () {
 
 	test("should leave as is if assetClass present", async () => {
 		const request: MintRequest = {
-			type: NftCollectionTypeEnum.ERC721,
 			uri: "uri",
 			creators: [{ account: from, value: 10000 }],
 			royalties: [],
 			collection: {
+				type: "ERC721",
 				supportsLazyMint: true,
 				id: e2eErc721ContractAddress,
 			},

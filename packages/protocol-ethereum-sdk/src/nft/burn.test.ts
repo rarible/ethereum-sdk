@@ -7,7 +7,7 @@ import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-t
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
-import { mint as mintTemplate, NftCollectionTypeEnum } from "./mint"
+import { mint as mintTemplate } from "./mint"
 import { signNft } from "./sign-nft"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { burn as burnTemplate } from "./burn"
@@ -33,8 +33,9 @@ describe("burn nfts", () => {
 
 	test("should burn ERC721 legacy token", async () => {
 		const minted = await mint(mintLazyApi, {
-			type: NftCollectionTypeEnum.ERC721,
 			collection: {
+				supportsLazyMint: false,
+				type: "ERC721",
 				id: contractErc721,
 			},
 			uri: "//test",
@@ -53,8 +54,9 @@ describe("burn nfts", () => {
 
 	test("should burn ERC1155 legacy token", async () => {
 		const minted = await mint(mintLazyApi, {
-			type: NftCollectionTypeEnum.ERC1155,
 			collection: {
+				supportsLazyMint: false,
+				type: "ERC1155",
 				id: contractErc1155,
 			},
 			uri: "//test",

@@ -4,6 +4,7 @@ import Web3 from "web3"
 import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils/build/bn"
 import { Configuration, GatewayControllerApi, OrderControllerApi } from "@rarible/protocol-api-client"
+import { getApiConfig } from "../config/api-config"
 import { send as sendTemplate, sentTx } from "../common/send-transaction"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
@@ -23,7 +24,7 @@ describe("fillOrder", () => {
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
+	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const send = sendTemplate.bind(ethereum1, gatewayApi)
 

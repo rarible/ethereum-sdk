@@ -11,6 +11,7 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { CONFIGS } from "../config"
 import { retry } from "../common/retry"
 import { send as sendTemplate } from "../common/send-transaction"
+import { getApiConfig } from "../config/api-config"
 import { signOrder, SimpleOrder } from "./sign-order"
 import { fillOrderSendTx } from "./fill-order"
 import { getMakeFee } from "./get-make-fee"
@@ -26,7 +27,7 @@ describe("test exchange v1 order", () => {
 	const ethereum1 = new Web3Ethereum({ web3: web31 })
 	const ethereum2 = new Web3Ethereum({ web3: web32 })
 
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
+	const configuration = new Configuration(getApiConfig("e2e"))
 	const orderApi = new OrderControllerApi(configuration)
 	const ownershipApi = new NftOwnershipControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)

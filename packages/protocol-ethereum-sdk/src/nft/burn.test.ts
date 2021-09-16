@@ -1,81 +1,74 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { toAddress, toBigNumber } from "@rarible/types"
-import {
-	Configuration,
-	GatewayControllerApi,
-	NftCollectionControllerApi,
-	NftItemControllerApi,
-	NftLazyMintControllerApi,
-} from "@rarible/protocol-api-client"
+import { toAddress } from "@rarible/types"
+import { Configuration, GatewayControllerApi, NftCollectionControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { send as sendTemplate } from "../common/send-transaction"
-import { parseItemId } from "../common/parse-item-id"
+import { getApiConfig } from "../config/api-config"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
 import { mint as mintTemplate } from "./mint"
 import { signNft } from "./sign-nft"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { burn as burnTemplate } from "./burn"
 
-describe("burn nft's", () => {
+describe("burn nfts", () => {
 	const { provider, wallet } = createE2eProvider()
-	// @ts-ignore
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
 	const testAddress = toAddress(wallet.getAddressString())
-
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
+	const configuration = new Configuration(getApiConfig("e2e"))
 	const collectionApi = new NftCollectionControllerApi(configuration)
 	const mintLazyApi = new NftLazyMintControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const sign = signNft.bind(null, ethereum, 17)
 	const send = sendTemplate.bind(ethereum, gatewayApi)
-	const checkAssetType = checkAssetTypeTemplate.bind(null, new NftItemControllerApi(configuration), collectionApi)
+	const checkAssetType = checkAssetTypeTemplate.bind(null, collectionApi)
 	const mint = mintTemplate.bind(null, ethereum, send, sign, collectionApi)
 	const burn = burnTemplate.bind(null, ethereum, send, checkAssetType)
-
-
 	const contractErc721 = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
 	const contractErc1155 = toAddress("0x8812cFb55853da0968a02AaaEA84CD93EC4b42A1")
 	const testErc721 = createMintableTokenContract(ethereum, contractErc721)
 	const testErc1155 = createRaribleTokenContract(ethereum, contractErc1155)
 
-
 	test("should burn ERC721 legacy token", async () => {
-		const itemId = await mint(mintLazyApi, {
-			collection: { id: contractErc721, type: "ERC721", supportsLazyMint: false },
+		const minted = await mint(mintLazyApi, {
+			collection: {
+				supportsLazyMint: false,
+				type: "ERC721",
+				id: contractErc721,
+			},
 			uri: "//test",
 			royalties: [],
 		})
-
 		const testBalance = await testErc721.functionCall("balanceOf", testAddress).call()
 		expect(testBalance).toBe("1")
 
-		const { tokenId } = parseItemId(itemId)
 		await burn({
 			contract: contractErc721,
-			tokenId: toBigNumber(tokenId),
+			tokenId: minted.tokenId,
 		})
 		const testBalanceAfterBurn = await testErc721.functionCall("balanceOf", testAddress).call()
 		expect(testBalanceAfterBurn).toBe("0")
 	}, 10000)
 
 	test("should burn ERC1155 legacy token", async () => {
-		const itemId = await mint(mintLazyApi, {
-			collection: { id: contractErc1155, type: "ERC1155", supportsLazyMint: false },
+		const minted = await mint(mintLazyApi, {
+			collection: {
+				supportsLazyMint: false,
+				type: "ERC1155",
+				id: contractErc1155,
+			},
 			uri: "//test",
 			royalties: [],
 			supply: 100,
 		})
-
-		const { tokenId } = parseItemId(itemId)
 		await burn({
 			contract: contractErc1155,
-			tokenId: toBigNumber(tokenId),
+			tokenId: minted.tokenId,
 		}, 50)
 
-		const testBalanceAfterBurn = await testErc1155.functionCall("balanceOf", testAddress, tokenId).call()
+		const testBalanceAfterBurn = await testErc1155.functionCall("balanceOf", testAddress, minted.tokenId).call()
 		expect(testBalanceAfterBurn).toBe("50")
 	}, 10000)
 })

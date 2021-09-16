@@ -19,7 +19,7 @@ import { CONFIGS } from "./config"
 import { upsertOrder as upsertOrderTemplate, UpsertOrderAction } from "./order/upsert-order"
 import { approve as approveTemplate } from "./order/approve"
 import { sell as sellTemplate, SellRequest } from "./order/sell"
-import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
+import { signOrder as signOrderTemplate } from "./order/sign-order"
 import { fillOrder, FillOrderAction, FillOrderRequest } from "./order/fill-order"
 import { bid as bidTemplate, BidRequest } from "./order/bid"
 import {
@@ -57,10 +57,9 @@ export interface RaribleOrderSdk {
 	/**
 	 * Fill order (buy or accept bid - depending on the order type)
 	 *
-	 * @param order order to fill
-	 * @param request parameters - what amount
+	 * @param request order and parameters (amount to fill, fees etc)
 	 */
-	fill(order: SimpleOrder, request: FillOrderRequest): Promise<FillOrderAction>
+	fill(request: FillOrderRequest): Promise<FillOrderAction>
 
 	/**
 	 * Sell or create bid. Low-level method
@@ -98,7 +97,7 @@ export interface RaribleSdk {
 export function createRaribleSdk(
 	ethereum: Ethereum,
 	env: keyof typeof CONFIGS,
-	configurationParameters?: ConfigurationParameters
+	configurationParameters?: ConfigurationParameters,
 ): RaribleSdk {
 	const config = CONFIGS[env]
 	const apiConfiguration = new Configuration({
@@ -130,7 +129,7 @@ export function createRaribleSdk(
 		checkLazyOrder,
 		approve,
 		signOrder,
-		orderControllerApi
+		orderControllerApi,
 	)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
@@ -139,7 +138,7 @@ export function createRaribleSdk(
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
 	const mint = partialCall(mintTemplate, ethereum, send, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
 	const transfer = partialCall(
-		transferTemplate, ethereum, send, signNft, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi
+		transferTemplate, ethereum, send, signNft, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi,
 	)
 	const burn = partialCall(burnTemplate, ethereum, send, checkAssetType)
 
@@ -180,3 +179,6 @@ export {
 	isLegacyErc1155Collection,
 	isLazyCollection,
 } from "./nft/mint"
+
+export { getBaseOrderFee } from "./order/get-base-order-fee"
+export { getBaseOrderFillFee } from "./order/get-base-order-fill-fee"

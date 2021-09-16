@@ -6,6 +6,7 @@ import {
 	testSimpleContract,
 	testTypedSignature,
 } from "@rarible/ethereum-sdk-test-common"
+import { recoverPersonalSignature } from "eth-sig-util"
 import { parseRequestError } from "./utils/parse-request-error"
 import { Web3Ethereum } from "./index"
 
@@ -39,6 +40,15 @@ describe("Web3Ethereum", () => {
 
 	test("allows to send transactions and call functions", async () => {
 		await testSimpleContract(web3, ganacheEthereum)
+	})
+
+	test("ethSign works", async () => {
+		const data = "0xab4bd7e6f7d4ed647c43cd5b612660d8ee3c9aebdd1a323690b2b0ef48989906"
+		const sig = await ganacheEthereum.ethSign(data)
+		console.log("signature is", sig, await ganacheEthereum.getFrom())
+		const recovered = recoverPersonalSignature({ sig, data })
+		expect(recovered)
+			.toBe((await ganacheEthereum.getFrom()).toLowerCase())
 	})
 
 })

@@ -30,6 +30,11 @@ export class EthersEthereum implements Ethereum {
 		return this.web3Provider.getSigner().signMessage(message)
 	}
 
+	async ethSign(message: string): Promise<string> {
+		const signer = await this.getFrom()
+		return this.send("eth_sign", [signer, message])
+	}
+
 	async getFrom(): Promise<string> {
 		if (!this.from) {
 			const [first] = await this.web3Provider.listAccounts()

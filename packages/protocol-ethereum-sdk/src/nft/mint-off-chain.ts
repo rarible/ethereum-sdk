@@ -9,11 +9,11 @@ export async function mintOffChain(
 	nftLazyMintApi: NftLazyMintControllerApi,
 	data: ERC721Request | ERC1155Request
 ): Promise<MintOffChainResponse> {
-	const nftTokenId = await getTokenId(nftCollectionApi, data.collection.id, data.creators[0].account)
-	const mintData = getMintOffChainData(data, nftTokenId.tokenId)
+	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, data.creators[0].account)
+	const mintData = getMintOffChainData(data, tokenId)
 	const minted = await nftLazyMintApi.mintNftAsset({
 		lazyNft: Object.assign({}, mintData, {
-			tokenId: nftTokenId.tokenId,
+			tokenId,
 			signatures: [await signNft(mintData)],
 		}),
 	})
@@ -21,9 +21,9 @@ export async function mintOffChain(
 		type: MintResponseTypeEnum.OFF_CHAIN,
 		item: minted,
 		owner: data.creators[0].account,
-		nftTokenId,
+		tokenId,
 		contract: minted.contract,
-		itemId: `${minted.contract}:${nftTokenId.tokenId}`,
+		itemId: `${minted.contract}:${tokenId}`,
 	}
 }
 

@@ -46,7 +46,7 @@ describe("transfer Erc721 lazy", () => {
 		const minted = await mint(ethereum, send, sign, nftCollectionApi, nftLazyMintControllerApi, request)
 
 		const asset: TransferAsset = {
-			tokenId: minted.nftTokenId.tokenId,
+			tokenId: minted.tokenId,
 			contract: contract,
 		}
 
@@ -63,7 +63,7 @@ describe("transfer Erc721 lazy", () => {
 		)
 
 		const erc1155Lazy = createErc1155LazyContract(ethereum, contract)
-		const recipientBalance = await erc1155Lazy.functionCall("balanceOf", recipient, minted.nftTokenId.tokenId).call()
+		const recipientBalance = await erc1155Lazy.functionCall("balanceOf", recipient, minted.tokenId).call()
 		expect(recipientBalance).toEqual("50")
 	}, 10000)
 })

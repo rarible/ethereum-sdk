@@ -61,7 +61,7 @@ describe("mint test", () => {
 			royalties: [],
 		})
 		const contract = createRaribleTokenContract(ethereum, toAddress(raribleTokenE2eAddress))
-		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter, minted.nftTokenId.tokenId).call()
+		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter, minted.tokenId).call()
 		expect(balanceOfMinter).toBe(supply.toString())
 	})
 
@@ -94,7 +94,7 @@ describe("mint test", () => {
 			royalties: [],
 		})
 		const contract = createErc1155LazyContract(ethereum, toAddress(e2eErc1155ContractAddress))
-		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter, minted.nftTokenId.tokenId).call()
+		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter, minted.tokenId).call()
 		expect(balanceOfMinter).toEqual("100")
 	}, 10000)
 

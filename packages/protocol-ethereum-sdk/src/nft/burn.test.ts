@@ -45,7 +45,7 @@ describe("burn nfts", () => {
 
 		await burn({
 			contract: contractErc721,
-			tokenId: minted.nftTokenId.tokenId,
+			tokenId: minted.tokenId,
 		})
 		const testBalanceAfterBurn = await testErc721.functionCall("balanceOf", testAddress).call()
 		expect(testBalanceAfterBurn).toBe("0")
@@ -63,10 +63,10 @@ describe("burn nfts", () => {
 		})
 		await burn({
 			contract: contractErc1155,
-			tokenId: minted.nftTokenId.tokenId,
+			tokenId: minted.tokenId,
 		}, 50)
 
-		const testBalanceAfterBurn = await testErc1155.functionCall("balanceOf", testAddress, minted.nftTokenId.tokenId).call()
+		const testBalanceAfterBurn = await testErc1155.functionCall("balanceOf", testAddress, minted.tokenId).call()
 		expect(testBalanceAfterBurn).toBe("50")
 	}, 10000)
 })

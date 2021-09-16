@@ -1,4 +1,4 @@
-import type { Address, Binary, LazyErc1155, LazyErc721, NftCollectionControllerApi, NftLazyMintControllerApi, Part, NftTokenId, NftItem, NftCollection } from "@rarible/protocol-api-client"
+import type { Address, Binary, LazyErc1155, LazyErc721, NftCollectionControllerApi, NftLazyMintControllerApi, Part, NftItem, NftCollection, BigNumber } from "@rarible/protocol-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { SendFunction } from "../common/send-transaction"
 import { mintOffChain } from "./mint-off-chain"
@@ -45,7 +45,7 @@ export type MintRequest = ERC721Request | ERC1155Request | LegacyERC721Request |
 
 export type MintResponseCommon = {
 	contract: Address
-	nftTokenId: NftTokenId
+	tokenId: BigNumber
 	owner: Address
 	itemId: string
 }

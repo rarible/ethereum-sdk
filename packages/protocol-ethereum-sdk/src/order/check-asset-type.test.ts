@@ -48,7 +48,7 @@ describe("check-asset-type test", function () {
 		await retry(10, async () => {
 			const assetType = await checkAssetType({
 				contract: e2eErc721ContractAddress,
-				tokenId: toBigNumber(minted.nftTokenId.tokenId),
+				tokenId: toBigNumber(minted.tokenId),
 			})
 			expect(assetType.assetClass).toEqual("ERC721")
 		})
@@ -77,7 +77,7 @@ describe("check-asset-type test", function () {
 		const assetType = await checkAssetType({
 			assetClass: "ERC721",
 			contract: e2eErc721ContractAddress,
-			tokenId: toBigNumber(minted.nftTokenId.tokenId),
+			tokenId: toBigNumber(minted.tokenId),
 		})
 		expect(assetType.assetClass).toEqual("ERC721")
 	}, 50000)

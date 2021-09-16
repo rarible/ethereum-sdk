@@ -53,7 +53,7 @@ describe("transfer Erc721 lazy", () => {
 		)
 
 		const asset: TransferAsset = {
-			tokenId: minted.nftTokenId.tokenId,
+			tokenId: minted.tokenId,
 			contract: contract,
 		}
 

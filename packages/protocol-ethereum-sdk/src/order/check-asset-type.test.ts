@@ -28,6 +28,7 @@ describe("check-asset-type test", function () {
 	test("should set assetClass if type not present", async () => {
 		const request: MintRequest = {
 			uri: "uri",
+			lazy: false,
 			creators: [{ account: from, value: 10000 }],
 			royalties: [],
 			collection: {
@@ -59,6 +60,7 @@ describe("check-asset-type test", function () {
 			uri: "uri",
 			creators: [{ account: from, value: 10000 }],
 			royalties: [],
+			lazy: false,
 			collection: {
 				type: "ERC721",
 				supportsLazyMint: true,

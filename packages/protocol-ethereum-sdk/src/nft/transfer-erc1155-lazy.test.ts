@@ -39,7 +39,7 @@ describe("transfer Erc721 lazy", () => {
 				supportsLazyMint: true,
 			},
 			royalties: [],
-			supply: toBigNumber("100"),
+			supply: 100,
 			lazy: true,
 		}
 

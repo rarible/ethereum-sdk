@@ -1,4 +1,5 @@
 import type { BigNumber, Binary, NftCollectionControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
+import { toBigNumber } from "@rarible/types"
 import type { SimpleLazyNft } from "./sign-nft"
 import { getTokenId } from "./get-token-id"
 import { ERC1155Request, ERC721Request, MintOffChainResponse, MintResponseTypeEnum } from "./mint"
@@ -38,7 +39,7 @@ function getMintOffChainData(data: ERC721Request | ERC1155Request, tokenId: BigN
 	if ("supply" in data) {
 		return Object.assign({}, base, {
 			"@type": "ERC1155" as const,
-			supply: data.supply,
+			supply: toBigNumber(data.supply.toString()),
 		})
 	}
 	return Object.assign({}, base, {

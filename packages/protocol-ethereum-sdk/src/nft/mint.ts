@@ -28,7 +28,7 @@ export type LegacyERC721Request = {
 
 export type ERC721Request = Omit<LazyErc721, "signatures" | "contract" | "tokenId" | "@type"> & {
 	collection: LazyERC721Collection
-	lazy?: boolean
+	lazy: boolean
 }
 
 export type LegacyERC1155Request = {
@@ -38,9 +38,10 @@ export type LegacyERC1155Request = {
 	royalties: Array<Part>
 }
 
-export type ERC1155Request = Omit<LazyErc1155, "signatures" | "contract" | "tokenId" | "@type"> & {
+export type ERC1155Request = Omit<LazyErc1155, "signatures" | "contract" | "tokenId" | "supply" | "@type"> & {
 	collection: LazyERC1155Collection
-	lazy?: boolean
+	supply: number
+	lazy: boolean
 }
 
 export type MintRequest = ERC721Request | ERC1155Request | LegacyERC721Request | LegacyERC1155Request

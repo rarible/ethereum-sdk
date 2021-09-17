@@ -1,7 +1,7 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { toAddress, toBigNumber } from "@rarible/types"
+import { toAddress } from "@rarible/types"
 import { Configuration, GatewayControllerApi, NftCollectionControllerApi, NftItemControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
@@ -77,6 +77,7 @@ describe("mint test", () => {
 			uri: "uri",
 			creators: [{ account: toAddress(minter), value: 10000 }],
 			royalties: [],
+			lazy: false,
 		})
 		const contract = createErc721LazyContract(ethereum, toAddress(e2eErc721ContractAddress))
 		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter).call()
@@ -91,9 +92,10 @@ describe("mint test", () => {
 				supportsLazyMint: true,
 			},
 			uri: "uri",
-			supply: toBigNumber("100"),
+			supply: 100,
 			creators: [{ account: toAddress(minter), value: 10000 }],
 			royalties: [],
+			lazy: false,
 		})
 		const contract = createErc1155LazyContract(ethereum, toAddress(e2eErc1155ContractAddress))
 		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter, minted.tokenId).call()
@@ -127,7 +129,7 @@ describe("mint test", () => {
 				supportsLazyMint: true,
 			},
 			uri: "uri",
-			supply: toBigNumber("100"),
+			supply: 100,
 			creators: [{ account: toAddress(minter), value: 10000 }],
 			royalties: [],
 			lazy: true,

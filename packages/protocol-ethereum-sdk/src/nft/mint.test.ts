@@ -17,6 +17,7 @@ describe("mint test", () => {
 	const minter = toAddress(wallet.getAddressString())
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3, from: minter })
+
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)

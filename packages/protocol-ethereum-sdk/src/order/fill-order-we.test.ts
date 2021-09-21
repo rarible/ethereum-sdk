@@ -25,7 +25,14 @@ import {deployTestErc721} from "./contracts/test/test-erc721"
 import {deployErc20TransferProxy} from "./contracts/test/test-erc20-transfer-proxy"
 import {deployTestExchangeV2} from "./contracts/test/test-exchange-v2"
 import {deployTestRoyaltiesProvider} from "./contracts/test/test-royalties-provider"
-import {fillOrderOpenSea, fillOrderSendTx, getRSV, matchOpenSeaV1Order, toVrs} from "./fill-order"
+import {
+	fillOrderOpenSea,
+	fillOrderSendTx,
+	getAtomicMatchArgAddresses, getAtomicMatchArgUints,
+	getRSV,
+	matchOpenSeaV1Order,
+	toVrs,
+} from "./fill-order"
 import {
 	convertOpenSeaOrderToSignDTO, hashOpenSeaV1Order,
 	hashOrder,
@@ -418,10 +425,8 @@ describe("fillOrder", () => {
 		const contractCalculatedHash = await exchangeContract
 			.functionCall(
 				"hashOrder_",
-				[orderDTO.exchange, orderDTO.maker, orderDTO.taker, orderDTO.feeRecipient,
-					orderDTO.target, orderDTO.staticTarget, orderDTO.paymentToken],
-				[orderDTO.makerRelayerFee, orderDTO.takerRelayerFee, orderDTO.makerProtocolFee, orderDTO.takerProtocolFee,
-					orderDTO.basePrice, orderDTO.extra, orderDTO.listingTime, orderDTO.expirationTime, orderDTO.salt],
+				getAtomicMatchArgAddresses(orderDTO, orderDTO.exchange),
+				getAtomicMatchArgUints(orderDTO),
 				orderDTO.feeMethod,
 				orderDTO.side,
 				orderDTO.saleKind,

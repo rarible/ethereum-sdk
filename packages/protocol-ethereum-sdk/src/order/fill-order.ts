@@ -3,9 +3,9 @@ import { Address, toAddress, toBigNumber, toWord, ZERO_ADDRESS } from "@rarible/
 import { ActionBuilder } from "@rarible/action"
 import { toBn } from "@rarible/utils/build/bn"
 import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
-import type {Config, ExchangeAddresses, OpenSeaOrderToSignDTO} from "../config/type"
+import type { Config, ExchangeAddresses, OpenSeaOrderToSignDTO } from "../config/type"
 import type { SendFunction } from "../common/send-transaction"
-import {OrderOpenSeaV1DataV1Side} from "../config/type"
+import { OrderOpenSeaV1DataV1Side } from "../config/type"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import {
 	orderToStruct,
@@ -21,7 +21,8 @@ import type { GetMakeFeeFunction } from "./get-make-fee"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { toStructLegacyOrder } from "./to-struct-legacy-order"
 import type { ApproveFunction } from "./approve"
-import {createOpenseaContract} from "./contracts/exchange-opensea-v1"
+import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
+
 export type FillOrderRequest = {
 	amount: number
 	payouts?: Array<Part>
@@ -116,7 +117,7 @@ export async function fillOrderOpenSea(
 	exchange: Address,
 	transferProxy: Address,
 	order: SimpleOpenSeaV1Order,
-	request: FillOrderRequest
+	request: FillOrderRequest,
 ): Promise<EthereumTransaction> {
 	const address = toAddress(await ethereum.getFrom())
 	const orderRight: SimpleOpenSeaV1Order = {
@@ -159,13 +160,25 @@ export async function getOpenseaOrderVrs(orderDTO: OpenSeaOrderToSignDTO, ethere
 	return toVrs(signatureBuyHash)
 }
 
-function getAtomicMatchArgAddresses(dto: OpenSeaOrderToSignDTO, exchange: Address) {
+export function getAtomicMatchArgAddresses(dto: OpenSeaOrderToSignDTO, exchange: Address) {
 	// return [dto.exchange, dto.maker, dto.taker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
 	return [exchange, dto.maker, dto.taker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
 }
-function getAtomicMatchArgUints(dto: OpenSeaOrderToSignDTO) {
-	return [dto.makerRelayerFee, dto.takerRelayerFee, dto.makerProtocolFee, dto.takerProtocolFee, dto.basePrice, dto.extra, dto.listingTime, dto.expirationTime, dto.salt]
+
+export function getAtomicMatchArgUints(dto: OpenSeaOrderToSignDTO) {
+	return [
+		dto.makerRelayerFee,
+		dto.takerRelayerFee,
+		dto.makerProtocolFee,
+		dto.takerProtocolFee,
+		dto.basePrice,
+		dto.extra,
+		dto.listingTime,
+		dto.expirationTime,
+		dto.salt,
+	]
 }
+
 function getAtomicMatchArgCommonData(dto: OpenSeaOrderToSignDTO) {
 	return [dto.feeMethod, dto.side, dto.saleKind, dto.howToCall]
 }
@@ -214,7 +227,7 @@ export async function matchOpenSeaV1Order(
 		sellOrderToSignDTO.staticExtradata,
 		buyorderToSignDTO.staticExtradata,
 		[leftRSV.v, rightRSV.v],
-		[leftRSV.r, leftRSV.s, rightRSV.r, rightRSV.s, "0x0000000000000000000000000000000000000000000000000000000000000000"]
+		[leftRSV.r, leftRSV.s, rightRSV.r, rightRSV.s, "0x0000000000000000000000000000000000000000000000000000000000000000"],
 	)
 
 	console.log("after atomic matchOpenSeaV1Order", getMatchV2Options(left, right, getMakeFee))
@@ -243,7 +256,7 @@ async function matchOrders(
 }
 
 function getMatchV2Options(
-	left: SimpleOrder, right: SimpleOrder, getMakeFee: GetMakeFeeFunction
+	left: SimpleOrder, right: SimpleOrder, getMakeFee: GetMakeFeeFunction,
 ): EthereumSendOptions {
 	if (left.make.assetType.assetClass === "ETH" && left.salt === ZERO) {
 		return { value: getRealValue(getMakeFee, left) }
@@ -286,7 +299,7 @@ async function fillOrderV1(
 }
 
 function getMatchV1Options(
-	order: SimpleLegacyOrder, orderRight: SimpleLegacyOrder, fee: number
+	order: SimpleLegacyOrder, orderRight: SimpleLegacyOrder, fee: number,
 ): EthereumSendOptions {
 	if (order.take.assetType.assetClass === "ETH") {
 		const makeAsset = getAssetWithFee(orderRight.make, fee)

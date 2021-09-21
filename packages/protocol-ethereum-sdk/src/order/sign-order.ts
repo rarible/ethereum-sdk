@@ -177,10 +177,8 @@ export function hashToSign(hash: string): string {
 	) || ""
 }
 
-export function hashOpenSeaV1Order(order: SimpleOpenSeaV1Order, transferProxy: Address): string {
-	const orderDTO = convertOpenSeaOrderToSignDTO(order)
-	orderDTO.target = transferProxy
-	return hashOrder(orderDTO)
+export function hashOpenSeaV1Order(order: SimpleOpenSeaV1Order): string {
+	return hashOrder(convertOpenSeaOrderToSignDTO(order))
 }
 
 function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712Domain {

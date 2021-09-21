@@ -160,9 +160,9 @@ export async function getOpenseaOrderVrs(orderDTO: OpenSeaOrderToSignDTO, ethere
 	return toVrs(signatureBuyHash)
 }
 
-export function getAtomicMatchArgAddresses(dto: OpenSeaOrderToSignDTO, exchange: Address) {
+export function getAtomicMatchArgAddresses(dto: OpenSeaOrderToSignDTO) {
 	// return [dto.exchange, dto.maker, dto.taker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
-	return [exchange, dto.maker, dto.taker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
+	return [dto.exchange, dto.maker, dto.taker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
 }
 
 export function getAtomicMatchArgUints(dto: OpenSeaOrderToSignDTO) {
@@ -179,7 +179,7 @@ export function getAtomicMatchArgUints(dto: OpenSeaOrderToSignDTO) {
 	]
 }
 
-function getAtomicMatchArgCommonData(dto: OpenSeaOrderToSignDTO) {
+export function getAtomicMatchArgCommonData(dto: OpenSeaOrderToSignDTO) {
 	return [dto.feeMethod, dto.side, dto.saleKind, dto.howToCall]
 }
 
@@ -195,10 +195,6 @@ export async function matchOpenSeaV1Order(
 	const sellOrderToSignDTO = convertOpenSeaOrderToSignDTO(left)
 	const buyorderToSignDTO = convertOpenSeaOrderToSignDTO(right)
 
-	// console.log("sides", sellOrderToSignDTO.side, buyorderToSignDTO.side)
-
-	// const web3: any = (ethereum as any)["config"].web3
-	// const from = await ethereum.getFrom()
 	sellOrderToSignDTO.target = transferProxy
 	buyorderToSignDTO.target = transferProxy
 	sellOrderToSignDTO.feeRecipient = ZERO_ADDRESS
@@ -215,8 +211,8 @@ export async function matchOpenSeaV1Order(
 	const method = exchangeContract.functionCall(
 		"atomicMatch_",
 		[
-			...getAtomicMatchArgAddresses(sellOrderToSignDTO, exchange),
-			...getAtomicMatchArgAddresses(buyorderToSignDTO, exchange),
+			...getAtomicMatchArgAddresses(sellOrderToSignDTO),
+			...getAtomicMatchArgAddresses(buyorderToSignDTO),
 		],
 		[...getAtomicMatchArgUints(sellOrderToSignDTO), ...getAtomicMatchArgUints(buyorderToSignDTO)],
 		[...getAtomicMatchArgCommonData(sellOrderToSignDTO), ...getAtomicMatchArgCommonData(buyorderToSignDTO)],

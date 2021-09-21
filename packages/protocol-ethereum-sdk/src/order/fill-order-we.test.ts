@@ -28,7 +28,7 @@ import {deployTestRoyaltiesProvider} from "./contracts/test/test-royalties-provi
 import {
 	fillOrderOpenSea,
 	fillOrderSendTx,
-	getAtomicMatchArgAddresses, getAtomicMatchArgUints,
+	getAtomicMatchArgAddresses, getAtomicMatchArgCommonData, getAtomicMatchArgUints,
 	getRSV,
 	matchOpenSeaV1Order,
 	toVrs,
@@ -416,16 +416,14 @@ describe("fillOrder", () => {
 			},
 		}
 
-		const orderHash = hashOpenSeaV1Order(leftOrder, toAddress(proxyAddress))
+		const orderHash = hashOpenSeaV1Order(leftOrder)
 
 		const orderDTO = convertOpenSeaOrderToSignDTO(leftOrder)
-		orderDTO.target = toAddress(proxyAddress)
-		// orderDTO.taker = sender2Address
 
 		const contractCalculatedHash = await exchangeContract
 			.functionCall(
 				"hashOrder_",
-				getAtomicMatchArgAddresses(orderDTO, orderDTO.exchange),
+				getAtomicMatchArgAddresses(orderDTO),
 				getAtomicMatchArgUints(orderDTO),
 				orderDTO.feeMethod,
 				orderDTO.side,
@@ -449,9 +447,9 @@ describe("fillOrder", () => {
 		const ordersCanMatch = await exchangeContract
 			.functionCall(
 				"ordersCanMatch_",
-				[buy.exchange, buy.maker, buy.taker, buy.feeRecipient, buy.target, buy.staticTarget, buy.paymentToken, sell.exchange, sell.maker, sell.taker, sell.feeRecipient, sell.target, sell.staticTarget, sell.paymentToken],
-				[buy.makerRelayerFee, buy.takerRelayerFee, buy.makerProtocolFee, buy.takerProtocolFee, buy.basePrice, buy.extra, buy.listingTime, buy.expirationTime, buy.salt, sell.makerRelayerFee, sell.takerRelayerFee, sell.makerProtocolFee, sell.takerProtocolFee, sell.basePrice, sell.extra, sell.listingTime, sell.expirationTime, sell.salt],
-				[buy.feeMethod, buy.side, buy.saleKind, buy.howToCall, sell.feeMethod, sell.side, sell.saleKind, sell.howToCall],
+				[...getAtomicMatchArgAddresses(buy), ...getAtomicMatchArgAddresses(sell)],
+				[...getAtomicMatchArgUints(buy), ...getAtomicMatchArgUints(sell)],
+				[...getAtomicMatchArgCommonData(buy), ...getAtomicMatchArgCommonData(sell)],
 				buy.calldata,
 				sell.calldata,
 				buy.replacementPattern,
@@ -473,9 +471,9 @@ describe("fillOrder", () => {
 		const orderMatchPrice = await exchangeContract
 			.functionCall(
 				"calculateMatchPrice_",
-				[buy.exchange, buy.maker, buy.taker, buy.feeRecipient, buy.target, buy.staticTarget, buy.paymentToken, sell.exchange, sell.maker, sell.taker, sell.feeRecipient, sell.target, sell.staticTarget, sell.paymentToken],
-				[buy.makerRelayerFee, buy.takerRelayerFee, buy.makerProtocolFee, buy.takerProtocolFee, buy.basePrice, buy.extra, buy.listingTime, buy.expirationTime, buy.salt, sell.makerRelayerFee, sell.takerRelayerFee, sell.makerProtocolFee, sell.takerProtocolFee, sell.basePrice, sell.extra, sell.listingTime, sell.expirationTime, sell.salt],
-				[buy.feeMethod, buy.side, buy.saleKind, buy.howToCall, sell.feeMethod, sell.side, sell.saleKind, sell.howToCall],
+				[...getAtomicMatchArgAddresses(buy), ...getAtomicMatchArgAddresses(sell)],
+				[...getAtomicMatchArgUints(buy), ...getAtomicMatchArgUints(sell)],
+				[...getAtomicMatchArgCommonData(buy), ...getAtomicMatchArgCommonData(sell)],
 				buy.calldata,
 				sell.calldata,
 				buy.replacementPattern,

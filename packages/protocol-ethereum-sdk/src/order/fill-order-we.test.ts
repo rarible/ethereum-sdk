@@ -84,8 +84,6 @@ describe("fillOrder", () => {
 	let wyvernTokenTransferProxy: Contract
 	// let testToken: Contract
 	let proxyRegistryEthContract: EthereumContract
-	let proxyAddress: Address
-	let proxyAddress2: Address
 
 	beforeAll(async () => {
 		/**
@@ -105,20 +103,9 @@ describe("fillOrder", () => {
 
 		proxyRegistryEthContract = await createOpenseaProxyRegistryEthContract(ethereum1, toAddress(wyvernProxyRegistry.options.address))
 
-
-		const grantAuth = await proxyRegistryEthContract
+		await proxyRegistryEthContract
 			.functionCall("grantInitialAuthentication", wyvernExchange.options.address)
-
-		await send(grantAuth)
-
-		const registerProxy = await proxyRegistryEthContract
-			.functionCall("registerProxy")
-
-		await send(registerProxy)
-
-		proxyAddress = toAddress(
-			await proxyRegistryEthContract.functionCall("proxies", sender1Address).call()
-		)
+			.send()
 
 		// wyvernProxyRegistry.registerProxy().withSender(userSender1).execute().awaitFirst()
 		// val user1RegisteredProxy = wyvernProxyRegistry.proxies(userSender1.from()).awaitFirst()
@@ -134,7 +121,6 @@ describe("fillOrder", () => {
 		// proxyAddress2 = toAddress(
 		// 	await proxyRegistryEthContract2.functionCall("proxies", sender2Address).call()
 		// )
-		console.log("proxyAddress", proxyAddress, "proxyAddress2", proxyAddress2)
 
 		// await createErc20Contract(ethereum1, toAddress(it.testErc20.options.address))
 		// 	.functionCall(
@@ -318,7 +304,7 @@ describe("fillOrder", () => {
 		feeMethod: "0",
 		side: "0",
 		saleKind: "0",
-		target: proxyAddress,
+		target: ZERO_ADDRESS, //todo changed
 		howToCall: "0",
 		calldata: "0x",
 		replacementPattern: "0x",
@@ -402,7 +388,7 @@ describe("fillOrder", () => {
 				takerRelayerFee: toBigNumber("0"),
 				makerProtocolFee: toBigNumber("0"),
 				takerProtocolFee: toBigNumber("0"),
-				feeRecipient: toAddress(sender1Address),
+				feeRecipient: ZERO_ADDRESS,
 				// feeMethod: "SPLIT_FEE",
 				feeMethod: "PROTOCOL_FEE",
 				side: "SELL",
@@ -416,9 +402,9 @@ describe("fillOrder", () => {
 			},
 		}
 
-		const orderHash = hashOpenSeaV1Order(leftOrder)
+		const orderHash = hashOpenSeaV1Order(ethereum1, leftOrder)
 
-		const orderDTO = convertOpenSeaOrderToSignDTO(leftOrder)
+		const orderDTO = convertOpenSeaOrderToSignDTO(ethereum1, leftOrder)
 
 		const contractCalculatedHash = await exchangeContract
 			.functionCall(
@@ -487,8 +473,17 @@ describe("fillOrder", () => {
 	})
 
 	test("should allow simple order matching, second fee method, real maker protocol fees", async () => {
+
 		await sentTx(it.testErc20.methods.mint(sender1Address, 1000), { from: sender1Address })
 		await sentTx(it.testErc721.methods.mint(sender1Address, 1, "0x"), { from: sender1Address })
+
+		await proxyRegistryEthContract
+			.functionCall("registerProxy")
+			.send()
+		const proxyAddress = toAddress(await proxyRegistryEthContract.functionCall("proxies", sender1Address).call())
+
+		await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, 100), { from: sender1Address })
+		await sentTx(it.testErc721.methods.setApprovalForAll(proxyAddress, true), { from: sender1Address })
 
 		const left: SimpleOpenSeaV1Order = {
 			make: {
@@ -507,7 +502,7 @@ describe("fillOrder", () => {
 				},
 				value: toBigNumber("10"),
 			},
-			taker: toAddress(sender1Address),
+			taker: ZERO_ADDRESS,
 			salt: toWord("7b0a53bb49afd3238b0ff50f17f3462ee070f913df3f9c434dc9aa941c184df7"),
 			type: "OPEN_SEA_V1",
 			start: 0,
@@ -520,8 +515,7 @@ describe("fillOrder", () => {
 				makerProtocolFee: toBigNumber("0"),
 				takerProtocolFee: toBigNumber("0"),
 				feeRecipient: toAddress(sender1Address),
-				// feeMethod: "SPLIT_FEE",
-				feeMethod: "PROTOCOL_FEE",
+				feeMethod: "SPLIT_FEE",
 				side: "SELL",
 				saleKind: "FIXED_PRICE",
 				howToCall: "CALL",
@@ -532,7 +526,6 @@ describe("fillOrder", () => {
 				extra: toBigNumber("0"),
 			},
 		}
-
 
 		console.log("it.testErc721.options.address", it.testErc721.options.address)
 		console.log("it.testErc20.options.address", it.testErc20.options.address)
@@ -564,7 +557,7 @@ describe("fillOrder", () => {
 			toAddress(wyvernExchange.options.address),
 			toAddress(wyvernTokenTransferProxy.options.address),
 			left,
-			{amount: 5}
+			{amount: 1}
 		)
 	})
 
@@ -663,8 +656,8 @@ describe("fillOrder", () => {
 		sell.side = 1
 		// buy.feeMethod = 1
 		// sell.feeMethod = 1
-		buy.target = proxyAddress
-		sell.target = proxyAddress2
+		buy.target = ZERO_ADDRESS //todo changed
+		sell.target = ZERO_ADDRESS //todo changed
 		buy.paymentToken = toAddress(it.testErc20.options.address)
 		sell.paymentToken = toAddress(it.testErc721.options.address)
 		buy.basePrice = 1

@@ -16,6 +16,7 @@ export function createGanacheProvider(...pk: string[]) {
 
 	const provider = Ganache.provider({
 		accounts,
+		gasLimit: 20000000,
 		// @ts-ignore
 		_chainIdRpc: 17,
 	})

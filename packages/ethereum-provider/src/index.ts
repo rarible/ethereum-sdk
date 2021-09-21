@@ -40,6 +40,7 @@ export interface EthereumSendOptions {
 }
 
 export interface EthereumFunctionCall {
+	data: string
 	call(options?: EthereumSendOptions): Promise<any>
 	send(options?: EthereumSendOptions): Promise<EthereumTransaction>
 }

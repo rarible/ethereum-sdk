@@ -1,5 +1,13 @@
-import { Asset, LegacyOrderForm, OrderControllerApi, Part } from "@rarible/protocol-api-client"
-import { Address, toAddress, toBigNumber, toWord, ZERO_ADDRESS } from "@rarible/types"
+import {
+	Asset,
+	Binary,
+	Erc1155AssetType,
+	Erc721AssetType,
+	LegacyOrderForm,
+	OrderControllerApi,
+	Part,
+} from "@rarible/protocol-api-client"
+import { Address, toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { ActionBuilder } from "@rarible/action"
 import { toBn } from "@rarible/utils/build/bn"
 import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
@@ -22,6 +30,8 @@ import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { toStructLegacyOrder } from "./to-struct-legacy-order"
 import type { ApproveFunction } from "./approve"
 import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
+import { createErc721Contract } from "./contracts/erc721"
+import { createErc1155Contract } from "./contracts/erc1155"
 
 export type FillOrderRequest = {
 	amount: number
@@ -143,16 +153,12 @@ export function getRSV(sig: string) {
 	return { r, s, v }
 }
 
-export async function getOpenseaOrderVrs(orderDTO: OpenSeaOrderToSignDTO, ethereum: Ethereum, transferProxy: Address) {
+export async function getOpenseaOrderVrs(orderDTO: OpenSeaOrderToSignDTO, ethereum: Ethereum) {
 	//TODO replace web3
 	const web3: any = (ethereum as any)["config"].web3
 	const from = await ethereum.getFrom()
 
-	const orderHash = hashOrder(
-		{
-			...orderDTO,
-			target: transferProxy,
-		})
+	const orderHash = hashOrder(orderDTO)
 
 	//TODO replace web3
 	let signatureBuyHash = await web3.eth.sign(orderHash, from)
@@ -189,48 +195,43 @@ export async function matchOpenSeaV1Order(
 	send: SendFunction,
 	exchange: Address,
 	transferProxy: Address,
-	left: SimpleOpenSeaV1Order,
-	right: SimpleOpenSeaV1Order,
+	sell: SimpleOpenSeaV1Order,
+	buy: SimpleOpenSeaV1Order,
 ) {
-	const sellOrderToSignDTO = convertOpenSeaOrderToSignDTO(left)
-	const buyorderToSignDTO = convertOpenSeaOrderToSignDTO(right)
+	const sellOrderToSignDTO = convertOpenSeaOrderToSignDTO(ethereum, sell)
+	const buyorderToSignDTO = convertOpenSeaOrderToSignDTO(ethereum, buy)
 
-	sellOrderToSignDTO.target = transferProxy
-	buyorderToSignDTO.target = transferProxy
-	sellOrderToSignDTO.feeRecipient = ZERO_ADDRESS
+	buyorderToSignDTO.feeRecipient = ZERO_ADDRESS
 
 	console.log("sellOrderToSignDTO", JSON.stringify(sellOrderToSignDTO, null, "	"))
 	console.log("buyorderToSignDTO", JSON.stringify(buyorderToSignDTO, null, "	"))
 	const exchangeContract = createOpenseaContract(ethereum, exchange)
 
-	const leftRSV = await getOpenseaOrderVrs(sellOrderToSignDTO, ethereum, transferProxy)
-	const rightRSV = await getOpenseaOrderVrs(buyorderToSignDTO, ethereum, transferProxy)
+	const leftRSV = await getOpenseaOrderVrs(sellOrderToSignDTO, ethereum)
+	const rightRSV = await getOpenseaOrderVrs(buyorderToSignDTO, ethereum)
 
 	console.log("rsv matchOpenSeaV1Order")
 
 	const method = exchangeContract.functionCall(
 		"atomicMatch_",
 		[
-			...getAtomicMatchArgAddresses(sellOrderToSignDTO),
 			...getAtomicMatchArgAddresses(buyorderToSignDTO),
+			...getAtomicMatchArgAddresses(sellOrderToSignDTO),
 		],
-		[...getAtomicMatchArgUints(sellOrderToSignDTO), ...getAtomicMatchArgUints(buyorderToSignDTO)],
-		[...getAtomicMatchArgCommonData(sellOrderToSignDTO), ...getAtomicMatchArgCommonData(buyorderToSignDTO)],
-		sellOrderToSignDTO.calldata,
+		[...getAtomicMatchArgUints(buyorderToSignDTO), ...getAtomicMatchArgUints(sellOrderToSignDTO)],
+		[...getAtomicMatchArgCommonData(buyorderToSignDTO), ...getAtomicMatchArgCommonData(sellOrderToSignDTO)],
 		buyorderToSignDTO.calldata,
-		sellOrderToSignDTO.replacementPattern,
+		sellOrderToSignDTO.calldata,
 		buyorderToSignDTO.replacementPattern,
-		sellOrderToSignDTO.staticExtradata,
+		sellOrderToSignDTO.replacementPattern,
 		buyorderToSignDTO.staticExtradata,
+		sellOrderToSignDTO.staticExtradata,
 		[leftRSV.v, rightRSV.v],
 		[leftRSV.r, leftRSV.s, rightRSV.r, rightRSV.s, "0x0000000000000000000000000000000000000000000000000000000000000000"],
 	)
 
-	console.log("after atomic matchOpenSeaV1Order", getMatchV2Options(left, right, getMakeFee))
-
-	return send(method, getMatchV2Options(left, right, getMakeFee))
+	return send(method, getMatchV2Options(sell, buy, getMakeFee))
 }
-
 
 async function matchOrders(
 	getMakeFee: GetMakeFeeFunction,

@@ -1,7 +1,10 @@
 import { Ethereum } from "@rarible/ethereum-provider"
 import { keccak256 } from "ethereumjs-util"
+import Web3 from "web3"
+import {toAddress, toBinary} from "@rarible/types"
+import {toBn} from "@rarible/utils/build/bn"
 import { toLegacyAssetType } from "./to-legacy-asset-type"
-import { SimpleOrder } from "./sign-order"
+import {hashOrder, SimpleOpenSeaV1Order, SimpleOrder} from "./sign-order"
 
 export function hashLegacyOrder(ethereum: Ethereum, order: SimpleOrder): string {
 	if (order.type !== "RARIBLE_V1") {
@@ -28,6 +31,18 @@ export function hashLegacyOrder(ethereum: Ethereum, order: SimpleOrder): string 
 	}
 	const encodedOrder = ethereum.encodeParameter({ Order: ORDER }, struct)
 	return `0x${keccak256(Buffer.from(encodedOrder.substring(2), "hex")).toString("hex")}`
+}
+
+export function hashOpenSeaV1Order(ethereum: Ethereum, order: SimpleOpenSeaV1Order): string {
+	// const order = makeOrder()
+
+	// const hashResJs = hashOrder(order) || ""
+
+	// const orderHash = Web3.utils.soliditySha3(
+	// 	{type: "string", value: "\x19Ethereum Signed Message:\n32"},
+	// 	{type: "bytes32", value: hashResJs}
+	// )
+	return ""
 }
 
 const ASSET = {

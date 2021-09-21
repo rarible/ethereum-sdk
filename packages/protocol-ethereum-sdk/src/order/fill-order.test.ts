@@ -1,4 +1,4 @@
-import { randomAddress, randomWord, toAddress, toBigNumber } from "@rarible/types"
+import {randomAddress, randomWord, toAddress, toBigNumber, ZERO_ADDRESS} from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
@@ -102,13 +102,13 @@ describe("fillOrder", () => {
 		})
 
 		const a = toAddress(it.exchangeV2.options.address)
-		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
+		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a, openseaV1: toAddress(ZERO_ADDRESS) } }, left)
 
 		await fillOrderSendTx(
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			send,
-			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
+			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address), openseaV1: toAddress(ZERO_ADDRESS)},
 			orderApi,
 			{ ...left, signature },
 			{ amount: 2, payouts: [], originFees: [] }
@@ -153,7 +153,7 @@ describe("fillOrder", () => {
 		})
 
 		const a = toAddress(it.exchangeV2.options.address)
-		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
+		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a, openseaV1: toAddress(ZERO_ADDRESS)} }, left)
 
 		const before1 = toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call())
 		const before2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call())
@@ -162,7 +162,7 @@ describe("fillOrder", () => {
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			send,
-			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
+			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address), openseaV1: toAddress(ZERO_ADDRESS) },
 			orderApi,
 			{ ...left, signature },
 			{ amount: 2, payouts: [], originFees: [{ account: randomAddress(), value: 100 }] }

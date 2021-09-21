@@ -1,21 +1,27 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
-import Web3 from "web3"
-import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
-import { Configuration, GatewayControllerApi, NftCollectionControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
+import {
+	Configuration,
+	GatewayControllerApi,
+	NftCollectionControllerApi,
+	NftLazyMintControllerApi,
+} from "@rarible/protocol-api-client"
+import { Ethereum } from "@rarible/ethereum-provider"
+import { toBn } from "@rarible/utils"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
+import { createTestProviders } from "../common/create-test-providers"
 import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
 import { mint as mintTemplate } from "./mint"
 import { signNft } from "./sign-nft"
 import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
 import { burn as burnTemplate } from "./burn"
 
-describe("burn nfts", () => {
-	const { provider, wallet } = createE2eProvider()
-	const web3 = new Web3(provider)
-	const ethereum = new Web3Ethereum({ web3 })
+const { provider, wallet } = createE2eProvider()
+const { providers } = createTestProviders(provider, wallet)
+
+describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 	const testAddress = toAddress(wallet.getAddressString())
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const collectionApi = new NftCollectionControllerApi(configuration)
@@ -42,15 +48,15 @@ describe("burn nfts", () => {
 			royalties: [],
 		})
 		const testBalance = await testErc721.functionCall("balanceOf", testAddress).call()
-		expect(testBalance).toBe("1")
+		expect(toBn(testBalance).toString()).toBe("1")
 
 		await burn({
 			contract: contractErc721,
 			tokenId: minted.tokenId,
 		})
 		const testBalanceAfterBurn = await testErc721.functionCall("balanceOf", testAddress).call()
-		expect(testBalanceAfterBurn).toBe("0")
-	}, 10000)
+		expect(toBn(testBalanceAfterBurn).toString()).toBe("0")
+	})
 
 	test("should burn ERC1155 legacy token", async () => {
 		const minted = await mint(mintLazyApi, {
@@ -69,6 +75,6 @@ describe("burn nfts", () => {
 		}, 50)
 
 		const testBalanceAfterBurn = await testErc1155.functionCall("balanceOf", testAddress, minted.tokenId).call()
-		expect(testBalanceAfterBurn).toBe("50")
-	}, 10000)
+		expect(toBn(testBalanceAfterBurn).toString()).toBe("50")
+	})
 })

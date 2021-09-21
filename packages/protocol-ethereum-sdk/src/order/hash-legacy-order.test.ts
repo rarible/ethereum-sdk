@@ -1,14 +1,13 @@
 import { toAddress, toBigNumber, toWord } from "@rarible/types"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
-import { Web3Ethereum } from "@rarible/web3-ethereum"
-import Web3 from "web3"
-import { provider } from "web3-core"
+import { createTestProviders } from "../common/create-test-providers"
 import { hashLegacyOrder } from "./hash-legacy-order"
 
-describe("hashLegacyOrder", () => {
-	const { provider } = createGanacheProvider()
-	const web3 = new Web3(provider as unknown as provider)
-	const ethereum = new Web3Ethereum({ web3 })
+const { provider, wallets } = createGanacheProvider()
+const { providers } = createTestProviders(provider, wallets[0])
+
+describe.each(providers)("hashLegacyOrder", ethereum => {
+
 	test("simple order is hashed correctly", () => {
 		const hash = hashLegacyOrder(ethereum, {
 			type: "RARIBLE_V1",

@@ -128,89 +128,132 @@ There are support two ways of minting ERC721 and ERC1155 tokens:
 1. Regular "on chain" minting using contract.
 2. Off chain minting (the transaction itself and payment for gas occurs at the time of purchase or transfer)
 
-Mint request object
-
-```typescript
-const mintRequest = {
-	collection: {
-		id: toAddress(contractAddress), // contract address
-		type: "ERC1155", // type of asset to mint, "ERC721" || "ERC1155"
-		supportsLazyMint: true, // true if contract supports lazy minting  
-	},
-	uri: 'uri', // token uri
-	supply: toBigNumber('100'), // supply - used only for ERC1155 tokens
-	creators: [{ account: toAddress(minter), value: 10000 }], // creators of token
-	royalties: [], // royalties
-	lazy: true, // true if mint lazy or false when mint onchain
-}
-```
-
 ### Mint examples
 
-Mint function always return tokenId as string
+Mint function always return tokenId as string.
+
+```typescript
+type MintForm = {
+	id: string,               // The contract identifier adress
+	type: NftCollection_Type, // NFT type to mint, `ERC721` || `ERC1155`
+	isLazySupported: boolean, // The contract supports of lazy minting
+	isLazy: boolean,          // The contract is lazy or mint onchain
+	loading: boolean          //
+}
+
+...
+
+const Dashboard: React.FC<DashboardProps> = ({ provider, sdk, accounts }) => {
+	const [collection, setCollection] = useState<MintForm>(mintFormInitial)
+
+  ...
+
+	const mint = async () => {
+		let tokenId: string
+		const nftCollection = await sdk.apis.nftCollection.getNftCollectionById({ collection: collection.id })
+		if (isLazyErc721Collection(nftCollection)) {
+			const resp = await sdk.nft.mint({
+				collection: nftCollection,
+				uri: "/ipfs/QmWLsBu6nS4ovaHbGAXprD1qEssJu4r5taQfB74sCG51tp",
+				creators: [{ account: toAddress(accounts[0]), value: 10000 }],
+				royalties: [],
+				lazy: collection.isLazy,
+			})
+			tokenId = resp.tokenId
+		} else if (isLazyErc1155Collection(nftCollection)) {
+			const resp = await sdk.nft.mint({
+				collection: nftCollection,
+				uri: "/ipfs/QmWLsBu6nS4ovaHbGAXprD1qEssJu4r5taQfB74sCG51tp",
+				creators: [{ account: toAddress(accounts[0]), value: 10000 }],
+				royalties: [],
+				supply: toBigNumber('1'),
+				lazy: collection.isLazy,
+			})
+			tokenId = resp.tokenId
+		} else if (isLegacyErc721Collection(nftCollection)) {
+			const resp = await sdk.nft.mint({
+				collection: nftCollection,
+				uri: "/ipfs/QmWLsBu6nS4ovaHbGAXprD1qEssJu4r5taQfB74sCG51tp",
+				royalties: [],
+			})
+			tokenId = resp.tokenId
+		} else if (isLegacyErc1155Collection(nftCollection)) {
+			const resp = await sdk.nft.mint({
+				collection: nftCollection,
+				uri: "/ipfs/QmWLsBu6nS4ovaHbGAXprD1qEssJu4r5taQfB74sCG51tp",
+				royalties: [],
+				supply: 1,
+			})
+			tokenId = resp.tokenId
+		} else {
+			tokenId = ""
+			console.log("Wrong collection")
+		}
+
+		if (tokenId) {
+			/**
+			 * Get minted nft through SDK
+			 */
+			if (collection.isLazySupported && !collection.isLazy) {
+				await retry(30, async () => { // wait when indexer aggregate an onChain nft
+						await getTokenById(tokenId)
+					},
+				)
+			} else {
+				await getTokenById(tokenId)
+			}
+		}
+	}
+```
 
 #### ERC721 Lazy
 
 ```typescript
-const tokenId = await mint({
-	collection: {
-		id: toAddress(contractAddress),
-		type: "ERC721",
-		supportsLazyMint: true,
-	},
-	uri: 'uri',
-	creators: [{ account: toAddress(minter), value: 10000 }],
-	royalties: [],
-	lazy: true,
+const resp = await sdk.nft.mint({
+	collection: nftCollection,                                     // NFT collection info
+	uri: "/ipfs/QmWLsBu6nS4ovaHbGAXprD1qEssJu4r5taQfB74sCG51tp",   // URI of the contract
+	creators: [{ account: toAddress(accounts[0]), value: 10000 }], // Creator info
+	royalties: [],                                                 // The amount of royalties
+	lazy: collection.isLazy,                                       // The contract is lazy or mint onchain
 })
+tokenId = resp.tokenId
 ```
 
 #### ERC1155 Lazy
 
 ```typescript
-const tokenId = await mint({
-	collection: {
-		id: toAddress(contractAddress),
-		type: "ERC1155",
-		supportsLazyMint: true,
-	},
-	uri: 'uri',
-	supply: toBigNumber('100'),
-	creators: [{ account: toAddress(minter), value: 10000 }],
-	royalties: [],
-	lazy: true,
+const resp = await sdk.nft.mint({
+	collection: nftCollection,                                     // NFT collection info
+	uri: "/ipfs/QmWLsBu6nS4ovaHbGAXprD1qEssJu4r5taQfB74sCG51tp",   // URI of the contract
+	creators: [{ account: toAddress(accounts[0]), value: 10000 }], // Creator info
+	royalties: [],                                                 // The amount of royalties
+	supply: toBigNumber('1'),                                      // Supply values in BigNumber format
+	lazy: collection.isLazy,                                       // The contract is lazy or mint onchain
 })
+tokenId = resp.tokenId
 ```
 
 #### ERC721
 
 ```typescript
-await mint({
-	collection: {
-		id: toAddress(contractAddress),
-		type: "ERC721",
-		supportsLazyMint: true,
-	},
-	uri: 'uri',
-	creators: [{ account: toAddress(minter), value: 10000 }],
-	royalties: [],
+const resp = await sdk.nft.mint({
+	collection: nftCollection,                                   // NFT collection info
+	uri: "/ipfs/QmWLsBu6nS4ovaHbGAXprD1qEssJu4r5taQfB74sCG51tp", // URI of the contract
+	royalties: [],                                               // The amount of royalties
 })
+tokenId = resp.tokenId
 ```
 
 #### ERC1155
 
 ```typescript
-const tokenId = await mint({
-	collection: {
-		id: toAddress(contractAddress),
-		type: "ERC1155",
-		supportsLazyMint: true,
-	},
-	uri: 'uri',
-	supply: toBigNumber('100'),
-	creators: [{ account: toAddress(minter), value: 10000 }],
-	royalties: [],
+const resp = await sdk.nft.mint({
+	collection: nftCollection,                                   // NFT collection info
+	uri: "/ipfs/QmWLsBu6nS4ovaHbGAXprD1qEssJu4r5taQfB74sCG51tp", // URI of the contract
+	royalties: [],                                               // The amount of royalties
+	supply: 1,                                                   //
 })
+tokenId = resp.tokenId
 ```
 
 [Mint e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/lazy-mint.test.ts)

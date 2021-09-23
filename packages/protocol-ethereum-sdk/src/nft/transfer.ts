@@ -1,11 +1,4 @@
-import {
-	Address,
-	Binary,
-	Erc1155AssetType,
-	Erc721AssetType,
-	NftItemControllerApi,
-	NftOwnershipControllerApi,
-} from "@rarible/protocol-api-client"
+import { Address, Erc1155AssetType, Erc721AssetType, NftItemControllerApi, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { BigNumber, toAddress } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
@@ -14,7 +7,6 @@ import { getOwnershipId } from "../common/get-ownership-id"
 import { SendFunction } from "../common/send-transaction"
 import { transferErc721 } from "./transfer-erc721"
 import { transferErc1155 } from "./transfer-erc1155"
-import { SimpleLazyNft } from "./sign-nft"
 import { transferNftLazy } from "./transfer-nft-lazy"
 
 export type TransferAsset = NftAssetType | Erc721AssetType | Erc1155AssetType
@@ -22,7 +14,6 @@ export type TransferAsset = NftAssetType | Erc721AssetType | Erc1155AssetType
 export async function transfer(
 	ethereum: Ethereum,
 	send: SendFunction,
-	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	checkAssetType: CheckAssetTypeFunction,
 	nftItemApi: NftItemControllerApi,
 	nftOwnershipApi: NftOwnershipControllerApi,
@@ -37,12 +28,10 @@ export async function transfer(
 	if (ownership.status === 200) {
 		const checkedAssetType = await checkAssetType(asset)
 		if (toBn(ownership.value.lazyValue).gt(0)) {
-			return await transferNftLazy(
+			return transferNftLazy(
 				ethereum,
 				send,
-				signNft,
 				nftItemApi,
-				nftOwnershipApi,
 				asset,
 				toAddress(from), to, amount)
 		} else {

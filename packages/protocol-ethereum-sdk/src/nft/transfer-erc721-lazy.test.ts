@@ -8,8 +8,9 @@ import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { signNft } from "./sign-nft"
 import { mint, MintRequest } from "./mint"
-import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
 import { transfer, TransferAsset } from "./transfer"
+import { ERC721VersionEnum } from "./contracts/domain"
+import { getErc721Contract } from "./contracts/erc721"
 
 describe("transfer Erc721 lazy", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -37,9 +38,8 @@ describe("transfer Erc721 lazy", () => {
 			royalties: [],
 			lazy: true,
 			collection: {
-				type: "ERC721",
 				id: contract,
-				supportsLazyMint: true,
+				version: ERC721VersionEnum.ERC721V3,
 			},
 		}
 
@@ -60,14 +60,13 @@ describe("transfer Erc721 lazy", () => {
 		await transfer(
 			ethereum,
 			send,
-			sign,
 			checkAssetType,
 			nftItemApi,
 			nftOwnershipApi,
 			asset,
 			recipient
 		)
-		const erc721Lazy = createErc721LazyContract(ethereum, contract)
+		const erc721Lazy = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, contract)
 		const recipientBalance = await erc721Lazy.functionCall("balanceOf", recipient).call()
 		expect(recipientBalance).toEqual("1")
 	}, 30000)

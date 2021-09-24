@@ -7,9 +7,11 @@ import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-t
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { signNft } from "./sign-nft"
-import { mint, MintRequest } from "./mint"
-import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
+import { ERC1155RequestV2, mint } from "./mint"
 import { transfer, TransferAsset } from "./transfer"
+import { ERC1155VersionEnum } from "./contracts/domain"
+import { getErc1155Contract } from "./contracts/erc1155"
+import { createErc1155V2Collection } from "./test/mint"
 
 describe("transfer Erc721 lazy", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -30,14 +32,10 @@ describe("transfer Erc721 lazy", () => {
 		const recipient = randomAddress()
 		const contract = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
 
-		const request: MintRequest = {
+		const request: ERC1155RequestV2 = {
 			uri: "//uri",
 			creators: [{ account: toAddress(wallet.getAddressString()), value: 10000 }],
-			collection: {
-				type: "ERC1155",
-				id: contract,
-				supportsLazyMint: true,
-			},
+			collection: createErc1155V2Collection(contract),
 			royalties: [],
 			supply: 100,
 			lazy: true,
@@ -53,7 +51,6 @@ describe("transfer Erc721 lazy", () => {
 		await transfer(
 			ethereum,
 			send,
-			sign,
 			checkAssetType,
 			nftItemApi,
 			nftOwnershipApi,
@@ -62,7 +59,7 @@ describe("transfer Erc721 lazy", () => {
 			toBigNumber("50")
 		)
 
-		const erc1155Lazy = createErc1155LazyContract(ethereum, contract)
+		const erc1155Lazy = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V2, contract)
 		const recipientBalance = await erc1155Lazy.functionCall("balanceOf", recipient, minted.tokenId).call()
 		expect(recipientBalance).toEqual("50")
 	}, 10000)

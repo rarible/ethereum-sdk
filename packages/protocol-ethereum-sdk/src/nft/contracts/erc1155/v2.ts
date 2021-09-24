@@ -1,44 +1,13 @@
-import { Address } from "@rarible/protocol-api-client"
-import { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
-import { AbiItem } from "../../../common/abi-item"
+import type { AbiItem } from "../../../common/abi-item"
 
-export function createErc721LazyContract(ethereum: Ethereum, address?: Address): EthereumContract {
-	return ethereum.createContract(erc721LazyAbi, address)
-}
-
-const erc721LazyAbi: AbiItem[] = [
+export const erc1155v2Abi: AbiItem[] = [
 	{
 		"anonymous": false,
 		"inputs": [
 			{
 				"indexed": true,
 				"internalType": "address",
-				"name": "owner",
-				"type": "address",
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "approved",
-				"type": "address",
-			},
-			{
-				"indexed": true,
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256",
-			},
-		],
-		"name": "Approval",
-		"type": "event",
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "owner",
+				"name": "account",
 				"type": "address",
 			},
 			{
@@ -92,6 +61,31 @@ const erc721LazyAbi: AbiItem[] = [
 		"anonymous": false,
 		"inputs": [
 			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256",
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256",
+			},
+		],
+		"name": "Supply",
+		"type": "event",
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "operator",
+				"type": "address",
+			},
+			{
 				"indexed": true,
 				"internalType": "address",
 				"name": "from",
@@ -104,46 +98,95 @@ const erc721LazyAbi: AbiItem[] = [
 				"type": "address",
 			},
 			{
+				"indexed": false,
+				"internalType": "uint256[]",
+				"name": "ids",
+				"type": "uint256[]",
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256[]",
+				"name": "values",
+				"type": "uint256[]",
+			},
+		],
+		"name": "TransferBatch",
+		"type": "event",
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
 				"indexed": true,
+				"internalType": "address",
+				"name": "operator",
+				"type": "address",
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address",
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address",
+			},
+			{
+				"indexed": false,
 				"internalType": "uint256",
-				"name": "tokenId",
+				"name": "id",
+				"type": "uint256",
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
 				"type": "uint256",
 			},
 		],
-		"name": "Transfer",
+		"name": "TransferSingle",
+		"type": "event",
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "value",
+				"type": "string",
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256",
+			},
+		],
+		"name": "URI",
 		"type": "event",
 	},
 	{
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "to",
+				"name": "account",
 				"type": "address",
 			},
 			{
 				"internalType": "uint256",
-				"name": "tokenId",
+				"name": "id",
 				"type": "uint256",
-			},
-		],
-		"name": "approve",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function",
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "owner",
-				"type": "address",
 			},
 		],
 		"name": "balanceOf",
 		"outputs": [
 			{
 				"internalType": "uint256",
-				"name": "balance",
+				"name": "",
 				"type": "uint256",
 			},
 		],
@@ -153,17 +196,22 @@ const erc721LazyAbi: AbiItem[] = [
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256",
+				"internalType": "address[]",
+				"name": "accounts",
+				"type": "address[]",
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "ids",
+				"type": "uint256[]",
 			},
 		],
-		"name": "getApproved",
+		"name": "balanceOfBatch",
 		"outputs": [
 			{
-				"internalType": "address",
-				"name": "operator",
-				"type": "address",
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]",
 			},
 		],
 		"stateMutability": "view",
@@ -173,7 +221,7 @@ const erc721LazyAbi: AbiItem[] = [
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "owner",
+				"name": "account",
 				"type": "address",
 			},
 			{
@@ -196,25 +244,6 @@ const erc721LazyAbi: AbiItem[] = [
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256",
-			},
-		],
-		"name": "ownerOf",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "owner",
-				"type": "address",
-			},
-		],
-		"stateMutability": "view",
-		"type": "function",
-	},
-	{
-		"inputs": [
-			{
 				"internalType": "address",
 				"name": "from",
 				"type": "address",
@@ -225,12 +254,22 @@ const erc721LazyAbi: AbiItem[] = [
 				"type": "address",
 			},
 			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256",
+				"internalType": "uint256[]",
+				"name": "ids",
+				"type": "uint256[]",
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "amounts",
+				"type": "uint256[]",
+			},
+			{
+				"internalType": "bytes",
+				"name": "data",
+				"type": "bytes",
 			},
 		],
-		"name": "safeTransferFrom",
+		"name": "safeBatchTransferFrom",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function",
@@ -249,7 +288,12 @@ const erc721LazyAbi: AbiItem[] = [
 			},
 			{
 				"internalType": "uint256",
-				"name": "tokenId",
+				"name": "id",
+				"type": "uint256",
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
 				"type": "uint256",
 			},
 			{
@@ -272,7 +316,7 @@ const erc721LazyAbi: AbiItem[] = [
 			},
 			{
 				"internalType": "bool",
-				"name": "_approved",
+				"name": "approved",
 				"type": "bool",
 			},
 		],
@@ -303,29 +347,6 @@ const erc721LazyAbi: AbiItem[] = [
 	{
 		"inputs": [
 			{
-				"internalType": "address",
-				"name": "from",
-				"type": "address",
-			},
-			{
-				"internalType": "address",
-				"name": "to",
-				"type": "address",
-			},
-			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256",
-			},
-		],
-		"name": "transferFrom",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function",
-	},
-	{
-		"inputs": [
-			{
 				"components": [
 					{
 						"internalType": "uint256",
@@ -336,6 +357,11 @@ const erc721LazyAbi: AbiItem[] = [
 						"internalType": "string",
 						"name": "uri",
 						"type": "string",
+					},
+					{
+						"internalType": "uint256",
+						"name": "supply",
+						"type": "uint256",
 					},
 					{
 						"components": [
@@ -377,7 +403,7 @@ const erc721LazyAbi: AbiItem[] = [
 						"type": "bytes[]",
 					},
 				],
-				"internalType": "struct LibERC721LazyMint.Mint721Data",
+				"internalType": "struct LibERC1155LazyMint.Mint1155Data",
 				"name": "data",
 				"type": "tuple",
 			},
@@ -385,6 +411,11 @@ const erc721LazyAbi: AbiItem[] = [
 				"internalType": "address",
 				"name": "to",
 				"type": "address",
+			},
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256",
 			},
 		],
 		"name": "mintAndTransfer",
@@ -407,6 +438,11 @@ const erc721LazyAbi: AbiItem[] = [
 						"type": "string",
 					},
 					{
+						"internalType": "uint256",
+						"name": "supply",
+						"type": "uint256",
+					},
+					{
 						"components": [
 							{
 								"internalType": "address payable",
@@ -446,7 +482,7 @@ const erc721LazyAbi: AbiItem[] = [
 						"type": "bytes[]",
 					},
 				],
-				"internalType": "struct LibERC721LazyMint.Mint721Data",
+				"internalType": "struct LibERC1155LazyMint.Mint1155Data",
 				"name": "data",
 				"type": "tuple",
 			},
@@ -460,6 +496,11 @@ const erc721LazyAbi: AbiItem[] = [
 				"name": "to",
 				"type": "address",
 			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256",
+			},
 		],
 		"name": "transferFromOrMint",
 		"outputs": [],
@@ -467,3 +508,5 @@ const erc721LazyAbi: AbiItem[] = [
 		"type": "function",
 	},
 ]
+
+export type ERC1155V2Abi = typeof erc1155v2Abi

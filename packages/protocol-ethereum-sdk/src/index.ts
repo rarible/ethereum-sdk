@@ -22,7 +22,6 @@ import { upsertOrder as upsertOrderTemplate, UpsertOrderAction } from "./order/u
 import { approve as approveTemplate } from "./order/approve"
 import { sell as sellTemplate, SellRequest } from "./order/sell"
 import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
-
 import { fillOrder, FillOrderAction, FillOrderRequest } from "./order/fill-order"
 import { bid as bidTemplate, BidRequest } from "./order/bid"
 import {
@@ -151,7 +150,7 @@ export function createRaribleSdk(
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
 	const mint = partialCall(mintTemplate, ethereum, send, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
 	const transfer = partialCall(
-		transferTemplate, ethereum, send, signNft, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi,
+		transferTemplate, ethereum, send, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi
 	)
 	const burn = partialCall(burnTemplate, ethereum, send, checkAssetType)
 
@@ -188,9 +187,7 @@ function partialCall<T extends Arr, U extends Arr, R>(
 }
 
 export {
-	isLazyErc721Collection,
-	isLazyErc1155Collection,
-	isLegacyErc721Collection,
-	isLegacyErc1155Collection,
-	isLazyCollection,
+	isErc1155v2Collection,
+	isErc721v2Collection,
+	isErc721v3Collection,
 } from "./nft/mint"

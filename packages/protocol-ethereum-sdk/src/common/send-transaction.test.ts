@@ -6,7 +6,8 @@ import { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import { getApiConfig } from "../config/api-config"
 import { getTokenId as getTokenIdTemplate } from "../nft/get-token-id"
-import { createMintableTokenContract } from "../nft/contracts/erc721/mintable-token"
+import { getErc721Contract } from "../nft/contracts/erc721"
+import { ERC721VersionEnum } from "../nft/contracts/domain"
 import { createPendingLogs, send as sendTemplate } from "./send-transaction"
 
 describe("sendTransaction", () => {
@@ -22,7 +23,7 @@ describe("sendTransaction", () => {
 	let testErc721: EthereumContract
 	const collectionId = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
 	beforeAll(async () => {
-		testErc721 = await createMintableTokenContract(ethereum, collectionId)
+		testErc721 = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, collectionId)
 	})
 
 	test("should send transaction and create pending logs", async () => {

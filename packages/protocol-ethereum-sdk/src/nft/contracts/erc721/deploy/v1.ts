@@ -1,7 +1,7 @@
 import type Web3 from "web3"
 import type { TransactionReceipt } from "web3-core"
 import { erc721v1Abi } from "../v1"
-import { erc721v3MintableTokenBytecode } from "./bytecodes"
+import { erc721v1MintableTokenBytecode } from "./bytecodes"
 
 export async function deployErc721V1(web3: Web3, name: string, symbol: string): Promise<TransactionReceipt> {
 	const empty = new web3.eth.Contract(erc721v1Abi)
@@ -9,7 +9,7 @@ export async function deployErc721V1(web3: Web3, name: string, symbol: string): 
 	return new Promise<TransactionReceipt>((resolve, reject) => {
 		const promi = empty
 			.deploy({
-				data: erc721v3MintableTokenBytecode,
+				data: erc721v1MintableTokenBytecode,
 				arguments: [
 					name,
 					symbol,

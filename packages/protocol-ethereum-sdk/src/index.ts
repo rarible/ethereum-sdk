@@ -187,9 +187,7 @@ function partialCall<T extends Arr, U extends Arr, R>(
 }
 
 export {
-	isErc1155v1Collection,
 	isErc1155v2Collection,
 	isErc721v2Collection,
-	isErc721v1Collection,
 	isErc721v3Collection,
 } from "./nft/mint"

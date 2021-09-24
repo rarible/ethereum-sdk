@@ -6,12 +6,13 @@ import { Configuration, GatewayControllerApi, NftCollectionControllerApi, NftLaz
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
-import { mint as mintTemplate } from "./mint"
+import { ERC1155RequestV1, ERC721RequestV2, mint as mintTemplate } from "./mint"
 import { signNft } from "./sign-nft"
 import { burn as burnTemplate } from "./burn"
 import { ERC1155VersionEnum, ERC721VersionEnum } from "./contracts/domain"
 import { getErc721Contract } from "./contracts/erc721"
 import { getErc1155Contract } from "./contracts/erc1155"
+import { createErc1155V1Collection, createErc721V2Collection } from "./test/mint"
 
 describe("burn nfts", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -33,13 +34,10 @@ describe("burn nfts", () => {
 	test("should burn ERC-721 v2 token", async () => {
 		const testErc721 = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, contractErc721)
 		const minted = await mint(mintLazyApi, {
-			collection: {
-				version: ERC721VersionEnum.ERC721V2,
-				id: contractErc721,
-			},
+			collection: createErc721V2Collection(contractErc721),
 			uri: "//test",
 			royalties: [],
-		})
+		} as ERC721RequestV2)
 		const testBalance = await testErc721.functionCall("balanceOf", testAddress).call()
 		expect(testBalance).toBe("1")
 
@@ -54,14 +52,11 @@ describe("burn nfts", () => {
 	test("should burn ERC-1155 v1 token", async () => {
 		const testErc1155 = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V1, contractErc1155)
 		const minted = await mint(mintLazyApi, {
-			collection: {
-				version: ERC1155VersionEnum.ERC1155V1,
-				id: contractErc1155,
-			},
+			collection: createErc1155V1Collection(contractErc1155),
 			uri: "//test",
 			royalties: [],
 			supply: 100,
-		})
+		} as ERC1155RequestV1)
 		await burn({
 			contract: contractErc1155,
 			tokenId: minted.tokenId,

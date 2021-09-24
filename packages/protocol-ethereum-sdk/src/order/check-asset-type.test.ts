@@ -6,8 +6,8 @@ import { Configuration, GatewayControllerApi, NftCollectionControllerApi, NftLaz
 import { retry } from "../common/retry"
 import { ERC721RequestV3, mint } from "../nft/mint"
 import { signNft } from "../nft/sign-nft"
-import { ERC721VersionEnum } from "../nft/contracts/domain"
 import { send as sendTemplate } from "../common/send-transaction"
+import { createErc721V3Collection } from "../nft/test/mint"
 import { getApiConfig } from "../config/api-config"
 import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
 
@@ -32,10 +32,7 @@ describe("check-asset-type test", function () {
 			lazy: false,
 			creators: [{ account: from, value: 10000 }],
 			royalties: [],
-			collection: {
-				version: ERC721VersionEnum.ERC721V3,
-				id: e2eErc721ContractAddress,
-			},
+			collection: createErc721V3Collection(e2eErc721ContractAddress),
 		}
 		const minted = await mint(
 			ethereum,
@@ -61,10 +58,7 @@ describe("check-asset-type test", function () {
 			creators: [{ account: from, value: 10000 }],
 			royalties: [],
 			lazy: false,
-			collection: {
-				version: ERC721VersionEnum.ERC721V3,
-				id: e2eErc721ContractAddress,
-			},
+			collection: createErc721V3Collection(e2eErc721ContractAddress),
 		}
 		const minted = await mint(
 			ethereum,

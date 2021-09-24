@@ -110,12 +110,17 @@ const isERC1155Request = (data: MintRequest): data is ERC1155RequestV1 | ERC1155
 const isERC721Request = (data: MintRequest): data is ERC721RequestV1 | ERC721RequestV2 | ERC721RequestV3 =>
 	data.collection.type === "ERC721"
 
-export const isErc721v2Collection = (x: NftCollection): x is ERC721CollectionV2 =>
-	x.features.indexOf("SECONDARY_SALE_FEES") !== -1 && x.type === "ERC721"
 export const isErc721v3Collection = (x: NftCollection): x is ERC721CollectionV3 =>
 	x.features.indexOf("MINT_AND_TRANSFER") !== -1 && x.type === "ERC721"
+export const isErc721v2Collection = (x: NftCollection): x is ERC721CollectionV2 =>
+	x.features.indexOf("SECONDARY_SALE_FEES") !== -1 && x.type === "ERC721"
+export const isErc721v1Collection = (x: NftCollection): x is ERC721CollectionV1 =>
+	!isErc721v3Collection(x) && !isErc721v2Collection(x)
+
 export const isErc1155v2Collection = (x: NftCollection): x is ERC1155CollectionV2 =>
 	x.features.indexOf("MINT_AND_TRANSFER") !== -1 && x.type === "ERC1155"
+export const isErc1155v1Collection = (x: NftCollection): x is ERC1155CollectionV1 =>
+	!isErc1155v2Collection(x)
 
 export type NftCollectionLike = Pick<NftCollection, "type" | "id"> & {
 	features?: NftCollection["features"]

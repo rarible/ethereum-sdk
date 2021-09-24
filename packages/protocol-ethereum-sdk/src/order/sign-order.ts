@@ -141,6 +141,7 @@ export function convertOpenSeaOrderToSignDTO(ethereum: Ethereum, order: SimpleOp
 	let basePrice: BigNumber
 	const makeAssetType = order.make.assetType
 	const takeAssetType = order.take.assetType
+
 	if (makeAssetType.assetClass === "ERC721") {
 		const c = createErc721Contract(ethereum, makeAssetType.contract)
 		callData = toBinary(c.functionCall("transferFrom", order.maker, ZERO_ADDRESS, makeAssetType.tokenId).data)
@@ -149,8 +150,7 @@ export function convertOpenSeaOrderToSignDTO(ethereum: Ethereum, order: SimpleOp
 	} else if (makeAssetType.assetClass === "ERC1155") {
 		const c = createErc1155Contract(ethereum, makeAssetType.contract)
 		callData = toBinary(c.functionCall("safeTransferFrom", order.maker, ZERO_ADDRESS, makeAssetType.tokenId, order.make.value, "0x").data)
-		//todo fix this
-		replacementPattern = toBinary("0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000")
+		replacementPattern = toBinary("0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
 		basePrice = toBigNumber(order.take.value)
 	} else if (takeAssetType.assetClass === "ERC721") {
 		const c = createErc721Contract(ethereum, takeAssetType.contract)
@@ -159,9 +159,8 @@ export function convertOpenSeaOrderToSignDTO(ethereum: Ethereum, order: SimpleOp
 		basePrice = toBigNumber(order.make.value)
 	} else if (takeAssetType.assetClass === "ERC1155") {
 		const c = createErc1155Contract(ethereum, takeAssetType.contract)
-		callData = toBinary(c.functionCall("safeTransferFrom", ZERO_ADDRESS, order.maker, takeAssetType.tokenId, order.make.value, "0x").data)
-		//todo fix this
-		replacementPattern = toBinary("0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000")
+		callData = toBinary(c.functionCall("safeTransferFrom", ZERO_ADDRESS, order.maker, takeAssetType.tokenId, order.take.value, "0x").data)
+		replacementPattern = toBinary("0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
 		basePrice = toBigNumber(order.make.value)
 	} else {
 		throw new Error("should never happen")
@@ -231,6 +230,12 @@ export function hashToSign(hash: string): string {
 
 export function hashOpenSeaV1Order(ethereum: Ethereum, order: SimpleOpenSeaV1Order): string {
 	return hashOrder(convertOpenSeaOrderToSignDTO(ethereum, order))
+}
+
+export async function getOrderSignature(ethereum: Ethereum, order: SimpleOpenSeaV1Order): Promise<string> {
+	const web3: any = (ethereum as any)["config"].web3
+	const from = await ethereum.getFrom()
+	return web3.eth.sign(hashOpenSeaV1Order(ethereum, order), from)
 }
 
 function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712Domain {

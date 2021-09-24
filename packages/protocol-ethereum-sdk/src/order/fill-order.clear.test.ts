@@ -25,7 +25,7 @@ import {deployTestErc721} from "./contracts/test/test-erc721"
 import {deployErc20TransferProxy} from "./contracts/test/test-erc20-transfer-proxy"
 import {deployTestExchangeV2} from "./contracts/test/test-exchange-v2"
 import {deployTestRoyaltiesProvider} from "./contracts/test/test-royalties-provider"
-import {fillOrderOpenSea, fillOrderSendTx, getRSV, matchOpenSeaV1Order, toVrs} from "./fill-order"
+import {fillOrderOpenSea, fillOrderSendTx, matchOpenSeaV1Order, toVrs} from "./fill-order"
 import {
 	convertOpenSeaOrderToSignDTO, hashOpenSeaV1Order,
 	hashOrder,
@@ -199,17 +199,31 @@ describe("fillOrder", () => {
 		const buyHash = hashOrder(buy)
 		const sellHash = hashOrder(sell)
 
-		console.log("buyHash", buyHash)
-		console.log("sellHash", sellHash)
-		const buySignature = await web3.eth.sign(buyHash, sender1Address)
+		// const buySignature = await web3.eth.sign(buyHash, sender1Address)
 		// const buySigVrs = getRSV(buySignature)
-		const buySigVrs = toVrs(buySignature)
+		// const buySigVrs = toVrs(buySignature)
 
-		const sellSignature = await web3.eth.sign(sellHash, sender1Address)
+		const sellSignature = await web3.eth.sign(sellHash, sender2Address)
 		// const sellSigVrs = getRSV(sellSignature)
 		const sellSigVrs = toVrs(sellSignature)
 
-		/*
+		/*   BUY ORDER
+			0x5206e78b21Ce315ce284FB24cf05e0585A93B1d9
+			0x8508317a912086b921F6D2532f65e343C8140Cc8 buy maker
+			0x0000000000000000000000000000000000000000 buy taker
+			0x5b3256965e7C3cF26E11FCAf296DfC8807C01073 buy fee recipient
+			0x88B48F654c30e99bc2e4A1559b4Dcf1aD93FA656
+			0x0000000000000000000000000000000000000000
+			0xc778417E063141139Fce010982780140Aa0cD5Ab
+			0x5206e78b21Ce315ce284FB24cf05e0585A93B1d9
+			0xEE5DA6b5cDd5b5A22ECEB75b84C7864573EB4FeC sell maker
+			0x8508317a912086b921F6D2532f65e343C8140Cc8 sell taker
+			0x0000000000000000000000000000000000000000 sell fee recipient
+			0x88B48F654c30e99bc2e4A1559b4Dcf1aD93FA656
+			0x0000000000000000000000000000000000000000
+			0xc778417E063141139Fce010982780140Aa0cD5Ab
+
+			SELL ORDER
 		arg1
 		0x5206e78b21Ce315ce284FB24cf05e0585A93B1d9 - exchange addr
 		0x8508317a912086b921F6D2532f65e343C8140Cc8 - buyer
@@ -255,6 +269,22 @@ describe("fillOrder", () => {
 		1 - side (1 - sell)
 		0 - sell - saleKind
 		0 - sell.howToCall
+
+		arg 4 - feeMethodsSidesKindsHowToCalls
+		[1 0 0 0 1 1 0 0]
+
+		arg 5 - calldataBuy
+		0xf242432a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000008508317a912086b921f6d2532f65e343c8140cc8ee5da6b5cdd5b5a22eceb75b84c7864573eb4fec000000000000010000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000
+
+		arg 6 - calldataSell
+		0xf242432a000000000000000000000000ee5da6b5cdd5b5a22eceb75b84c7864573eb4fec0000000000000000000000000000000000000000000000000000000000000000ee5da6b5cdd5b5a22eceb75b84c7864573eb4fec000000000000010000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000
+
+		arg 7 - replacementPatternBuy
+		0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+		arg 8 - replacementPatternSell
+		0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
 		 */
 		const orderTx = await exchangeContract.functionCall(
 			"atomicMatch_",
@@ -267,40 +297,14 @@ describe("fillOrder", () => {
 			sell.replacementPattern,
 			buy.staticExtradata,
 			sell.staticExtradata,
-			[buySigVrs.v, sellSigVrs.v],
-			[buySigVrs.r, buySigVrs.s, sellSigVrs.r, sellSigVrs.s, "0x0000000000000000000000000000000000000000000000000000000000000000"],
+			[sellSigVrs.v, sellSigVrs.v],
+			[sellSigVrs.r, sellSigVrs.s, sellSigVrs.r, sellSigVrs.s, "0x0000000000000000000000000000000000000000000000000000000000000000"],
 			// {from: sender2Address, value: 0}
 		)
 
 		const approveTx = await send(orderTx, {value: value || 0})
 		console.log("approveTx", approveTx)
 	}
-
-	const makeOrder = (exchange: any, isMaker: any): any => ({
-		exchange: exchange,
-		maker: sender1Address,
-		taker: sender1Address,
-		makerRelayerFee: "0",
-		takerRelayerFee: "0",
-		makerProtocolFee: "0",
-		takerProtocolFee: "0",
-		feeRecipient: isMaker ? sender1Address : "0x0000000000000000000000000000000000000000",
-		feeMethod: "0",
-		side: "0",
-		saleKind: "0",
-		target: proxyAddress,
-		howToCall: "0",
-		calldata: "0x",
-		replacementPattern: "0x",
-		staticTarget: "0x0000000000000000000000000000000000000000",
-		staticExtradata: "0x",
-		paymentToken: sender1Address,
-		basePrice: "0",
-		extra: "0",
-		listingTime: "0",
-		expirationTime: "0",
-		salt: "0",
-	})
 
 	const matchOrder = async (buy: SimpleOpenSeaV1Order) => {
 		const exchangeInstance = wyvernExchange

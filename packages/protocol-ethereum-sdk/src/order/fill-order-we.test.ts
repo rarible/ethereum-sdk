@@ -7,9 +7,7 @@ import {
 import {Web3Ethereum} from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import {awaitAll, createGanacheProvider} from "@rarible/ethereum-sdk-test-common"
-import {toBn} from "@rarible/utils/build/bn"
 import {
-	Address,
 	Configuration,
 	GatewayControllerApi,
 	OrderControllerApi,
@@ -17,8 +15,8 @@ import {
 import {Contract} from "web3-eth-contract"
 
 import {EthereumContract} from "@rarible/ethereum-provider"
+import {toBn} from "@rarible/utils/build/bn"
 import {send as sendTemplate, sentTx} from "../common/send-transaction"
-import {AbiItem} from "../common/abi-item"
 import {deployTestErc20} from "./contracts/test/test-erc20"
 import {deployTestErc721} from "./contracts/test/test-erc721"
 // import {deployTransferProxy} from "./contracts/test/test-transfer-proxy"
@@ -26,15 +24,15 @@ import {deployErc20TransferProxy} from "./contracts/test/test-erc20-transfer-pro
 import {deployTestExchangeV2} from "./contracts/test/test-exchange-v2"
 import {deployTestRoyaltiesProvider} from "./contracts/test/test-royalties-provider"
 import {
+	fillOrder,
 	fillOrderOpenSea,
 	fillOrderSendTx,
-	getAtomicMatchArgAddresses, getAtomicMatchArgCommonData, getAtomicMatchArgUints,
-	getRSV,
+	getAtomicMatchArgAddresses, getAtomicMatchArgCommonData, getAtomicMatchArgUints, getRegisteredProxy,
 	matchOpenSeaV1Order,
 	toVrs,
 } from "./fill-order"
 import {
-	convertOpenSeaOrderToSignDTO, hashOpenSeaV1Order,
+	convertOpenSeaOrderToSignDTO, getOrderSignature, hashOpenSeaV1Order,
 	hashOrder,
 	SimpleOpenSeaV1Order,
 } from "./sign-order"
@@ -43,14 +41,12 @@ import {getMakeFee} from "./get-make-fee"
 import {approveErc20 as approveErc20Template} from "./approve-erc20"
 import {deployTransferProxy} from "./contracts/test/test-transfer-proxy"
 import {createOpenseaContract} from "./contracts/exchange-opensea-v1"
-import {
-	createOpenseaProxyRegistryEthContract,
-	deployOpenseaProxyRegistry,
-} from "./contracts/test/opensea/test-proxy-registry"
+import {deployOpenseaProxyRegistry} from "./contracts/test/opensea/test-proxy-registry"
 import {deployOpenseaTokenTransferProxy} from "./contracts/test/opensea/test-token-transfer-proxy"
 import {deployOpenSeaExchangeV1} from "./contracts/test/opensea/test-exchange-opensea-v1"
 import {createErc20Contract} from "./contracts/erc20"
 import {invertOrder} from "./invert-order"
+import {createOpenseaProxyRegistryEthContract} from "./contracts/proxy-registry-opensea"
 
 describe("fillOrder", () => {
 	const {addresses, provider} = createGanacheProvider()
@@ -150,24 +146,6 @@ describe("fillOrder", () => {
 		// await sentTx(it.testErc20.methods.mint(sender1Address, 1000), { from: sender1Address })
 		// await sentTx(it.testErc721.methods.mint(sender2Address, 2, "0x"), { from: sender2Address })
 
-		/*
-		wyvernProxyRegistry.registerProxy().withSender(userSender1).execute().awaitFirst()
-		wyvernProxyRegistry.registerProxy().withSender(userSender2).execute().awaitFirst()
-		val user1RegisteredProxy = wyvernProxyRegistry.proxies(userSender1.from()).awaitFirst()
-		val user2RegisteredProxy = wyvernProxyRegistry.proxies(userSender2.from()).awaitFirst()
-
-		token1.approve(wyvernTokenTransferProxy.address(), BigInteger.TEN.pow(10)).withSender(userSender1).execute().verifySuccess()
-		token1.approve(wyvernTokenTransferProxy.address(), BigInteger.TEN.pow(10)).withSender(userSender2).execute().verifySuccess()
-
-		token721.setApprovalForAll(user1RegisteredProxy, true).withSender(userSender1).execute().verifySuccess()
-		token721.setApprovalForAll(user2RegisteredProxy, true).withSender(userSender2).execute().verifySuccess()
-
-		 */
-		// await it.testErc20.methods.approve(
-		// wyvernTokenTransferProxy.options.address,
-		// 10000000000
-		// )
-		// 	.send({from: sender1Address})
 	})
 
 
@@ -318,44 +296,6 @@ describe("fillOrder", () => {
 		salt: "0",
 	})
 
-	const matchOrder = async (buy: SimpleOpenSeaV1Order) => {
-		const exchangeInstance = wyvernExchange
-
-		// const atomicMatch: any = await send(orderTx, {value: value || 0})
-		// const atomicMatch = {}
-		const atomicMatch = await fillOrderSendTx(
-			getMakeFee.bind(null, { v2: 100 }),
-			ethereum1,
-			send,
-			{
-				openseaV1: toAddress(wyvernExchange.options.address),
-				v2: toAddress(it.exchangeV2.options.address),
-				v1: toAddress(it.exchangeV2.options.address),
-			},
-			orderApi,
-			buy,
-			{amount: 1}
-		)
-
-		// console.log("atomicMatch", atomicMatch)
-		// console.log("atomicMatch tx", await atomicMatch.receipt)
-		return atomicMatch
-	}
-
-	test("should allow proxy creation", async () => {
-		const proxy = await wyvernProxyRegistry.methods.proxies(sender1Address)
-			.call({from: sender1Address})
-		expect(proxy).not.toBe(ZERO_ADDRESS)
-	})
-
-	test("proxy registry should have correct auth", async () => {
-		const isProxyRegistryAuth = await proxyRegistryEthContract
-			.functionCall("contracts", wyvernExchange.options.address)
-			.call()
-
-		expect(isProxyRegistryAuth).toBe(true)
-	})
-
 	test("should calculate valid hash", async () => {
 		const exchangeContract = createOpenseaContract(ethereum1, toAddress(wyvernExchange.options.address))
 
@@ -472,18 +412,20 @@ describe("fillOrder", () => {
 		expect(buy.basePrice).toBe(orderMatchPrice)
 	})
 
-	test("should allow simple order matching, second fee method, real maker protocol fees", async () => {
+	/*
+	test("should match order(buy erc721 for erc20)", async () => {
 
 		await sentTx(it.testErc20.methods.mint(sender1Address, 1000), { from: sender1Address })
-		await sentTx(it.testErc721.methods.mint(sender1Address, 1, "0x"), { from: sender1Address })
+		await sentTx(it.testErc721.methods.mint(sender2Address, 1, "0x"), { from: sender2Address })
 
-		await proxyRegistryEthContract
+		const proxyRegistryEthContractSender2 = await createOpenseaProxyRegistryEthContract(ethereum2, toAddress(wyvernProxyRegistry.options.address))
+		await proxyRegistryEthContractSender2
 			.functionCall("registerProxy")
 			.send()
-		const proxyAddress = toAddress(await proxyRegistryEthContract.functionCall("proxies", sender1Address).call())
+		const proxyAddress = toAddress(await proxyRegistryEthContractSender2.functionCall("proxies", sender2Address).call())
 
 		await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, 100), { from: sender1Address })
-		await sentTx(it.testErc721.methods.setApprovalForAll(proxyAddress, true), { from: sender1Address })
+		await sentTx(it.testErc721.methods.setApprovalForAll(proxyAddress, true), { from: sender2Address })
 
 		const left: SimpleOpenSeaV1Order = {
 			make: {
@@ -494,7 +436,7 @@ describe("fillOrder", () => {
 				},
 				value: toBigNumber("1"),
 			},
-			maker: sender1Address,
+			maker: sender2Address,
 			take: {
 				assetType: {
 					assetClass: "ERC20",
@@ -502,7 +444,6 @@ describe("fillOrder", () => {
 				},
 				value: toBigNumber("10"),
 			},
-			taker: ZERO_ADDRESS,
 			salt: toWord("7b0a53bb49afd3238b0ff50f17f3462ee070f913df3f9c434dc9aa941c184df7"),
 			type: "OPEN_SEA_V1",
 			start: 0,
@@ -525,42 +466,446 @@ describe("fillOrder", () => {
 				staticExtraData: toBinary("0x"),
 				extra: toBigNumber("0"),
 			},
+			signature: toBinary("0x584caf791d6e8d04b516c2b06e4d136a4e9d044ae2223177be6b6519202d9a4b757c45f0b38675f640765ba2c358e64969618785a7fa88531e58ba35c3ba246901"),
 		}
 
-		console.log("it.testErc721.options.address", it.testErc721.options.address)
-		console.log("it.testErc20.options.address", it.testErc20.options.address)
-		// const buy = makeOrder(wyvernExchange.options.address, true)
-		// const sell = makeOrder(wyvernExchange.options.address, false)
+		const initBalanceSender1 = toBn(await it.testErc20.methods.balanceOf(sender1Address).call())
+		const initBalanceSender2 = toBn(await it.testErc721.methods.balanceOf(sender2Address).call())
 
-		// await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, toBn(100000)), {
-		// 	from: sender1Address,
-		// })
-		// await sentTx(it.testErc20.methods.approve(it.erc20TransferProxy.options.address, toBn(100000)), {
-		// 	from: sender1Address,
-		// })
-		//
-		// await sentTx(it.testErc721.methods.setApprovalForAll(it.transferProxy.options.address, true), {
-		// 	from: sender2Address,
-		// })
-
-		// const atomicMatch: any = await send(orderTx, {value: value || 0})
-
-		// await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, toBn(10000)), {
-		// 	from: sender1Address,
-		// })
-
-		// const atomicMatch = {}
-		const atomicMatch = await fillOrderOpenSea(
+		await fillOrderOpenSea(
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			send,
 			toAddress(wyvernExchange.options.address),
-			toAddress(wyvernTokenTransferProxy.options.address),
 			left,
 			{amount: 1}
 		)
+
+		expect(toBn(await it.testErc20.methods.balanceOf(sender1Address).call()).toString()).toBe(
+			initBalanceSender1.minus(10).toFixed()
+		)
+		expect(toBn(await it.testErc721.methods.balanceOf(sender2Address).call()).toString()).toBe(
+			initBalanceSender2.minus(1).toFixed()
+		)
 	})
 
+
+	test("should match order(buy erc1155 for erc20)", async () => {
+
+		await sentTx(it.testErc20.methods.mint(sender1Address, 1000), { from: sender1Address })
+		await sentTx(it.testErc1155.methods.mint(sender2Address, 1, 10, "0x"), { from: sender2Address })
+
+		const proxyRegistryEthContractSender2 = await createOpenseaProxyRegistryEthContract(ethereum2, toAddress(wyvernProxyRegistry.options.address))
+		await proxyRegistryEthContractSender2
+			.functionCall("registerProxy")
+			.send()
+		const proxyAddress = toAddress(await proxyRegistryEthContractSender2.functionCall("proxies", sender2Address).call())
+
+		await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, 100), { from: sender1Address })
+		await sentTx(it.testErc1155.methods.setApprovalForAll(proxyAddress, true), { from: sender2Address })
+
+		const left: SimpleOpenSeaV1Order = {
+			make: {
+				assetType: {
+					assetClass: "ERC1155",
+					contract: toAddress(it.testErc1155.options.address),
+					tokenId: toBigNumber("1"),
+				},
+				value: toBigNumber("1"),
+			},
+			maker: sender2Address,
+			take: {
+				assetType: {
+					assetClass: "ERC20",
+					contract: toAddress(it.testErc20.options.address),
+				},
+				value: toBigNumber("10"),
+			},
+			salt: toWord("7b0a53bb49afd3238b0ff50f17f3462ee070f913df3f9c434dc9aa941c184df7"),
+			type: "OPEN_SEA_V1",
+			start: 0,
+			end: 0,
+			data: {
+				dataType: "OPEN_SEA_V1_DATA_V1",
+				exchange: toAddress(wyvernExchange.options.address),
+				makerRelayerFee: toBigNumber("0"),
+				takerRelayerFee: toBigNumber("0"),
+				makerProtocolFee: toBigNumber("0"),
+				takerProtocolFee: toBigNumber("0"),
+				feeRecipient: toAddress(sender1Address),
+				feeMethod: "SPLIT_FEE",
+				side: "SELL",
+				saleKind: "FIXED_PRICE",
+				howToCall: "CALL",
+				callData: toBinary("0xf242432a000000000000000000000000ee5da6b5cdd5b5a22eceb75b84c7864573eb4fec0000000000000000000000000000000000000000000000000000000000000000ee5da6b5cdd5b5a22eceb75b84c7864573eb4fec000000000000030000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000"),
+				replacementPattern: toBinary("0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+				staticTarget: ZERO_ADDRESS,
+				staticExtraData: toBinary("0x"),
+				extra: toBigNumber("0"),
+			},
+			signature: toBinary("0x584caf791d6e8d04b516c2b06e4d136a4e9d044ae2223177be6b6519202d9a4b757c45f0b38675f640765ba2c358e64969618785a7fa88531e58ba35c3ba246901"),
+		}
+
+		const initBalanceSender1 = toBn(await it.testErc20.methods.balanceOf(sender1Address).call())
+		const initBalanceSender2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call())
+
+		await fillOrderOpenSea(
+			getMakeFee.bind(null, { v2: 100 }),
+			ethereum1,
+			send,
+			toAddress(wyvernExchange.options.address),
+			left,
+			{amount: 1}
+		)
+
+		expect(toBn(await it.testErc20.methods.balanceOf(sender1Address).call()).toString()).toBe(
+			initBalanceSender1.minus(10).toFixed()
+		)
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString()).toBe(
+			initBalanceSender2.minus(1).toFixed()
+		)
+	})
+
+	test("should match order(buy erc1155 for eth)", async () => {
+
+		await sentTx(it.testErc1155.methods.mint(sender2Address, 2, 10, "0x"), { from: sender2Address })
+
+		const proxyRegistryEthContractSender2 = await createOpenseaProxyRegistryEthContract(ethereum2, toAddress(wyvernProxyRegistry.options.address))
+		await proxyRegistryEthContractSender2
+			.functionCall("registerProxy")
+			.send()
+		const proxyAddress = toAddress(await proxyRegistryEthContractSender2.functionCall("proxies", sender2Address).call())
+
+		// await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, 100), { from: sender1Address })
+		await sentTx(it.testErc1155.methods.setApprovalForAll(proxyAddress, true), { from: sender2Address })
+
+		const left: SimpleOpenSeaV1Order = {
+			make: {
+				assetType: {
+					assetClass: "ERC1155",
+					contract: toAddress(it.testErc1155.options.address),
+					tokenId: toBigNumber("2"),
+				},
+				value: toBigNumber("1"),
+			},
+			maker: sender2Address,
+			take: {
+				assetType: {
+					assetClass: "ETH",
+				},
+				value: toBigNumber("1"),
+			},
+			salt: toWord("7b0a53bb49afd3238b0ff50f17f3462ee070f913df3f9c434dc9aa941c184df7"),
+			type: "OPEN_SEA_V1",
+			start: 0,
+			end: 0,
+			data: {
+				dataType: "OPEN_SEA_V1_DATA_V1",
+				exchange: toAddress(wyvernExchange.options.address),
+				makerRelayerFee: toBigNumber("0"),
+				takerRelayerFee: toBigNumber("0"),
+				makerProtocolFee: toBigNumber("0"),
+				takerProtocolFee: toBigNumber("0"),
+				feeRecipient: toAddress(sender1Address),
+				feeMethod: "SPLIT_FEE",
+				side: "SELL",
+				saleKind: "FIXED_PRICE",
+				howToCall: "CALL",
+				callData: toBinary("0x"),
+				replacementPattern: toBinary("0x"),
+				staticTarget: ZERO_ADDRESS,
+				staticExtraData: toBinary("0x"),
+				extra: toBigNumber("0"),
+			},
+			signature: toBinary("0x584caf791d6e8d04b516c2b06e4d136a4e9d044ae2223177be6b6519202d9a4b757c45f0b38675f640765ba2c358e64969618785a7fa88531e58ba35c3ba246901"),
+		}
+
+		const initBalanceSender2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 2).call())
+
+		const balanceSender1 = await web3.eth.getBalance(sender1Address)
+		console.log("balanceSender1", balanceSender1)
+
+		await fillOrderOpenSea(
+			getMakeFee.bind(null, { v2: 100 }),
+			ethereum1,
+			send,
+			toAddress(wyvernExchange.options.address),
+			left,
+			{amount: 1}
+		)
+
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 2).call()).toString()).toBe(
+			initBalanceSender2.minus(1).toFixed()
+		)
+	})
+	 */
+
+	test("should fill order", async () => {
+		await sentTx(it.testErc20.methods.mint(sender1Address, 1000), { from: sender1Address })
+		await sentTx(it.testErc1155.methods.mint(sender2Address, 3, 10, "0x"), { from: sender2Address })
+
+		const left: SimpleOpenSeaV1Order = {
+			make: {
+				assetType: {
+					assetClass: "ERC1155",
+					contract: toAddress(it.testErc1155.options.address),
+					tokenId: toBigNumber("3"),
+				},
+				value: toBigNumber("1"),
+			},
+			maker: sender2Address,
+			take: {
+				assetType: {
+					assetClass: "ERC20",
+					contract: toAddress(it.testErc20.options.address),
+				},
+				value: toBigNumber("10"),
+			},
+			salt: toWord("7b0a53bb49afd3238b0ff50f17f3462ee070f913df3f9c434dc9aa941c184df7"),
+			type: "OPEN_SEA_V1",
+			start: 0,
+			end: 0,
+			data: {
+				dataType: "OPEN_SEA_V1_DATA_V1",
+				exchange: toAddress(wyvernExchange.options.address),
+				makerRelayerFee: toBigNumber("0"),
+				takerRelayerFee: toBigNumber("0"),
+				makerProtocolFee: toBigNumber("0"),
+				takerProtocolFee: toBigNumber("0"),
+				feeRecipient: toAddress(sender1Address),
+				feeMethod: "SPLIT_FEE",
+				side: "SELL",
+				saleKind: "FIXED_PRICE",
+				howToCall: "CALL",
+				callData: toBinary("0xf242432a00000000000000000000000000d5cbc289e4b66a6252949d6eb6ebbb12df24ab00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000"),
+				replacementPattern: toBinary("0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+				staticTarget: ZERO_ADDRESS,
+				staticExtraData: toBinary("0x"),
+				extra: toBigNumber("0"),
+			},
+		}
+
+		const proxyAddress = await getRegisteredProxy(ethereum2, toAddress(wyvernProxyRegistry.options.address))
+		await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, 100), { from: sender1Address })
+		await sentTx(it.testErc1155.methods.setApprovalForAll(proxyAddress, true), { from: sender2Address })
+
+		const signature = toBinary(await getOrderSignature(ethereum2, left))
+
+		const initBalanceSender1 = toBn(await it.testErc20.methods.balanceOf(sender1Address).call())
+		const initBalanceSender2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 3).call())
+
+		const filledOrder = await fillOrder(
+			getMakeFee.bind(null, { v2: 100 }),
+			ethereum1,
+			send,
+			{} as any,
+			(() => {}) as any,
+			{
+				exchange: {
+					openseaV1: toAddress(wyvernExchange.options.address),
+				},
+				proxyRegistries: {
+					openseaV1: toAddress(wyvernProxyRegistry.options.address),
+				},
+				transferProxies: {
+					openseaV1: toAddress(wyvernTokenTransferProxy.options.address),
+				},
+			} as any,
+			{
+				...left,
+				signature,
+			},
+			{amount: 1}
+		)
+
+		await filledOrder.build().runAll()
+
+		expect(toBn(await it.testErc20.methods.balanceOf(sender1Address).call()).toString()).toBe(
+			initBalanceSender1.minus(10).toFixed()
+		)
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 3).call()).toString()).toBe(
+			initBalanceSender2.minus(1).toFixed()
+		)
+	})
+
+	test("should fill order", async () => {
+		await sentTx(it.testErc20.methods.mint(sender1Address, 1000), { from: sender1Address })
+		await sentTx(it.testErc1155.methods.mint(sender2Address, 4, 10, "0x"), { from: sender2Address })
+
+		const left: SimpleOpenSeaV1Order = {
+			make: {
+				assetType: {
+					assetClass: "ERC1155",
+					contract: toAddress(it.testErc1155.options.address),
+					tokenId: toBigNumber("4"),
+				},
+				value: toBigNumber("1"),
+			},
+			maker: sender2Address,
+			take: {
+				assetType: {
+					assetClass: "ERC20",
+					contract: toAddress(it.testErc20.options.address),
+				},
+				value: toBigNumber("10"),
+			},
+			salt: toWord("7b0a53bb49afd3238b0ff50f17f3462ee070f913df3f9c434dc9aa941c184df7"),
+			type: "OPEN_SEA_V1",
+			start: 0,
+			end: 0,
+			data: {
+				dataType: "OPEN_SEA_V1_DATA_V1",
+				exchange: toAddress(wyvernExchange.options.address),
+				makerRelayerFee: toBigNumber("250"),
+				takerRelayerFee: toBigNumber("250"),
+				makerProtocolFee: toBigNumber("250"),
+				takerProtocolFee: toBigNumber("250"),
+				feeRecipient: toAddress(sender2Address),
+				feeMethod: "SPLIT_FEE",
+				side: "SELL",
+				saleKind: "FIXED_PRICE",
+				howToCall: "CALL",
+				callData: toBinary("0xf242432a00000000000000000000000000d5cbc289e4b66a6252949d6eb6ebbb12df24ab00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000"),
+				replacementPattern: toBinary("0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+				staticTarget: ZERO_ADDRESS,
+				staticExtraData: toBinary("0x"),
+				extra: toBigNumber("0"),
+			},
+		}
+
+		const proxyAddress = await getRegisteredProxy(ethereum2, toAddress(wyvernProxyRegistry.options.address))
+		await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, 100), { from: sender1Address })
+		await sentTx(it.testErc1155.methods.setApprovalForAll(proxyAddress, true), { from: sender2Address })
+
+		const signature = toBinary(await getOrderSignature(ethereum2, left))
+
+		const initBalanceSender1 = toBn(await it.testErc20.methods.balanceOf(sender1Address).call())
+		const initBalanceSender2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 4).call())
+
+		const filledOrder = await fillOrder(
+			getMakeFee.bind(null, { v2: 100 }),
+			ethereum1,
+			send,
+			{} as any,
+			(() => {}) as any,
+			{
+				exchange: {
+					openseaV1: toAddress(wyvernExchange.options.address),
+				},
+				proxyRegistries: {
+					openseaV1: toAddress(wyvernProxyRegistry.options.address),
+				},
+				transferProxies: {
+					openseaV1: toAddress(wyvernTokenTransferProxy.options.address),
+				},
+			} as any,
+			{
+				...left,
+				signature,
+			},
+			{amount: 1}
+		)
+
+		await filledOrder.build().runAll()
+
+		expect(toBn(await it.testErc20.methods.balanceOf(sender1Address).call()).toString()).toBe(
+			initBalanceSender1.minus(10).toFixed()
+		)
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 4).call()).toString()).toBe(
+			initBalanceSender2.minus(1).toFixed()
+		)
+	})
+
+	test("should match buy order", async () => {
+		await sentTx(it.testErc20.methods.mint(sender1Address, 1000), { from: sender1Address })
+		await sentTx(it.testErc1155.methods.mint(sender2Address, 5, 10, "0x"), { from: sender2Address })
+
+		const left: SimpleOpenSeaV1Order = {
+			make: {
+				assetType: {
+					assetClass: "ERC20",
+					contract: toAddress(it.testErc20.options.address),
+				},
+				value: toBigNumber("10"),
+			},
+			maker: sender1Address,
+			take: {
+				assetType: {
+					assetClass: "ERC1155",
+					contract: toAddress(it.testErc1155.options.address),
+					tokenId: toBigNumber("5"),
+				},
+				value: toBigNumber("1"),
+			},
+			taker: ZERO_ADDRESS,
+			// taker: sender2Address,
+			salt: toWord("7b0a53bb49afd3238b0ff50f17f3462ee070f913df3f9c434dc9aa941c184df7"),
+			type: "OPEN_SEA_V1",
+			start: 1632432878,
+			end: 0,
+			data: {
+				dataType: "OPEN_SEA_V1_DATA_V1",
+				exchange: toAddress(wyvernExchange.options.address),
+				makerRelayerFee: toBigNumber("0"),
+				takerRelayerFee: toBigNumber("250"),
+				makerProtocolFee: toBigNumber("0"),
+				takerProtocolFee: toBigNumber("0"),
+				feeRecipient: toAddress(sender1Address),
+				feeMethod: "SPLIT_FEE",
+				side: "BUY",
+				saleKind: "FIXED_PRICE",
+				howToCall: "CALL",
+				callData: toBinary("0xf242432a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000008508317a912086b921f6d2532f65e343c8140cc8ee5da6b5cdd5b5a22eceb75b84c7864573eb4fec000000000000010000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000"),
+				replacementPattern: toBinary("0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+				staticTarget: ZERO_ADDRESS,
+				staticExtraData: toBinary("0x"),
+				extra: toBigNumber("0"),
+			},
+		}
+
+		// const proxyAddress = await getRegisteredProxy(ethereum2, toAddress(wyvernProxyRegistry.options.address))
+		await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, 100), { from: sender1Address })
+		// await sentTx(it.testErc1155.methods.setApprovalForAll(proxyAddress, true), { from: sender2Address })
+
+		const signature = toBinary(await getOrderSignature(ethereum1, left))
+
+		const initBalanceSender1 = toBn(await it.testErc20.methods.balanceOf(sender1Address).call())
+		const initBalanceSender2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 5).call())
+
+		const filledOrder = await fillOrder(
+			getMakeFee.bind(null, { v2: 100 }),
+			ethereum2,
+			send,
+			{} as any,
+			(() => {}) as any,
+			{
+				exchange: {
+					openseaV1: toAddress(wyvernExchange.options.address),
+				},
+				proxyRegistries: {
+					openseaV1: toAddress(wyvernProxyRegistry.options.address),
+				},
+				transferProxies: {
+					openseaV1: toAddress(wyvernTokenTransferProxy.options.address),
+				},
+			} as any,
+			{
+				...left,
+				signature,
+			},
+			{amount: 1}
+		)
+
+		await filledOrder.build().runAll()
+
+		expect(toBn(await it.testErc20.methods.balanceOf(sender1Address).call()).toString()).toBe(
+			initBalanceSender1.minus(10).toFixed()
+		)
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 5).call()).toString()).toBe(
+			initBalanceSender2.minus(1).toFixed()
+		)
+	})
+	/*
 	test("should allow simple order matching with special-case Ether, nonzero price", async() => {
 		const buy = makeOrder(wyvernExchange.options.address, true)
 		const sell = makeOrder(wyvernExchange.options.address, false)
@@ -673,4 +1018,6 @@ describe("fillOrder", () => {
 
 		await matchOrderLegacy(buy, sell)
 	})
+
+	 */
 })

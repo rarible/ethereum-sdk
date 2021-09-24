@@ -10,10 +10,10 @@ import {
 import { Address, toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { ActionBuilder } from "@rarible/action"
 import { toBn } from "@rarible/utils/build/bn"
-import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
+import type {Ethereum, EthereumContract, EthereumSendOptions, EthereumTransaction} from "@rarible/ethereum-provider"
 import type { Config, ExchangeAddresses, OpenSeaOrderToSignDTO } from "../config/type"
 import type { SendFunction } from "../common/send-transaction"
-import { OrderOpenSeaV1DataV1Side } from "../config/type"
+import {OrderOpenSeaV1DataV1Side, TransferProxies} from "../config/type"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import {
 	orderToStruct,
@@ -30,8 +30,10 @@ import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { toStructLegacyOrder } from "./to-struct-legacy-order"
 import type { ApproveFunction } from "./approve"
 import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
-import { createErc721Contract } from "./contracts/erc721"
-import { createErc1155Contract } from "./contracts/erc1155"
+import {approveErc20} from "./approve-erc20"
+import {approveErc721} from "./approve-erc721"
+import {approveErc1155} from "./approve-erc1155"
+import {createOpenseaProxyRegistryEthContract} from "./contracts/proxy-registry-opensea"
 
 export type FillOrderRequest = {
 	amount: number
@@ -43,19 +45,106 @@ export type FillOrderRequest = {
 export type FillOrderAction = ActionBuilder<FillOrderStageId, void, [void, EthereumTransaction]>
 export type FillOrderStageId = "approve" | "send-tx"
 
+export async function getRegisteredProxy(
+	ethereum: Ethereum,
+	proxyRegistry: Address
+): Promise<Address> {
+	const proxyRegistryContract = createOpenseaProxyRegistryEthContract(ethereum, proxyRegistry)
+	let proxyAddress = toAddress(await proxyRegistryContract.functionCall("proxies", await ethereum.getFrom()).call())
+
+	if (proxyAddress === ZERO_ADDRESS) {
+		await proxyRegistryContract.functionCall("registerProxy").send()
+		proxyAddress = toAddress(await proxyRegistryContract.functionCall("proxies", await ethereum.getFrom()).call())
+	}
+
+	debugger
+	return proxyAddress
+}
+
+export async function approveOpensea(
+	ethereum: Ethereum,
+	send: SendFunction,
+	config: Config,
+	// proxyRegistry: Address,
+	// tokenTransferProxy: Address,
+	owner: Address,
+	asset: Asset,
+	infinite: undefined | boolean = true
+// ): Promise<EthereumTransaction | undefined> {
+): Promise<any> {
+
+	const proxyAddress = await getRegisteredProxy(ethereum, config.proxyRegistries.openseaV1)
+
+	debugger
+	switch (asset.assetType.assetClass) {
+		case "ERC20": {
+			const contract = asset.assetType.contract
+			const operator = config.transferProxies.openseaV1
+			return approveErc20(ethereum, send, contract, owner, operator, asset.value, infinite)
+		}
+		case "ERC721": {
+			const contract = asset.assetType.contract
+			return approveErc721(ethereum, send, contract, owner, proxyAddress)
+		}
+		case "ERC1155": {
+			const contract = asset.assetType.contract
+			return approveErc1155(ethereum, send, contract, owner, proxyAddress)
+		}
+		default: return undefined
+	}
+}
+
+/*
+export async function getOpenseaOrderApproveData(
+	ethereum: Ethereum,
+	order: SimpleOpenSeaV1Order,
+	amount: number
+) {
+	const buyer = toAddress(await ethereum.getFrom())
+	const {buy, sell} = getOrdersForMatching(ethereum, order, amount, buyer)
+
+	if (order.data.side === "SELL") {
+		tx = await approveOpensea(ethereum, send, config, order.maker, sell.take, false)
+		return {asset, address}
+		return {}
+	} else if (order.data.side === "BUY") {
+		tx = await approveOpensea(ethereum, send, config, <Address>order.taker, buy.take, false)
+	}
+
+}
+
+
+ */
 export async function fillOrder(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
 	send: SendFunction,
 	orderApi: OrderControllerApi,
 	approve: ApproveFunction,
-	config: ExchangeAddresses,
+	// config: ExchangeAddresses,
+	config: Config,
 	order: SimpleOrder,
 	request: FillOrderRequest,
 ): Promise<FillOrderAction> {
 	const makeAsset = getMakeAssetV2(getMakeFee, order, request.amount)
 	const approveAndWait = async () => {
-		const tx = await approve(order.maker, makeAsset, Boolean(request.infinite))
+		let tx: EthereumTransaction | undefined
+
+		if (order.type === "OPEN_SEA_V1") {
+			const owner = toAddress(await ethereum.getFrom())
+			const {buy, sell} = getOrdersForMatching(ethereum, order, request.amount, owner)
+
+			// const approveData = getOpenseaOrderApproveData(ethereum, order, request.amount)
+			debugger
+			if (order.data.side === "SELL") {
+				tx = await approveOpensea(ethereum, send, config, order.maker, sell.take, false)
+			} else if (order.data.side === "BUY") {
+				tx = await approveOpensea(ethereum, send, config, order.maker, buy.take, false)
+			}
+		} else {
+			tx = await approve(order.maker, makeAsset, Boolean(request.infinite))
+		}
+
 		if (tx !== undefined) {
 			await tx.wait()
 		}
@@ -79,20 +168,21 @@ export async function fillOrderSendTx(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
 	send: SendFunction,
-	config: ExchangeAddresses,
+	// config: ExchangeAddresses,
+	config: Config,
 	orderApi: OrderControllerApi,
 	order: SimpleOrder,
 	request: FillOrderRequest,
 ): Promise<EthereumTransaction> {
 	switch (order.type) {
 		case "RARIBLE_V1": {
-			return fillOrderV1(ethereum, send, orderApi, config.v1, order, request)
+			return fillOrderV1(ethereum, send, orderApi, config.exchange.v1, order, request)
 		}
 		case "RARIBLE_V2": {
-			return fillOrderV2(getMakeFee, ethereum, send, config.v2, order, request)
+			return fillOrderV2(getMakeFee, ethereum, send, config.exchange.v2, order, request)
 		}
 		case "OPEN_SEA_V1": {
-			// return await fillOrderOpenSea(getMakeFee, ethereum, send, config, order, request)
+			return fillOrderOpenSea(getMakeFee, ethereum, send, config.exchange.openseaV1, order, request)
 		}
 		default: {
 			throw new Error(`Unsupported type: ${(order as any).type}`)
@@ -120,27 +210,51 @@ async function fillOrderV2(
 	return matchOrders(getMakeFee, ethereum, send, contract, order, orderRight)
 }
 
+function getOrdersForMatching(
+	ethereum: Ethereum,
+	order: SimpleOpenSeaV1Order,
+	amount: number,
+	buyer: Address
+) {
+	let buy: SimpleOpenSeaV1Order, sell: SimpleOpenSeaV1Order
+
+	switch (order.data.side) {
+		case "SELL": {
+			sell = {...order, taker: ZERO_ADDRESS}
+			buy = {
+				...invertOrder(order, toBn(amount), buyer, order.salt),
+				data: {...order.data, feeRecipient: ZERO_ADDRESS, side: "BUY"},
+			}
+			break
+		}
+		case "BUY": {
+			buy = {...order, taker: ZERO_ADDRESS}
+			sell = {
+				...invertOrder(order, toBn(amount), buyer, order.salt),
+				data: {...order.data, feeRecipient: ZERO_ADDRESS, side: "SELL"},
+			}
+			break
+		}
+		default: {
+			throw new Error("Unrecognized order side")
+		}
+	}
+
+	debugger
+	return {buy, sell}
+}
+
 export async function fillOrderOpenSea(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
 	send: SendFunction,
 	exchange: Address,
-	transferProxy: Address,
 	order: SimpleOpenSeaV1Order,
 	request: FillOrderRequest,
 ): Promise<EthereumTransaction> {
-	const address = toAddress(await ethereum.getFrom())
-	const orderRight: SimpleOpenSeaV1Order = {
-		...invertOrder(order, toBn(request.amount), address, order.salt),
-		data: {
-			...order.data,
-			side: "BUY",
-			// payouts: request.payouts || [],
-			// originFees: request.originFees || [],
-		},
-	}
-	// throw new Error("s")
-	return matchOpenSeaV1Order(getMakeFee, ethereum, send, exchange, transferProxy, order, orderRight)
+	const buyer = toAddress(await ethereum.getFrom())
+	const {buy, sell} = getOrdersForMatching(ethereum, order, request.amount, buyer)
+	return matchOpenSeaV1Order(getMakeFee, ethereum, send, exchange, sell, buy)
 }
 
 export function getRSV(sig: string) {
@@ -153,18 +267,22 @@ export function getRSV(sig: string) {
 	return { r, s, v }
 }
 
-export async function getOpenseaOrderVrs(orderDTO: OpenSeaOrderToSignDTO, ethereum: Ethereum) {
+/*
+export async function getOpenseaOrderVrs(orderDTO: OpenSeaOrderToSignDTO, ethereum: Ethereum, signAddress: Address) {
 	//TODO replace web3
 	const web3: any = (ethereum as any)["config"].web3
-	const from = await ethereum.getFrom()
 
 	const orderHash = hashOrder(orderDTO)
 
 	//TODO replace web3
-	let signatureBuyHash = await web3.eth.sign(orderHash, from)
+	let signatureBuyHash = await web3.eth.sign(orderHash, signAddress)
 
+	debugger
+	console.log("signature, order hash side", orderDTO.side, "hash", signatureBuyHash)
 	return toVrs(signatureBuyHash)
 }
+
+ */
 
 export function getAtomicMatchArgAddresses(dto: OpenSeaOrderToSignDTO) {
 	// return [dto.exchange, dto.maker, dto.taker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
@@ -189,48 +307,83 @@ export function getAtomicMatchArgCommonData(dto: OpenSeaOrderToSignDTO) {
 	return [dto.feeMethod, dto.side, dto.saleKind, dto.howToCall]
 }
 
+export function getMatchOpenseaOptions(buy: SimpleOpenSeaV1Order, sell: SimpleOpenSeaV1Order): EthereumSendOptions {
+	let matchOptions: EthereumSendOptions = {}
+	if (buy.make.assetType.assetClass === "ETH") {
+		matchOptions.value = buy.make.value
+	} else if (sell.make.assetType.assetClass === "ETH") {
+		matchOptions.value = buy.make.value
+	}
+	return matchOptions
+}
+
+export async function getOrderHashCall(ethContract: EthereumContract, order: OpenSeaOrderToSignDTO) {
+	return ethContract.functionCall(
+		"hashOrder_",
+		[order.exchange, order.maker, order.taker, order.feeRecipient, order.target, order.staticTarget, order.paymentToken],
+		[order.makerRelayerFee, order.takerRelayerFee, order.makerProtocolFee, order.takerProtocolFee, order.basePrice, order.extra, order.listingTime, order.expirationTime, order.salt],
+		order.feeMethod,
+		order.side,
+		order.saleKind,
+		order.howToCall,
+		order.calldata,
+		order.replacementPattern,
+		order.staticExtradata)
+		.call()
+}
+export async function getOrderSignatureCall(ethereum: Ethereum, order: SimpleOpenSeaV1Order): Promise<string> {
+	const web3: any = (ethereum as any)["config"].web3
+	const from = await ethereum.getFrom()
+	return web3.eth.sign(hashOpenSeaV1Order(ethereum, order), from)
+}
 export async function matchOpenSeaV1Order(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
 	send: SendFunction,
 	exchange: Address,
-	transferProxy: Address,
 	sell: SimpleOpenSeaV1Order,
 	buy: SimpleOpenSeaV1Order,
 ) {
 	const sellOrderToSignDTO = convertOpenSeaOrderToSignDTO(ethereum, sell)
-	const buyorderToSignDTO = convertOpenSeaOrderToSignDTO(ethereum, buy)
+	const buyOrderToSignDTO = convertOpenSeaOrderToSignDTO(ethereum, buy)
 
-	buyorderToSignDTO.feeRecipient = ZERO_ADDRESS
-
-	console.log("sellOrderToSignDTO", JSON.stringify(sellOrderToSignDTO, null, "	"))
-	console.log("buyorderToSignDTO", JSON.stringify(buyorderToSignDTO, null, "	"))
 	const exchangeContract = createOpenseaContract(ethereum, exchange)
 
-	const leftRSV = await getOpenseaOrderVrs(sellOrderToSignDTO, ethereum)
-	const rightRSV = await getOpenseaOrderVrs(buyorderToSignDTO, ethereum)
+	// const sellRSV = await getOpenseaOrderVrs(sellOrderToSignDTO, ethereum, sellOrderToSignDTO.maker)
+	// const _sellRSV = await getOpenseaOrderVrs(sellOrderToSignDTO, ethereum, sellOrderToSignDTO.maker)
+	// const buyRSV = await getOpenseaOrderVrs(buyOrderToSignDTO, ethereum, buyOrderToSignDTO.maker)
 
-	console.log("rsv matchOpenSeaV1Order")
+	// const {v, r, s} = toVrs(sell.signature || "0x0")
+	// console.log("sell signature before calc vrs", sell.signature)
+	const sellRSV = toVrs(sell.signature || buy.signature || "0x0")
 
+	// const buySigOriginal = await getOrderHashCall(exchangeContract, buyOrderToSignDTO)
+	// const sellSigOriginal = await getOrderHashCall(exchangeContract, sellOrderToSignDTO)
+
+	// console.log("buy sig", buy.signature, "sell sig", sell.signature)
+	// console.log("buy order", JSON.stringify(buyOrderToSignDTO, null, "	"))
+	// console.log("sell order", JSON.stringify(sellOrderToSignDTO, null, "	"))
+	// console.log("buySigOriginal", buySigOriginal, "sellSigOriginal", sellSigOriginal)
 	const method = exchangeContract.functionCall(
 		"atomicMatch_",
 		[
-			...getAtomicMatchArgAddresses(buyorderToSignDTO),
+			...getAtomicMatchArgAddresses(buyOrderToSignDTO),
 			...getAtomicMatchArgAddresses(sellOrderToSignDTO),
 		],
-		[...getAtomicMatchArgUints(buyorderToSignDTO), ...getAtomicMatchArgUints(sellOrderToSignDTO)],
-		[...getAtomicMatchArgCommonData(buyorderToSignDTO), ...getAtomicMatchArgCommonData(sellOrderToSignDTO)],
-		buyorderToSignDTO.calldata,
+		[...getAtomicMatchArgUints(buyOrderToSignDTO), ...getAtomicMatchArgUints(sellOrderToSignDTO)],
+		[...getAtomicMatchArgCommonData(buyOrderToSignDTO), ...getAtomicMatchArgCommonData(sellOrderToSignDTO)],
+		buyOrderToSignDTO.calldata,
 		sellOrderToSignDTO.calldata,
-		buyorderToSignDTO.replacementPattern,
+		buyOrderToSignDTO.replacementPattern,
 		sellOrderToSignDTO.replacementPattern,
-		buyorderToSignDTO.staticExtradata,
+		buyOrderToSignDTO.staticExtradata,
 		sellOrderToSignDTO.staticExtradata,
-		[leftRSV.v, rightRSV.v],
-		[leftRSV.r, leftRSV.s, rightRSV.r, rightRSV.s, "0x0000000000000000000000000000000000000000000000000000000000000000"],
+		[sellRSV.v, sellRSV.v],
+		[sellRSV.r, sellRSV.s, sellRSV.r, sellRSV.s, "0x0000000000000000000000000000000000000000000000000000000000000000"],
 	)
 
-	return send(method, getMatchV2Options(sell, buy, getMakeFee))
+	debugger
+	return send(method, getMatchOpenseaOptions(buy, sell))
 }
 
 async function matchOrders(

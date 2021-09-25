@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.4.0](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.3.2...v0.4.0) (2021-09-25)
+
+
+### Bug Fixes
+
+* cancel orders ([98149cc](https://github.com/rariblecom/protocol-ethereum-sdk/commit/98149cc3d99647e85b515ade8b0d27b75a48dcf9))
+
+
+### Features
+
+* add contract versions ([#34](https://github.com/rariblecom/protocol-ethereum-sdk/issues/34)) ([8f09938](https://github.com/rariblecom/protocol-ethereum-sdk/commit/8f099382fa3837b040e3856c2022433d447fd5d7))
+
+
+
+
+
 ## [0.3.2](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.3.1...v0.3.2) (2021-09-17)
 
 **Note:** Version bump only for package @rarible/protocol-ethereum-sdk

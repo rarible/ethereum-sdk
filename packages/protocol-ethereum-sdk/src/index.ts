@@ -13,7 +13,7 @@ import {
 	OrderControllerApi,
 	OrderForm,
 } from "@rarible/protocol-api-client"
-import { Ethereum } from "@rarible/ethereum-provider"
+import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
 import { getBaseOrderFee } from "./order/get-base-order-fee"
 import { getBaseOrderFillFee } from "./order/get-base-order-fill-fee"
@@ -36,6 +36,7 @@ import { signNft as signNftTemplate } from "./nft/sign-nft"
 import { getMakeFee as getMakeFeeTemplate } from "./order/get-make-fee"
 import { burn as burnTemplate } from "./nft/burn"
 import { send as sendTemplate } from "./common/send-transaction"
+import { cancel as cancelTemplate } from "./order/cancel"
 
 export interface RaribleApis {
 	nftItem: NftItemControllerApi
@@ -77,6 +78,11 @@ export interface RaribleOrderSdk {
 	 * Get base fee for filling an order (this fee will be hold by the processing platform)
 	 */
 	getBaseOrderFillFee(order: SimpleOrder): Promise<number>
+
+	/**
+	 * Cancel order
+	 */
+	cancel(order: SimpleOrder): Promise<EthereumTransaction>
 }
 
 export interface RaribleNftSdk {
@@ -153,6 +159,7 @@ export function createRaribleSdk(
 		transferTemplate, ethereum, send, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi
 	)
 	const burn = partialCall(burnTemplate, ethereum, send, checkAssetType)
+	const cancel = partialCall(cancelTemplate, ethereum, config.exchange)
 
 	return {
 		apis: {
@@ -167,6 +174,7 @@ export function createRaribleSdk(
 			fill,
 			bid,
 			upsertOrder,
+			cancel,
 			getBaseOrderFee,
 			getBaseOrderFillFee,
 		},

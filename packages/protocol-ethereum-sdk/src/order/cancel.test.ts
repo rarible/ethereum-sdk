@@ -13,7 +13,7 @@ import { getMakeFee } from "./get-make-fee"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
 
 const { provider, wallet } = createE2eProvider()
-const web3 = new Web3(provider as any)
+const web3 = new Web3(provider)
 const ethereum = new Web3Ethereum({ web3 })
 const approve = () => Promise.resolve(undefined)
 const sign = signOrder.bind(null, ethereum, E2E_CONFIG)

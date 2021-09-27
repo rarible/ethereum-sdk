@@ -1,8 +1,8 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { toAddress } from "@rarible/types"
-import { Configuration, GatewayControllerApi, NftCollectionControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
+import { toAddress, toBigNumber } from "@rarible/types"
+import { Configuration, GatewayControllerApi, NftCollectionControllerApi, NftLazyMintControllerApi, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
@@ -21,13 +21,14 @@ describe("burn nfts", () => {
 	const testAddress = toAddress(wallet.getAddressString())
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const collectionApi = new NftCollectionControllerApi(configuration)
+	const ownershipApi = new NftOwnershipControllerApi(configuration)
 	const mintLazyApi = new NftLazyMintControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const sign = signNft.bind(null, ethereum, 17)
 	const send = sendTemplate.bind(ethereum, gatewayApi)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, collectionApi)
 	const mint = mintTemplate.bind(null, ethereum, send, sign, collectionApi)
-	const burn = burnTemplate.bind(null, ethereum, send, checkAssetType)
+	const burn = burnTemplate.bind(null, ethereum, send, checkAssetType, ownershipApi)
 	const contractErc721 = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
 	const contractErc1155 = toAddress("0x8812cFb55853da0968a02AaaEA84CD93EC4b42A1")
 
@@ -60,7 +61,7 @@ describe("burn nfts", () => {
 		await burn({
 			contract: contractErc1155,
 			tokenId: minted.tokenId,
-		}, 50)
+		}, toBigNumber("50"))
 
 		const testBalanceAfterBurn = await testErc1155.functionCall("balanceOf", testAddress, minted.tokenId).call()
 		expect(testBalanceAfterBurn).toBe("50")

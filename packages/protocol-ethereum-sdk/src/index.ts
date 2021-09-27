@@ -85,7 +85,7 @@ export interface RaribleNftSdk {
 	 * @param asset asset to burn
 	 * @param amount amount to burn for Erc1155 token
 	 */
-	burn(asset: Erc721AssetType | Erc1155AssetType, amount?: number): Promise<string>
+	burn(asset: Erc721AssetType | Erc1155AssetType, amount?: BigNumber): Promise<EthereumTransaction>
 }
 
 export interface RaribleSdk {
@@ -133,7 +133,7 @@ export function createRaribleSdk(
 	const transfer = partialCall(
 		transferTemplate, ethereum, send, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi
 	)
-	const burn = partialCall(burnTemplate, ethereum, send, checkAssetType)
+	const burn = partialCall(burnTemplate, ethereum, send, checkAssetType, nftOwnershipControllerApi)
 	const cancel = partialCall(cancelTemplate, ethereum, config.exchange)
 
 	return {

@@ -60,13 +60,6 @@ export async function signOrder(
 			return toBinary(signature)
 		}
 
-		case "OPEN_SEA_V1": {
-			// const orderHash = hashOpenSeaV1Order(order, config.)
-			//
-			// const hash = hashToSign(orderHash)
-			// return toBinary(hash)
-		}
-
 		default: {
 			throw new Error(`Unsupported order type: ${(order as any).type}`)
 		}

@@ -134,9 +134,9 @@ describe("fillOrder", () => {
 		// 	from: sender2Address,
 		// })
 
-		await sentTx(it.testErc721.methods.setApprovalForAll(wyvernProxyRegistry.options.address, true), {
-			from: sender1Address,
-		})
+		// await sentTx(it.testErc721.methods.setApprovalForAll(wyvernProxyRegistry.options.address, true), {
+		// 	from: sender1Address,
+		// })
 
 		// await sentTx(it.testErc721.methods.setApprovalForAll(proxyAddress, true), {
 		// 	from: sender2Address,
@@ -566,18 +566,12 @@ describe("fillOrder", () => {
 		)
 	})
 
+
+	 */
 	test("should match order(buy erc1155 for eth)", async () => {
 
 		await sentTx(it.testErc1155.methods.mint(sender2Address, 2, 10, "0x"), { from: sender2Address })
-
-		const proxyRegistryEthContractSender2 = await createOpenseaProxyRegistryEthContract(ethereum2, toAddress(wyvernProxyRegistry.options.address))
-		await proxyRegistryEthContractSender2
-			.functionCall("registerProxy")
-			.send()
-		const proxyAddress = toAddress(await proxyRegistryEthContractSender2.functionCall("proxies", sender2Address).call())
-
 		// await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, 100), { from: sender1Address })
-		await sentTx(it.testErc1155.methods.setApprovalForAll(proxyAddress, true), { from: sender2Address })
 
 		const left: SimpleOpenSeaV1Order = {
 			make: {
@@ -603,7 +597,7 @@ describe("fillOrder", () => {
 				dataType: "OPEN_SEA_V1_DATA_V1",
 				exchange: toAddress(wyvernExchange.options.address),
 				makerRelayerFee: toBigNumber("0"),
-				takerRelayerFee: toBigNumber("0"),
+				takerRelayerFee: toBigNumber("250"),
 				makerProtocolFee: toBigNumber("0"),
 				takerProtocolFee: toBigNumber("0"),
 				feeRecipient: toAddress(sender1Address),
@@ -617,30 +611,47 @@ describe("fillOrder", () => {
 				staticExtraData: toBinary("0x"),
 				extra: toBigNumber("0"),
 			},
-			signature: toBinary("0x584caf791d6e8d04b516c2b06e4d136a4e9d044ae2223177be6b6519202d9a4b757c45f0b38675f640765ba2c358e64969618785a7fa88531e58ba35c3ba246901"),
 		}
+
+		const proxyAddress = await getRegisteredProxy(ethereum2, toAddress(wyvernProxyRegistry.options.address))
+		await sentTx(it.testErc1155.methods.setApprovalForAll(proxyAddress, true), { from: sender2Address })
+
+		const signature = toBinary(await getOrderSignature(ethereum2, left))
 
 		const initBalanceSender2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 2).call())
 
-		const balanceSender1 = await web3.eth.getBalance(sender1Address)
-		console.log("balanceSender1", balanceSender1)
-
-		await fillOrderOpenSea(
+		const filledOrder = await fillOrder(
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			send,
-			toAddress(wyvernExchange.options.address),
-			left,
+			{} as any,
+			(() => {}) as any,
+			{
+				exchange: {
+					openseaV1: toAddress(wyvernExchange.options.address),
+				},
+				proxyRegistries: {
+					openseaV1: toAddress(wyvernProxyRegistry.options.address),
+				},
+				transferProxies: {
+					openseaV1: toAddress(wyvernTokenTransferProxy.options.address),
+				},
+			} as any,
+			{
+				...left,
+				signature,
+			},
 			{amount: 1}
 		)
+
+		await filledOrder.build().runAll()
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 2).call()).toString()).toBe(
 			initBalanceSender2.minus(1).toFixed()
 		)
 	})
-	 */
 
-	test("should fill order", async () => {
+	test("should fill order (sell erc1155 for erc20)", async () => {
 		await sentTx(it.testErc20.methods.mint(sender1Address, 1000), { from: sender1Address })
 		await sentTx(it.testErc1155.methods.mint(sender2Address, 3, 10, "0x"), { from: sender2Address })
 
@@ -728,7 +739,7 @@ describe("fillOrder", () => {
 		)
 	})
 
-	test("should fill order", async () => {
+	test("should fill order (sell erc1155 for erc20)", async () => {
 		await sentTx(it.testErc20.methods.mint(sender1Address, 1000), { from: sender1Address })
 		await sentTx(it.testErc1155.methods.mint(sender2Address, 4, 10, "0x"), { from: sender2Address })
 
@@ -816,7 +827,7 @@ describe("fillOrder", () => {
 		)
 	})
 
-	test("should match buy order", async () => {
+	test("should match buy order (buy erc1155 for erc20)", async () => {
 		await sentTx(it.testErc20.methods.mint(sender1Address, 1000), { from: sender1Address })
 		await sentTx(it.testErc1155.methods.mint(sender2Address, 5, 10, "0x"), { from: sender2Address })
 
@@ -905,6 +916,97 @@ describe("fillOrder", () => {
 			initBalanceSender2.minus(1).toFixed()
 		)
 	})
+
+	test("should match buy order (buy erc721 for erc20)", async () => {
+		await sentTx(it.testErc20.methods.mint(sender1Address, 1000), { from: sender1Address })
+		await sentTx(it.testErc721.methods.mint(sender2Address, 5, "0x"), { from: sender2Address })
+
+		const left: SimpleOpenSeaV1Order = {
+			make: {
+				assetType: {
+					assetClass: "ERC20",
+					contract: toAddress(it.testErc20.options.address),
+				},
+				value: toBigNumber("10"),
+			},
+			maker: sender1Address,
+			take: {
+				assetType: {
+					assetClass: "ERC721",
+					contract: toAddress(it.testErc721.options.address),
+					tokenId: toBigNumber("5"),
+				},
+				value: toBigNumber("1"),
+			},
+			taker: ZERO_ADDRESS,
+			// taker: sender2Address,
+			salt: toWord("7b0a53bb49afd3238b0ff50f17f3462ee070f913df3f9c434dc9aa941c184df7"),
+			type: "OPEN_SEA_V1",
+			start: 1632432878,
+			end: 0,
+			data: {
+				dataType: "OPEN_SEA_V1_DATA_V1",
+				exchange: toAddress(wyvernExchange.options.address),
+				makerRelayerFee: toBigNumber("0"),
+				takerRelayerFee: toBigNumber("250"),
+				makerProtocolFee: toBigNumber("0"),
+				takerProtocolFee: toBigNumber("0"),
+				feeRecipient: toAddress(sender1Address),
+				feeMethod: "SPLIT_FEE",
+				side: "BUY",
+				saleKind: "FIXED_PRICE",
+				howToCall: "CALL",
+				callData: toBinary("0xf242432a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000008508317a912086b921f6d2532f65e343c8140cc8ee5da6b5cdd5b5a22eceb75b84c7864573eb4fec000000000000010000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000"),
+				replacementPattern: toBinary("0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+				staticTarget: ZERO_ADDRESS,
+				staticExtraData: toBinary("0x"),
+				extra: toBigNumber("0"),
+			},
+		}
+
+		// const proxyAddress = await getRegisteredProxy(ethereum2, toAddress(wyvernProxyRegistry.options.address))
+		await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, 100), { from: sender1Address })
+		// await sentTx(it.testErc1155.methods.setApprovalForAll(proxyAddress, true), { from: sender2Address })
+
+		const signature = toBinary(await getOrderSignature(ethereum1, left))
+
+		const initBalanceSender1 = toBn(await it.testErc20.methods.balanceOf(sender1Address).call())
+		const initBalanceSender2 = toBn(await it.testErc721.methods.balanceOf(sender2Address).call())
+
+		const filledOrder = await fillOrder(
+			getMakeFee.bind(null, { v2: 100 }),
+			ethereum2,
+			send,
+			{} as any,
+			(() => {}) as any,
+			{
+				exchange: {
+					openseaV1: toAddress(wyvernExchange.options.address),
+				},
+				proxyRegistries: {
+					openseaV1: toAddress(wyvernProxyRegistry.options.address),
+				},
+				transferProxies: {
+					openseaV1: toAddress(wyvernTokenTransferProxy.options.address),
+				},
+			} as any,
+			{
+				...left,
+				signature,
+			},
+			{amount: 1}
+		)
+
+		await filledOrder.build().runAll()
+
+		expect(toBn(await it.testErc20.methods.balanceOf(sender1Address).call()).toString()).toBe(
+			initBalanceSender1.minus(10).toFixed()
+		)
+		expect(toBn(await it.testErc721.methods.balanceOf(sender2Address).call()).toString()).toBe(
+			initBalanceSender2.minus(1).toFixed()
+		)
+	})
+
 	/*
 	test("should allow simple order matching with special-case Ether, nonzero price", async() => {
 		const buy = makeOrder(wyvernExchange.options.address, true)

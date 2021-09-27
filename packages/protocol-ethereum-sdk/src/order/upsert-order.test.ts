@@ -13,7 +13,7 @@ import { getMakeFee } from "./get-make-fee"
 describe("upsertOrder", () => {
 	const { provider, wallet } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
 
-	test.skip("sign and upsert works", async () => {
+	test("sign and upsert works", async () => {
 		const approve = () => Promise.resolve(undefined)
 		const web3 = new Web3(provider)
 		const sign = signOrder.bind(null, new Web3Ethereum({ web3 }), E2E_CONFIG)

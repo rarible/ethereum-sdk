@@ -37,21 +37,19 @@ describe("cancel order", () => {
 		await testOrder(form)
 	}, 15000)
 
-	/*
-		test("ExchangeV1 should work", async () => {
-			const form: OrderForm = {
-				...TEST_ORDER_TEMPLATE,
-				salt: toBigNumber("10") as any,
-				maker: toAddress(wallet.getAddressString()),
-				type: "RARIBLE_V1",
-				data: {
-					dataType: "LEGACY",
-					fee: 0,
-				},
-			}
-			await testOrder(form)
-		})
-	*/
+	test.skip("ExchangeV1 should work", async () => {
+		const form: OrderForm = {
+			...TEST_ORDER_TEMPLATE,
+			salt: toBigNumber("10") as any,
+			maker: toAddress(wallet.getAddressString()),
+			type: "RARIBLE_V1",
+			data: {
+				dataType: "LEGACY",
+				fee: 0,
+			},
+		}
+		await testOrder(form)
+	})
 
 	async function testOrder(form: OrderForm) {
 		const checkLazyOrder = async () => Promise.resolve(form)

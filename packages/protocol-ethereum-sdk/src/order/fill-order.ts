@@ -264,6 +264,30 @@ export async function matchOpenSeaV1Order(
 	return send(method, await getMatchOpenseaOptions(buyOrderToSignDTO, sellOrderToSignDTO, from))
 }
 
+export async function cancelOrder(ethereum: Ethereum, order: SimpleOpenSeaV1Order, exchange: Address) {
+	const exchangeContract = createOpenseaContract(ethereum, exchange)
+
+	const dto = convertOpenSeaOrderToSignDTO(ethereum, order)
+	const makerVRS = toVrs(order.signature || "0x")
+
+	return exchangeContract.functionCall(
+		"cancelOrder_",
+		getAtomicMatchArgAddresses(dto),
+		getAtomicMatchArgUints(dto),
+		dto.feeMethod,
+		dto.side,
+		dto.saleKind,
+		dto.howToCall,
+		dto.calldata,
+		dto.replacementPattern,
+		dto.staticExtradata,
+		makerVRS.v,
+		makerVRS.r,
+		makerVRS.s
+	)
+		.send()
+}
+
 async function matchOrders(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,

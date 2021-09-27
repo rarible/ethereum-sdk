@@ -1,10 +1,10 @@
-import { Address, Erc1155AssetType, Erc721AssetType, NftItemControllerApi, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
-import { Ethereum } from "@rarible/ethereum-provider"
+import type { Address, Erc1155AssetType, Erc721AssetType, NftItemControllerApi, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
+import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { BigNumber, toAddress } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
-import { CheckAssetTypeFunction, NftAssetType } from "../order/check-asset-type"
+import type { CheckAssetTypeFunction, NftAssetType } from "../order/check-asset-type"
 import { getOwnershipId } from "../common/get-ownership-id"
-import { SendFunction } from "../common/send-transaction"
+import type { SendFunction } from "../common/send-transaction"
 import { transferErc721 } from "./transfer-erc721"
 import { transferErc1155 } from "./transfer-erc1155"
 import { transferNftLazy } from "./transfer-nft-lazy"
@@ -20,7 +20,7 @@ export async function transfer(
 	asset: TransferAsset,
 	to: Address,
 	amount?: BigNumber
-): Promise<string> {
+): Promise<EthereumTransaction> {
 	const from = toAddress(await ethereum.getFrom())
 	const ownership = await nftOwnershipApi.getNftOwnershipByIdRaw({
 		ownershipId: getOwnershipId(asset.contract, asset.tokenId, from),
@@ -33,19 +33,13 @@ export async function transfer(
 				send,
 				nftItemApi,
 				asset,
-				toAddress(from), to, amount)
-		} else {
-			switch (checkedAssetType.assetClass) {
-				case "ERC721": {
-					return transferErc721(ethereum, send, asset.contract, from, to, asset.tokenId)
-				}
-				case "ERC1155": {
-					return transferErc1155(ethereum, send, asset.contract, from, to, asset.tokenId, amount || "1")
-				}
-				default: {
-					throw new Error(`Address ${from} has not any ownerships of token with Id ${asset.tokenId}`)
-				}
-			}
+				toAddress(from), to, amount
+			)
+		}
+		switch (checkedAssetType.assetClass) {
+			case "ERC721": return transferErc721(ethereum, send, asset.contract, from, to, asset.tokenId)
+			case "ERC1155": return transferErc1155(ethereum, send, asset.contract, from, to, asset.tokenId, amount || "1")
+			default: throw new Error(`Address ${from} has not any ownerships of token with Id ${asset.tokenId}`)
 		}
 	} else {
 		throw new Error(`Address ${from} has not any ownerships of token with Id ${asset.tokenId}`)

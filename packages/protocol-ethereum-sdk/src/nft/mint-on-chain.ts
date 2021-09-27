@@ -39,7 +39,8 @@ export async function mintErc721v2(
 	const erc721Contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, data.collection.id)
 	const nftTokenId = await getTokenId(nftCollectionApi, data.collection.id, owner)
 	const { tokenId, signature: { v, r, s } } = nftTokenId
-	const transaction = await send(erc721Contract.functionCall("mint", tokenId, v, r, s, data.royalties, data.uri))
+	const royalties = data.royalties.map((x) => ({ recipient: x.account, value: x.value }))
+	const transaction = await send(erc721Contract.functionCall("mint", tokenId, v, r, s, royalties, data.uri))
 
 	return createMintOnChainResponse({
 		transaction,
@@ -88,7 +89,8 @@ export async function mintErc1155v1(
 	const erc155Contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V1, data.collection.id)
 	const nftTokenId = await getTokenId(nftCollectionApi, data.collection.id, owner)
 	const { tokenId, signature: { v, r, s } } = nftTokenId
-	const transaction = await send(erc155Contract.functionCall("mint", tokenId, v, r, s, data.royalties, data.supply, data.uri))
+	const royalties = data.royalties.map((x) => ({ recipient: x.account, value: x.value }))
+	const transaction = await send(erc155Contract.functionCall("mint", tokenId, v, r, s, royalties, data.supply, data.uri))
 
 	return createMintOnChainResponse({
 		transaction,

@@ -9,12 +9,14 @@ import { getErc721Contract } from "./contracts/erc721"
 import { ERC1155VersionEnum, ERC721VersionEnum } from "./contracts/domain"
 import { getErc1155Contract } from "./contracts/erc1155"
 
+export type BurnAsset = Erc721AssetType | Erc1155AssetType | NftAssetType
+
 export async function burn(
 	ethereum: Ethereum,
 	send: SendFunction,
 	checkAssetType: CheckAssetTypeFunction,
 	nftOwnershipApi: NftOwnershipControllerApi,
-	asset: Erc721AssetType | Erc1155AssetType | NftAssetType,
+	asset: BurnAsset,
 	amount?: BigNumber
 ): Promise<EthereumTransaction> {
 	const checked = await checkAssetType(asset)

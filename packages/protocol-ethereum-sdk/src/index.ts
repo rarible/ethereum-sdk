@@ -1,4 +1,4 @@
-import { Address, Configuration, ConfigurationParameters, Erc1155AssetType, Erc721AssetType, GatewayControllerApi, NftCollectionControllerApi, NftItemControllerApi, NftLazyMintControllerApi, NftOwnershipControllerApi, OrderActivityControllerApi, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
+import { Address, Configuration, ConfigurationParameters, GatewayControllerApi, NftCollectionControllerApi, NftItemControllerApi, NftLazyMintControllerApi, NftOwnershipControllerApi, OrderActivityControllerApi, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
 import { getBaseOrderFee } from "./order/get-base-order-fee"
@@ -16,7 +16,7 @@ import { mint as mintTemplate, MintOffChainResponse, MintOnChainResponse, MintRe
 import { transfer as transferTemplate, TransferAsset } from "./nft/transfer"
 import { signNft as signNftTemplate } from "./nft/sign-nft"
 import { getMakeFee as getMakeFeeTemplate } from "./order/get-make-fee"
-import { burn as burnTemplate } from "./nft/burn"
+import { burn as burnTemplate, BurnAsset } from "./nft/burn"
 import { send as sendTemplate } from "./common/send-transaction"
 import { cancel as cancelTemplate } from "./order/cancel"
 
@@ -85,7 +85,7 @@ export interface RaribleNftSdk {
 	 * @param asset asset to burn
 	 * @param amount amount to burn for Erc1155 token
 	 */
-	burn(asset: Erc721AssetType | Erc1155AssetType, amount?: BigNumber): Promise<EthereumTransaction>
+	burn(asset: BurnAsset, amount?: BigNumber): Promise<EthereumTransaction>
 }
 
 export interface RaribleSdk {

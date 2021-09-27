@@ -22,7 +22,6 @@ const orderApi = new OrderControllerApi(configuration)
 const makeFee = getMakeFee.bind(null, { v2: 0 })
 
 describe("cancel order", () => {
-
 	test("ExchangeV2 should work", async () => {
 		const form: OrderForm = {
 			...TEST_ORDER_TEMPLATE,
@@ -36,23 +35,23 @@ describe("cancel order", () => {
 			},
 		}
 		await testOrder(form)
-	})
+	}, 15000)
 
 	/*
-	test("ExchangeV1 should work", async () => {
-		const form: OrderForm = {
-			...TEST_ORDER_TEMPLATE,
-			salt: toBigNumber("10") as any,
-			maker: toAddress(wallet.getAddressString()),
-			type: "RARIBLE_V1",
-			data: {
-				dataType: "LEGACY",
-				fee: 0,
-			},
-		}
-		await testOrder(form)
-	})
-*/
+		test("ExchangeV1 should work", async () => {
+			const form: OrderForm = {
+				...TEST_ORDER_TEMPLATE,
+				salt: toBigNumber("10") as any,
+				maker: toAddress(wallet.getAddressString()),
+				type: "RARIBLE_V1",
+				data: {
+					dataType: "LEGACY",
+					fee: 0,
+				},
+			}
+			await testOrder(form)
+		})
+	*/
 
 	async function testOrder(form: OrderForm) {
 		const checkLazyOrder = async () => Promise.resolve(form)
@@ -62,7 +61,7 @@ describe("cancel order", () => {
 		const tx = await cancel(ethereum, E2E_CONFIG.exchange, order)
 		await tx.wait()
 
-		await retry(10, async () => {
+		await retry(15, async () => {
 			const fetched = await orderApi.getOrderByHash({ hash: order.hash })
 			expect(fetched.cancelled).toBe(true)
 		})

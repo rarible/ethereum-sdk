@@ -52,7 +52,10 @@ describe("mint test", () => {
 		const mintableTokenE2eAddress = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
 		await mint({
 			uri: "uri",
-			royalties: [],
+			royalties: [{
+				account: minter,
+				value: 250,
+			}],
 			collection: createErc721V2Collection(mintableTokenE2eAddress),
 		} as ERC721RequestV2)
 		const contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, mintableTokenE2eAddress)
@@ -68,7 +71,10 @@ describe("mint test", () => {
 			collection: createErc1155V1Collection(raribleTokenE2eAddress),
 			uri,
 			supply,
-			royalties: [],
+			royalties: [{
+				account: minter,
+				value: 250,
+			}],
 		} as ERC1155RequestV1)
 		const contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V1, raribleTokenE2eAddress)
 		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter, minted.tokenId).call()

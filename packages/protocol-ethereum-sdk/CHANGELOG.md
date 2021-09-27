@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.4](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.4.3...v0.4.4) (2021-09-27)
+
+
+### Bug Fixes
+
+* mint royalties [#36](https://github.com/rarible/protocol-ethereum-sdk/issues/36) ([a56d4ec](https://github.com/rarible/protocol-ethereum-sdk/commit/a56d4ec4e8a8328edd9201212e13b46c92a8506d))
+
+
+
+
+
 ## [0.4.3](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.4.2...v0.4.3) (2021-09-27)
 
 

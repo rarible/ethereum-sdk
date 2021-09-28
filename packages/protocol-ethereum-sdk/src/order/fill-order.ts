@@ -8,7 +8,8 @@ import { Address, toAddress, toBigNumber, toWord, ZERO_ADDRESS } from "@rarible/
 import { ActionBuilder } from "@rarible/action"
 import {toBn} from "@rarible/utils"
 import type {Ethereum, EthereumSendOptions, EthereumTransaction} from "@rarible/ethereum-provider"
-import type { Config, OpenSeaOrderToSignDTO } from "../config/type"
+import type { Config } from "../config/type"
+import type {OpenSeaOrderToSignDTO} from "../common/orders"
 import type { SendFunction } from "../common/send-transaction"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import {
@@ -25,7 +26,6 @@ import type { GetMakeFeeFunction } from "./get-make-fee"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { toStructLegacyOrder } from "./to-struct-legacy-order"
 import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
-import {createOpenseaProxyRegistryEthContract} from "./contracts/proxy-registry-opensea"
 import {approveOpensea} from "./approve-opensea"
 import {approve} from "./approve"
 
@@ -135,21 +135,6 @@ async function fillOrderV2(
 		},
 	}
 	return matchOrders(getMakeFee, ethereum, send, contract, request.order, orderRight)
-}
-
-export async function getRegisteredProxy(
-	ethereum: Ethereum,
-	proxyRegistry: Address
-): Promise<Address> {
-	const proxyRegistryContract = createOpenseaProxyRegistryEthContract(ethereum, proxyRegistry)
-	let proxyAddress = toAddress(await proxyRegistryContract.functionCall("proxies", await ethereum.getFrom()).call())
-
-	if (proxyAddress === ZERO_ADDRESS) {
-		await proxyRegistryContract.functionCall("registerProxy").send()
-		proxyAddress = toAddress(await proxyRegistryContract.functionCall("proxies", await ethereum.getFrom()).call())
-	}
-
-	return proxyAddress
 }
 
 export function getOpenseaOrdersForMatching(

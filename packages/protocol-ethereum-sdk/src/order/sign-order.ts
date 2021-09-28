@@ -11,12 +11,15 @@ import {Address, toAddress, BigNumber, toBigNumber, toBinary, ZERO_ADDRESS} from
 import {Ethereum, signTypedData} from "@rarible/ethereum-provider"
 import Web3 from "web3"
 import { toBn } from "@rarible/utils"
+import {ethers} from "ethers"
 import {
-	Config, OpenSeaOrderToSignDTO,
-	OrderOpenSeaV1DataV1FeeMethod, OrderOpenSeaV1DataV1HowToCall,
+	OpenSeaOrderToSignDTO,
+	OrderOpenSeaV1DataV1FeeMethod,
+	OrderOpenSeaV1DataV1HowToCall,
 	OrderOpenSeaV1DataV1SaleKind,
 	OrderOpenSeaV1DataV1Side,
-} from "../config/type"
+} from "../common/orders"
+import {Config} from "../config/type"
 import {hashLegacyOrder} from "./hash-legacy-order"
 import {assetTypeToStruct} from "./asset-type-to-struct"
 import {EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES} from "./eip712"
@@ -184,52 +187,6 @@ export function convertOpenSeaOrderToSignDTO(ethereum: Ethereum, order: SimpleOp
 		expirationTime: toBigNumber(String(order.end || 0)),
 		salt: toBigNumber(toBn(order.salt).toString(10)),
 	}
-}
-
-export function hashOrder(order: OpenSeaOrderToSignDTO): string {
-	return Web3.utils.soliditySha3(
-		{t: "address", v: order.exchange},
-		{t: "address", v: order.maker},
-		{t: "address", v: order.taker},
-		{t: "uint", v: order.makerRelayerFee},
-		{t: "uint", v: order.takerRelayerFee},
-		{t: "uint", v: order.makerProtocolFee},
-		{t: "uint", v: order.takerProtocolFee},
-		{t: "address", v: order.feeRecipient},
-		{t: "uint8", v: order.feeMethod},
-		{t: "uint8", v: order.side},
-		{t: "uint8", v: order.saleKind},
-		{t: "address", v: order.target},
-		{t: "uint8", v: order.howToCall},
-		{t: "bytes", v: order.calldata},
-		{t: "bytes", v: order.replacementPattern},
-		{t: "address", v: order.staticTarget},
-		{t: "bytes", v: order.staticExtradata},
-		{t: "address", v: order.paymentToken},
-		{t: "uint", v: order.basePrice},
-		{t: "uint", v: order.extra},
-		{t: "uint", v: order.listingTime},
-		{t: "uint", v: order.expirationTime},
-		{t: "uint", v: order.salt}
-	) as string
-}
-
-export function hashToSign(hash: string): string {
-	return Web3.utils.soliditySha3(
-		{type: "string", value: "\x19Ethereum Signed Message:\n32"},
-		{type: "bytes32", value: hash}
-	) || ""
-}
-
-export function hashOpenSeaV1Order(ethereum: Ethereum, order: SimpleOpenSeaV1Order): string {
-	return hashOrder(convertOpenSeaOrderToSignDTO(ethereum, order))
-}
-
-//TODO replace web3.eth.sign
-export async function getOrderSignature(ethereum: Ethereum, order: SimpleOpenSeaV1Order): Promise<string> {
-	const web3: any = (ethereum as any)["config"].web3
-	const from = await ethereum.getFrom()
-	return web3.eth.sign(hashOpenSeaV1Order(ethereum, order), from)
 }
 
 function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712Domain {

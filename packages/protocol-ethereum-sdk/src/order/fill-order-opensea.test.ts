@@ -23,11 +23,9 @@ import {deployOpenSeaExchangeV1} from "./contracts/test/opensea/test-exchange-op
 import {createOpenseaProxyRegistryEthContract} from "./contracts/proxy-registry-opensea"
 import {
 	convertOpenSeaOrderToSignDTO,
-	getOrderSignature,
-	hashOpenSeaV1Order,
-	hashToSign,
 	SimpleOpenSeaV1Order,
 } from "./sign-order"
+import {getOrderSignature, hashOpenSeaV1Order, hashToSign} from "./test/order-opensea"
 import {approveOpensea} from "./approve-opensea"
 import {
 	fillOrder,

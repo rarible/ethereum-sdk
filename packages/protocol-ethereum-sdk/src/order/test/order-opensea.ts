@@ -1,6 +1,10 @@
-import {Asset} from "@rarible/protocol-api-client"
+import {Address, Asset} from "@rarible/protocol-api-client"
 import {toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS} from "@rarible/types"
-import {SimpleOpenSeaV1Order} from "../sign-order"
+import {Ethereum} from "@rarible/ethereum-provider"
+import Web3 from "web3"
+import {ethers} from "ethers"
+import {convertOpenSeaOrderToSignDTO, SimpleOpenSeaV1Order} from "../sign-order"
+import {OpenSeaOrderToSignDTO} from "../../common/orders"
 
 function getRandomTokenId(): string {
 	return Math.floor(Math.random() * 300000000).toString()
@@ -85,4 +89,77 @@ export function getOrderTemplate(makeAsset: TestAssetClass, takeAsset: TestAsset
 		data: {...OPENSEA_ORDER_TEMPLATE.data, side},
 	}
 
+}
+
+//TODO replace web3.eth.sign
+export async function getOrderSignature(ethereum: Ethereum, order: SimpleOpenSeaV1Order): Promise<string> {
+	const web3: any = (ethereum as any)["config"].web3
+	const from = await ethereum.getFrom()
+	return web3.eth.sign(hashOpenSeaV1Order(ethereum, order), from)
+}
+
+
+const hashOrderType = [
+	"address",
+	"address",
+	"address",
+	"uint",
+	"uint",
+	"uint",
+	"uint",
+	"address",
+	"uint8",
+	"uint8",
+	"uint8",
+	"address",
+	"uint8",
+	"bytes",
+	"bytes",
+	"address",
+	"bytes",
+	"address",
+	"uint",
+	"uint",
+	"uint",
+	"uint",
+	"uint",
+]
+
+export function hashOrder(order: OpenSeaOrderToSignDTO): string {
+	return ethers.utils.solidityKeccak256(hashOrderType, [
+		order.exchange,
+		order.maker,
+		order.taker,
+		order.makerRelayerFee,
+		order.takerRelayerFee,
+		order.makerProtocolFee,
+		order.takerProtocolFee,
+		order.feeRecipient,
+		order.feeMethod,
+		order.side,
+		order.saleKind,
+		order.target,
+		order.howToCall,
+		order.calldata,
+		order.replacementPattern,
+		order.staticTarget,
+		order.staticExtradata,
+		order.paymentToken,
+		order.basePrice,
+		order.extra,
+		order.listingTime,
+		order.expirationTime,
+		order.salt,
+	])
+}
+
+export function hashToSign(hash: string): string {
+	return ethers.utils.solidityKeccak256(
+		["string", "bytes32"],
+		["\x19Ethereum Signed Message:\n32", hash]
+	)
+}
+
+export function hashOpenSeaV1Order(ethereum: Ethereum, order: SimpleOpenSeaV1Order): string {
+	return hashOrder(convertOpenSeaOrderToSignDTO(ethereum, order))
 }

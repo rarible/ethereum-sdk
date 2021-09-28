@@ -61,8 +61,5 @@
     "web3-eth-contract": "1.2.11",
     "web3-provider-engine": "16.0.1",
     "web3-utils": "1.2.11"
-  },
-  "dependencies": {
-    "utility-types": "^3.10.0"
   }
 }

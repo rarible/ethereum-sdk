@@ -37,7 +37,6 @@ describe("fillOrder: Opensea orders", function () {
 	const configuration = new Configuration({basePath: "https://ethereum-api-e2e.rarible.org"})
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const send = sendTemplate.bind(ethereum1, gatewayApi)
-	const approveErc20 = approveErc20Template.bind(null, ethereum1, send)
 
 	let orderApi: OrderControllerApi
 
@@ -51,15 +50,11 @@ describe("fillOrder: Opensea orders", function () {
 		erc20TransferProxy: deployErc20TransferProxy(web3),
 		royaltiesProvider: deployTestRoyaltiesProvider(web3),
 		exchangeV2: deployTestExchangeV2(web3),
-
-		// openseaProxyRegistry: deployOpenseaProxyRegistry(web3),
-		// testToken: deployOpenseaTestToken(web3),
 	})
 
 	let wyvernExchange: Contract
 	let wyvernProxyRegistry: Contract
 	let wyvernTokenTransferProxy: Contract
-	// let testToken: Contract
 	let proxyRegistryEthContract: EthereumContract
 
 	beforeAll(async () => {
@@ -67,7 +62,6 @@ describe("fillOrder: Opensea orders", function () {
 		 * Configuring
 		 */
 
-		// testToken = await deployOpenseaTestToken(web3)
 		wyvernProxyRegistry = await deployOpenseaProxyRegistry(web3)
 		wyvernTokenTransferProxy = await deployOpenseaTokenTransferProxy(web3, wyvernProxyRegistry.options.address)
 

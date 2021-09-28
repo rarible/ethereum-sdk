@@ -24,10 +24,10 @@ import {deployErc20TransferProxy} from "./contracts/test/test-erc20-transfer-pro
 import {deployTestExchangeV2} from "./contracts/test/test-exchange-v2"
 import {deployTestRoyaltiesProvider} from "./contracts/test/test-royalties-provider"
 import {
-	cancelOrder,
 	fillOrder,
 	getAtomicMatchArgAddresses, getAtomicMatchArgCommonData, getAtomicMatchArgUints, getRegisteredProxy,
 } from "./fill-order"
+import {cancel} from "./cancel"
 import {
 	convertOpenSeaOrderToSignDTO, getOrderSignature, hashOpenSeaV1Order, hashToSign, SimpleOpenSeaV1Order,
 } from "./sign-order"
@@ -1153,16 +1153,20 @@ describe("fillOrder", () => {
 		const orderHash = hashOpenSeaV1Order(ethereum2, left)
 		const signedHash = hashToSign(orderHash)
 
-		const cancel = await cancelOrder(
+		const cancelledOrder = await cancel(
 			ethereum1,
+			{
+				openseaV1: toAddress(wyvernExchange.options.address),
+				v1: ZERO_ADDRESS,
+				v2: ZERO_ADDRESS,
+			},
 			{
 				...left,
 				signature,
 			},
-			toAddress(wyvernExchange.options.address)
 		)
 
-		const tx = await cancel.wait()
+		const tx = await cancelledOrder.wait()
 
 		const cancelEvent = tx.events.find(e => e.event === "OrderCancelled")
 

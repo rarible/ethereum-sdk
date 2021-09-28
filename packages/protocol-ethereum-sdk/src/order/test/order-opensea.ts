@@ -94,6 +94,7 @@ export function getOrderTemplate(makeAsset: TestAssetClass, takeAsset: TestAsset
 export async function getOrderSignature(ethereum: Ethereum, order: SimpleOpenSeaV1Order): Promise<string> {
 	const web3: any = (ethereum as any)["config"].web3
 	const from = await ethereum.getFrom()
+	// return ethereum.ethSign(hashOpenSeaV1Order(ethereum, order))
 	return web3.eth.sign(hashOpenSeaV1Order(ethereum, order), from)
 }
 

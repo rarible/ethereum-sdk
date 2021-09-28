@@ -9,9 +9,7 @@ import {
 } from "@rarible/protocol-api-client"
 import {Address, toAddress, BigNumber, toBigNumber, toBinary, ZERO_ADDRESS} from "@rarible/types"
 import {Ethereum, signTypedData} from "@rarible/ethereum-provider"
-import Web3 from "web3"
 import { toBn } from "@rarible/utils"
-import {ethers} from "ethers"
 import {
 	OpenSeaOrderToSignDTO,
 	OrderOpenSeaV1DataV1FeeMethod,

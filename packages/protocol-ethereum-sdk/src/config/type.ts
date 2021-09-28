@@ -1,5 +1,4 @@
-import {Address, Binary} from "@rarible/protocol-api-client"
-import {BigNumber} from "@rarible/types"
+import {Address} from "@rarible/protocol-api-client"
 
 export type ExchangeFees = {
 	v2: number

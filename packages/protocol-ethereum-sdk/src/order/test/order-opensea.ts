@@ -1,7 +1,6 @@
-import {Address, Asset} from "@rarible/protocol-api-client"
+import {Asset} from "@rarible/protocol-api-client"
 import {toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS} from "@rarible/types"
 import {Ethereum} from "@rarible/ethereum-provider"
-import Web3 from "web3"
 import {ethers} from "ethers"
 import {convertOpenSeaOrderToSignDTO, SimpleOpenSeaV1Order} from "../sign-order"
 import {OpenSeaOrderToSignDTO} from "../../common/orders"

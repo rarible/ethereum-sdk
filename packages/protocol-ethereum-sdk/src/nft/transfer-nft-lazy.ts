@@ -1,24 +1,24 @@
-import { Address, Binary, NftItemControllerApi, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
-import { Ethereum } from "@rarible/ethereum-provider"
-import { BigNumber } from "@rarible/types"
-import { SendFunction } from "../common/send-transaction"
-import { SimpleLazyNft } from "./sign-nft"
-import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
-import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
-import { TransferAsset } from "./transfer"
+import type { Address, NftItemControllerApi } from "@rarible/protocol-api-client"
+import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
+import type { BigNumber } from "@rarible/types"
+import type { SendFunction } from "../common/send-transaction"
+import type { TransferAsset } from "./transfer"
+import { getErc721Contract } from "./contracts/erc721"
+import { ERC1155VersionEnum, ERC721VersionEnum } from "./contracts/domain"
+import { getErc1155Contract } from "./contracts/erc1155"
 
 export async function transferNftLazy(
 	ethereum: Ethereum,
 	send: SendFunction,
-	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftItemApi: NftItemControllerApi,
-	nftOwnershipApi: NftOwnershipControllerApi,
 	asset: TransferAsset,
 	from: Address,
 	to: Address,
 	amount?: BigNumber
-): Promise<string> {
-	const lazyNft = await nftItemApi.getNftLazyItemById({ itemId: `${asset.contract}:${asset.tokenId}` })
+): Promise<EthereumTransaction> {
+	const lazyNft = await nftItemApi.getNftLazyItemById({
+		itemId: `${asset.contract}:${asset.tokenId}`,
+	})
 	const params = {
 		tokenId: lazyNft.tokenId,
 		uri: lazyNft.uri,
@@ -29,17 +29,13 @@ export async function transferNftLazy(
 	}
 	switch (lazyNft["@type"]) {
 		case "ERC721": {
-			const erc721Lazy = createErc721LazyContract(ethereum, lazyNft.contract)
-			const tx = await send(erc721Lazy.functionCall("transferFromOrMint", params, from, to))
-			return tx.hash
+			const erc721Lazy = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, lazyNft.contract)
+			return send(erc721Lazy.functionCall("transferFromOrMint", params, from, to))
 		}
 		case "ERC1155": {
-			const erc1155Lazy = createErc1155LazyContract(ethereum, lazyNft.contract)
-			const tx = await send(erc1155Lazy.functionCall("transferFromOrMint", params, from, to, amount))
-			return tx.hash
+			const erc1155Lazy = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V2, lazyNft.contract)
+			return send(erc1155Lazy.functionCall("transferFromOrMint", params, from, to, amount))
 		}
-		default: {
-			throw new Error("Unexpected")
-		}
+		default: return Promise.reject(new Error("Unsupported nft standard"))
 	}
 }

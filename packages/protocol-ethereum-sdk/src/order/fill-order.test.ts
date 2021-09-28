@@ -4,6 +4,7 @@ import Web3 from "web3"
 import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils/build/bn"
 import { Configuration, GatewayControllerApi, OrderControllerApi } from "@rarible/protocol-api-client"
+import { getApiConfig } from "../config/api-config"
 import { send as sendTemplate, sentTx } from "../common/send-transaction"
 import {E2E_CONFIG} from "../config/e2e"
 import {Config} from "../config/type"
@@ -25,7 +26,7 @@ describe("fillOrder", () => {
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
+	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const send = sendTemplate.bind(ethereum1, gatewayApi)
 
@@ -111,14 +112,14 @@ describe("fillOrder", () => {
 
 		const signature = await signOrder(ethereum2, config, left)
 
+		const finalOrder = { ...left, signature }
 		await fillOrderSendTx(
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			send,
 			config,
 			orderApi,
-			{ ...left, signature },
-			{ amount: 2, payouts: [], originFees: [] }
+			{ order: finalOrder, amount: 2, payouts: [], originFees: [] }
 		)
 
 		expect(toBn(await it.testErc20.methods.balanceOf(sender2Address).call()).toString()).toBe("4")
@@ -164,14 +165,14 @@ describe("fillOrder", () => {
 		const before1 = toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call())
 		const before2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call())
 
+		const finalOrder = { ...left, signature }
 		await fillOrderSendTx(
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			send,
 			config,
 			orderApi,
-			{ ...left, signature },
-			{ amount: 2, payouts: [], originFees: [{ account: randomAddress(), value: 100 }] }
+			{ order: finalOrder, amount: 2, originFees: [{ account: randomAddress(), value: 100 }] }
 		)
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString()).toBe(

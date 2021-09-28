@@ -3,6 +3,102 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.4](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.4.3...v0.4.4) (2021-09-27)
+
+
+### Bug Fixes
+
+* mint royalties [#36](https://github.com/rarible/protocol-ethereum-sdk/issues/36) ([a56d4ec](https://github.com/rarible/protocol-ethereum-sdk/commit/a56d4ec4e8a8328edd9201212e13b46c92a8506d))
+
+
+
+
+
+## [0.4.3](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.4.2...v0.4.3) (2021-09-27)
+
+
+### Bug Fixes
+
+* api for burning ([dfd3e14](https://github.com/rarible/protocol-ethereum-sdk/commit/dfd3e14fa5195ba27da4c8599571356df10784d6))
+
+
+
+
+
+## [0.4.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.4.1...v0.4.2) (2021-09-27)
+
+**Note:** Version bump only for package root
+
+
+
+
+
+## [0.4.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.4.0...v0.4.1) (2021-09-27)
+
+**Note:** Version bump only for package root
+
+
+
+
+
+# [0.4.0](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.3.2...v0.4.0) (2021-09-25)
+
+
+### Bug Fixes
+
+* cancel orders ([98149cc](https://github.com/rariblecom/protocol-ethereum-sdk/commit/98149cc3d99647e85b515ade8b0d27b75a48dcf9))
+
+
+### Features
+
+* add contract versions ([#34](https://github.com/rariblecom/protocol-ethereum-sdk/issues/34)) ([8f09938](https://github.com/rariblecom/protocol-ethereum-sdk/commit/8f099382fa3837b040e3856c2022433d447fd5d7))
+
+
+
+
+
+## [0.3.2](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.3.1...v0.3.2) (2021-09-17)
+
+**Note:** Version bump only for package root
+
+
+
+
+
+## [0.3.1](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.3.0...v0.3.1) (2021-09-16)
+
+
+### Bug Fixes
+
+* **RPN-1000:** getBaseOrderFee + getBaseOrderFillFee ([#28](https://github.com/rariblecom/protocol-ethereum-sdk/issues/28)) ([ad6cd6f](https://github.com/rariblecom/protocol-ethereum-sdk/commit/ad6cd6f50fcbb0f5a04616a110567bf3ee87480e))
+* **RPN-1000:** move base fee functions to sdk.order ([6b1de7f](https://github.com/rariblecom/protocol-ethereum-sdk/commit/6b1de7f88d1fd3844fb911494a63996508536ccc))
+
+
+
+
+
+# [0.3.0](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.2.1...v0.3.0) (2021-09-16)
+
+
+### Features
+
+* improve minting usability, added useful types, utils ([#26](https://github.com/rariblecom/protocol-ethereum-sdk/issues/26)) ([100aa42](https://github.com/rariblecom/protocol-ethereum-sdk/commit/100aa425e871950d923095ba5bb67df2fe84d5c7))
+
+
+
+
+
+## [0.2.1](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.2.0...v0.2.1) (2021-09-16)
+
+
+### Bug Fixes
+
+* typed signature workaround for hardware wallets ([#27](https://github.com/rariblecom/protocol-ethereum-sdk/issues/27)) ([f61a07b](https://github.com/rariblecom/protocol-ethereum-sdk/commit/f61a07ba94aafbead2fde53993d396d928d51da0))
+
+
+
+
+
 # [0.2.0](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.1.21...v0.2.0) (2021-09-15)
 
 

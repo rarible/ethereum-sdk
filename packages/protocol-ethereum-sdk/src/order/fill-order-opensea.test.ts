@@ -466,10 +466,9 @@ describe("fillOrder", () => {
 				},
 			} as any,
 			{
-				...left,
-				signature,
+				order: {...left, signature},
+				amount: 1,
 			},
-			{amount: 1}
 		)
 
 		await filledOrder.build().runAll()
@@ -551,10 +550,9 @@ describe("fillOrder", () => {
 				},
 			} as any,
 			{
-				...left,
-				signature,
-			},
-			{amount: 1}
+				order: {...left, signature},
+				amount: 1,
+			}
 		)
 
 		await filledOrder.build().runAll()
@@ -639,10 +637,9 @@ describe("fillOrder", () => {
 				},
 			} as any,
 			{
-				...left,
-				signature,
-			},
-			{amount: 1}
+				order: {...left, signature},
+				amount: 1,
+			}
 		)
 
 		await filledOrder.build().runAll()
@@ -729,10 +726,9 @@ describe("fillOrder", () => {
 				},
 			} as any,
 			{
-				...left,
-				signature,
-			},
-			{amount: 1}
+				order: {...left, signature},
+				amount: 1,
+			}
 		)
 
 		await filledOrder.build().runAll()
@@ -821,10 +817,9 @@ describe("fillOrder", () => {
 				},
 			} as any,
 			{
-				...left,
-				signature,
-			},
-			{amount: 10}
+				order: {...left, signature},
+				amount: 10,
+			}
 		)
 
 		await filledOrder.build().runAll()
@@ -913,10 +908,9 @@ describe("fillOrder", () => {
 				},
 			} as any,
 			{
-				...left,
-				signature,
-			},
-			{amount: 10}
+				order: {...left, signature},
+				amount: 10,
+			}
 		)
 
 		await filledOrder.build().runAll()
@@ -1001,10 +995,9 @@ describe("fillOrder", () => {
 				},
 			} as any,
 			{
-				...left,
-				signature,
-			},
-			{amount: 1}
+				order: {...left, signature},
+				amount: 1,
+			}
 		)
 
 		await filledOrder.build().runAll()
@@ -1091,10 +1084,9 @@ describe("fillOrder", () => {
 				},
 			} as any,
 			{
-				...left,
-				signature,
-			},
-			{amount: 1}
+				order: {...left, signature},
+				amount: 1,
+			}
 		)
 
 		await filledOrder.build().runAll()

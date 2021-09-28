@@ -106,7 +106,7 @@ describe("fillOrder: Opensea orders", function () {
 		}
 	}
 
-	function updateSideWithContract(side: Asset): Asset {
+	function updateSideContract(side: Asset): Asset {
 		switch (side.assetType.assetClass) {
 			case "ERC20": {
 				return {
@@ -140,81 +140,6 @@ describe("fillOrder: Opensea orders", function () {
 		}
 	}
 
-	/*
-	test("match erc1155 for eth", async () => {
-
-		const order: SimpleOpenSeaV1Order = {
-			make: {
-				assetType: {
-					assetClass: "ERC20",
-					contract: toAddress(it.testErc20.options.address),
-				},
-				value: toBigNumber("10"),
-			},
-			maker: sender1Address,
-			take: {
-				assetType: {
-					assetClass: "ERC1155",
-					contract: toAddress(it.testErc1155.options.address),
-					tokenId: toBigNumber("5"),
-				},
-				value: toBigNumber("1"),
-			},
-			taker: ZERO_ADDRESS,
-			// taker: sender2Address,
-			salt: toWord("7b0a53bb49afd3238b0ff50f17f3462ee070f913df3f9c434dc9aa941c184df7"),
-			type: "OPEN_SEA_V1",
-			start: 1632432878,
-			end: 0,
-			data: {
-				dataType: "OPEN_SEA_V1_DATA_V1",
-				exchange: toAddress(wyvernExchange.options.address),
-				makerRelayerFee: toBigNumber("0"),
-				takerRelayerFee: toBigNumber("250"),
-				makerProtocolFee: toBigNumber("0"),
-				takerProtocolFee: toBigNumber("0"),
-				feeRecipient: toAddress(sender1Address),
-				feeMethod: "SPLIT_FEE",
-				side: "BUY",
-				saleKind: "FIXED_PRICE",
-				howToCall: "CALL",
-				callData: toBinary("0xf242432a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000008508317a912086b921f6d2532f65e343c8140cc8ee5da6b5cdd5b5a22eceb75b84c7864573eb4fec000000000000010000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000"),
-				replacementPattern: toBinary("0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
-				staticTarget: ZERO_ADDRESS,
-				staticExtraData: toBinary("0x"),
-				extra: toBigNumber("0"),
-			},
-		}
-
-		// order.maker = toAddress(sender1Address)
-		// order.taker = toAddress(sender2Address)
-
-		await mintTestAsset(order.take, sender2Address)
-		await mintTestAsset(order.make, sender1Address)
-		await approveOpensea(ethereum1, send, config, sender2Address, order.make)
-
-		const signature = toBinary(await getOrderSignature(ethereum1, order))
-
-		const filledOrder = await fillOrder(
-			getMakeFee.bind(null, { v2: 100 }),
-			ethereum2,
-			send,
-			orderApi,
-			(() => {}) as any,
-			config,
-			{
-				...order,
-				signature,
-			},
-			{amount: +order.take.value}
-		)
-		await filledOrder.build().runAll()
-
-	})
-
-
-	 */
-
 	describe.each([
 		getOrderTemplate("ERC721", "ETH", "SELL"),
 		getOrderTemplate("ERC721", "ERC20", "SELL"),
@@ -229,12 +154,11 @@ describe("fillOrder: Opensea orders", function () {
 				order.data.exchange = toAddress(wyvernExchange.options.address)
 				order.data.feeRecipient = toAddress(sender2Address)
 				order.maker = toAddress(sender2Address)
-				// order.taker = toAddress(sender1Address)
 
 				await mintTestAsset(order.take, sender1Address)
 				await mintTestAsset(order.make, sender2Address)
-				order.make = updateSideWithContract(order.make)
-				order.take = updateSideWithContract(order.take)
+				order.make = updateSideContract(order.make)
+				order.take = updateSideContract(order.take)
 				await approveOpensea(ethereum2, send, config, sender2Address, order.make)
 
 				order.signature = toBinary(await getOrderSignature(ethereum2, order))
@@ -250,8 +174,7 @@ describe("fillOrder: Opensea orders", function () {
 					orderApi,
 					(() => {}) as any,
 					config,
-					order,
-					{amount: +order.make.value}
+					{order, amount: +order.make.value}
 				)
 				await filledOrder.build().runAll()
 			})
@@ -272,12 +195,11 @@ describe("fillOrder: Opensea orders", function () {
 				order.data.exchange = toAddress(wyvernExchange.options.address)
 				order.data.feeRecipient = toAddress(ZERO_ADDRESS)
 				order.maker = toAddress(sender1Address)
-				// order.taker = toAddress(sender1Address)
 
 				await mintTestAsset(order.take, sender2Address)
 				await mintTestAsset(order.make, sender1Address)
-				order.make = updateSideWithContract(order.make)
-				order.take = updateSideWithContract(order.take)
+				order.make = updateSideContract(order.make)
+				order.take = updateSideContract(order.take)
 				await approveOpensea(ethereum1, send, config, sender2Address, order.make)
 
 				order.signature = toBinary(await getOrderSignature(ethereum1, order))
@@ -292,8 +214,7 @@ describe("fillOrder: Opensea orders", function () {
 					orderApi,
 					(() => {}) as any,
 					config,
-					order,
-					{amount: +order.make.value}
+					{order, amount: +order.make.value}
 				)
 				await filledOrder.build().runAll()
 			})

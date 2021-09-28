@@ -1,87 +1,151 @@
-import { Ethereum } from "@rarible/ethereum-provider"
-import { NftCollectionControllerApi } from "@rarible/protocol-api-client"
-import { toAddress } from "@rarible/types"
-import { SendFunction } from "../common/send-transaction"
-import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
-import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
-import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
-import { LazyErc1155Request, LazyErc721Request, LegacyERC1155Request, LegacyERC721Request } from "./mint"
+import type { Ethereum } from "@rarible/ethereum-provider"
+import type { NftCollectionControllerApi, Part } from "@rarible/protocol-api-client"
+import { Address, BigNumber, toAddress } from "@rarible/types"
+import type { SendFunction } from "../common/send-transaction"
+import { ERC1155RequestV1, ERC1155RequestV2, ERC721RequestV1, ERC721RequestV2, ERC721RequestV3, MintOnChainResponse, MintResponseTypeEnum } from "./mint"
 import { getTokenId } from "./get-token-id"
-import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
+import { getErc721Contract } from "./contracts/erc721"
+import { ERC1155VersionEnum, ERC721VersionEnum } from "./contracts/domain"
+import { getErc1155Contract } from "./contracts/erc1155"
 
-export async function mintErc721Legacy(
+export async function mintErc721v1(
 	ethereum: Ethereum,
 	send: SendFunction,
 	nftCollectionApi: NftCollectionControllerApi,
-	data: LegacyERC721Request
-) {
-	const from = toAddress(await ethereum.getFrom())
-	const erc721Contract = createMintableTokenContract(ethereum, data.collection.id)
-	const { tokenId, signature: { v, r, s } } = await getTokenId(nftCollectionApi, data.collection.id, from)
-	await send(erc721Contract.functionCall("mint", tokenId, v, r, s, data.royalties, data.uri))
-	return `${data.collection.id}:${tokenId}:${from}`
+	data: ERC721RequestV1
+): Promise<MintOnChainResponse> {
+	const owner = toAddress(await ethereum.getFrom())
+	const erc721Contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V1, data.collection.id)
+	const nftTokenId = await getTokenId(nftCollectionApi, data.collection.id, owner)
+	const { tokenId, signature: { v, r, s } } = nftTokenId
+	const transaction = await send(erc721Contract.functionCall("mint", tokenId, v, r, s, data.uri))
+
+	return createMintOnChainResponse({
+		transaction,
+		tokenId,
+		contract: data.collection.id,
+		owner,
+		itemId: createItemId(data.collection.id, tokenId),
+	})
 }
 
-export async function mintErc721New(
+export async function mintErc721v2(
 	ethereum: Ethereum,
 	send: SendFunction,
 	nftCollectionApi: NftCollectionControllerApi,
-	data: LazyErc721Request
-) {
-	const from = toAddress(await ethereum.getFrom())
-	const erc721Contract = createErc721LazyContract(ethereum, data.collection.id)
-	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, from)
-	const creators = data.creators || [{ account: from, value: 10000 }]
+	data: ERC721RequestV2
+): Promise<MintOnChainResponse> {
+	const owner = toAddress(await ethereum.getFrom())
+	const erc721Contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, data.collection.id)
+	const nftTokenId = await getTokenId(nftCollectionApi, data.collection.id, owner)
+	const { tokenId, signature: { v, r, s } } = nftTokenId
+	const royalties = data.royalties.map((x) => ({ recipient: x.account, value: x.value }))
+	const transaction = await send(erc721Contract.functionCall("mint", tokenId, v, r, s, royalties, data.uri))
 
-	await send(erc721Contract.functionCall(
-		"mintAndTransfer",
-		{
-			tokenId,
-			creators,
-			royalties: data.royalties,
-			signatures: ["0x"],
-			uri: data.uri,
-		},
-		from
-	))
-	return `${data.collection.id}:${tokenId}:${from}`
+	return createMintOnChainResponse({
+		transaction,
+		tokenId,
+		contract: data.collection.id,
+		owner,
+		itemId: createItemId(data.collection.id, tokenId),
+	})
 }
 
-export async function mintErc1155Legacy(
+export async function mintErc721v3(
 	ethereum: Ethereum,
 	send: SendFunction,
 	nftCollectionApi: NftCollectionControllerApi,
-	data: LegacyERC1155Request
-) {
-	const from = toAddress(await ethereum.getFrom())
-	const erc155Contract = createRaribleTokenContract(ethereum, data.collection.id)
-	const { tokenId, signature: { v, r, s } } = await getTokenId(nftCollectionApi, data.collection.id, from)
-	await send(erc155Contract.functionCall("mint", tokenId, v, r, s, data.royalties, data.supply, data.uri))
-	return `${data.collection.id}:${tokenId}:${from}`
+	data: ERC721RequestV3
+): Promise<MintOnChainResponse> {
+	const owner = toAddress(await ethereum.getFrom())
+	const erc721Contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, data.collection.id)
+	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, owner)
+
+	const args = {
+		tokenId,
+		creators: getCreators(data, owner),
+		royalties: data.royalties,
+		signatures: ["0x"],
+		uri: data.uri,
+	}
+
+	const transaction = await send(erc721Contract.functionCall("mintAndTransfer", args, owner))
+	return createMintOnChainResponse({
+		transaction,
+		tokenId,
+		contract: data.collection.id,
+		owner,
+		itemId: createItemId(data.collection.id, tokenId),
+	})
 }
 
-export async function mintErc1155New(
+export async function mintErc1155v1(
 	ethereum: Ethereum,
 	send: SendFunction,
 	nftCollectionApi: NftCollectionControllerApi,
-	data: LazyErc1155Request
-) {
-	const from = toAddress(await ethereum.getFrom())
-	const erc1155Contract = createErc1155LazyContract(ethereum, data.collection.id)
-	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, from)
-	const creators = data.creators || [{ account: from, value: 10000 }]
-	await send(erc1155Contract.functionCall(
-		"mintAndTransfer",
-		{
-			tokenId,
-			uri: data.uri,
-			supply: data.supply,
-			creators,
-			royalties: data.royalties,
-			signatures: ["0x"],
-		},
-		from,
-		data.supply
-	))
-	return `${data.collection.id}:${tokenId}:${from}`
+	data: ERC1155RequestV1
+): Promise<MintOnChainResponse> {
+	const owner = toAddress(await ethereum.getFrom())
+	const erc155Contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V1, data.collection.id)
+	const nftTokenId = await getTokenId(nftCollectionApi, data.collection.id, owner)
+	const { tokenId, signature: { v, r, s } } = nftTokenId
+	const royalties = data.royalties.map((x) => ({ recipient: x.account, value: x.value }))
+	const transaction = await send(erc155Contract.functionCall("mint", tokenId, v, r, s, royalties, data.supply, data.uri))
+
+	return createMintOnChainResponse({
+		transaction,
+		tokenId,
+		contract: data.collection.id,
+		owner,
+		itemId: createItemId(data.collection.id, tokenId),
+	})
+}
+
+export async function mintErc1155v2(
+	ethereum: Ethereum,
+	send: SendFunction,
+	nftCollectionApi: NftCollectionControllerApi,
+	data: ERC1155RequestV2
+): Promise<MintOnChainResponse> {
+	const owner = toAddress(await ethereum.getFrom())
+	const erc1155Contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V2, data.collection.id)
+	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, owner)
+
+	const args = {
+		tokenId,
+		uri: data.uri,
+		supply: data.supply,
+		creators: getCreators(data, owner),
+		royalties: data.royalties,
+		signatures: ["0x"],
+	}
+	const transaction = await send(erc1155Contract.functionCall("mintAndTransfer", args, owner, data.supply))
+	return createMintOnChainResponse({
+		transaction,
+		tokenId,
+		contract: data.collection.id,
+		owner,
+		itemId: createItemId(data.collection.id, tokenId),
+	})
+}
+
+function getCreators(data: ERC1155RequestV2 | ERC721RequestV3, account: Address): Part[] {
+	if (data.creators) {
+		return data.creators
+	}
+	return [{
+		account,
+		value: 10000,
+	}]
+}
+
+function createMintOnChainResponse(props: Omit<MintOnChainResponse, "type">): MintOnChainResponse {
+	return {
+		type: MintResponseTypeEnum.ON_CHAIN,
+		...props,
+	}
+}
+
+function createItemId(contract: Address, tokenId: BigNumber): string {
+	return `${contract}:${tokenId}`
 }

@@ -1,12 +1,6 @@
-import { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
-import { Address } from "@rarible/protocol-api-client"
-import { AbiItem } from "../../../common/abi-item"
+import type { AbiItem } from "../../../common/abi-item"
 
-export function createMintableTokenContract(ethereum: Ethereum, address?: Address): EthereumContract {
-	return ethereum.createContract(mintableTokenAbi, address)
-}
-
-const mintableTokenAbi: AbiItem[] = [
+export const erc721v1Abi: AbiItem[] = [
 	{
 		"inputs": [
 			{
@@ -20,19 +14,19 @@ const mintableTokenAbi: AbiItem[] = [
 				"type": "string",
 			},
 			{
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address",
-			},
-			{
 				"internalType": "string",
-				"name": "contractURI",
+				"name": "contractURIPrefix",
 				"type": "string",
 			},
 			{
 				"internalType": "string",
 				"name": "tokenURIPrefix",
 				"type": "string",
+			},
+			{
+				"internalType": "address",
+				"name": "signer",
+				"type": "address",
 			},
 		],
 		"payable": false,
@@ -95,6 +89,31 @@ const mintableTokenAbi: AbiItem[] = [
 			{
 				"indexed": true,
 				"internalType": "address",
+				"name": "creator",
+				"type": "address",
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "name",
+				"type": "string",
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "symbol",
+				"type": "string",
+			},
+		],
+		"name": "Create",
+		"type": "event",
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
 				"name": "previousOwner",
 				"type": "address",
 			},
@@ -112,25 +131,26 @@ const mintableTokenAbi: AbiItem[] = [
 		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256",
-			},
-			{
-				"indexed": false,
-				"internalType": "address[]",
-				"name": "recipients",
-				"type": "address[]",
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256[]",
-				"name": "bps",
-				"type": "uint256[]",
+				"indexed": true,
+				"internalType": "address",
+				"name": "account",
+				"type": "address",
 			},
 		],
-		"name": "SecondarySaleFees",
+		"name": "SignerAdded",
+		"type": "event",
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "account",
+				"type": "address",
+			},
+		],
+		"name": "SignerRemoved",
 		"type": "event",
 	},
 	{
@@ -231,29 +251,13 @@ const mintableTokenAbi: AbiItem[] = [
 	},
 	{
 		"constant": true,
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256",
-			},
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256",
-			},
-		],
-		"name": "fees",
+		"inputs": [],
+		"name": "contractURIPrefix",
 		"outputs": [
 			{
-				"internalType": "address payable",
-				"name": "recipient",
-				"type": "address",
-			},
-			{
-				"internalType": "uint256",
-				"name": "value",
-				"type": "uint256",
+				"internalType": "string",
+				"name": "",
+				"type": "string",
 			},
 		],
 		"payable": false,
@@ -275,48 +279,6 @@ const mintableTokenAbi: AbiItem[] = [
 				"internalType": "address",
 				"name": "",
 				"type": "address",
-			},
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function",
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256",
-			},
-		],
-		"name": "getFeeBps",
-		"outputs": [
-			{
-				"internalType": "uint256[]",
-				"name": "",
-				"type": "uint256[]",
-			},
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function",
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256",
-			},
-		],
-		"name": "getFeeRecipients",
-		"outputs": [
-			{
-				"internalType": "address payable[]",
-				"name": "",
-				"type": "address[]",
 			},
 		],
 		"payable": false,
@@ -353,6 +315,27 @@ const mintableTokenAbi: AbiItem[] = [
 		"constant": true,
 		"inputs": [],
 		"name": "isOwner",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool",
+			},
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function",
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address",
+			},
+		],
+		"name": "isSigner",
 		"outputs": [
 			{
 				"internalType": "bool",
@@ -419,6 +402,15 @@ const mintableTokenAbi: AbiItem[] = [
 		"constant": false,
 		"inputs": [],
 		"name": "renounceOwnership",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function",
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "renounceSigner",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -697,29 +689,42 @@ const mintableTokenAbi: AbiItem[] = [
 				"type": "bytes32",
 			},
 			{
-				"components": [
-					{
-						"internalType": "address payable",
-						"name": "recipient",
-						"type": "address",
-					},
-					{
-						"internalType": "uint256",
-						"name": "value",
-						"type": "uint256",
-					},
-				],
-				"internalType": "struct ERC721Base.Fee[]",
-				"name": "_fees",
-				"type": "tuple[]",
-			},
-			{
 				"internalType": "string",
 				"name": "tokenURI",
 				"type": "string",
 			},
 		],
 		"name": "mint",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function",
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address",
+			},
+		],
+		"name": "addSigner",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function",
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address",
+			},
+		],
+		"name": "removeSigner",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -745,14 +750,37 @@ const mintableTokenAbi: AbiItem[] = [
 		"inputs": [
 			{
 				"internalType": "string",
-				"name": "contractURI",
+				"name": "contractURIPrefix",
 				"type": "string",
 			},
 		],
-		"name": "setContractURI",
+		"name": "setContractURIPrefix",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function",
 	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_addr",
+				"type": "address",
+			},
+		],
+		"name": "toString",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string",
+			},
+		],
+		"payable": false,
+		"stateMutability": "pure",
+		"type": "function",
+	},
 ]
+
+export type ERC721V1Abi = typeof erc721v1Abi

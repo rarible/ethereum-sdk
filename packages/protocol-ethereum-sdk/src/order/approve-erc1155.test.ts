@@ -5,6 +5,7 @@ import { toBn } from "@rarible/utils/build/bn"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { Configuration, GatewayControllerApi } from "@rarible/protocol-api-client"
+import { getApiConfig } from "../config/api-config"
 import { send as sendTemplate, sentTx } from "../common/send-transaction"
 import { approveErc1155 as approveErc1155Template } from "./approve-erc1155"
 import { deployTestErc1155 } from "./contracts/test/test-erc1155"
@@ -16,7 +17,7 @@ describe("approveErc1155", () => {
 	const web3 = new Web3(provider as any)
 	const ethereum = new Web3Ethereum({ web3 })
 	const [testAddress] = addresses
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
+	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const send = sendTemplate.bind(null, gatewayApi)
 	const approveErc1155 = approveErc1155Template.bind(null, ethereum, send)

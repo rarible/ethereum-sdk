@@ -239,7 +239,7 @@ function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712
 	}
 }
 
-export function orderToStruct(ethereum: Ethereum, order: SimpleOrder) {
+export function orderToStruct(ethereum: Ethereum, order: SimpleRaribleV2Order) {
 	const [dataType, data] = encodeData(ethereum, order.data)
 	return {
 		maker: order.maker,

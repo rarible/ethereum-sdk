@@ -5,7 +5,7 @@ Rarible protocol-ethereum-sdk enables applications to easily interact with Rarib
 ### Installation
 
 ```angular2html
-mpn install -D @rarible/protocol-ethereum-sdk
+npm install -D @rarible/protocol-ethereum-sdk
 ```
 
 ### With protocol-ethereum-sdk, you can:

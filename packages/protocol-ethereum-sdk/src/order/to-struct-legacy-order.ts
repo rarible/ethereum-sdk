@@ -1,7 +1,7 @@
 import { toLegacyAssetType } from "./to-legacy-asset-type"
-import { SimpleOrder } from "./sign-order"
+import { SimpleLegacyOrder } from "./sign-order"
 
-export function toStructLegacyOrder(order: SimpleOrder) {
+export function toStructLegacyOrder(order: SimpleLegacyOrder) {
 	if (order.type !== "RARIBLE_V1") {
 		throw new Error(`Not supported type: ${order.type}`)
 	}
@@ -10,14 +10,18 @@ export function toStructLegacyOrder(order: SimpleOrder) {
 		throw new Error(`Not supported data type: ${data.dataType}`)
 	}
 	return {
-		key: {
-			owner: order.maker,
-			salt: order.salt,
-			sellAsset: toLegacyAssetType(order.make.assetType),
-			buyAsset: toLegacyAssetType(order.take.assetType),
-		},
+		key: toStructLegacyOrderKey(order),
 		selling: order.make.value,
 		buying: order.take.value,
 		sellerFee: data.fee,
+	}
+}
+
+export function toStructLegacyOrderKey(order: SimpleLegacyOrder) {
+	return {
+		owner: order.maker,
+		salt: order.salt,
+		sellAsset: toLegacyAssetType(order.make.assetType),
+		buyAsset: toLegacyAssetType(order.take.assetType),
 	}
 }

@@ -54,10 +54,10 @@ export interface Ethereum {
 	send(method: string, params: any): Promise<any>
 	getFrom(): Promise<string>
 	personalSign(message: string): Promise<string>
+	ethSign(message: string): Promise<string>
 	encodeParameter(type: any, parameter: any): string
 }
 
 export async function signTypedData<T extends MessageTypes>(ethereum: Ethereum, data: TypedMessage<T>) {
-	const signer = await ethereum.getFrom()
-	return signTypedDataInternal(signer, ethereum, data)
+	return signTypedDataInternal(ethereum, data)
 }

@@ -14,9 +14,9 @@ import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import {
 	orderToStruct,
 	SimpleLegacyOrder,
+	SimpleOpenSeaV1Order,
 	SimpleOrder,
 	SimpleRaribleV2Order,
-	SimpleOpenSeaV1Order,
 	convertOpenSeaOrderToSignDTO,
 } from "./sign-order"
 import { invertOrder } from "./invert-order"
@@ -29,12 +29,16 @@ import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
 import {createOpenseaProxyRegistryEthContract} from "./contracts/proxy-registry-opensea"
 import {approveOpensea} from "./approve-opensea"
 
-export type FillOrderRequest = {
-	amount: number
-	payouts?: Array<Part>
-	originFees?: Array<Part>
-	infinite?: boolean
-}
+type CommonFillRequest<T> = { order: T, amount: number, infinite?: boolean }
+
+export type LegacyOrderFillRequest =
+	CommonFillRequest<SimpleLegacyOrder> & { payout?: Address, originFee: number }
+export type RaribleV2OrderFillRequest =
+	CommonFillRequest<SimpleRaribleV2Order> & { payouts?: Part[], originFees?: Part[] }
+export type OpenSeaV1OrderFillRequest =
+	CommonFillRequest<SimpleOpenSeaV1Order>
+
+export type FillOrderRequest = LegacyOrderFillRequest | RaribleV2OrderFillRequest | OpenSeaV1OrderFillRequest
 
 export type FillOrderAction = ActionBuilder<FillOrderStageId, void, [void, EthereumTransaction]>
 export type FillOrderStageId = "approve" | "send-tx"
@@ -46,17 +50,16 @@ export async function fillOrder(
 	orderApi: OrderControllerApi,
 	approve: ApproveFunction,
 	config: Config,
-	order: SimpleOrder,
 	request: FillOrderRequest,
 ): Promise<FillOrderAction> {
-	const makeAsset = getMakeAssetV2(getMakeFee, order, request.amount)
+	const makeAsset = getMakeAssetV2(getMakeFee, request.order, request.amount)
 	const approveAndWait = async () => {
 		let tx: EthereumTransaction | undefined
 
-		if (order.type === "OPEN_SEA_V1") {
-			tx = await approveOpensea(ethereum, send, config, order.maker, order.take, false)
+		if (request.order.type === "OPEN_SEA_V1") {
+			tx = await approveOpensea(ethereum, send, config, request.order.maker, request.order.take, false)
 		} else {
-			tx = await approve(order.maker, makeAsset, Boolean(request.infinite))
+			tx = await approve(request.order.maker, makeAsset, Boolean(request.infinite))
 		}
 
 		if (tx !== undefined) {
@@ -67,7 +70,7 @@ export async function fillOrder(
 		.create({ id: "approve" as const, run: () => approveAndWait() })
 		.thenStage({
 			id: "send-tx" as const,
-			run: () => fillOrderSendTx(getMakeFee, ethereum, send, config, orderApi, order, request),
+			run: () => fillOrderSendTx(getMakeFee, ethereum, send, config, orderApi, request),
 		})
 }
 
@@ -77,30 +80,37 @@ function getMakeAssetV2(getMakeFee: GetMakeFeeFunction, order: SimpleOrder, amou
 	return addFee(inverted.make, makeFee)
 }
 
-
 export async function fillOrderSendTx(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
 	send: SendFunction,
 	config: Config,
 	orderApi: OrderControllerApi,
-	order: SimpleOrder,
 	request: FillOrderRequest,
 ): Promise<EthereumTransaction> {
-	switch (order.type) {
-		case "RARIBLE_V1": {
-			return fillOrderV1(ethereum, send, orderApi, config.exchange.v1, order, request)
-		}
-		case "RARIBLE_V2": {
-			return fillOrderV2(getMakeFee, ethereum, send, config.exchange.v2, order, request)
-		}
-		case "OPEN_SEA_V1": {
-			return fillOrderOpenSea(getMakeFee, ethereum, send, config.exchange.openseaV1, order, request)
-		}
-		default: {
-			throw new Error(`Unsupported type: ${(order as any).type}`)
-		}
+	if (isLegacyRequest(request)) {
+		return fillOrderV1(ethereum, send, orderApi, config.exchange.v1, request)
 	}
+	if (isOrderV2Request(request)) {
+		return fillOrderV2(getMakeFee, ethereum, send, config.exchange.v2, request)
+	}
+	if (isOpenseaOrderV1Request(request)) {
+		return fillOrderOpenSea(getMakeFee, ethereum, send, config.exchange.openseaV1, request)
+	}
+
+	throw new Error(`Unsupported type: ${request.order.type}`)
+}
+
+function isLegacyRequest(request: FillOrderRequest): request is LegacyOrderFillRequest {
+	return request.order.type === "RARIBLE_V1"
+}
+
+function isOrderV2Request(request: FillOrderRequest): request is RaribleV2OrderFillRequest {
+	return request.order.type === "RARIBLE_V2"
+}
+
+function isOpenseaOrderV1Request(request: FillOrderRequest): request is RaribleV2OrderFillRequest {
+	return request.order.type === "OPEN_SEA_V1"
 }
 
 async function fillOrderV2(
@@ -108,19 +118,18 @@ async function fillOrderV2(
 	ethereum: Ethereum,
 	send: SendFunction,
 	contract: Address,
-	order: SimpleRaribleV2Order,
-	request: FillOrderRequest,
+	request: RaribleV2OrderFillRequest,
 ): Promise<EthereumTransaction> {
 	const address = toAddress(await ethereum.getFrom())
 	const orderRight = {
-		...invertOrder(order, toBn(request.amount), address),
+		...invertOrder(request.order, toBn(request.amount), address),
 		data: {
-			...order.data,
+			...request.order.data,
 			payouts: request.payouts || [],
 			originFees: request.originFees || [],
 		},
 	}
-	return matchOrders(getMakeFee, ethereum, send, contract, order, orderRight)
+	return matchOrders(getMakeFee, ethereum, send, contract, request.order, orderRight)
 }
 
 export async function getRegisteredProxy(
@@ -179,11 +188,10 @@ export async function fillOrderOpenSea(
 	ethereum: Ethereum,
 	send: SendFunction,
 	exchange: Address,
-	order: SimpleOpenSeaV1Order,
-	request: FillOrderRequest,
+	request: OpenSeaV1OrderFillRequest,
 ): Promise<EthereumTransaction> {
 	const from = toAddress(await ethereum.getFrom())
-	const {buy, sell} = getOpenseaOrdersForMatching(ethereum, order, request.amount, from)
+	const {buy, sell} = getOpenseaOrdersForMatching(ethereum, request.order, request.amount, from)
 	return matchOpenSeaV1Order(getMakeFee, ethereum, send, exchange, sell, buy)
 }
 
@@ -264,37 +272,13 @@ export async function matchOpenSeaV1Order(
 	return send(method, await getMatchOpenseaOptions(buyOrderToSignDTO, sellOrderToSignDTO, from))
 }
 
-export async function cancelOrder(ethereum: Ethereum, order: SimpleOpenSeaV1Order, exchange: Address) {
-	const exchangeContract = createOpenseaContract(ethereum, exchange)
-
-	const dto = convertOpenSeaOrderToSignDTO(ethereum, order)
-	const makerVRS = toVrs(order.signature || "0x")
-
-	return exchangeContract.functionCall(
-		"cancelOrder_",
-		getAtomicMatchArgAddresses(dto),
-		getAtomicMatchArgUints(dto),
-		dto.feeMethod,
-		dto.side,
-		dto.saleKind,
-		dto.howToCall,
-		dto.calldata,
-		dto.replacementPattern,
-		dto.staticExtradata,
-		makerVRS.v,
-		makerVRS.r,
-		makerVRS.s
-	)
-		.send()
-}
-
 async function matchOrders(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
 	send: SendFunction,
 	contract: Address,
-	left: SimpleOrder,
-	right: SimpleOrder,
+	left: SimpleRaribleV2Order,
+	right: SimpleRaribleV2Order,
 ): Promise<EthereumTransaction> {
 	const exchangeContract = createExchangeV2Contract(ethereum, contract)
 	const method = exchangeContract.functionCall(
@@ -308,7 +292,7 @@ async function matchOrders(
 }
 
 function getMatchV2Options(
-	left: SimpleOrder, right: SimpleOrder, getMakeFee: GetMakeFeeFunction,
+	left: SimpleRaribleV2Order, right: SimpleRaribleV2Order, getMakeFee: GetMakeFeeFunction,
 ): EthereumSendOptions {
 	if (left.make.assetType.assetClass === "ETH" && left.salt === ZERO) {
 		return { value: getRealValue(getMakeFee, left) }
@@ -324,30 +308,30 @@ async function fillOrderV1(
 	send: SendFunction,
 	orderApi: OrderControllerApi,
 	contract: Address,
-	order: SimpleLegacyOrder,
-	request: FillOrderRequest,
+	request: LegacyOrderFillRequest,
 ): Promise<EthereumTransaction> {
-	const data = order.data
+	const data = request.order.data
 	if (data.dataType !== "LEGACY") {
 		throw new Error(`Not supported data type: ${data.dataType}`)
 	}
-	const fee = (request.originFees || []).map(f => f.value).reduce((s, f) => s + f, 0)
-	const buyerFeeSig = await orderApi.buyerFeeSignature({ fee, orderForm: fromSimpleOrderToOrderForm(order) })
+	const buyerFeeSig = await orderApi.buyerFeeSignature(
+		{ fee: request.originFee, orderForm: fromSimpleOrderToOrderForm(request.order) },
+	)
 	const buyer = toAddress(await ethereum.getFrom())
-	const orderRight = invertOrder(order, toBn(request.amount), buyer)
+	const orderRight = invertOrder(request.order, toBn(request.amount), buyer)
 	const exchangeContract = createExchangeV1Contract(ethereum, contract)
 
 	const method = exchangeContract.functionCall(
 		"exchange",
-		toStructLegacyOrder(order),
-		toVrs(order.signature!),
-		fee,
+		toStructLegacyOrder(request.order),
+		toVrs(request.order.signature!),
+		request.originFee,
 		toVrs(buyerFeeSig),
 		orderRight.take.value,
-		getSingleBuyer(request.payouts),
+		request.payout ?? ZERO_ADDRESS,
 	)
 
-	return send(method, getMatchV1Options(order, orderRight, fee))
+	return send(method, getMatchV1Options(request.order, orderRight, request.originFee))
 }
 
 function getMatchV1Options(
@@ -369,13 +353,6 @@ function getAssetWithFee(asset: Asset, fee: number) {
 	}
 }
 
-function getSingleBuyer(payouts?: Array<Part>): Address {
-	if (payouts && payouts.length > 1) {
-		return payouts[0].account
-	} else {
-		return ZERO_ADDRESS
-	}
-}
 
 function fromSimpleOrderToOrderForm(order: SimpleLegacyOrder): LegacyOrderForm {
 	return {

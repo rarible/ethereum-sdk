@@ -11,8 +11,8 @@ import { signOrder } from "./sign-order"
 import { upsertOrder } from "./upsert-order"
 import { getMakeFee } from "./get-make-fee"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
-import {deployTestErc20} from "./contracts/test/test-erc20";
-import {deployTestErc721} from "./contracts/test/test-erc721";
+import {deployTestErc20} from "./contracts/test/test-erc20"
+import {deployTestErc721} from "./contracts/test/test-erc721"
 
 const { provider, wallet } = createE2eProvider()
 const web3 = new Web3(provider)
@@ -58,7 +58,7 @@ describe("cancel order", () => {
 			take: {
 				assetType: {
 					assetClass: "ERC20",
-					contract:  toAddress(it.testErc20.options.address)
+					contract: toAddress(it.testErc20.options.address),
 				},
 				value: toBigNumber("10"),
 			},

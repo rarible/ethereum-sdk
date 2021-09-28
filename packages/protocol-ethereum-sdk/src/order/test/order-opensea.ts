@@ -1,14 +1,13 @@
 import {Asset, AssetType} from "@rarible/protocol-api-client"
 import {toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS} from "@rarible/types"
 import {toBn} from "@rarible/utils"
-import {OrderOpenSeaV1DataV1_Side} from "@rarible/protocol-api-client/build/models/OrderData"
 import {SimpleOpenSeaV1Order} from "../sign-order"
 
 function getRandomTokenId(): string {
 	return Math.floor(Math.random() * 300000000).toString()
 }
 
-function getAssetTypeBlank(assetClass: string): Asset {
+export function getAssetTypeBlank(assetClass: string): Asset {
 	switch (assetClass) {
 		case "ETH": {
 			return {
@@ -51,7 +50,7 @@ function getAssetTypeBlank(assetClass: string): Asset {
 	}
 }
 
-const TEST_OPENSEA_ORDER_TEMPLATE: Omit<SimpleOpenSeaV1Order, "make" | "take"> = {
+export const OPENSEA_ORDER_TEMPLATE: Omit<SimpleOpenSeaV1Order, "make" | "take"> = {
 	maker: toAddress(ZERO_ADDRESS),
 	salt: toWord("0x000000000000000000000000000000000000000000000000000000000000000a"),
 	type: "OPEN_SEA_V1",
@@ -81,10 +80,10 @@ export type TestAssetClass = "ETH" | "ERC20" | "ERC721" | "ERC1155"
 export function getOrderTemplate(makeAsset: TestAssetClass, takeAsset: TestAssetClass, side: "SELL" | "BUY"): SimpleOpenSeaV1Order {
 
 	return {
-		...TEST_OPENSEA_ORDER_TEMPLATE,
+		...OPENSEA_ORDER_TEMPLATE,
 		make: getAssetTypeBlank(makeAsset),
 		take: getAssetTypeBlank(takeAsset),
-		data: {...TEST_OPENSEA_ORDER_TEMPLATE.data, side},
+		data: {...OPENSEA_ORDER_TEMPLATE.data, side},
 	}
 
 }

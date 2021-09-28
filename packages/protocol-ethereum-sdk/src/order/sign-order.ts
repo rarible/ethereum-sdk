@@ -225,6 +225,7 @@ export function hashOpenSeaV1Order(ethereum: Ethereum, order: SimpleOpenSeaV1Ord
 	return hashOrder(convertOpenSeaOrderToSignDTO(ethereum, order))
 }
 
+//TODO replace web3.eth.sign
 export async function getOrderSignature(ethereum: Ethereum, order: SimpleOpenSeaV1Order): Promise<string> {
 	const web3: any = (ethereum as any)["config"].web3
 	const from = await ethereum.getFrom()

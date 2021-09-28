@@ -126,7 +126,7 @@ export function createRaribleSdk(
 	)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
-	const fill = partialCall(fillOrder, getMakeFee, ethereum, send, orderControllerApi, approve, config)
+	const fill = partialCall(fillOrder, getMakeFee, ethereum, send, orderControllerApi, config)
 
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
 	const mint = partialCall(mintTemplate, ethereum, send, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)

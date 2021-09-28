@@ -453,7 +453,6 @@ describe("fillOrder", () => {
 			ethereum1,
 			send,
 			{} as any,
-			(() => {}) as any,
 			{
 				exchange: {
 					openseaV1: toAddress(wyvernExchange.options.address),
@@ -537,7 +536,6 @@ describe("fillOrder", () => {
 			ethereum1,
 			send,
 			{} as any,
-			(() => {}) as any,
 			{
 				exchange: {
 					openseaV1: toAddress(wyvernExchange.options.address),
@@ -624,7 +622,6 @@ describe("fillOrder", () => {
 			ethereum1,
 			send,
 			{} as any,
-			(() => {}) as any,
 			{
 				exchange: {
 					openseaV1: toAddress(wyvernExchange.options.address),
@@ -713,7 +710,6 @@ describe("fillOrder", () => {
 			ethereum2,
 			send,
 			{} as any,
-			(() => {}) as any,
 			{
 				exchange: {
 					openseaV1: toAddress(wyvernExchange.options.address),
@@ -804,7 +800,6 @@ describe("fillOrder", () => {
 			ethereum2,
 			send,
 			{} as any,
-			(() => {}) as any,
 			{
 				exchange: {
 					openseaV1: toAddress(wyvernExchange.options.address),
@@ -895,7 +890,6 @@ describe("fillOrder", () => {
 			ethereum2,
 			send,
 			{} as any,
-			(() => {}) as any,
 			{
 				exchange: {
 					openseaV1: toAddress(wyvernExchange.options.address),
@@ -982,7 +976,6 @@ describe("fillOrder", () => {
 			ethereum2,
 			send,
 			{} as any,
-			(() => {}) as any,
 			{
 				exchange: {
 					openseaV1: toAddress(wyvernExchange.options.address),
@@ -1071,7 +1064,6 @@ describe("fillOrder", () => {
 			ethereum1,
 			send,
 			{} as any,
-			(() => {}) as any,
 			{
 				exchange: {
 					openseaV1: toAddress(wyvernExchange.options.address),

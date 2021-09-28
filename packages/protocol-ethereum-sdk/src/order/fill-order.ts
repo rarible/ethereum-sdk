@@ -24,10 +24,10 @@ import { addFee } from "./add-fee"
 import type { GetMakeFeeFunction } from "./get-make-fee"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { toStructLegacyOrder } from "./to-struct-legacy-order"
-import type { ApproveFunction } from "./approve"
 import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
 import {createOpenseaProxyRegistryEthContract} from "./contracts/proxy-registry-opensea"
 import {approveOpensea} from "./approve-opensea"
+import {approve} from "./approve"
 
 type CommonFillRequest<T> = { order: T, amount: number, infinite?: boolean }
 
@@ -48,18 +48,23 @@ export async function fillOrder(
 	ethereum: Ethereum,
 	send: SendFunction,
 	orderApi: OrderControllerApi,
-	approve: ApproveFunction,
 	config: Config,
 	request: FillOrderRequest,
 ): Promise<FillOrderAction> {
-	const makeAsset = getMakeAssetV2(getMakeFee, request.order, request.amount)
 	const approveAndWait = async () => {
 		let tx: EthereumTransaction | undefined
 
 		if (request.order.type === "OPEN_SEA_V1") {
 			tx = await approveOpensea(ethereum, send, config, request.order.maker, request.order.take, false)
 		} else {
-			tx = await approve(request.order.maker, makeAsset, Boolean(request.infinite))
+			const makeAsset = getMakeAssetV2(getMakeFee, request.order, request.amount)
+			tx = await approve(
+				ethereum,
+				send, config.transferProxies,
+				request.order.maker,
+				makeAsset,
+				Boolean(request.infinite)
+			)
 		}
 
 		if (tx !== undefined) {
@@ -147,7 +152,7 @@ export async function getRegisteredProxy(
 	return proxyAddress
 }
 
-function getOpenseaOrdersForMatching(
+export function getOpenseaOrdersForMatching(
 	ethereum: Ethereum,
 	order: SimpleOpenSeaV1Order,
 	amount: number,

@@ -103,8 +103,6 @@ describe("fillOrder: Opensea orders", function () {
 			.functionCall("grantInitialAuthentication", wyvernExchange.options.address)
 			.send()
 
-		exchangeContract = await createOpenseaContract(ethereum1, toAddress(wyvernExchange.options.address))
-
 	})
 
 	async function mintTestAsset(asset: Asset, sender: Address): Promise<any> {
@@ -209,6 +207,8 @@ describe("fillOrder: Opensea orders", function () {
 
 
 	test("should orders be matchable", async () => {
+		const exchangeContract = await createOpenseaContract(ethereum1, toAddress(wyvernExchange.options.address))
+
 		const order: SimpleOpenSeaV1Order = {
 			...OPENSEA_ORDER_TEMPLATE,
 			make: getAssetTypeBlank("ERC721"),
@@ -243,6 +243,8 @@ describe("fillOrder: Opensea orders", function () {
 	})
 
 	test("should order price be correct", async () => {
+		const exchangeContract = await createOpenseaContract(ethereum1, toAddress(wyvernExchange.options.address))
+
 		const order: SimpleOpenSeaV1Order = {
 			...OPENSEA_ORDER_TEMPLATE,
 			make: getAssetTypeBlank("ERC721"),

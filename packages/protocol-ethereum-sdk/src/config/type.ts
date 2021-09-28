@@ -1,6 +1,5 @@
 import {Address, Binary} from "@rarible/protocol-api-client"
-import {BigNumber, Word} from "@rarible/types"
-import BN from "bignumber.js"
+import {BigNumber} from "@rarible/types"
 
 export type ExchangeFees = {
 	v2: number
@@ -54,8 +53,6 @@ export enum OrderOpenSeaV1DataV1HowToCall {
 	DELEGATE_CALL
 }
 
-export type ValueOf<T> = T[keyof T]
-
 export type OpenSeaOrderToSignDTO = {
 	exchange: Address
 	maker: Address
@@ -65,7 +62,6 @@ export type OpenSeaOrderToSignDTO = {
 	makerProtocolFee: BigNumber
 	takerProtocolFee: BigNumber
 	feeRecipient: Address
-	// feeMethod: ValueOf<OrderOpenSeaV1DataV1FeeMethod>
 	feeMethod: OrderOpenSeaV1DataV1FeeMethod
 	side: OrderOpenSeaV1DataV1Side
 	saleKind: OrderOpenSeaV1DataV1SaleKind

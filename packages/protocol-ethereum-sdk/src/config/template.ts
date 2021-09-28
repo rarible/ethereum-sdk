@@ -1,4 +1,4 @@
-import {toAddress, ZERO_ADDRESS} from "@rarible/types"
+import {ZERO_ADDRESS} from "@rarible/types"
 import { Config } from "./type"
 
 export const TEMPLATE_CONFIG: Config = {

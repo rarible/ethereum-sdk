@@ -1,4 +1,4 @@
-import {randomAddress, randomWord, toAddress, toBigNumber, ZERO_ADDRESS} from "@rarible/types"
+import {randomAddress, randomWord, toAddress, toBigNumber} from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"

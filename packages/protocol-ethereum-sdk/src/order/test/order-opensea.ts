@@ -1,6 +1,5 @@
-import {Asset, AssetType} from "@rarible/protocol-api-client"
+import {Asset} from "@rarible/protocol-api-client"
 import {toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS} from "@rarible/types"
-import {toBn} from "@rarible/utils"
 import {SimpleOpenSeaV1Order} from "../sign-order"
 
 function getRandomTokenId(): string {

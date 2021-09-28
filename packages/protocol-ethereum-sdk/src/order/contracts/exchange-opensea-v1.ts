@@ -1,7 +1,5 @@
 import {Address} from "@rarible/protocol-api-client"
 import {Ethereum, EthereumContract} from "@rarible/ethereum-provider"
-import Web3 from "web3"
-import {Contract} from "web3-eth-contract"
 import {AbiItem} from "../../common/abi-item"
 
 export function createOpenseaContract(ethereum: Ethereum, address?: Address): EthereumContract {

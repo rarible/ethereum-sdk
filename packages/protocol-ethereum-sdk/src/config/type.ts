@@ -21,10 +21,6 @@ export type TransferProxies = {
 }
 
 export type ProxyRegistries = {
-	nft: Address
-	erc20: Address
-	erc721Lazy: Address
-	erc1155Lazy: Address
 	openseaV1: Address
 }
 

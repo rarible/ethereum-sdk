@@ -16,6 +16,9 @@ export const MAINNET_CONFIG: Config = {
 		erc1155Lazy: toAddress("0x75a8B7c0B22D973E0B46CfBD3e2f6566905AA79f"),
 		openseaV1: toAddress(ZERO_ADDRESS),
 	},
+	proxyRegistries: {
+		openseaV1: toAddress(ZERO_ADDRESS),
+	},
 	fees: {
 		v2: 0,
 	},

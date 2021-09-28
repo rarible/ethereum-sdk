@@ -1,4 +1,4 @@
-import { toAddress } from "@rarible/types"
+import {toAddress, ZERO_ADDRESS} from "@rarible/types"
 import { Config } from "./type"
 
 export const E2E_CONFIG: Config = {
@@ -15,6 +15,9 @@ export const E2E_CONFIG: Config = {
 		erc721Lazy: toAddress("0xe853B9994304264ff418b818A8D23FD39e8DABe6"),
 		erc1155Lazy: toAddress("0x6E605A7d1FD15e9087f0756ab57E0ED99735a7a7"),
 		openseaV1: toAddress("0x0000000000000000000000000000000000000000"),
+	},
+	proxyRegistries: {
+		openseaV1: toAddress(ZERO_ADDRESS),
 	},
 	fees: {
 		v2: 0,

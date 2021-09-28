@@ -1,5 +1,5 @@
-import { toAddress, toBigNumber, toWord } from "@rarible/types"
-import { SimpleOrder } from "../sign-order"
+import {toAddress, toBigNumber, toWord} from "@rarible/types"
+import {SimpleOrder} from "../sign-order"
 
 export const TEST_ORDER_TEMPLATE: Omit<SimpleOrder, "type" | "data"> = {
 	make: {

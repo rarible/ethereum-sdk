@@ -220,7 +220,7 @@ async function getMatchOpenseaOptions(
 	}
 
 	if (sell.maker.toLowerCase() === from.toLowerCase() && sell.paymentToken === ZERO_ADDRESS) {
-		matchOptions.value = buy.takerRelayerFee
+		matchOptions.value = buy.basePrice + buy.takerRelayerFee
 	}
 
 	return matchOptions

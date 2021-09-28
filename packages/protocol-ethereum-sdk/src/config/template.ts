@@ -16,6 +16,9 @@ export const TEMPLATE_CONFIG: Config = {
 		erc1155Lazy: ZERO_ADDRESS,
 		openseaV1: ZERO_ADDRESS,
 	},
+	proxyRegistries: {
+		openseaV1: ZERO_ADDRESS,
+	},
 	fees: {
 		v2: 0,
 	},

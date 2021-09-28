@@ -16,6 +16,9 @@ export const RINKEBY_CONFIG: Config = {
 		erc1155Lazy: toAddress("0x0cF0AAb68432a3710ECbf2f1b112a11cEe31a83C"),
 		openseaV1: toAddress(ZERO_ADDRESS),
 	},
+	proxyRegistries: {
+		openseaV1: toAddress(ZERO_ADDRESS),
+	},
 	fees: {
 		v2: 0,
 	},

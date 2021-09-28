@@ -16,6 +16,9 @@ export const ROPSTEN_CONFIG: Config = {
 		erc1155Lazy: toAddress("0x9F7fBc52A53f85e57a5DAde35dFa14797A4dA412"),
 		openseaV1: toAddress(ZERO_ADDRESS),
 	},
+	proxyRegistries: {
+		openseaV1: toAddress(ZERO_ADDRESS),
+	},
 	fees: {
 		v2: 0,
 	},

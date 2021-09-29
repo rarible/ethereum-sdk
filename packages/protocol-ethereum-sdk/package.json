@@ -16,7 +16,6 @@
     "typings.d.ts"
   ],
   "scripts": {
-    "bundle": "browserify build/bundle-workaround.js -o build/bundle.min.js",
     "build": "tsc --project tsconfig-build.json",
     "clean": "rimraf ./build",
     "test": "jest --maxWorkers=1 --silent",

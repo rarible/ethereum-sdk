@@ -22,8 +22,7 @@
     "verify": "lerna run verify --parallel",
     "lint-staged": "lint-staged",
     "publish-all": "lerna publish from-package",
-    "precommit": "run-s verify lint",
-    "version": "lerna version"
+    "precommit": "run-s verify lint"
   },
   "lint-staged": {
     "**/src/package.json": [

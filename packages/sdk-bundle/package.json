@@ -11,7 +11,7 @@
   "scripts": {
     "build": "rimraf ./build && tsc --project tsconfig-build.json && browserify build/index.js -o build/index.min.js",
     "clean": "rimraf ./build",
-    "test": "jest --maxWorkers=1 --silent",
+    "test": "echo \"There's no tests yet\"",
     "verify": "tsc --noEmit"
   },
   "dependencies": {

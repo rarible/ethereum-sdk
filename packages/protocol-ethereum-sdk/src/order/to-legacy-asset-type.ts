@@ -13,25 +13,25 @@ export function toLegacyAssetType(assetType: AssetType): LegacyAssetType {
 			return {
 				token: ZERO_ADDRESS,
 				tokenId: toBigNumber("0"),
-				assetType: 0
+				assetType: 0,
 			}
 		case "ERC20":
 			return {
 				token: assetType.contract,
 				tokenId: toBigNumber("0"),
-				assetType: 1
+				assetType: 1,
 			}
 		case "ERC721":
 			return {
 				token: assetType.contract,
 				tokenId: assetType.tokenId,
-				assetType: 3
+				assetType: 3,
 			}
 		case "ERC1155":
 			return {
 				token: assetType.contract,
 				tokenId: assetType.tokenId,
-				assetType: 2
+				assetType: 2,
 			}
 		default: {
 			throw new Error("Unsupported")

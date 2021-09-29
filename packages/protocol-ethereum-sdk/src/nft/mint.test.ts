@@ -61,7 +61,22 @@ describe("mint test", () => {
 		const contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, mintableTokenE2eAddress)
 		const balanceOfMinter = await contract.functionCall("balanceOf", minter).call()
 		expect(balanceOfMinter).toBe("1")
-	}, 20000)
+	})
+
+	test("use provided nftTokenId", async () => {
+		const collection = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
+		const nftTokenId = await nftCollectionApi.generateNftTokenId({ collection, minter })
+		const result = await mint({
+			uri: "uri",
+			royalties: [{
+				account: minter,
+				value: 250,
+			}],
+			collection: createErc721V2Collection(collection),
+			nftTokenId,
+		} as ERC721RequestV2)
+		expect(result.tokenId).toBe(nftTokenId.tokenId)
+	})
 
 	test("mint ERC-1155 v1", async () => {
 		const raribleTokenE2eAddress = toAddress("0x8812cFb55853da0968a02AaaEA84CD93EC4b42A1")

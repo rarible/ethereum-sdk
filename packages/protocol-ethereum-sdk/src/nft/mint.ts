@@ -1,4 +1,14 @@
-import type { Address, Binary, NftCollectionControllerApi, NftLazyMintControllerApi, Part, NftItem, NftCollection, BigNumber } from "@rarible/protocol-api-client"
+import type {
+	Address,
+	Binary,
+	NftCollectionControllerApi,
+	NftLazyMintControllerApi,
+	Part,
+	NftItem,
+	NftCollection,
+	BigNumber,
+	NftTokenId,
+} from "@rarible/protocol-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { SendFunction } from "../common/send-transaction"
 import { mintOffChain } from "./mint-off-chain"
@@ -13,16 +23,20 @@ type ERC721CollectionV3 = Collection<ERC721VersionEnum.ERC721V3>
 type ERC1155CollectionV1 = Collection<ERC1155VersionEnum.ERC1155V1>
 type ERC1155CollectionV2 = Collection<ERC1155VersionEnum.ERC1155V2>
 
+type CommonMintRequest = {
+	nftTokenId?: NftTokenId
+}
+
 export type ERC721RequestV1 = {
 	collection: ERC721CollectionV1
 	uri: string
-}
+} & CommonMintRequest
 
 export type ERC721RequestV2 = {
 	collection: ERC721CollectionV2
 	uri: string
 	royalties: Array<Part>
-}
+} & CommonMintRequest
 
 export type ERC721RequestV3 = {
 	collection: ERC721CollectionV3
@@ -30,14 +44,14 @@ export type ERC721RequestV3 = {
 	uri: string;
 	creators: Array<Part>
 	royalties: Array<Part>
-}
+} & CommonMintRequest
 
 export type ERC1155RequestV1 = {
 	collection: ERC1155CollectionV1
 	uri: string
 	supply: number
 	royalties: Array<Part>
-}
+} & CommonMintRequest
 
 export type ERC1155RequestV2 = {
 	collection: ERC1155CollectionV2
@@ -46,7 +60,7 @@ export type ERC1155RequestV2 = {
 	lazy: boolean
 	creators: Array<Part>
 	royalties: Array<Part>
-}
+} & CommonMintRequest
 
 export type MintRequestERC721 = ERC721RequestV1 | ERC721RequestV2 | ERC721RequestV3
 export type MintRequestERC1155 = ERC1155RequestV1 | ERC1155RequestV2
@@ -121,8 +135,3 @@ export const isErc1155v2Collection = (x: NftCollection): x is ERC1155CollectionV
 	x.features.indexOf("MINT_AND_TRANSFER") !== -1 && x.type === "ERC1155"
 export const isErc1155v1Collection = (x: NftCollection): x is ERC1155CollectionV1 =>
 	!isErc1155v2Collection(x) && x.type === "ERC1155"
-
-export type NftCollectionLike = Pick<NftCollection, "type" | "id"> & {
-	features?: NftCollection["features"]
-	supportsLazyMint?: boolean
-}

@@ -13,6 +13,7 @@
     "build-ethers-ethereum": "yarn workspace @rarible/ethers-ethereum run build",
     "build-web3-ethereum": "yarn workspace @rarible/web3-ethereum run build",
     "build-sdk": "yarn workspace @rarible/protocol-ethereum-sdk run build",
+    "build-sdk-bundle": "yarn workspace @rarible/sdk-bundle run build",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
     "lint:fix": "eslint --ext .js,.jsx,.ts,.tsx . --fix",
     "release": "lerna publish from-package",

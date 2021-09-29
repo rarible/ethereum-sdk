@@ -24,38 +24,34 @@ type ERC1155CollectionV1 = Collection<ERC1155VersionEnum.ERC1155V1>
 type ERC1155CollectionV2 = Collection<ERC1155VersionEnum.ERC1155V2>
 
 type CommonMintRequest = {
+	uri: string
 	nftTokenId?: NftTokenId
 }
 
 export type ERC721RequestV1 = {
 	collection: ERC721CollectionV1
-	uri: string
 } & CommonMintRequest
 
 export type ERC721RequestV2 = {
 	collection: ERC721CollectionV2
-	uri: string
 	royalties: Array<Part>
 } & CommonMintRequest
 
 export type ERC721RequestV3 = {
 	collection: ERC721CollectionV3
 	lazy: boolean
-	uri: string;
 	creators: Array<Part>
 	royalties: Array<Part>
 } & CommonMintRequest
 
 export type ERC1155RequestV1 = {
 	collection: ERC1155CollectionV1
-	uri: string
 	supply: number
 	royalties: Array<Part>
 } & CommonMintRequest
 
 export type ERC1155RequestV2 = {
 	collection: ERC1155CollectionV2
-	uri: string
 	supply: number
 	lazy: boolean
 	creators: Array<Part>

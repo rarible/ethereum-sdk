@@ -1,4 +1,4 @@
-import {awaitAll, createE2eProvider} from "@rarible/ethereum-sdk-test-common"
+import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber } from "@rarible/types"
@@ -11,8 +11,8 @@ import { signOrder } from "./sign-order"
 import { upsertOrder } from "./upsert-order"
 import { getMakeFee } from "./get-make-fee"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
-import {deployTestErc20} from "./contracts/test/test-erc20"
-import {deployTestErc721} from "./contracts/test/test-erc721"
+import { deployTestErc20 } from "./contracts/test/test-erc20"
+import { deployTestErc721 } from "./contracts/test/test-erc721"
 
 const { provider, wallet } = createE2eProvider()
 const web3 = new Web3(provider)

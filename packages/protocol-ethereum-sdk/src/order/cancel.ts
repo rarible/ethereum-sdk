@@ -12,8 +12,8 @@ import {
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { toStructLegacyOrderKey } from "./to-struct-legacy-order"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
-import {createOpenseaContract} from "./contracts/exchange-opensea-v1"
-import {getAtomicMatchArgAddresses, getAtomicMatchArgUints, toVrs} from "./fill-order"
+import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
+import { getAtomicMatchArgAddresses, getAtomicMatchArgUints, toVrs } from "./fill-order"
 
 export async function cancel(
 	ethereum: Ethereum,
@@ -61,7 +61,7 @@ export function cancelOpenseaOrderV1(ethereum: Ethereum, contract: Address, orde
 		dto.staticExtradata,
 		makerVRS.v,
 		makerVRS.r,
-		makerVRS.s
+		makerVRS.s,
 	)
 		.send()
 }

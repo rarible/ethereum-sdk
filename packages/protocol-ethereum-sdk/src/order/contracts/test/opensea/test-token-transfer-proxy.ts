@@ -1,7 +1,7 @@
 import Web3 from "web3"
-import {Address} from "@rarible/protocol-api-client"
-import {Contract} from "web3-eth-contract"
-import {AbiItem} from "../../../../common/abi-item"
+import { Address } from "@rarible/protocol-api-client"
+import { Contract } from "web3-eth-contract"
+import { AbiItem } from "../../../../common/abi-item"
 
 export function createOpenseaTokenTransferProxyContract(web3: Web3, address?: Address): Contract {
 	return new web3.eth.Contract(tokenTransferProxyAbi, address)
@@ -15,7 +15,7 @@ export async function deployOpenseaTokenTransferProxy(web3: Web3, proxyRegistryA
 		arguments: [
 			proxyRegistryAddress,
 		],
-	}).send({from: address, gas: 4000000, gasPrice: "0"})
+	}).send({ from: address, gas: 4000000, gasPrice: "0" })
 }
 
 const tokenTransferProxyAbi: AbiItem[] = [

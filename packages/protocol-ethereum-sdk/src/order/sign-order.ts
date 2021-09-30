@@ -7,8 +7,8 @@ import {
 	OpenSeaV1Order,
 	RaribleV2Order,
 } from "@rarible/protocol-api-client"
-import {Address, toAddress, BigNumber, toBigNumber, toBinary, ZERO_ADDRESS} from "@rarible/types"
-import {Ethereum, signTypedData} from "@rarible/ethereum-provider"
+import { Address, toAddress, BigNumber, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
+import { Ethereum, signTypedData } from "@rarible/ethereum-provider"
 import { toBn } from "@rarible/utils"
 import {
 	OpenSeaOrderToSignDTO,
@@ -17,11 +17,11 @@ import {
 	OrderOpenSeaV1DataV1SaleKind,
 	OrderOpenSeaV1DataV1Side,
 } from "../common/orders"
-import {Config} from "../config/type"
-import {hashLegacyOrder} from "./hash-legacy-order"
-import {assetTypeToStruct} from "./asset-type-to-struct"
-import {EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES} from "./eip712"
-import {encodeData} from "./encode-data"
+import { Config } from "../config/type"
+import { hashLegacyOrder } from "./hash-legacy-order"
+import { assetTypeToStruct } from "./asset-type-to-struct"
+import { EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES } from "./eip712"
+import { encodeData } from "./encode-data"
 import { extractNftType } from "./is-nft"
 import { createErc721Contract } from "./contracts/erc721"
 import { createErc1155Contract } from "./contracts/erc1155"

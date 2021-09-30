@@ -1,4 +1,4 @@
-import {Address} from "@rarible/protocol-api-client"
+import { Address } from "@rarible/protocol-api-client"
 
 export type ExchangeFees = {
 	v2: number
@@ -22,6 +22,10 @@ export type ProxyRegistries = {
 	openseaV1: Address
 }
 
+export type FeeRecipients = {
+	openseaV1: Address
+}
+
 export type Config = {
 	basePath: string
 	chainId: number
@@ -29,4 +33,5 @@ export type Config = {
 	transferProxies: TransferProxies
 	proxyRegistries: ProxyRegistries
 	fees: ExchangeFees
+	feeRecipients: FeeRecipients
 }

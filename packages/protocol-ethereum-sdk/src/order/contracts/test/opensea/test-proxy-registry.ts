@@ -1,7 +1,7 @@
 import Web3 from "web3"
-import {Address} from "@rarible/protocol-api-client"
-import {Contract} from "web3-eth-contract"
-import {proxyRegistryAbi} from "../../proxy-registry-opensea"
+import { Address } from "@rarible/protocol-api-client"
+import { Contract } from "web3-eth-contract"
+import { proxyRegistryAbi } from "../../proxy-registry-opensea"
 
 export function createOpenseaProxyRegistryContract(web3: Web3, address?: Address): Contract {
 	return new web3.eth.Contract(proxyRegistryAbi, address)
@@ -10,7 +10,7 @@ export function createOpenseaProxyRegistryContract(web3: Web3, address?: Address
 export async function deployOpenseaProxyRegistry(web3: Web3) {
 	const empty = createOpenseaProxyRegistryContract(web3)
 	const [address] = await web3.eth.getAccounts()
-	return empty.deploy({data: proxyRegistryBytecode}).send({from: address, gas: 4000000, gasPrice: "0"})
+	return empty.deploy({ data: proxyRegistryBytecode }).send({ from: address, gas: 4000000, gasPrice: "0" })
 }
 
 export const proxyRegistryBytecode =

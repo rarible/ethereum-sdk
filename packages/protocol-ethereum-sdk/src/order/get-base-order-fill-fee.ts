@@ -6,7 +6,7 @@ export async function getBaseOrderFillFee(order: SimpleOrder) {
 	} else if (order.type === "RARIBLE_V2") {
 		return 0
 	} else if (order.type === "OPEN_SEA_V1") {
-		return 250 //todo check
+		return
 	} else {
 		//todo add PUNKS
 		throw new Error(`Unsupported order ${JSON.stringify(order)}`)

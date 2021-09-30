@@ -1,9 +1,9 @@
-import {Asset} from "@rarible/protocol-api-client"
-import {toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS} from "@rarible/types"
-import {Ethereum} from "@rarible/ethereum-provider"
-import {ethers} from "ethers"
-import {convertOpenSeaOrderToSignDTO, SimpleOpenSeaV1Order} from "../sign-order"
-import {OpenSeaOrderToSignDTO} from "../../common/orders"
+import { Asset } from "@rarible/protocol-api-client"
+import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
+import { Ethereum } from "@rarible/ethereum-provider"
+import { ethers } from "ethers"
+import { convertOpenSeaOrderToSignDTO, SimpleOpenSeaV1Order } from "../sign-order"
+import { OpenSeaOrderToSignDTO } from "../../common/orders"
 
 function getRandomTokenId(): string {
 	return Math.floor(Math.random() * 300000000).toString()
@@ -16,7 +16,7 @@ export function getAssetTypeBlank(assetClass: string): Asset {
 				assetType: {
 					assetClass: "ETH",
 				},
-				value: toBigNumber("1"),
+				value: toBigNumber("100"),
 			}
 		}
 		case "ERC20": {
@@ -25,7 +25,7 @@ export function getAssetTypeBlank(assetClass: string): Asset {
 					assetClass: "ERC20",
 					contract: toAddress(ZERO_ADDRESS),
 				},
-				value: toBigNumber("1"),
+				value: toBigNumber("100"),
 			}
 		}
 		case "ERC721": {
@@ -45,10 +45,11 @@ export function getAssetTypeBlank(assetClass: string): Asset {
 					contract: toAddress(ZERO_ADDRESS),
 					tokenId: toBigNumber(getRandomTokenId()),
 				},
-				value: toBigNumber("1"),
+				value: toBigNumber("100"),
 			}
 		}
-		default: throw new Error("Unrecognized asset type")
+		default:
+			throw new Error("Unrecognized asset type")
 	}
 }
 
@@ -61,10 +62,10 @@ export const OPENSEA_ORDER_TEMPLATE: Omit<SimpleOpenSeaV1Order, "make" | "take">
 	data: {
 		dataType: "OPEN_SEA_V1_DATA_V1",
 		exchange: toAddress(ZERO_ADDRESS),
-		makerRelayerFee: toBigNumber("250"),
-		takerRelayerFee: toBigNumber("250"),
-		makerProtocolFee: toBigNumber("250"),
-		takerProtocolFee: toBigNumber("250"),
+		makerRelayerFee: toBigNumber("0"),
+		takerRelayerFee: toBigNumber("0"),
+		makerProtocolFee: toBigNumber("0"),
+		takerProtocolFee: toBigNumber("0"),
 		feeRecipient: toAddress(ZERO_ADDRESS),
 		feeMethod: "SPLIT_FEE",
 		side: "SELL",
@@ -79,13 +80,19 @@ export const OPENSEA_ORDER_TEMPLATE: Omit<SimpleOpenSeaV1Order, "make" | "take">
 }
 
 export type TestAssetClass = "ETH" | "ERC20" | "ERC721" | "ERC1155"
+
 export function getOrderTemplate(makeAsset: TestAssetClass, takeAsset: TestAssetClass, side: "SELL" | "BUY"): SimpleOpenSeaV1Order {
 
 	return {
 		...OPENSEA_ORDER_TEMPLATE,
 		make: getAssetTypeBlank(makeAsset),
 		take: getAssetTypeBlank(takeAsset),
-		data: {...OPENSEA_ORDER_TEMPLATE.data, side},
+		data: {
+			...OPENSEA_ORDER_TEMPLATE.data,
+			callData: toBinary("0xf242432a00000000000000000000000000d5cbc289e4b66a6252949d6eb6ebbb12df24ab00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000"),
+			replacementPattern: toBinary("0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+			side,
+		},
 	}
 
 }

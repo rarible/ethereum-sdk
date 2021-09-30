@@ -1,7 +1,8 @@
 import { Address, BigNumber } from "@rarible/protocol-api-client"
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
-import { SendFunction } from "../common/send-transaction"
+import { ContractSendMethod } from "web3-eth-contract"
+import { SendFunction, waitForHash } from "../common/send-transaction"
 import { createErc20Contract } from "./contracts/erc20"
 
 const infiniteBn = toBn(2).pow(256).minus(1)

@@ -1,4 +1,4 @@
-import {toAddress, ZERO_ADDRESS} from "@rarible/types"
+import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 import { Config } from "./type"
 
 export const ROPSTEN_CONFIG: Config = {
@@ -21,5 +21,8 @@ export const ROPSTEN_CONFIG: Config = {
 	},
 	fees: {
 		v2: 0,
+	},
+	feeRecipients: {
+		openseaV1: ZERO_ADDRESS,
 	},
 }

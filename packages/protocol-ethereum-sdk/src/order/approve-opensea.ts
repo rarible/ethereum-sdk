@@ -1,12 +1,14 @@
-import {Ethereum, EthereumContract, EthereumTransaction} from "@rarible/ethereum-provider"
-import {Address, toAddress, ZERO_ADDRESS} from "@rarible/types"
-import {Asset} from "@rarible/protocol-api-client"
-import {SendFunction} from "../common/send-transaction"
-import {Config} from "../config/type"
-import {approveErc20} from "./approve-erc20"
-import {approveErc721} from "./approve-erc721"
-import {approveErc1155} from "./approve-erc1155"
-import {createOpenseaProxyRegistryEthContract} from "./contracts/proxy-registry-opensea"
+import { Ethereum, EthereumContract, EthereumTransaction } from "@rarible/ethereum-provider"
+import { Address, toAddress, ZERO_ADDRESS } from "@rarible/types"
+import { Asset } from "@rarible/protocol-api-client"
+import { SendFunction } from "../common/send-transaction"
+import { Config } from "../config/type"
+import { retry } from "../common/retry"
+import { approveErc20 } from "./approve-erc20"
+import { approveErc721 } from "./approve-erc721"
+import { approveErc1155 } from "./approve-erc1155"
+import { createOpenseaProxyRegistryEthContract } from "./contracts/proxy-registry-opensea"
+import { SimpleOpenSeaV1Order } from "./sign-order"
 
 export async function approveOpensea(
 	ethereum: Ethereum,
@@ -50,8 +52,15 @@ export async function getRegisteredProxy(
 	let proxyAddress = await getSenderProxy(proxyRegistryContract, from)
 
 	if (proxyAddress === ZERO_ADDRESS) {
-		await proxyRegistryContract.functionCall("registerProxy").send()
-		proxyAddress = await getSenderProxy(proxyRegistryContract, from)
+		const registerTx = await proxyRegistryContract.functionCall("registerProxy").send()
+		await registerTx.wait()
+
+		await retry(10, async () => {
+			proxyAddress = await getSenderProxy(proxyRegistryContract, from)
+			if (proxyAddress === ZERO_ADDRESS) {
+				throw new Error("Expected non-zero proxy address")
+			}
+		})
 	}
 
 	return proxyAddress

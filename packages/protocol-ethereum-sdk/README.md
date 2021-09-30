@@ -123,102 +123,40 @@ repository [sell e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob
 
 #### Mint NFT Tokens
 
-There are support two ways of minting ERC721 and ERC1155 tokens:
+You can mint ERC721 and ERC1155 tokens in two ways:
 
 1. Regular "on chain" minting using contract.
-2. Off chain minting (the transaction itself and payment for gas occurs at the time of purchase or transfer)
+2. Off chain minting (the transaction itself and payment for gas occurs at the time of purchase or transfer).
+
+You can use mint to create a token in different collections. Depending on the collection type, different mint requests should be sent to the function (isErc1155v1Collection, isErc1155v2Collection etc).
 
 Mint function checks:
 
 * Request for MintOffChainResponse or MintOnChainResponse.
 * Token type: ERC721 or ERC1155.
 
-Depending on the conditions, the required form is sent to the mint function.
+Differences between mint functions in the presence of arguments `creators`, `supply` and `lazy`:
 
-Mint request object:
+* `creators` not use in ERC1155 v1
+* `supply` used only for ERC1155 v1 and v2
+* `lazy` is used if the passed collection supports lazy mint. Otherwise, the usual mint will be performed
+
+For more information, see [mint.ts](https://github.com/rarible/protocol-ethereum-sdk/blob/master/packages/protocol-ethereum-sdk/src/nft/mint.ts).
+
+ERC1155 V2 Lazy example:
 
 ```typescript
-const mintRequest = {
-	collection: {
-		id: toAddress(contractAddress),                   // Contract address
-		type: "ERC1155",                                  // Type of asset to mint, "ERC721" || "ERC1155"
-		supportsLazyMint: true,                           // True if contract supports lazy minting
-	},
-	uri: 'uri',                                               // Token URI
-	supply: toBigNumber('100'),                               // Number of the tokens to mint, used only for ERC1155
-	creators: [{ account: toAddress(minter), value: 10000 }], // Creators of token
-	royalties: [],                                            // The amount of royalties
-	lazy: true,                                               // The contract is lazy or mint onchain
-}
+return mint({
+  collection,    // Collection info
+  uri: "",       // Token URI
+  royalties: [], // The amount of royalties
+  supply: 1,     // Number of the tokens to mint, used only for ERC1155
+  creators: [],  // Creators of token
+  lazy: true,    // The token will be lazy minted or not
+})
 ```
-
-### Mint examples
-
-Mint function always return tokenId as string.
 
 For more information, see [mint.md](https://github.com/rarible/protocol-ethereum-sdk/blob/master/packages/protocol-ethereum-sdk/src/nft/mint.md).
-
-#### ERC721 V1
-
-```typescript
-...
-    return mint({
-      collection,
-      uri: "uri",
-      creators: [],
-    })
-```
-
-#### ERC721 V2
-
-```typescript
-...
-    return mint({
-      collection,
-      uri: "uri",
-      royalties: [],
-      creators: [],
-    })
-```
-
-#### ERC721 V3 Lazy
-
-```typescript
-...
-    return mint({
-      collection,
-      uri: "uri",
-      royalties: [],
-      creators: [],
-      lazy: true,
-    })
-```
-
-#### ERC1155 V1
-
-```typescript
-...
-    return mint({
-      collection,
-      uri: "",
-      royalties: [],
-      supply: 10,
-    })
-```
-
-#### ERC1155 V2 Lazy
-
-```typescript
-...
-    return mint({
-      collection,
-      uri: "",
-      royalties: [],
-      supply: 1,
-      creators: [],
-      lazy: true,
-    })
-```
 
 [Mint e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/lazy-mint.test.ts)
 

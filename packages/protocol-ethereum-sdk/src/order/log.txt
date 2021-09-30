@@ -1,0 +1,115 @@
+  console.log
+    approveOpensea {
+      assetType: {
+        assetClass: 'ERC721',
+        contract: '0x8a2b083dfb1acb4e72f1a23c88ece9f7a0f96a1f',
+        tokenId: '183762760'
+      },
+      value: '1'
+    }
+
+      at Object.<anonymous> (src/order/approve-opensea.ts:24:10)
+
+  console.log
+    approveOpensea {
+      assetType: {
+        assetClass: 'ERC20',
+        contract: '0x73246545cf896c1808f72643c9681fc8f13c4658'
+      },
+      value: '100'
+    }
+
+      at Object.<anonymous> (src/order/approve-opensea.ts:24:10)
+          at runMicrotasks (<anonymous>)
+
+  console.log
+    fillOrder: asset for approve {
+      assetType: {
+        assetClass: 'ERC1155',
+        contract: '0x931181b33fa95b0b6f9c3128b2899d76e20c82bb',
+        tokenId: '19447068'
+      },
+      value: '102'
+    }
+
+      at Object.<anonymous> (src/order/fill-order.ts:56:12)
+
+  console.log
+    approveOpensea {
+      assetType: {
+        assetClass: 'ERC1155',
+        contract: '0x931181b33fa95b0b6f9c3128b2899d76e20c82bb',
+        tokenId: '19447068'
+      },
+      value: '102'
+    }
+
+      at src/order/approve-opensea.ts:24:10
+          at runMicrotasks (<anonymous>)
+
+  console.log
+    buy {
+      exchange: '0x13106f1571986262a063571aac3955a5ca704c1b',
+      maker: '0xd3bf17c86489d97c764a12c87585be8963a750b5',
+      taker: '0x0000000000000000000000000000000000000000',
+      makerRelayerFee: '0',
+      takerRelayerFee: '250',
+      makerProtocolFee: '0',
+      takerProtocolFee: '0',
+      feeRecipient: '0x0000000000000000000000000000000000000000',
+      feeMethod: 1,
+      side: 0,
+      saleKind: 0,
+      target: '0x931181b33fa95b0b6f9c3128b2899d76e20c82bb',
+      howToCall: 0,
+      calldata: '0xf242432a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d3bf17c86489d97c764a12c87585be8963a750b5000000000000000000000000000000000000000000000000000000000128bd1c000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000',
+      replacementPattern: '0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+      staticTarget: '0x0000000000000000000000000000000000000000',
+      staticExtradata: '0x',
+      paymentToken: '0x73246545cf896c1808f72643c9681fc8f13c4658',
+      basePrice: '100',
+      extra: '0',
+      listingTime: '0',
+      expirationTime: '0',
+      salt: '10'
+    }
+
+      at src/order/fill-order.ts:254:10
+          at runMicrotasks (<anonymous>)
+
+  console.log
+    sell {
+      exchange: '0x13106f1571986262a063571aac3955a5ca704c1b',
+      maker: '0x3600bf4b22e7048bfb4f7c45d8b530fd32dcfdb4',
+      taker: '0xd3bf17c86489d97c764a12c87585be8963a750b5',
+      makerRelayerFee: '0',
+      takerRelayerFee: '250',
+      makerProtocolFee: '0',
+      takerProtocolFee: '0',
+      feeRecipient: '0xc8108125babc8bb91c151b53bf59fe23559bbd25',
+      feeMethod: 1,
+      side: 1,
+      saleKind: 0,
+      target: '0x931181b33fa95b0b6f9c3128b2899d76e20c82bb',
+      howToCall: 0,
+      calldata: '0xf242432a0000000000000000000000003600bf4b22e7048bfb4f7c45d8b530fd32dcfdb40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000128bd1c000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000',
+      replacementPattern: '0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+      staticTarget: '0x0000000000000000000000000000000000000000',
+      staticExtradata: '0x',
+      paymentToken: '0x73246545cf896c1808f72643c9681fc8f13c4658',
+      basePrice: '100',
+      extra: '0',
+      listingTime: '0',
+      expirationTime: '0',
+      salt: '10'
+    }
+
+      at src/order/fill-order.ts:255:10
+          at runMicrotasks (<anonymous>)
+
+  console.log
+    options {}
+
+      at src/order/fill-order.ts:256:10
+          at runMicrotasks (<anonymous>)
+

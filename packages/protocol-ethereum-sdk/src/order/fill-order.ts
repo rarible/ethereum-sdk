@@ -94,13 +94,36 @@ function getMakeAssetV2(getMakeFee: GetMakeFeeFunction, order: SimpleOrder, amou
 
 export function getOpenseaAssetV1(order: SimpleOpenSeaV1Order): Asset {
 	let asset: Asset = order.take
-	const fee = getFeeOpenseaV1(order)
 
 	if (order.data.feeMethod === "SPLIT_FEE") {
-		return addFee(asset, fee)
+		const takerRelayerFee = toBn(asset.value)
+			.multipliedBy(order.data.takerRelayerFee)
+			.dividedBy(10000)
+			.integerValue(BigNumber.ROUND_FLOOR)
+
+		const takerProtocolFee = toBn(asset.value)
+			.multipliedBy(order.data.takerProtocolFee)
+			.dividedBy(10000)
+			.integerValue(BigNumber.ROUND_FLOOR)
+
+		const amount = toBn(asset.value)
+			.plus(takerRelayerFee)
+			.plus(takerProtocolFee)
+
+		return {
+			...asset,
+			value: toBigNumber(amount.toFixed()),
+		}
+
 	} else if (order.data.feeMethod === "PROTOCOL_FEE") {
-		const value = toBigNumber(fee.plus(asset.value).toFixed())
-		return { ...asset, value }
+		const value = toBn(asset.value)
+			.plus(order.data.takerRelayerFee)
+			.plus(order.data.takerProtocolFee)
+
+		return {
+			...asset,
+			value: toBigNumber(value.toFixed()),
+		}
 	} else {
 		throw new Error("Unrecognized order feeMethod")
 	}
@@ -227,7 +250,11 @@ export async function matchOpenSeaV1Order(
 	// console.log("calculated price", calculatedPrice)
 	const from = toAddress(await ethereum.getFrom())
 	// debugger
-	return send(method, await getMatchOpenseaOptions(buy, sell, from))
+	const options = await getMatchOpenseaOptions(buy, sell)
+	console.log("buy", buyOrderToSignDTO)
+	console.log("sell", sellOrderToSignDTO)
+	console.log("options", options)
+	return send(method, options)
 	// return send(method, await getMatchOpenseaOptions(buyOrderToSignDTO, sellOrderToSignDTO, from))
 }
 
@@ -473,7 +500,6 @@ async function getMatchOpenseaOptions(
 async function getMatchOpenseaOptions(
 	buy: SimpleOpenSeaV1Order,
 	sell: SimpleOpenSeaV1Order,
-	from: Address
 ): Promise<EthereumSendOptions> {
 	let matchOptions: EthereumSendOptions = {}
 

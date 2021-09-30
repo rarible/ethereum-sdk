@@ -16,15 +16,13 @@ export function getMakeFee(fees: ExchangeFees, order: SimpleOrder): number {
 }
 
 export function getFeeOpenseaV1(order: SimpleOpenSeaV1Order): BigNumber {
-	let asset: Asset
-	if (order.data.side === "SELL") {
-		asset = order.take
-	} else if (order.data.side === "BUY") {
-		asset = order.make
+	if (order.data.feeMethod === "SPLIT_FEE") {
+		return toBn(order.data.takerRelayerFee)
+	} else if (order.data.feeMethod === "PROTOCOL_FEE") {
+		return toBn(order.data.takerProtocolFee)
 	} else {
 		throw new Error("Unrecognized order side")
 	}
-	return toBn(order.data.takerRelayerFee)
 }
 
 function getMakeFeeV2(fees: ExchangeFees, order: SimpleOrder) {

@@ -14,7 +14,7 @@ export async function send(
 	options?: EthereumSendOptions
 ): Promise<EthereumTransaction> {
 	const tx = await functionCall.send(options)
-	await createPendingLogs(api, tx)
+	// await createPendingLogs(api, tx)
 	return tx
 }
 

@@ -565,12 +565,13 @@ describe("fillOrder: Opensea orders", function () {
 	 */
 
 
+	/*
 	// Sell-side orders
 	describe.each([
 		getOrderTemplate("ERC721", "ETH", "SELL"),
-		getOrderTemplate("ERC721", "ERC20", "SELL"),
-		getOrderTemplate("ERC1155", "ETH", "SELL"),
-		getOrderTemplate("ERC1155", "ERC20", "SELL"),
+		// getOrderTemplate("ERC721", "ERC20", "SELL"),
+		// getOrderTemplate("ERC1155", "ETH", "SELL"),
+		// getOrderTemplate("ERC1155", "ERC20", "SELL"),
 	])(
 		"side: $data.side $make.assetType.assetClass for $take.assetType.assetClass",
 		(testOrder) => {
@@ -588,7 +589,7 @@ describe("fillOrder: Opensea orders", function () {
 				order.data.makerRelayerFee = toBigNumber("500")
 				order.data.exchange = toAddress(wyvernExchange.options.address)
 				order.data.feeRecipient = toAddress(feeRecipient)
-				order.maker = toAddress(sender2Address)
+				order.maker = toAddress(nftOwner)
 				// order.data.feeMethod = "PROTOCOL_FEE"
 
 				await mintTestAsset(order.make, nftOwner)
@@ -640,12 +641,14 @@ describe("fillOrder: Opensea orders", function () {
 			})
 		})
 
+	 */
+
 
 	// Buy-side orders
 	describe.each([
-		getOrderTemplate("ETH", "ERC721", "BUY"),
-		getOrderTemplate("ETH", "ERC1155", "BUY"),
-		getOrderTemplate("ERC20", "ERC721", "BUY"),
+		// getOrderTemplate("ETH", "ERC721", "BUY"),
+		// getOrderTemplate("ETH", "ERC1155", "BUY"),
+		// getOrderTemplate("ERC20", "ERC721", "BUY"),
 		getOrderTemplate("ERC20", "ERC1155", "BUY"),
 	])(
 		"side: $data.side $make.assetType.assetClass for $take.assetType.assetClass",
@@ -660,8 +663,12 @@ describe("fillOrder: Opensea orders", function () {
 
 			beforeEach(async () => {
 				order.data.exchange = toAddress(wyvernExchange.options.address)
-				order.data.takerRelayerFee = toBigNumber("1000")
+				order.data.takerRelayerFee = toBigNumber("250")
+				// order.data.takerProtocolFee = toBigNumber("250")
+				order.data.makerRelayerFee = toBigNumber("250")
+				// order.data.makerProtocolFee = toBigNumber("250")
 				order.data.feeRecipient = toAddress(ZERO_ADDRESS)
+				// order.data.feeRecipient = toAddress(feeRecipient)
 				order.maker = toAddress(nftBuyer)
 				order.make = setTestContract(order.make)
 				order.take = setTestContract(order.take)
@@ -669,8 +676,11 @@ describe("fillOrder: Opensea orders", function () {
 
 				await mintTestAsset(order.take, nftOwner)
 				await mintTestAsset(order.make, nftBuyer)
-				const asset = getOpenseaAssetV1(order)
 				await approveOpensea(nftBuyerEthereum, sendNftBuyer, config, nftBuyer, order.make, true)
+				// const asset = getOpenseaAssetV1(order)
+				const asset = { ...order.make }
+				// asset.value = toBigNumber("2")
+				// await approveOpensea(nftOwnerEthereum, sendNftOwner, config, nftOwner, asset, false)
 
 				order.signature = toBinary(await getOrderSignature(nftBuyerEthereum, order))
 			})

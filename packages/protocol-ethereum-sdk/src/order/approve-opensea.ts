@@ -21,6 +21,7 @@ export async function approveOpensea(
 
 	const proxyAddress = await getRegisteredProxy(ethereum, config.proxyRegistries.openseaV1)
 
+	console.log("approveOpensea", asset)
 	switch (asset.assetType.assetClass) {
 		case "ERC20": {
 			const contract = asset.assetType.contract

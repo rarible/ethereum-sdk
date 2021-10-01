@@ -1,9 +1,9 @@
 import { Ethereum, EthereumContract, EthereumTransaction } from "@rarible/ethereum-provider"
 import { Address, toAddress, ZERO_ADDRESS } from "@rarible/types"
 import { Asset } from "@rarible/protocol-api-client"
+import { backOff } from "exponential-backoff"
 import { SendFunction } from "../common/send-transaction"
 import { Config } from "../config/type"
-import { retry } from "../common/retry"
 import { approveErc20 } from "./approve-erc20"
 import { approveErc721 } from "./approve-erc721"
 import { approveErc1155 } from "./approve-erc1155"
@@ -48,17 +48,23 @@ export async function getRegisteredProxy(
 ): Promise<Address> {
 	const proxyRegistryContract = createOpenseaProxyRegistryEthContract(ethereum, proxyRegistry)
 	const from = toAddress(await ethereum.getFrom())
-	let proxyAddress = await getSenderProxy(proxyRegistryContract, from)
+	const proxyAddress = await getSenderProxy(proxyRegistryContract, from)
 
 	if (proxyAddress === ZERO_ADDRESS) {
 		const registerTx = await proxyRegistryContract.functionCall("registerProxy").send()
 		await registerTx.wait()
 
-		await retry(10, async () => {
-			proxyAddress = await getSenderProxy(proxyRegistryContract, from)
-			if (proxyAddress === ZERO_ADDRESS) {
+		return backOff(async () => {
+			const value = await getSenderProxy(proxyRegistryContract, from)
+			if (value === ZERO_ADDRESS) {
 				throw new Error("Expected non-zero proxy address")
 			}
+			return value
+		}, {
+			maxDelay: 500,
+			numOfAttempts: 10,
+			delayFirstAttempt: true,
+			startingDelay: 100,
 		})
 	}
 

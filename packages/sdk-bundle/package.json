@@ -1,0 +1,32 @@
+{
+  "name": "@rarible/sdk-bundle",
+  "version": "0.5.2",
+  "license": "Apache-2.0",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "files": [
+    "build",
+    "typings.d.ts"
+  ],
+  "scripts": {
+    "build": "rimraf ./build && tsc --project tsconfig-build.json && browserify build/index.js -o build/index.min.js",
+    "clean": "rimraf ./build",
+    "test": "echo \"There's no tests yet\"",
+    "verify": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@rarible/protocol-ethereum-sdk": "0.4.4",
+    "@rarible/web3-ethereum": "^0.5.1",
+    "browserify": "^17.0.0"
+  },
+  "devDependencies": {
+    "typescript": "4.3.5"
+  },
+  "peerDependencies": {
+    "tslib": "^2.3.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}

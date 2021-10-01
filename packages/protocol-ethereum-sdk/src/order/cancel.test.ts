@@ -1,4 +1,4 @@
-import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber } from "@rarible/types"
@@ -11,6 +11,8 @@ import { signOrder } from "./sign-order"
 import { upsertOrder } from "./upsert-order"
 import { getMakeFee } from "./get-make-fee"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
+import { deployTestErc20 } from "./contracts/test/test-erc20"
+import { deployTestErc721 } from "./contracts/test/test-erc721"
 
 const { provider, wallet } = createE2eProvider()
 const web3 = new Web3(provider)
@@ -22,6 +24,11 @@ const orderApi = new OrderControllerApi(configuration)
 const makeFee = getMakeFee.bind(null, { v2: 0 })
 
 describe("cancel order", () => {
+	const it = awaitAll({
+		testErc20: deployTestErc20(web3, "Test1", "TST1"),
+		testErc721: deployTestErc721(web3, "Test", "TST"),
+	})
+
 	test("ExchangeV2 should work", async () => {
 		const form: OrderForm = {
 			...TEST_ORDER_TEMPLATE,
@@ -37,9 +44,24 @@ describe("cancel order", () => {
 		await testOrder(form)
 	}, 15000)
 
-	test.skip("ExchangeV1 should work", async () => {
+	test("ExchangeV1 should work", async () => {
 		const form: OrderForm = {
 			...TEST_ORDER_TEMPLATE,
+			make: {
+				assetType: {
+					assetClass: "ERC721",
+					contract: toAddress(it.testErc721.options.address),
+					tokenId: toBigNumber("10"),
+				},
+				value: toBigNumber("10"),
+			},
+			take: {
+				assetType: {
+					assetClass: "ERC20",
+					contract: toAddress(it.testErc20.options.address),
+				},
+				value: toBigNumber("10"),
+			},
 			salt: toBigNumber("10") as any,
 			maker: toAddress(wallet.getAddressString()),
 			type: "RARIBLE_V1",

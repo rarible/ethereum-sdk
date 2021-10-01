@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.5.1...v0.5.2) (2021-09-29)
+
+
+### Bug Fixes
+
+* no tests ([ae3203d](https://github.com/rarible/protocol-ethereum-sdk/commit/ae3203d61751fa615d26e58364d4b02031209a81))
+* no tests ([ad5167a](https://github.com/rarible/protocol-ethereum-sdk/commit/ad5167a4c9b952cdece1a21a42141165a53fb8cf))
+
+
+
+
+
+## [0.5.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.4.4...v0.5.1) (2021-09-29)
+
+
+### Bug Fixes
+
+* use tokenId provided externally (for mint) ([#41](https://github.com/rarible/protocol-ethereum-sdk/issues/41)) ([8da6b5c](https://github.com/rarible/protocol-ethereum-sdk/commit/8da6b5c901a5420e2943bdf18a6f49daf9b20761))
+
+
+
+
+
 ## [0.4.4](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.4.3...v0.4.4) (2021-09-27)
 
 

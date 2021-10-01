@@ -8,7 +8,6 @@ import { approveErc20 } from "./approve-erc20"
 import { approveErc721 } from "./approve-erc721"
 import { approveErc1155 } from "./approve-erc1155"
 import { createOpenseaProxyRegistryEthContract } from "./contracts/proxy-registry-opensea"
-import { SimpleOpenSeaV1Order } from "./sign-order"
 
 export async function approveOpensea(
 	ethereum: Ethereum,
@@ -21,7 +20,6 @@ export async function approveOpensea(
 
 	const proxyAddress = await getRegisteredProxy(ethereum, config.proxyRegistries.openseaV1)
 
-	console.log("approveOpensea", asset)
 	switch (asset.assetType.assetClass) {
 		case "ERC20": {
 			const contract = asset.assetType.contract

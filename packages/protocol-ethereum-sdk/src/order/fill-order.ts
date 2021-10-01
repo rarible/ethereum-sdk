@@ -5,7 +5,6 @@ import { BigNumber, toBn } from "@rarible/utils"
 import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Config } from "../config/type"
 import type { OpenSeaOrderToSignDTO } from "../common/orders"
-import { OrderOpenSeaV1DataV1FeeMethod } from "../common/orders"
 import type { SendFunction } from "../common/send-transaction"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import {
@@ -19,7 +18,6 @@ import {
 import { invertOrder } from "./invert-order"
 import { addFee } from "./add-fee"
 import type { GetMakeFeeFunction } from "./get-make-fee"
-import { getFeeOpenseaV1 } from "./get-make-fee"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { toStructLegacyOrder } from "./to-struct-legacy-order"
 import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
@@ -53,7 +51,6 @@ export async function fillOrder(
 
 		if (request.order.type === "OPEN_SEA_V1") {
 			const asset = getOpenseaAssetV1(request.order)
-			console.log("fillOrder: asset for approve", asset)
 			tx = await approveOpensea(
 				ethereum,
 				send,
@@ -93,40 +90,40 @@ function getMakeAssetV2(getMakeFee: GetMakeFeeFunction, order: SimpleOrder, amou
 }
 
 export function getOpenseaAssetV1(order: SimpleOpenSeaV1Order): Asset {
-	let asset: Asset = order.take
+	if (order.data.side === "SELL") {
+		let asset: Asset = order.take
 
-	if (order.data.feeMethod === "SPLIT_FEE") {
-		const takerRelayerFee = toBn(asset.value)
-			.multipliedBy(order.data.takerRelayerFee)
-			.dividedBy(10000)
-			.integerValue(BigNumber.ROUND_FLOOR)
-
-		const takerProtocolFee = toBn(asset.value)
-			.multipliedBy(order.data.takerProtocolFee)
-			.dividedBy(10000)
-			.integerValue(BigNumber.ROUND_FLOOR)
+		const fees = toBn(order.data.takerProtocolFee)
+			.plus(order.data.takerRelayerFee)
+			.plus(10000)
 
 		const amount = toBn(asset.value)
-			.plus(takerRelayerFee)
-			.plus(takerProtocolFee)
+			.multipliedBy(fees)
+			.dividedBy(10000)
+			.integerValue(BigNumber.ROUND_FLOOR)
 
 		return {
 			...asset,
 			value: toBigNumber(amount.toFixed()),
 		}
+	} else if (order.data.side === "BUY") {
+		const asset = order.make
+		const fees = toBn(order.data.makerProtocolFee)
+			.plus(order.data.makerRelayerFee)
+			.plus(10000)
 
-	} else if (order.data.feeMethod === "PROTOCOL_FEE") {
-		const value = toBn(asset.value)
-			.plus(order.data.takerRelayerFee)
-			.plus(order.data.takerProtocolFee)
+		const amount = toBn(asset.value)
+			.multipliedBy(fees)
+			.dividedBy(10000)
+			.integerValue(BigNumber.ROUND_FLOOR)
 
 		return {
 			...asset,
-			value: toBigNumber(value.toFixed()),
+			value: toBigNumber(amount.toFixed()),
 		}
-	} else {
-		throw new Error("Unrecognized order feeMethod")
 	}
+
+	return order.take
 }
 
 export async function fillOrderSendTx(
@@ -233,29 +230,7 @@ export async function matchOpenSeaV1Order(
 		[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, "0x0000000000000000000000000000000000000000000000000000000000000000"],
 	)
 
-	const calculatedPrice = await exchangeContract
-		.functionCall(
-			"calculateCurrentPrice_",
-			getAtomicMatchArgAddresses(buyOrderToSignDTO),
-			getAtomicMatchArgUints(buyOrderToSignDTO),
-			buyOrderToSignDTO.feeMethod,
-			buyOrderToSignDTO.side,
-			buyOrderToSignDTO.saleKind,
-			buyOrderToSignDTO.howToCall,
-			buyOrderToSignDTO.calldata,
-			buyOrderToSignDTO.replacementPattern,
-			buyOrderToSignDTO.staticExtradata
-		)
-		.call()
-	// console.log("calculated price", calculatedPrice)
-	const from = toAddress(await ethereum.getFrom())
-	// debugger
-	const options = await getMatchOpenseaOptions(buy, sell)
-	console.log("buy", buyOrderToSignDTO)
-	console.log("sell", sellOrderToSignDTO)
-	console.log("options", options)
-	return send(method, options)
-	// return send(method, await getMatchOpenseaOptions(buyOrderToSignDTO, sellOrderToSignDTO, from))
+	return send(method, await getMatchOpenseaOptions(buy, sell))
 }
 
 async function matchOrders(
@@ -406,8 +381,6 @@ export async function getOpenseaOrdersForMatching(
 		}
 	}
 
-	// debugger
-
 	return { buy, sell }
 }
 
@@ -432,77 +405,11 @@ export function getAtomicMatchArgUints(dto: OpenSeaOrderToSignDTO) {
 export function getAtomicMatchArgCommonData(dto: OpenSeaOrderToSignDTO) {
 	return [dto.feeMethod, dto.side, dto.saleKind, dto.howToCall]
 }
-/*
-async function getMatchOpenseaOptions(
-	buy: SimpleOpenSeaV1Order,
-	sell: SimpleOpenSeaV1Order,
-	from: Address,
-): Promise<EthereumSendOptions> {
-	let matchOptions: EthereumSendOptions = {}
-	if (buy.maker.toLowerCase() === from.toLowerCase() && buy.take.assetType.assetClass === "ETH") {
-		const value = toBn(buy.make.value)
-			.multipliedBy(+buy.data.takerRelayerFee + 10000)
-			.dividedBy(10000)
-			.integerValue(BigNumber.ROUND_FLOOR)
-
-		// matchOptions.value = value.toString()
-
-		// const takerRelayerFee = toBn(buy.data.takerRelayerFee)
-		// const feePercentage = takerRelayerFee.div(10000)
-		// const fee = feePercentage.times(buy.make.value)
-
-		// matchOptions.value = fee.plus(buy.make.value).integerValue(BigNumber.ROUND_FLOOR).toFixed()
-		matchOptions.value = toBigNumber(value.toFixed())
-		console.log(" buy maker getMatchOpenseaOptions", matchOptions.value)
-
-
-	}
-
-	if (sell.maker.toLowerCase() === from.toLowerCase() && sell.take.assetType.assetClass === "ETH") {
-
-		const value = toBn(sell.take.value)
-			.multipliedBy(+buy.data.takerRelayerFee + 10000)
-			.dividedBy(10000)
-			.integerValue(BigNumber.ROUND_FLOOR)
-		//
-		// const takerRelayerFee = toBn(sell.data.takerRelayerFee)
-		// const feePercentage = takerRelayerFee.div(10000)
-		// const fee = feePercentage.times(sell.take.value)
-		// matchOptions.value = fee.integerValue(BigNumber.ROUND_FLOOR).toFixed()
-
-		// const takerRelayerFee = (+sell.data.takerRelayerFee * +sell.make.value / 10000) + 1
-		// toBn(sell.data.takerRelayerFee)
-		// 	.times(sell.take.value)
-		// 	.div(10000)
-		// const feePercentage = takerRelayerFee.div(10000)
-		// matchOptions.value = takerRelayerFee.integerValue(BigNumber.ROUND_FLOOR).toFixed()
-		// matchOptions.value = takerRelayerFee.toFixed()
-		// matchOptions.value = takerRelayerFee.toFixed()
-
-		// matchOptions.value = fee.plus(sell.take.value).integerValue(BigNumber.ROUND_FLOOR).toFixed()
-		// matchOptions.value = fee.integerValue(BigNumber.ROUND_FLOOR).toFixed()
-
-		// matchOptions.value = buy.basePrice + buy.takerRelayerFee
-		matchOptions.value = toBigNumber(value.toFixed())
-		console.log(" sell maker getMatchOpenseaOptions", matchOptions.value, "make", sell.make, "take", sell.take)
-
-
-	}
-	debugger
-
-	return matchOptions
-}
-
-
- */
-
 
 async function getMatchOpenseaOptions(
 	buy: SimpleOpenSeaV1Order,
 	sell: SimpleOpenSeaV1Order,
 ): Promise<EthereumSendOptions> {
-	let matchOptions: EthereumSendOptions = {}
-
 	if (buy.take.assetType.assetClass === "ETH") {
 		return { value: getOpenseaAssetV1(buy).value }
 	} else if (sell.take.assetType.assetClass === "ETH") {
@@ -510,52 +417,6 @@ async function getMatchOpenseaOptions(
 	} else {
 		return {}
 	}
-
-	return matchOptions
 }
-
-
-/*
-async function getMatchOpenseaOptions(
-	buy: OpenSeaOrderToSignDTO,
-	sell: OpenSeaOrderToSignDTO,
-	from: Address
-): Promise<EthereumSendOptions> {
-	let matchOptions: EthereumSendOptions = {}
-	if (buy.maker.toLowerCase() === from.toLowerCase() && buy.paymentToken === ZERO_ADDRESS) {
-		const value = toBn(sell.basePrice)
-			.multipliedBy(10000 + +buy.takerRelayerFee)
-			.dividedBy(10000)
-			.integerValue(BigNumber.ROUND_FLOOR)
-
-		if (buy.feeMethod === OrderOpenSeaV1DataV1FeeMethod.SPLIT_FEE) {
-
-		} else if (buy.feeMethod === OrderOpenSeaV1DataV1FeeMethod.PROTOCOL_FEE) {
-
-		}
-		matchOptions.value = value.toFixed()
-	}
-
-	if (sell.maker.toLowerCase() === from.toLowerCase() && sell.paymentToken === ZERO_ADDRESS) {
-		const value = toBn(sell.basePrice)
-			.multipliedBy(buy.takerRelayerFee)
-			.dividedBy(10000)
-			.plus(sell.basePrice)
-			.integerValue(BigNumber.ROUND_FLOOR)
-		matchOptions.value = value.toFixed()
-	}
-	console.log("buy", buy, "sell", sell, "options", matchOptions)
-	return matchOptions
-}
-
-
- */
-
-// function getRealOpenseaValue(order: SimpleOpenSeaV1Order) {
-// 	const fee = getMakeFee(order)
-// 	const make = addFee(order.make, fee)
-// 	return make.value
-// }
-
 
 const ZERO = toWord("0x0000000000000000000000000000000000000000000000000000000000000000")

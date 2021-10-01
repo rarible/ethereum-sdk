@@ -5,13 +5,12 @@ import {
 	Address,
 	Asset,
 	Configuration,
-	Erc1155AssetType,
 	GatewayControllerApi,
 	OrderControllerApi,
 } from "@rarible/protocol-api-client"
 import { Contract } from "web3-eth-contract"
 import { EthereumContract } from "@rarible/ethereum-provider"
-import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
+import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
 import { send as sendTemplate, sentTx } from "../common/send-transaction"
 import { Config } from "../config/type"
@@ -30,22 +29,20 @@ import { deployOpenSeaExchangeV1 } from "./contracts/test/opensea/test-exchange-
 import { createOpenseaProxyRegistryEthContract } from "./contracts/proxy-registry-opensea"
 import {
 	convertOpenSeaOrderToSignDTO,
-	SimpleOpenSeaV1Order, SimpleOrder,
+	SimpleOpenSeaV1Order,
 } from "./sign-order"
 import { getOrderSignature, hashOpenSeaV1Order, hashToSign } from "./test/order-opensea"
-import { approveOpensea, getRegisteredProxy } from "./approve-opensea"
+import { approveOpensea } from "./approve-opensea"
 import {
 	fillOrder,
 	getAtomicMatchArgAddresses,
 	getAtomicMatchArgCommonData,
-	getAtomicMatchArgUints, getOpenseaAssetV1,
+	getAtomicMatchArgUints,
 	getOpenseaOrdersForMatching,
 } from "./fill-order"
-import { getMakeFee, GetMakeFeeFunction } from "./get-make-fee"
+import { getMakeFee } from "./get-make-fee"
 import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
 import { cancel } from "./cancel"
-import { invertOrder } from "./invert-order"
-import { addFee } from "./add-fee"
 
 describe("fillOrder: Opensea orders", function () {
 	const { addresses, provider } = createGanacheProvider()
@@ -139,21 +136,6 @@ describe("fillOrder: Opensea orders", function () {
 			}
 			case "ERC721": {
 				return toBn(await it.testErc721.methods.balanceOf(sender).call()).toString()
-			}
-			case "ERC1155": {
-				return toBn(await it.testErc1155.methods.balanceOf(sender, asset.assetType.tokenId).call()).toString()
-			}
-			default: throw new Error("Should specify the ERC asset")
-		}
-	}
-
-	async function approve(asset: Asset, sender: Address): Promise<any> {
-		switch (asset.assetType.assetClass) {
-			case "ERC20": {
-				return await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, asset.value), { from: sender })
-			}
-			case "ERC721": {
-				// return await sentTx(it.testErc721.methods.approve(wyvernTokenTransferProxy.options.address, asset.value), { from: sender })
 			}
 			case "ERC1155": {
 				return toBn(await it.testErc1155.methods.balanceOf(sender, asset.assetType.tokenId).call()).toString()
@@ -361,217 +343,12 @@ describe("fillOrder: Opensea orders", function () {
 
 	})
 
-
-	/*
-	test("should fill order (sell erc1155 for erc20)", async () => {
-		const nftOwner = sender2Address
-		const nftBuyer = sender1Address
-		const nftOwnerEthereum = ethereum2
-		const nftBuyerEthereum = ethereum1
-		const sendOwner = send2
-		const sendBuyer = send1
-
-		const left: SimpleOpenSeaV1Order = {
-			make: {
-				assetType: {
-					assetClass: "ERC1155",
-					contract: toAddress(it.testErc1155.options.address),
-					tokenId: toBigNumber("3"),
-				},
-				value: toBigNumber("1"),
-			},
-			maker: nftOwner,
-			take: {
-				assetType: {
-					assetClass: "ERC20",
-					contract: toAddress(it.testErc20.options.address),
-				},
-				value: toBigNumber("100"),
-			},
-			salt: toWord("7b0a53bb49afd3238b0ff50f17f3462ee070f913df3f9c434dc9aa941c184df7"),
-			type: "OPEN_SEA_V1",
-			start: 0,
-			end: 0,
-			data: {
-				dataType: "OPEN_SEA_V1_DATA_V1",
-				exchange: toAddress(wyvernExchange.options.address),
-				makerRelayerFee: toBigNumber("1000"),
-				takerRelayerFee: toBigNumber("0"),
-				makerProtocolFee: toBigNumber("0"),
-				takerProtocolFee: toBigNumber("0"),
-				feeRecipient: toAddress(feeRecipient),
-				feeMethod: "SPLIT_FEE",
-				side: "SELL",
-				saleKind: "FIXED_PRICE",
-				howToCall: "CALL",
-				callData: toBinary("0xf242432a00000000000000000000000000d5cbc289e4b66a6252949d6eb6ebbb12df24ab00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000"),
-				replacementPattern: toBinary("0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
-				staticTarget: ZERO_ADDRESS,
-				staticExtraData: toBinary("0x"),
-				extra: toBigNumber("0"),
-			},
-		}
-
-		const asset = addFee(left.take, +left.data.takerRelayerFee)
-
-		// console.log('approve asset', asset)
-		await sentTx(it.testErc20.methods.mint(nftBuyer, 100000), { from: nftBuyer })
-		await sentTx(it.testErc20.methods.mint(nftOwner, 100000), { from: nftOwner })
-		await sentTx(it.testErc1155.methods.mint(nftOwner, 3, 10, "0x"), { from: nftOwner })
-
-
-		// await approveOpensea(nftOwnerEthereum, sendOwner, config, left.maker, left.make)
-		const proxyAddress = await getRegisteredProxy(nftOwnerEthereum, toAddress(wyvernProxyRegistry.options.address))
-		const allowance = await it.testErc20.methods.allowance(nftBuyer, wyvernTokenTransferProxy.options.address)
-			.call()
-		console.log("allowance from", nftBuyer, "to", wyvernTokenTransferProxy.options.address, "=", allowance)
-		// await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, asset.value), { from: nftBuyer })
-		await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, asset.value), { from: nftOwner })
-		await sentTx(it.testErc1155.methods.setApprovalForAll(proxyAddress, true), { from: nftOwner })
-
-		console.log("nft buyer approve to", wyvernTokenTransferProxy.options.address, "from", nftBuyer, "amount", asset.value)
-
-		const signature = toBinary(await getOrderSignature(nftOwnerEthereum, left))
-
-		const initBalanceErc20NftBuyer = toBn(await it.testErc20.methods.balanceOf(nftBuyer).call())
-		const initBalanceErc20NftOwner = toBn(await it.testErc20.methods.balanceOf(nftOwner).call())
-		const initBalanceErc1155NftOwner = toBn(await it.testErc1155.methods.balanceOf(nftOwner, 3).call())
-
-		const filledOrder = await fillOrder(
-			getMakeFee.bind(null, { v2: 100 }),
-			nftBuyerEthereum,
-			sendBuyer,
-			{} as any,
-			config,
-			{ order: { ...left, signature }, amount: +left.make.value }
-		)
-
-		await filledOrder.build().runAll()
-
-		console.log("nft buyer erc20", initBalanceErc20NftBuyer.toString(), "final balance", (await it.testErc20.methods.balanceOf(nftBuyer).call()).toString())
-		expect(toBn(await it.testErc20.methods.balanceOf(nftBuyer).call()).toString()).toBe(
-			initBalanceErc20NftBuyer.minus(100).toFixed()
-		)
-		expect(toBn(await it.testErc1155.methods.balanceOf(nftOwner, 3).call()).toString()).toBe(
-			initBalanceErc1155NftOwner.minus(1).toFixed()
-		)
-		console.log("nft owner erc20", initBalanceErc20NftOwner.toString(), "final balance", (await it.testErc20.methods.balanceOf(nftOwner).call()).toString())
-		expect(toBn(await it.testErc20.methods.balanceOf(nftOwner).call()).toString()).toBe(
-			//cost 100 eth minus 10% fee
-			initBalanceErc20NftOwner.minus(10).plus(100).toFixed()
-		)
-	})
-
-	 */
-	/*
-	test("should fill order (buy erc1155 for erc20)", async () => {
-		const nftOwner = sender2Address
-		const nftBuyer = sender1Address
-		const nftOwnerEthereum = ethereum2
-		const nftBuyerEthereum = ethereum1
-		const sendNftOwner = send2
-		const sendNftBuyer = send1
-
-		const left: SimpleOpenSeaV1Order = {
-			make: {
-				assetType: {
-					assetClass: "ERC20",
-					contract: toAddress(it.testErc20.options.address),
-				},
-				value: toBigNumber("100"),
-			},
-			maker: nftBuyer,
-			take: {
-				assetType: {
-					assetClass: "ERC1155",
-					contract: toAddress(it.testErc1155.options.address),
-					tokenId: toBigNumber("55555"),
-				},
-				value: toBigNumber("1"),
-			},
-			salt: toWord("7b0a53bb49afd3238b0ff50f17f3462ee070f913df3f9c434dc9aa941c184df7"),
-			type: "OPEN_SEA_V1",
-			start: 0,
-			end: 0,
-			data: {
-				dataType: "OPEN_SEA_V1_DATA_V1",
-				exchange: toAddress(wyvernExchange.options.address),
-				makerRelayerFee: toBigNumber("0"),
-				takerRelayerFee: toBigNumber("1000"),
-				makerProtocolFee: toBigNumber("0"),
-				takerProtocolFee: toBigNumber("0"),
-				feeRecipient: toAddress(ZERO_ADDRESS),
-				feeMethod: "SPLIT_FEE",
-				side: "BUY",
-				saleKind: "FIXED_PRICE",
-				howToCall: "CALL",
-				callData: toBinary("0xf242432a00000000000000000000000000d5cbc289e4b66a6252949d6eb6ebbb12df24ab00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000"),
-				replacementPattern: toBinary("0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
-				staticTarget: ZERO_ADDRESS,
-				staticExtraData: toBinary("0x"),
-				extra: toBigNumber("0"),
-			},
-		}
-
-		console.log("before signature")
-		const signature = toBinary(await getOrderSignature(nftBuyerEthereum, left))
-
-		console.log("after signature")
-		const asset = addFee(left.make, +left.data.takerRelayerFee)
-		console.log("after fee", asset)
-
-		// console.log('approve asset', asset)
-		await sentTx(it.testErc20.methods.mint(nftBuyer, asset.value), { from: nftBuyer })
-		// await sentTx(it.testErc20.methods.mint(nftOwner, asset.value), { from: nftOwner })
-		await sentTx(it.testErc1155.methods.mint(nftOwner, 55555, 10, "0x"), { from: nftOwner })
-
-
-		// await approveOpensea(nftOwnerEthereum, sendNftOwner, config, left.maker, left.make)
-		const proxyAddress = await getRegisteredProxy(nftOwnerEthereum, toAddress(wyvernProxyRegistry.options.address))
-		const proxyAddressBuyer = await getRegisteredProxy(nftBuyerEthereum, toAddress(wyvernProxyRegistry.options.address))
-		await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, asset.value), { from: nftBuyer })
-		// await sentTx(it.testErc20.methods.approve(wyvernTokenTransferProxy.options.address, asset.value), { from: nftOwner })
-		await sentTx(it.testErc1155.methods.setApprovalForAll(proxyAddress, true), { from: nftOwner })
-
-
-		const initBalanceErc20NftBuyer = toBn(await it.testErc20.methods.balanceOf(nftBuyer).call())
-		const initBalanceErc20NftOwner = toBn(await it.testErc20.methods.balanceOf(nftOwner).call())
-		const initBalanceErc1155NftOwner = toBn(await it.testErc1155.methods.balanceOf(nftOwner, 55555).call())
-
-		console.log("before fill order")
-		const filledOrder = await fillOrder(
-			getMakeFee.bind(null, { v2: 100 }),
-			nftOwnerEthereum,
-			sendNftOwner,
-			{} as any,
-			config,
-			{ order: { ...left, signature }, amount: +left.make.value }
-		)
-
-		await filledOrder.build().runAll()
-
-		expect(toBn(await it.testErc20.methods.balanceOf(nftBuyer).call()).toString()).toBe(
-			initBalanceErc20NftBuyer.minus(110).toFixed()
-		)
-		expect(toBn(await it.testErc1155.methods.balanceOf(nftOwner, 55555).call()).toString()).toBe(
-			initBalanceErc1155NftOwner.minus(1).toFixed()
-		)
-		expect(toBn(await it.testErc20.methods.balanceOf(nftOwner).call()).toString()).toBe(
-			initBalanceErc20NftOwner.plus(100).toFixed()
-		)
-	})
-
-
-	 */
-
-
-	/*
 	// Sell-side orders
 	describe.each([
 		getOrderTemplate("ERC721", "ETH", "SELL"),
-		// getOrderTemplate("ERC721", "ERC20", "SELL"),
-		// getOrderTemplate("ERC1155", "ETH", "SELL"),
-		// getOrderTemplate("ERC1155", "ERC20", "SELL"),
+		getOrderTemplate("ERC721", "ERC20", "SELL"),
+		getOrderTemplate("ERC1155", "ETH", "SELL"),
+		getOrderTemplate("ERC1155", "ERC20", "SELL"),
 	])(
 		"side: $data.side $make.assetType.assetClass for $take.assetType.assetClass",
 		(testOrder) => {
@@ -586,35 +363,26 @@ describe("fillOrder: Opensea orders", function () {
 			beforeEach(async () => {
 				order.make = setTestContract(order.make)
 				order.take = setTestContract(order.take)
+				order.data.takerRelayerFee = toBigNumber("500")
 				order.data.makerRelayerFee = toBigNumber("500")
 				order.data.exchange = toAddress(wyvernExchange.options.address)
 				order.data.feeRecipient = toAddress(feeRecipient)
 				order.maker = toAddress(nftOwner)
-				// order.data.feeMethod = "PROTOCOL_FEE"
 
 				await mintTestAsset(order.make, nftOwner)
 				await mintTestAsset(order.take, nftBuyer)
 				//Mint erc20 to nft owner for pay fee
 				await mintTestAsset(order.take, nftOwner)
-				// const asset = addFee(order.take, +order.data.makerRelayerFee)
-				const asset = getOpenseaAssetV1(order)
-				console.log("take asset with fee", asset)
-				// asset.value = toBigNumber("500")
 				await approveOpensea(nftOwnerEthereum, sendNftOwner, config, nftOwner, order.make, true)
-				await approveOpensea(nftOwnerEthereum, sendNftOwner, config, nftOwner, asset, true)
+				await approveOpensea(nftOwnerEthereum, sendNftOwner, config, nftOwner, order.take, true)
 
 				order.signature = toBinary(await getOrderSignature(nftOwnerEthereum, order))
 
-				// debugger
 			})
 
 			test("should match order", async () => {
 
 				const nftSellerInitBalance = await getBalance(order.make, nftOwner)
-
-				// const initBalanceErc20NftBuyer = await it.testErc20.methods.balanceOf(nftBuyer).call()
-				// const initBalanceErc20NftOwner = await it.testErc20.methods.balanceOf(nftOwner).call()
-
 
 				const filledOrder = await fillOrder(
 					getMakeFee.bind(null, { v2: 100 }),
@@ -629,26 +397,18 @@ describe("fillOrder: Opensea orders", function () {
 
 				const nftSellerFinalBalance = await getBalance(order.make, nftOwner)
 
-				// const finalBalanceErc20Buyer = await it.testErc20.methods.balanceOf(nftBuyer).call()
-				// const finalBalanceErc20Owner = await it.testErc20.methods.balanceOf(nftOwner).call()
-
-				// console.log("initBalanceErc20NftOwner", initBalanceErc20NftOwner, "finalBalanceErc20Owner", finalBalanceErc20Owner)
-				// console.log("initBalanceErc20NftBuyer", initBalanceErc20NftBuyer, "finalBalanceErc20Buyer", finalBalanceErc20Buyer)
-
 				expect(nftSellerFinalBalance).not.toBe(nftSellerInitBalance)
 
 
 			})
 		})
 
-	 */
-
 
 	// Buy-side orders
 	describe.each([
-		// getOrderTemplate("ETH", "ERC721", "BUY"),
-		// getOrderTemplate("ETH", "ERC1155", "BUY"),
-		// getOrderTemplate("ERC20", "ERC721", "BUY"),
+		getOrderTemplate("ETH", "ERC721", "BUY"),
+		getOrderTemplate("ETH", "ERC1155", "BUY"),
+		getOrderTemplate("ERC20", "ERC721", "BUY"),
 		getOrderTemplate("ERC20", "ERC1155", "BUY"),
 	])(
 		"side: $data.side $make.assetType.assetClass for $take.assetType.assetClass",
@@ -663,24 +423,16 @@ describe("fillOrder: Opensea orders", function () {
 
 			beforeEach(async () => {
 				order.data.exchange = toAddress(wyvernExchange.options.address)
-				order.data.takerRelayerFee = toBigNumber("250")
-				// order.data.takerProtocolFee = toBigNumber("250")
 				order.data.makerRelayerFee = toBigNumber("250")
-				// order.data.makerProtocolFee = toBigNumber("250")
+				order.data.takerRelayerFee = toBigNumber("250")
 				order.data.feeRecipient = toAddress(ZERO_ADDRESS)
-				// order.data.feeRecipient = toAddress(feeRecipient)
 				order.maker = toAddress(nftBuyer)
 				order.make = setTestContract(order.make)
 				order.take = setTestContract(order.take)
-				// order.data.feeMethod = "PROTOCOL_FEE"
 
 				await mintTestAsset(order.take, nftOwner)
 				await mintTestAsset(order.make, nftBuyer)
 				await approveOpensea(nftBuyerEthereum, sendNftBuyer, config, nftBuyer, order.make, true)
-				// const asset = getOpenseaAssetV1(order)
-				const asset = { ...order.make }
-				// asset.value = toBigNumber("2")
-				// await approveOpensea(nftOwnerEthereum, sendNftOwner, config, nftOwner, asset, false)
 
 				order.signature = toBinary(await getOrderSignature(nftBuyerEthereum, order))
 			})
@@ -703,6 +455,5 @@ describe("fillOrder: Opensea orders", function () {
 				expect(nftSellerFinalBalance).not.toBe(nftSellerInitBalance)
 			})
 		})
-
 
 })

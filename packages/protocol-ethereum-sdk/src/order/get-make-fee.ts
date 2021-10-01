@@ -1,8 +1,5 @@
-import { Asset } from "@rarible/protocol-api-client"
-import { BigNumberValue } from "@rarible/utils/build/bn"
-import { BigNumber, toBn } from "@rarible/utils"
 import { ExchangeFees } from "../config/type"
-import { SimpleOpenSeaV1Order, SimpleOrder } from "./sign-order"
+import { SimpleOrder } from "./sign-order"
 import { isNft } from "./is-nft"
 
 export type GetMakeFeeFunction = (order: SimpleOrder) => number
@@ -12,16 +9,6 @@ export function getMakeFee(fees: ExchangeFees, order: SimpleOrder): number {
 		return getMakeFeeV2(fees, order)
 	} else {
 		return 0
-	}
-}
-
-export function getFeeOpenseaV1(order: SimpleOpenSeaV1Order): BigNumber {
-	if (order.data.feeMethod === "SPLIT_FEE") {
-		return toBn(order.data.takerRelayerFee)
-	} else if (order.data.feeMethod === "PROTOCOL_FEE") {
-		return toBn(order.data.takerProtocolFee)
-	} else {
-		throw new Error("Unrecognized order side")
 	}
 }
 

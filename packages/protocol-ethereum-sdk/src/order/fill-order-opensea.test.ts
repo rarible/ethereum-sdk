@@ -19,10 +19,6 @@ import { getAssetTypeBlank, getOrderTemplate, OPENSEA_ORDER_TEMPLATE } from "./t
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
 import { deployTestErc1155 } from "./contracts/test/test-erc1155"
-import { deployTransferProxy } from "./contracts/test/test-transfer-proxy"
-import { deployErc20TransferProxy } from "./contracts/test/test-erc20-transfer-proxy"
-import { deployTestRoyaltiesProvider } from "./contracts/test/test-royalties-provider"
-import { deployTestExchangeV2 } from "./contracts/test/test-exchange-v2"
 import { deployOpenseaProxyRegistry } from "./contracts/test/opensea/test-proxy-registry"
 import { deployOpenseaTokenTransferProxy } from "./contracts/test/opensea/test-token-transfer-proxy"
 import { deployOpenSeaExchangeV1 } from "./contracts/test/opensea/test-exchange-opensea-v1"
@@ -70,10 +66,6 @@ describe("fillOrder: Opensea orders", function () {
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
 		testErc721: deployTestErc721(web3, "Test", "TST"),
 		testErc1155: deployTestErc1155(web3, "Test"),
-		transferProxy: deployTransferProxy(web3),
-		erc20TransferProxy: deployErc20TransferProxy(web3),
-		royaltiesProvider: deployTestRoyaltiesProvider(web3),
-		exchangeV2: deployTestExchangeV2(web3),
 	})
 
 	let wyvernExchange: Contract

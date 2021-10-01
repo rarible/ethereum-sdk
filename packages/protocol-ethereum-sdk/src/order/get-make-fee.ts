@@ -10,8 +10,6 @@ export type GetMakeFeeFunction = (order: SimpleOrder) => number
 export function getMakeFee(fees: ExchangeFees, order: SimpleOrder): number {
 	if (order.type === "RARIBLE_V2") {
 		return getMakeFeeV2(fees, order)
-	} else if (order.type === "OPEN_SEA_V1") {
-		return 0
 	} else {
 		return 0
 	}

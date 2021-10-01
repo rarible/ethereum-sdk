@@ -18,8 +18,6 @@ export async function approveOpensea(
 	infinite: undefined | boolean = true
 ): Promise<EthereumTransaction | undefined> {
 
-	const proxyAddress = await getRegisteredProxy(ethereum, config.proxyRegistries.openseaV1)
-
 	switch (asset.assetType.assetClass) {
 		case "ERC20": {
 			const contract = asset.assetType.contract
@@ -28,10 +26,12 @@ export async function approveOpensea(
 		}
 		case "ERC721": {
 			const contract = asset.assetType.contract
+			const proxyAddress = await getRegisteredProxy(ethereum, config.proxyRegistries.openseaV1)
 			return approveErc721(ethereum, send, contract, owner, proxyAddress)
 		}
 		case "ERC1155": {
 			const contract = asset.assetType.contract
+			const proxyAddress = await getRegisteredProxy(ethereum, config.proxyRegistries.openseaV1)
 			return approveErc1155(ethereum, send, contract, owner, proxyAddress)
 		}
 		default: return undefined

@@ -232,7 +232,6 @@ describe("fillOrder: Opensea orders", function () {
 		const { buy, sell } = await getOpenseaOrdersForMatching(
 			ethereum1,
 			order,
-			+order.make.value,
 			sender1Address,
 			config.feeRecipients.openseaV1
 		)
@@ -274,7 +273,6 @@ describe("fillOrder: Opensea orders", function () {
 		const { buy, sell } = await getOpenseaOrdersForMatching(
 			ethereum1,
 			order,
-			+order.make.value,
 			sender1Address,
 			config.feeRecipients.openseaV1
 		)
@@ -343,6 +341,7 @@ describe("fillOrder: Opensea orders", function () {
 
 	})
 
+
 	// Sell-side orders
 	describe.each([
 		getOrderTemplate("ERC721", "ETH", "SELL"),
@@ -364,7 +363,9 @@ describe("fillOrder: Opensea orders", function () {
 				order.make = setTestContract(order.make)
 				order.take = setTestContract(order.take)
 				order.data.takerRelayerFee = toBigNumber("500")
+				order.data.takerProtocolFee = toBigNumber("500")
 				order.data.makerRelayerFee = toBigNumber("500")
+				order.data.makerProtocolFee = toBigNumber("500")
 				order.data.exchange = toAddress(wyvernExchange.options.address)
 				order.data.feeRecipient = toAddress(feeRecipient)
 				order.maker = toAddress(nftOwner)
@@ -373,8 +374,8 @@ describe("fillOrder: Opensea orders", function () {
 				await mintTestAsset(order.take, nftBuyer)
 				//Mint erc20 to nft owner for pay fee
 				await mintTestAsset(order.take, nftOwner)
-				await approveOpensea(nftOwnerEthereum, sendNftOwner, config, nftOwner, order.make, true)
-				await approveOpensea(nftOwnerEthereum, sendNftOwner, config, nftOwner, order.take, true)
+				await approveOpensea(nftOwnerEthereum, sendNftOwner, config, nftOwner, order.make, false)
+				await approveOpensea(nftOwnerEthereum, sendNftOwner, config, nftOwner, order.take, false)
 
 				order.signature = toBinary(await getOrderSignature(nftOwnerEthereum, order))
 
@@ -390,7 +391,7 @@ describe("fillOrder: Opensea orders", function () {
 					sendNftBuyer,
 					{} as any,
 					config,
-					{ order: { ...order }, amount: +order.make.value }
+					{ order: { ...order } }
 				)
 
 				await filledOrder.build().runAll()
@@ -402,7 +403,6 @@ describe("fillOrder: Opensea orders", function () {
 
 			})
 		})
-
 
 	// Buy-side orders
 	describe.each([
@@ -423,8 +423,10 @@ describe("fillOrder: Opensea orders", function () {
 
 			beforeEach(async () => {
 				order.data.exchange = toAddress(wyvernExchange.options.address)
-				order.data.makerRelayerFee = toBigNumber("250")
-				order.data.takerRelayerFee = toBigNumber("250")
+				order.data.makerRelayerFee = toBigNumber("500")
+				order.data.makerProtocolFee = toBigNumber("500")
+				order.data.takerRelayerFee = toBigNumber("500")
+				order.data.takerProtocolFee = toBigNumber("500")
 				order.data.feeRecipient = toAddress(ZERO_ADDRESS)
 				order.maker = toAddress(nftBuyer)
 				order.make = setTestContract(order.make)
@@ -432,7 +434,11 @@ describe("fillOrder: Opensea orders", function () {
 
 				await mintTestAsset(order.take, nftOwner)
 				await mintTestAsset(order.make, nftBuyer)
-				await approveOpensea(nftBuyerEthereum, sendNftBuyer, config, nftBuyer, order.make, true)
+				const buyerApprovalAsset = {
+					...order.make,
+					value: toBigNumber(+order.data.takerRelayerFee + +order.data.takerProtocolFee + order.make.value),
+				}
+				await approveOpensea(nftBuyerEthereum, sendNftBuyer, config, nftBuyer, buyerApprovalAsset, false)
 
 				order.signature = toBinary(await getOrderSignature(nftBuyerEthereum, order))
 			})
@@ -446,14 +452,14 @@ describe("fillOrder: Opensea orders", function () {
 					sendNftOwner,
 					orderApi,
 					config,
-					{ order, amount: +order.make.value }
+					{ order }
 				)
 				await filledOrder.build().runAll()
 
 				const nftSellerFinalBalance = await getBalance(order.take, nftOwner)
-
 				expect(nftSellerFinalBalance).not.toBe(nftSellerInitBalance)
 			})
 		})
+
 
 })

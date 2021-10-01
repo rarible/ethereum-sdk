@@ -45,3 +45,18 @@ function calculateAmounts(
 		return [toBn(amount).multipliedBy(take).div(make), amount]
 	}
 }
+
+export function simpleInvertOrder<T extends SimpleOrder>(order: T, from: Address): T {
+	return {
+		...order,
+		make: {
+			...order.take,
+		},
+		take: {
+			...order.make,
+		},
+		maker: from,
+		taker: order.maker,
+		signature: undefined,
+	}
+}

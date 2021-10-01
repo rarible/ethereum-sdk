@@ -16,7 +16,7 @@ export function getAssetTypeBlank(assetClass: string): Asset {
 				assetType: {
 					assetClass: "ETH",
 				},
-				value: toBigNumber("100"),
+				value: toBigNumber("10000"),
 			}
 		}
 		case "ERC20": {
@@ -25,7 +25,7 @@ export function getAssetTypeBlank(assetClass: string): Asset {
 					assetClass: "ERC20",
 					contract: toAddress(ZERO_ADDRESS),
 				},
-				value: toBigNumber("100"),
+				value: toBigNumber("10000"),
 			}
 		}
 		case "ERC721": {
@@ -45,7 +45,7 @@ export function getAssetTypeBlank(assetClass: string): Asset {
 					contract: toAddress(ZERO_ADDRESS),
 					tokenId: toBigNumber(getRandomTokenId()),
 				},
-				value: toBigNumber("100"),
+				value: toBigNumber("10000"),
 			}
 		}
 		default:

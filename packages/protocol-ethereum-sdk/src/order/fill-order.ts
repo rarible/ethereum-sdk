@@ -1,7 +1,7 @@
 import { Asset, LegacyOrderForm, OrderControllerApi, Part } from "@rarible/protocol-api-client"
 import { Address, toAddress, toBigNumber, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { ActionBuilder } from "@rarible/action"
-import { BigNumber, toBn } from "@rarible/utils"
+import { toBn } from "@rarible/utils"
 import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Config } from "../config/type"
 import type { OpenSeaOrderToSignDTO } from "../common/orders"
@@ -15,7 +15,7 @@ import {
 	SimpleOrder,
 	SimpleRaribleV2Order,
 } from "./sign-order"
-import { invertOrder } from "./invert-order"
+import { invertOrder, simpleInvertOrder } from "./invert-order"
 import { addFee } from "./add-fee"
 import type { GetMakeFeeFunction } from "./get-make-fee"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
@@ -23,6 +23,7 @@ import { toStructLegacyOrder } from "./to-struct-legacy-order"
 import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
 import { approveOpensea } from "./approve-opensea"
 import { approve } from "./approve"
+import { getOpenseaAmountWithFeeV1 } from "./get-make-fee"
 
 type CommonFillRequest<T> = { order: T, amount: number, infinite?: boolean }
 
@@ -31,7 +32,7 @@ export type LegacyOrderFillRequest =
 export type RaribleV2OrderFillRequest =
 	CommonFillRequest<SimpleRaribleV2Order> & { payouts?: Part[], originFees?: Part[] }
 export type OpenSeaV1OrderFillRequest =
-	CommonFillRequest<SimpleOpenSeaV1Order>
+	Omit<CommonFillRequest<SimpleOpenSeaV1Order>, "amount">
 
 export type FillOrderRequest = LegacyOrderFillRequest | RaribleV2OrderFillRequest | OpenSeaV1OrderFillRequest
 
@@ -50,17 +51,30 @@ export async function fillOrder(
 		let tx: EthereumTransaction | undefined
 
 		if (request.order.type === "OPEN_SEA_V1") {
-			const asset = getOpenseaAssetV1(request.order)
-			tx = await approveOpensea(
-				ethereum,
-				send,
-				config,
-				toAddress(await ethereum.getFrom()),
-				asset,
-				false
-			)
+			const from = toAddress(await ethereum.getFrom())
+			const amountAsset = getOpenseaAmountWithFeeV1(request.order)
+
+			if (request.order.take.assetType.assetClass === amountAsset.assetType.assetClass) {
+				tx = await approveOpensea(ethereum, send, config, from, amountAsset, Boolean(request.infinite))
+			} else {
+				tx = await approveOpensea(ethereum, send, config, from, request.order.take, Boolean(request.infinite))
+
+				const txFeesApproval = await approveOpensea(
+					ethereum,
+					send,
+					config,
+					from,
+					amountAsset,
+					Boolean(request.infinite)
+				)
+				await txFeesApproval?.wait()
+			}
 		} else {
-			const makeAsset = getMakeAssetV2(getMakeFee, request.order, request.amount)
+			const makeAsset = getMakeAssetV2(
+				getMakeFee,
+				request.order,
+				(request as RaribleV2OrderFillRequest | LegacyOrderFillRequest).amount
+			)
 			tx = await approve(
 				ethereum,
 				send,
@@ -87,43 +101,6 @@ function getMakeAssetV2(getMakeFee: GetMakeFeeFunction, order: SimpleOrder, amou
 	const inverted = invertOrder(order, toBn(amount), ZERO_ADDRESS)
 	const makeFee = getMakeFee(inverted)
 	return addFee(inverted.make, makeFee)
-}
-
-export function getOpenseaAssetV1(order: SimpleOpenSeaV1Order): Asset {
-	if (order.data.side === "SELL") {
-		let asset: Asset = order.take
-
-		const fees = toBn(order.data.takerProtocolFee)
-			.plus(order.data.takerRelayerFee)
-			.plus(10000)
-
-		const amount = toBn(asset.value)
-			.multipliedBy(fees)
-			.dividedBy(10000)
-			.integerValue(BigNumber.ROUND_FLOOR)
-
-		return {
-			...asset,
-			value: toBigNumber(amount.toFixed()),
-		}
-	} else if (order.data.side === "BUY") {
-		const asset = order.make
-		const fees = toBn(order.data.makerProtocolFee)
-			.plus(order.data.makerRelayerFee)
-			.plus(10000)
-
-		const amount = toBn(asset.value)
-			.multipliedBy(fees)
-			.dividedBy(10000)
-			.integerValue(BigNumber.ROUND_FLOOR)
-
-		return {
-			...asset,
-			value: toBigNumber(amount.toFixed()),
-		}
-	}
-
-	return order.take
 }
 
 export async function fillOrderSendTx(
@@ -189,7 +166,6 @@ export async function fillOrderOpenSea(
 	const { buy, sell } = await getOpenseaOrdersForMatching(
 		ethereum,
 		request.order,
-		request.amount,
 		from,
 		config.feeRecipients.openseaV1,
 	)
@@ -339,24 +315,12 @@ function getRealValue(getMakeFee: GetMakeFeeFunction, order: SimpleOrder) {
 export async function getOpenseaOrdersForMatching(
 	ethereum: Ethereum,
 	order: SimpleOpenSeaV1Order,
-	amount: number,
 	from: Address,
 	defaultFeeRecipient: Address
 ) {
 	let buy: SimpleOpenSeaV1Order, sell: SimpleOpenSeaV1Order
 
-	const inverted = {
-		...order,
-		make: {
-			...order.take,
-		},
-		take: {
-			...order.make,
-		},
-		maker: from,
-		taker: order.maker,
-		signature: undefined,
-	}
+	const inverted = simpleInvertOrder(order, from)
 	const feeRecipient = order.data.feeRecipient === ZERO_ADDRESS ? defaultFeeRecipient : ZERO_ADDRESS
 
 	switch (order.data.side) {
@@ -411,9 +375,9 @@ async function getMatchOpenseaOptions(
 	sell: SimpleOpenSeaV1Order,
 ): Promise<EthereumSendOptions> {
 	if (buy.take.assetType.assetClass === "ETH") {
-		return { value: getOpenseaAssetV1(buy).value }
+		return { value: getOpenseaAmountWithFeeV1(buy).value }
 	} else if (sell.take.assetType.assetClass === "ETH") {
-		return { value: getOpenseaAssetV1(sell).value }
+		return { value: getOpenseaAmountWithFeeV1(sell).value }
 	} else {
 		return {}
 	}

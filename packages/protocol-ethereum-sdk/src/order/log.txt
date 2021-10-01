@@ -1,0 +1,111 @@
+  console.log
+    take { assetType: { assetClass: 'ETH' }, value: '10000' } fee asset { assetType: { assetClass: 'ETH' }, value: '11000' } combine fees true
+
+      at Object.<anonymous> (src/order/fill-order.ts:66:12)
+
+  console.log
+    take {
+      assetType: {
+        assetClass: 'ERC20',
+        contract: '0xafd78523918c45c1482181bec7d3eabd738f0d8a'
+      },
+      value: '10000'
+    } fee asset {
+      assetType: {
+        assetClass: 'ERC20',
+        contract: '0xafd78523918c45c1482181bec7d3eabd738f0d8a'
+      },
+      value: '11000'
+    } combine fees true
+
+      at Object.<anonymous> (src/order/fill-order.ts:66:12)
+          at runMicrotasks (<anonymous>)
+
+  console.log
+    take { assetType: { assetClass: 'ETH' }, value: '10000' } fee asset { assetType: { assetClass: 'ETH' }, value: '11000' } combine fees true
+
+      at Object.<anonymous> (src/order/fill-order.ts:66:12)
+          at runMicrotasks (<anonymous>)
+
+  console.log
+    take {
+      assetType: {
+        assetClass: 'ERC20',
+        contract: '0xafd78523918c45c1482181bec7d3eabd738f0d8a'
+      },
+      value: '10000'
+    } fee asset {
+      assetType: {
+        assetClass: 'ERC20',
+        contract: '0xafd78523918c45c1482181bec7d3eabd738f0d8a'
+      },
+      value: '11000'
+    } combine fees true
+
+      at Object.<anonymous> (src/order/fill-order.ts:66:12)
+          at runMicrotasks (<anonymous>)
+
+  console.log
+    take {
+      assetType: {
+        assetClass: 'ERC721',
+        contract: '0x72adaa1a480bd1ca6877fd602c261fe9c19b203e',
+        tokenId: '58164438'
+      },
+      value: '1'
+    } fee asset { assetType: { assetClass: 'ETH' }, value: '11000' } combine fees false
+
+      at Object.<anonymous> (src/order/fill-order.ts:66:12)
+          at runMicrotasks (<anonymous>)
+
+  console.log
+    take {
+      assetType: {
+        assetClass: 'ERC1155',
+        contract: '0x07b05ce754c106ef596db04df339e856e18f055f',
+        tokenId: '168498506'
+      },
+      value: '10000'
+    } fee asset { assetType: { assetClass: 'ETH' }, value: '11000' } combine fees false
+
+      at Object.<anonymous> (src/order/fill-order.ts:66:12)
+          at runMicrotasks (<anonymous>)
+
+  console.log
+    take {
+      assetType: {
+        assetClass: 'ERC721',
+        contract: '0x72adaa1a480bd1ca6877fd602c261fe9c19b203e',
+        tokenId: '26282202'
+      },
+      value: '1'
+    } fee asset {
+      assetType: {
+        assetClass: 'ERC20',
+        contract: '0xafd78523918c45c1482181bec7d3eabd738f0d8a'
+      },
+      value: '11000'
+    } combine fees false
+
+      at Object.<anonymous> (src/order/fill-order.ts:66:12)
+          at runMicrotasks (<anonymous>)
+
+  console.log
+    take {
+      assetType: {
+        assetClass: 'ERC1155',
+        contract: '0x07b05ce754c106ef596db04df339e856e18f055f',
+        tokenId: '52322126'
+      },
+      value: '10000'
+    } fee asset {
+      assetType: {
+        assetClass: 'ERC20',
+        contract: '0xafd78523918c45c1482181bec7d3eabd738f0d8a'
+      },
+      value: '11000'
+    } combine fees false
+
+      at Object.<anonymous> (src/order/fill-order.ts:66:12)
+          at runMicrotasks (<anonymous>)
+

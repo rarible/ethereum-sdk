@@ -10,23 +10,19 @@ export async function getBaseOrderFillFee(order: SimpleOrder) {
 
 		if (order.data.side === "SELL") {
 
-			const fees = toBn(order.data.takerProtocolFee)
+			return toBn(order.data.takerProtocolFee)
 				.plus(order.data.takerRelayerFee)
-
-			return +toBn(order.take.value)
-				.multipliedBy(fees)
+				.toNumber()
 
 		} else if (order.data.side === "BUY") {
 
-			const fees = toBn(order.data.makerProtocolFee)
+			return toBn(order.data.makerProtocolFee)
 				.plus(order.data.makerRelayerFee)
-
-			return +toBn(order.make.value)
-				.multipliedBy(fees)
+				.toNumber()
 
 		}
 
-		return 0
+		throw new Error("order should be BUY or SELL")
 	} else {
 		//todo add PUNKS
 		throw new Error(`Unsupported order ${JSON.stringify(order)}`)

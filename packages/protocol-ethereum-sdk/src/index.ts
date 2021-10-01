@@ -52,12 +52,12 @@ export interface RaribleOrderSdk {
 	upsertOrder(order: OrderForm, infinite?: (boolean | undefined)): Promise<UpsertOrderAction>
 
 	/**
-	 * Get base fee (this fee will be hold by the processing platform)
+	 * Get base fee (this fee will be hold by the processing platform - in basis points)
 	 */
 	getBaseOrderFee(order: OrderForm): Promise<number>
 
 	/**
-	 * Get base fee for filling an order (this fee will be hold by the processing platform)
+	 * Get base fee for filling an order (this fee will be hold by the processing platform - in basis points)
 	 */
 	getBaseOrderFillFee(order: SimpleOrder): Promise<number>
 

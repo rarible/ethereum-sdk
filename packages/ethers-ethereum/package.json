@@ -1,17 +1,24 @@
 {
   "name": "@rarible/ethers-ethereum",
   "version": "0.5.1",
-  "description": "",
+  "description": "Ethereum interface with ethers.js",
   "keywords": [
     "ethereum",
     "provider"
   ],
   "license": "Apache-2.0",
-  "main": "build/index.js",
+  "main": "umd/rarible-ethers-ethereum.js",
+  "module": "build/index.js",
   "types": "build/index.d.ts",
+  "files": [
+    "build",
+    "umd"
+  ],
   "scripts": {
     "test": "jest --testTimeout=10000",
-    "build": "tsc --project tsconfig-build.json",
+    "build": "run-s build:*",
+    "build:esm": "tsc --project tsconfig-build.json",
+    "build:umd": "webpack",
     "clean": "rimraf ./build",
     "verify": "tsc --noEmit"
   },
@@ -22,8 +29,12 @@
     "@rarible/ethereum-sdk-test-common": "^0.5.1",
     "@types/jest": "26.0.24",
     "jest": "27.0.6",
+    "process": "0.11.10",
+    "stream-browserify": "3.0.0",
     "ts-jest": "27.0.3",
-    "typescript": "4.3.5"
+    "typescript": "4.3.5",
+    "webpack": "5.55.1",
+    "webpack-cli": "4.8.0"
   },
   "peerDependencies": {
     "ethers": "^5.4.4",

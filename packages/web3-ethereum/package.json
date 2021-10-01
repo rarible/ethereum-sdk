@@ -1,17 +1,24 @@
 {
   "name": "@rarible/web3-ethereum",
   "version": "0.5.1",
-  "description": "",
+  "description": "Ethereum interface with web3.js",
   "keywords": [
     "ethereum",
     "provider"
   ],
   "license": "Apache-2.0",
-  "main": "build/index.js",
+  "main": "umd/rarible-web3-ethereum.js",
+  "module": "build/index.js",
   "types": "build/index.d.ts",
+  "files": [
+    "build",
+    "umd"
+  ],
   "scripts": {
     "test": "jest --testTimeout=10000",
-    "build": "tsc --project tsconfig-build.json",
+    "build": "run-s build:*",
+    "build:esm": "tsc --project tsconfig-build.json",
+    "build:umd": "webpack",
     "clean": "rimraf ./build",
     "verify": "tsc --noEmit"
   },
@@ -24,7 +31,9 @@
     "@types/jest": "26.0.24",
     "jest": "27.0.6",
     "ts-jest": "27.0.3",
-    "typescript": "4.3.5"
+    "typescript": "4.3.5",
+    "webpack": "5.55.1",
+    "webpack-cli": "4.8.0"
   },
   "peerDependencies": {
     "eth-rpc-errors": "^4.0.3",

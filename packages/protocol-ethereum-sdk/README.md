@@ -2,14 +2,7 @@
 
 Rarible protocol-ethereum-sdk enables applications to easily interact with Rarible protocol.
 
-### Installation
-
-```angular2html
-npm install -D @rarible/protocol-ethereum-sdk
-```
-
-### With protocol-ethereum-sdk, you can:
-
+With `protocol-ethereum-sdk`, you can:
 - Create sell orders
 - Create/accept bid for auctions
 - Buy tokens for regular sell orders
@@ -18,7 +11,37 @@ npm install -D @rarible/protocol-ethereum-sdk
 - Transfer tokens
 - Burn tokens
 
-### Usage
+## Installation
+
+### Option 1: NPM (Recommended)
+
+```angular2html
+npm install @rarible/protocol-ethereum-sdk
+```
+
+### Option 2: Yarn
+
+```angular2html
+yarn add @rarible/protocol-ethereum-sdk
+```
+
+### Option 3: Script
+
+```html
+<body>
+ <script src="https://unpkg.com/@rarible/web3-ethereum" type="text/javascript"></script>
+ <script src="https://unpkg.com/@rarible/protocol-ethereum-sdk" type="text/javascript"></script>
+ <script src="https://unpkg.com/web3@1.6.0/lib/index.js" type="text/javascript"></script>
+ <script>
+  const web3Ethereum = new window.raribleWeb3Ethereum.Web3Ethereum({ web3 })
+  const env = "rinkeby" // "e2e" | "ropsten" | "rinkeby" | "mainnet"
+  const raribleSdk = new window.raribleEthereumSdk.createRaribleSdk(web3Ethereum, env)
+ </script>
+</body>
+```
+
+
+### Usage (ESM modules)
 
 Below examples show how you can implement supported functions in you app.
 

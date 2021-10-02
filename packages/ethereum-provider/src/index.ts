@@ -41,6 +41,7 @@ export interface EthereumSendOptions {
 
 export interface EthereumFunctionCall {
 	data: string
+	estimateGas(): Promise<number>
 	call(options?: EthereumSendOptions): Promise<any>
 	send(options?: EthereumSendOptions): Promise<EthereumTransaction>
 }

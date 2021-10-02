@@ -69,6 +69,12 @@ export class EthersFunctionCall implements EthereumFunctionCall {
 		return (this.contract.populateTransaction[this.name](...this.args) as any).data
 	}
 
+	async estimateGas() {
+		const func = this.contract.estimateGas[this.name].bind(null, ...this.args)
+		const value = await func()
+		return value.toNumber()
+	}
+
 	call(options?: EthereumSendOptions): Promise<any> {
 		const func = this.contract[this.name].bind(null, ...this.args)
 		if (options) {

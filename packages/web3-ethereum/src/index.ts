@@ -69,6 +69,10 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 		return this.sendMethod.encodeABI()
 	}
 
+	estimateGas() {
+		return this.sendMethod.estimateGas()
+	}
+
 	call(options: EthereumSendOptions = {}): Promise<any> {
 		return this.sendMethod.call({
 			from: this.config.from,

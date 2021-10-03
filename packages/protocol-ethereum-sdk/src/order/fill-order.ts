@@ -41,10 +41,10 @@ export type FillOrderStageId = "approve" | "send-tx"
 
 export async function fillOrder(
 	getMakeFee: GetMakeFeeFunction,
-	ethereum: Ethereum,
 	send: SendFunction,
 	orderApi: OrderControllerApi,
 	config: Config,
+	ethereum: Ethereum,
 	request: FillOrderRequest,
 ): Promise<FillOrderAction> {
 	const approveAndWait = async () => {

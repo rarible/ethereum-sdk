@@ -1,12 +1,12 @@
 import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { Address, Asset, Configuration, GatewayControllerApi, OrderControllerApi } from "@rarible/protocol-api-client"
+import { Address, Asset } from "@rarible/protocol-api-client"
 import { Contract } from "web3-eth-contract"
 import { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
-import { send as sendTemplate, sentTx } from "../common/send-transaction"
+import { sentTx, simpleSend } from "../common/send-transaction"
 import { Config } from "../config/type"
 import { E2E_CONFIG } from "../config/e2e"
 import { id32 } from "../common/id"
@@ -28,7 +28,7 @@ import { createOpenseaProxyRegistryEthContract } from "./contracts/proxy-registr
 import { convertOpenSeaOrderToSignDTO, SimpleOpenSeaV1Order } from "./sign-order"
 import { approveOpensea } from "./approve-opensea"
 import {
-	fillOrder,
+	fillOrder as fillOrderTemplate,
 	getAtomicMatchArgAddresses,
 	getAtomicMatchArgCommonData,
 	getAtomicMatchArgUints,
@@ -45,13 +45,6 @@ describe("fillOrder: Opensea orders", function () {
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
-	const configuration = new Configuration({ basePath: "https://ethereum-api-e2e.rarible.org" })
-	const gatewayApi = new GatewayControllerApi(configuration)
-	const send1 = sendTemplate.bind(ethereum1, gatewayApi)
-	const send2 = sendTemplate.bind(ethereum2, gatewayApi)
-
-	let orderApi: OrderControllerApi
-
 	const config: Config = {
 		...E2E_CONFIG,
 		chainId: 1,
@@ -60,6 +53,14 @@ describe("fillOrder: Opensea orders", function () {
 			feeRecipient: feeRecipient,
 		},
 	}
+
+	const fillOrder = fillOrderTemplate.bind(
+		null,
+		getMakeFee.bind(null, { v2: 100 }),
+		simpleSend,
+		null as any,
+		config
+	)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -304,7 +305,7 @@ describe("fillOrder: Opensea orders", function () {
 		await mintTestAsset(order.make, sender2Address)
 		order.make = setTestContract(order.make)
 		order.take = setTestContract(order.take)
-		await approveOpensea(ethereum2, send2, config, sender2Address, order.make)
+		await approveOpensea(ethereum2, simpleSend, config, sender2Address, order.make)
 
 		const signature = toBinary(await getOrderSignature(ethereum1, order))
 
@@ -347,8 +348,6 @@ describe("fillOrder: Opensea orders", function () {
 			const nftBuyer = sender1Address
 			const nftOwnerEthereum = ethereum2
 			const nftBuyerEthereum = ethereum1
-			const sendNftOwner = send2
-			const sendNftBuyer = send1
 
 			beforeEach(async () => {
 				order.make = setTestContract(order.make)
@@ -365,8 +364,8 @@ describe("fillOrder: Opensea orders", function () {
 				await mintTestAsset(order.take, nftBuyer)
 				//Mint erc20 to nft owner for pay fee
 				await mintTestAsset(order.take, nftOwner)
-				await approveOpensea(nftOwnerEthereum, sendNftOwner, config, nftOwner, order.make, false)
-				await approveOpensea(nftOwnerEthereum, sendNftOwner, config, nftOwner, order.take, false)
+				await approveOpensea(nftOwnerEthereum, simpleSend, config, nftOwner, order.make, false)
+				await approveOpensea(nftOwnerEthereum, simpleSend, config, nftOwner, order.take, false)
 
 				order.signature = toBinary(await getOrderSignature(nftOwnerEthereum, order))
 
@@ -376,21 +375,12 @@ describe("fillOrder: Opensea orders", function () {
 
 				const nftSellerInitBalance = await getBalance(order.make, nftOwner)
 
-				const filledOrder = await fillOrder(
-					getMakeFee.bind(null, { v2: 100 }),
-					nftBuyerEthereum,
-					sendNftBuyer,
-					{} as any,
-					config,
-					{ order: { ...order } }
-				)
-
+				const filledOrder = await fillOrder(nftBuyerEthereum,  { order })
 				await filledOrder.build().runAll()
 
 				const nftSellerFinalBalance = await getBalance(order.make, nftOwner)
 
 				expect(nftSellerFinalBalance).not.toBe(nftSellerInitBalance)
-
 
 			})
 		})
@@ -409,8 +399,6 @@ describe("fillOrder: Opensea orders", function () {
 			const nftBuyer = sender1Address
 			const nftOwnerEthereum = ethereum2
 			const nftBuyerEthereum = ethereum1
-			const sendNftOwner = send2
-			const sendNftBuyer = send1
 
 			beforeEach(async () => {
 				order.data.exchange = toAddress(wyvernExchange.options.address)
@@ -429,7 +417,7 @@ describe("fillOrder: Opensea orders", function () {
 					...order.make,
 					value: toBigNumber(+order.data.takerRelayerFee + +order.data.takerProtocolFee + order.make.value),
 				}
-				await approveOpensea(nftBuyerEthereum, sendNftBuyer, config, nftBuyer, buyerApprovalAsset, false)
+				await approveOpensea(nftBuyerEthereum, simpleSend, config, nftBuyer, buyerApprovalAsset, false)
 
 				order.signature = toBinary(await getOrderSignature(nftBuyerEthereum, order))
 			})
@@ -437,14 +425,7 @@ describe("fillOrder: Opensea orders", function () {
 			test("should match order", async () => {
 				const nftSellerInitBalance = await getBalance(order.take, nftOwner)
 
-				const filledOrder = await fillOrder(
-					getMakeFee.bind(null, { v2: 100 }),
-					nftOwnerEthereum,
-					sendNftOwner,
-					orderApi,
-					config,
-					{ order }
-				)
+				const filledOrder = await fillOrder(nftOwnerEthereum, { order })
 				await filledOrder.build().runAll()
 
 				const nftSellerFinalBalance = await getBalance(order.take, nftOwner)

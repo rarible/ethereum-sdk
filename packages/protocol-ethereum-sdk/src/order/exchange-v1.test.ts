@@ -43,7 +43,7 @@ describe("test exchange v1 order", () => {
 	const sign = signOrder.bind(null, ethereum1, { chainId: 17, exchange: CONFIGS.e2e.exchange })
 	const makeFee = getMakeFee.bind(null, { v2: 100 })
 	const fill = fillOrderSendTx
-		.bind(null, makeFee, ethereum2, send, CONFIGS.e2e.exchange)
+		.bind(null, makeFee, ethereum2, send, CONFIGS.e2e)
 		.bind(null, orderApi)
 
 	test("", async () => {

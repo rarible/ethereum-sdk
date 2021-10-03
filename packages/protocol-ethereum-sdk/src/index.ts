@@ -52,12 +52,12 @@ export interface RaribleOrderSdk {
 	upsertOrder(order: OrderForm, infinite?: (boolean | undefined)): Promise<UpsertOrderAction>
 
 	/**
-	 * Get base fee (this fee will be hold by the processing platform)
+	 * Get base fee (this fee will be hold by the processing platform - in basis points)
 	 */
 	getBaseOrderFee(order: OrderForm): Promise<number>
 
 	/**
-	 * Get base fee for filling an order (this fee will be hold by the processing platform)
+	 * Get base fee for filling an order (this fee will be hold by the processing platform - in basis points)
 	 */
 	getBaseOrderFillFee(order: SimpleOrder): Promise<number>
 
@@ -126,7 +126,7 @@ export function createRaribleSdk(
 	)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
-	const fill = partialCall(fillOrder, getMakeFee, ethereum, send, orderControllerApi, approve, config.exchange)
+	const fill = partialCall(fillOrder, getMakeFee, send, orderControllerApi, config, ethereum)
 
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
 	const mint = partialCall(mintTemplate, ethereum, send, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)

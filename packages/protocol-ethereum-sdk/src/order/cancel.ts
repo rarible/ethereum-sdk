@@ -1,10 +1,19 @@
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { Address } from "@rarible/protocol-api-client"
 import { ExchangeAddresses } from "../config/type"
-import { orderToStruct, SimpleLegacyOrder, SimpleOrder, SimpleRaribleV2Order } from "./sign-order"
+import {
+	convertOpenSeaOrderToSignDTO,
+	orderToStruct,
+	SimpleLegacyOrder,
+	SimpleOpenSeaV1Order,
+	SimpleOrder,
+	SimpleRaribleV2Order,
+} from "./sign-order"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { toStructLegacyOrderKey } from "./to-struct-legacy-order"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
+import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
+import { getAtomicMatchArgAddresses, getAtomicMatchArgUints, toVrs } from "./fill-order"
 
 export async function cancel(
 	ethereum: Ethereum,
@@ -17,8 +26,7 @@ export async function cancel(
 		case "RARIBLE_V2":
 			return cancelV2Order(ethereum, config.v2, order)
 		case "OPEN_SEA_V1":
-			//todo implement for opensea + test
-			throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
+			return cancelOpenseaOrderV1(ethereum, config.openseaV1, order)
 		default:
 			throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
 	}
@@ -32,4 +40,28 @@ async function cancelLegacyOrder(ethereum: Ethereum, contract: Address, order: S
 async function cancelV2Order(ethereum: Ethereum, contract: Address, order: SimpleRaribleV2Order) {
 	const v2 = createExchangeV2Contract(ethereum, contract)
 	return v2.functionCall("cancel", orderToStruct(ethereum, order)).send()
+}
+
+export function cancelOpenseaOrderV1(ethereum: Ethereum, contract: Address, order: SimpleOpenSeaV1Order) {
+	const exchangeContract = createOpenseaContract(ethereum, contract)
+
+	const dto = convertOpenSeaOrderToSignDTO(ethereum, order)
+	const makerVRS = toVrs(order.signature || "0x")
+
+	return exchangeContract.functionCall(
+		"cancelOrder_",
+		getAtomicMatchArgAddresses(dto),
+		getAtomicMatchArgUints(dto),
+		dto.feeMethod,
+		dto.side,
+		dto.saleKind,
+		dto.howToCall,
+		dto.calldata,
+		dto.replacementPattern,
+		dto.staticExtradata,
+		makerVRS.v,
+		makerVRS.r,
+		makerVRS.s,
+	)
+		.send()
 }

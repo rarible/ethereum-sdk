@@ -53,27 +53,43 @@ export class EthersContract implements EthereumContract {
 	}
 
 	functionCall(name: string, ...args: any): EthereumFunctionCall {
-		return new EthersFunctionCall(this.contract[name].bind(null, ...args))
+		return new EthersFunctionCall(this.contract, name, args)
 	}
 }
 
 export class EthersFunctionCall implements EthereumFunctionCall {
-	constructor(private readonly func: (options?: EthereumSendOptions) => Promise<TransactionResponse>) {
+	constructor(
+		private readonly contract: Contract,
+		private readonly name: string,
+		private readonly args: any[],
+	) {
+	}
+
+	get data(): string {
+		return (this.contract.populateTransaction[this.name](...this.args) as any).data
+	}
+
+	async estimateGas() {
+		const func = this.contract.estimateGas[this.name].bind(null, ...this.args)
+		const value = await func()
+		return value.toNumber()
 	}
 
 	call(options?: EthereumSendOptions): Promise<any> {
+		const func = this.contract[this.name].bind(null, ...this.args)
 		if (options) {
-			return this.func(options)
+			return func(options)
 		} else {
-			return this.func()
+			return func()
 		}
 	}
 
 	async send(options?: EthereumSendOptions): Promise<EthereumTransaction> {
+		const func = this.contract[this.name].bind(null, ...this.args)
 		if (options) {
-			return new EthersTransaction(await this.func(options))
+			return new EthersTransaction(await func(options))
 		} else {
-			return new EthersTransaction(await this.func())
+			return new EthersTransaction(await func())
 		}
 	}
 }

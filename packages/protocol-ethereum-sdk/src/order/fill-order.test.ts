@@ -6,6 +6,8 @@ import { toBn } from "@rarible/utils/build/bn"
 import { Configuration, GatewayControllerApi, OrderControllerApi } from "@rarible/protocol-api-client"
 import { getApiConfig } from "../config/api-config"
 import { send as sendTemplate, sentTx } from "../common/send-transaction"
+import { E2E_CONFIG } from "../config/e2e"
+import { Config } from "../config/type"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
 import { deployTransferProxy } from "./contracts/test/test-transfer-proxy"
@@ -27,6 +29,8 @@ describe("fillOrder", () => {
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const send = sendTemplate.bind(ethereum1, gatewayApi)
+
+	const config: Config = E2E_CONFIG
 
 	let orderApi: OrderControllerApi
 
@@ -54,6 +58,10 @@ describe("fillOrder", () => {
 			),
 			{ from: sender1Address }
 		)
+		config.exchange.v1 = toAddress(it.exchangeV2.options.address)
+		config.exchange.v2 = toAddress(it.exchangeV2.options.address)
+		config.chainId = 1
+
 		await sentTx(it.transferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
 			from: sender1Address,
 		})
@@ -102,15 +110,14 @@ describe("fillOrder", () => {
 			from: sender2Address,
 		})
 
-		const a = toAddress(it.exchangeV2.options.address)
-		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
+		const signature = await signOrder(ethereum2, config, left)
 
 		const finalOrder = { ...left, signature }
 		await fillOrderSendTx(
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			send,
-			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
+			config,
 			orderApi,
 			{ order: finalOrder, amount: 2, payouts: [], originFees: [] }
 		)
@@ -153,8 +160,7 @@ describe("fillOrder", () => {
 			from: sender2Address,
 		})
 
-		const a = toAddress(it.exchangeV2.options.address)
-		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
+		const signature = await signOrder(ethereum2, config, left)
 
 		const before1 = toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call())
 		const before2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call())
@@ -164,7 +170,7 @@ describe("fillOrder", () => {
 			getMakeFee.bind(null, { v2: 100 }),
 			ethereum1,
 			send,
-			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
+			config,
 			orderApi,
 			{ order: finalOrder, amount: 2, originFees: [{ account: randomAddress(), value: 100 }] }
 		)

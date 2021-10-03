@@ -70,6 +70,7 @@ export async function fillOrder(
 				await txFeesApproval?.wait()
 			}
 		} else {
+			//todo here only v2 fees are calculated. possibly we need to calculate v1 too
 			const makeAsset = getMakeAssetV2(
 				getMakeFee,
 				request.order,

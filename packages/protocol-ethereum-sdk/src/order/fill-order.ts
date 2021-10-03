@@ -47,6 +47,11 @@ export async function fillOrder(
 	ethereum: Ethereum,
 	request: FillOrderRequest,
 ): Promise<FillOrderAction> {
+	//todo rework this
+	// 1. calculate inverted order
+	// 2. calculate fees (for different types of orders)
+	// 3. approve everything needed
+	// 4. send fill transaction
 	const approveAndWait = async () => {
 		let tx: EthereumTransaction | undefined
 
@@ -204,7 +209,7 @@ async function matchOpenSeaV1Order(
 		[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, metadata],
 	)
 
-	return send(method, await getMatchOpenseaOptions(buy, sell))
+	return send(method, await getMatchOpenseaOptions(buy))
 }
 
 async function matchOrders(
@@ -368,14 +373,9 @@ export function getAtomicMatchArgCommonData(dto: OpenSeaOrderToSignDTO) {
 	return [dto.feeMethod, dto.side, dto.saleKind, dto.howToCall]
 }
 
-async function getMatchOpenseaOptions(
-	buy: SimpleOpenSeaV1Order,
-	sell: SimpleOpenSeaV1Order,
-): Promise<EthereumSendOptions> {
-	if (buy.take.assetType.assetClass === "ETH") {
+async function getMatchOpenseaOptions(buy: SimpleOpenSeaV1Order): Promise<EthereumSendOptions> {
+	if (buy.make.assetType.assetClass === "ETH") {
 		return { value: getOpenseaAmountWithFeeV1(buy).value }
-	} else if (sell.take.assetType.assetClass === "ETH") {
-		return { value: getOpenseaAmountWithFeeV1(sell).value }
 	} else {
 		return {}
 	}

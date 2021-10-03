@@ -62,5 +62,5 @@ export function getOpenseaAmountWithFeeV1(order: SimpleOpenSeaV1Order) {
 		}
 	}
 
-	return order.take
+	throw new Error(`Order ${JSON.stringify(order)} not supported`)
 }

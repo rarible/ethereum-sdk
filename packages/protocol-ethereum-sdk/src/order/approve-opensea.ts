@@ -38,10 +38,6 @@ export async function approveOpensea(
 	}
 }
 
-async function getSenderProxy(registryContract: EthereumContract, sender: Address): Promise<Address> {
-	return toAddress(await registryContract.functionCall("proxies", sender).call())
-}
-
 export async function getRegisteredProxy(
 	ethereum: Ethereum,
 	proxyRegistry: Address
@@ -69,4 +65,8 @@ export async function getRegisteredProxy(
 	}
 
 	return proxyAddress
+}
+
+async function getSenderProxy(registryContract: EthereumContract, sender: Address): Promise<Address> {
+	return toAddress(await registryContract.functionCall("proxies", sender).call())
 }

@@ -1,4 +1,5 @@
 import { Address } from "@rarible/protocol-api-client"
+import { Word } from "@rarible/types"
 
 export type ExchangeFees = {
 	v2: number
@@ -22,8 +23,9 @@ export type ProxyRegistries = {
 	openseaV1: Address
 }
 
-export type FeeRecipients = {
-	openseaV1: Address
+export type OpenSeaConfig = {
+	feeRecipient: Address
+	metadata: Word
 }
 
 export type Config = {
@@ -33,5 +35,5 @@ export type Config = {
 	transferProxies: TransferProxies
 	proxyRegistries: ProxyRegistries
 	fees: ExchangeFees
-	feeRecipients: FeeRecipients
+	openSea: OpenSeaConfig
 }

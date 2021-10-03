@@ -1,5 +1,5 @@
 import { Asset, LegacyOrderForm, OrderControllerApi, Part } from "@rarible/protocol-api-client"
-import { Address, toAddress, toBigNumber, toWord, ZERO_ADDRESS } from "@rarible/types"
+import { Address, toAddress, toBigNumber, toWord, Word, ZERO_ADDRESS } from "@rarible/types"
 import { ActionBuilder } from "@rarible/action"
 import { toBn } from "@rarible/utils"
 import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
@@ -163,22 +163,19 @@ export async function fillOrderOpenSea(
 	request: OpenSeaV1OrderFillRequest,
 ): Promise<EthereumTransaction> {
 	const from = toAddress(await ethereum.getFrom())
-	const { buy, sell } = await getOpenseaOrdersForMatching(
-		ethereum,
-		request.order,
-		from,
-		config.feeRecipients.openseaV1,
-	)
-	return matchOpenSeaV1Order(getMakeFee, ethereum, send, config.exchange.openseaV1, sell, buy)
+	const { feeRecipient, metadata } = config.openSea
+	const { buy, sell } = await getOpenseaOrdersForMatching(ethereum, request.order, from, feeRecipient)
+	return matchOpenSeaV1Order(getMakeFee, ethereum, send, config.exchange.openseaV1, sell, buy, metadata)
 }
 
-export async function matchOpenSeaV1Order(
+async function matchOpenSeaV1Order(
 	getMakeFee: GetMakeFeeFunction,
 	ethereum: Ethereum,
 	send: SendFunction,
 	exchange: Address,
 	sell: SimpleOpenSeaV1Order,
 	buy: SimpleOpenSeaV1Order,
+	metadata: Word,
 ) {
 	const sellOrderToSignDTO = convertOpenSeaOrderToSignDTO(ethereum, sell)
 	const buyOrderToSignDTO = convertOpenSeaOrderToSignDTO(ethereum, buy)
@@ -203,7 +200,7 @@ export async function matchOpenSeaV1Order(
 		buyOrderToSignDTO.staticExtradata,
 		sellOrderToSignDTO.staticExtradata,
 		[buyVRS.v, sellVRS.v],
-		[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, "0x0000000000000000000000000000000000000000000000000000000000000000"],
+		[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, metadata],
 	)
 
 	return send(method, await getMatchOpenseaOptions(buy, sell))

@@ -1,13 +1,7 @@
 import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import {
-	Address,
-	Asset,
-	Configuration,
-	GatewayControllerApi,
-	OrderControllerApi,
-} from "@rarible/protocol-api-client"
+import { Address, Asset, Configuration, GatewayControllerApi, OrderControllerApi } from "@rarible/protocol-api-client"
 import { Contract } from "web3-eth-contract"
 import { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
@@ -15,7 +9,15 @@ import { toBn } from "@rarible/utils/build/bn"
 import { send as sendTemplate, sentTx } from "../common/send-transaction"
 import { Config } from "../config/type"
 import { E2E_CONFIG } from "../config/e2e"
-import { getAssetTypeBlank, getOrderTemplate, OPENSEA_ORDER_TEMPLATE } from "./test/order-opensea"
+import { id32 } from "../common/id"
+import {
+	getAssetTypeBlank,
+	getOrderSignature,
+	getOrderTemplate,
+	hashOpenSeaV1Order,
+	hashToSign,
+	OPENSEA_ORDER_TEMPLATE,
+} from "./test/order-opensea"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
 import { deployTestErc1155 } from "./contracts/test/test-erc1155"
@@ -23,11 +25,7 @@ import { deployOpenseaProxyRegistry } from "./contracts/test/opensea/test-proxy-
 import { deployOpenseaTokenTransferProxy } from "./contracts/test/opensea/test-token-transfer-proxy"
 import { deployOpenSeaExchangeV1 } from "./contracts/test/opensea/test-exchange-opensea-v1"
 import { createOpenseaProxyRegistryEthContract } from "./contracts/proxy-registry-opensea"
-import {
-	convertOpenSeaOrderToSignDTO,
-	SimpleOpenSeaV1Order,
-} from "./sign-order"
-import { getOrderSignature, hashOpenSeaV1Order, hashToSign } from "./test/order-opensea"
+import { convertOpenSeaOrderToSignDTO, SimpleOpenSeaV1Order } from "./sign-order"
 import { approveOpensea } from "./approve-opensea"
 import {
 	fillOrder,
@@ -57,8 +55,9 @@ describe("fillOrder: Opensea orders", function () {
 	const config: Config = {
 		...E2E_CONFIG,
 		chainId: 1,
-		feeRecipients: {
-			openseaV1: feeRecipient,
+		openSea: {
+			metadata: id32("RARIBLE"),
+			feeRecipient: feeRecipient,
 		},
 	}
 
@@ -225,7 +224,7 @@ describe("fillOrder: Opensea orders", function () {
 			ethereum1,
 			order,
 			sender1Address,
-			config.feeRecipients.openseaV1
+			config.openSea.feeRecipient
 		)
 		const buyDTO = convertOpenSeaOrderToSignDTO(ethereum1, buy)
 		const sellDTO = convertOpenSeaOrderToSignDTO(ethereum1, sell)
@@ -266,7 +265,7 @@ describe("fillOrder: Opensea orders", function () {
 			ethereum1,
 			order,
 			sender1Address,
-			config.feeRecipients.openseaV1
+			config.openSea.feeRecipient
 		)
 		const buyDTO = convertOpenSeaOrderToSignDTO(ethereum1, buy)
 		const sellDTO = convertOpenSeaOrderToSignDTO(ethereum1, sell)

@@ -1,4 +1,5 @@
 import { toAddress, ZERO_ADDRESS } from "@rarible/types"
+import { id32 } from "../common/id"
 import { Config } from "./type"
 
 export const ROPSTEN_CONFIG: Config = {
@@ -22,7 +23,8 @@ export const ROPSTEN_CONFIG: Config = {
 	fees: {
 		v2: 0,
 	},
-	feeRecipients: {
-		openseaV1: ZERO_ADDRESS,
+	openSea: {
+		feeRecipient: ZERO_ADDRESS,
+		metadata: id32("RARIBLE"),
 	},
 }

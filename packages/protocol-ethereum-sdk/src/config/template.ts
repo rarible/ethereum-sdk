@@ -1,7 +1,9 @@
 import { ZERO_ADDRESS } from "@rarible/types"
+import { id32 } from "../common/id"
 import { Config } from "./type"
 
-export const TEMPLATE_CONFIG: Config = {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const TEMPLATE_CONFIG: Config = {
 	basePath: "https://ethereum-api.rarible.org",
 	chainId: 1,
 	exchange: {
@@ -22,7 +24,8 @@ export const TEMPLATE_CONFIG: Config = {
 	fees: {
 		v2: 0,
 	},
-	feeRecipients: {
-		openseaV1: ZERO_ADDRESS,
+	openSea: {
+		feeRecipient: ZERO_ADDRESS,
+		metadata: id32("RARIBLE"),
 	},
 }

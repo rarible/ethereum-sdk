@@ -362,8 +362,6 @@ describe("fillOrder: Opensea orders", function () {
 
 				await mintTestAsset(order.make, nftOwner)
 				await mintTestAsset(order.take, nftBuyer)
-				//Mint erc20 to nft owner for pay fee
-				await mintTestAsset(order.take, nftOwner)
 				await approveOpensea(nftOwnerEthereum, simpleSend, config, nftOwner, order.make, false)
 				await approveOpensea(nftOwnerEthereum, simpleSend, config, nftOwner, order.take, false)
 

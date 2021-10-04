@@ -7,7 +7,7 @@ import {
 	OpenSeaV1Order,
 	RaribleV2Order,
 } from "@rarible/protocol-api-client"
-import { Address, toAddress, BigNumber, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
+import { Address, toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { Ethereum, signTypedData } from "@rarible/ethereum-provider"
 import { toBn } from "@rarible/utils"
 import {
@@ -35,10 +35,7 @@ export type SimpleRaribleV2Order =
 export type SimpleOpenSeaV1Order =
     Pick<OpenSeaV1Order, "data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature">
 
-export type SimpleOrder =
-    SimpleLegacyOrder |
-    SimpleRaribleV2Order |
-    SimpleOpenSeaV1Order
+export type SimpleOrder = SimpleLegacyOrder | SimpleRaribleV2Order | SimpleOpenSeaV1Order
 
 export async function signOrder(
 	ethereum: Ethereum,
@@ -60,10 +57,7 @@ export async function signOrder(
 			})
 			return toBinary(signature)
 		}
-
-		default: {
-			throw new Error(`Unsupported order type: ${(order as any).type}`)
-		}
+		default: throw new Error(`Unsupported order type: ${(order as any).type}`)
 	}
 }
 
@@ -101,64 +95,26 @@ function getNftAddress(order: SimpleOrder): Address | undefined {
 
 export function getAssetTypeToken(asset: Asset): Address {
 	switch (asset.assetType.assetClass) {
-		case "ETH":
-			return ZERO_ADDRESS
-		case "ERC20":
-			return asset.assetType.contract
-		case "ERC721":
-			return asset.assetType.contract
-		case "ERC721_LAZY":
-			return asset.assetType.contract
-		case "ERC1155":
-			return asset.assetType.contract
-		case "ERC1155_LAZY":
-			return asset.assetType.contract
-		default: {
-			throw new Error("Unsupported asset type")
-		}
+		case "ETH": return ZERO_ADDRESS
+		case "ERC20": return asset.assetType.contract
+		case "ERC721": return asset.assetType.contract
+		case "ERC721_LAZY": return asset.assetType.contract
+		case "ERC1155": return asset.assetType.contract
+		case "ERC1155_LAZY": return asset.assetType.contract
+		default: throw new Error("Unsupported asset type")
 	}
 }
 
 export function convertOpenSeaOrderToSignDTO(ethereum: Ethereum, order: SimpleOpenSeaV1Order): OpenSeaOrderToSignDTO {
 	const paymentToken = getPaymentTokenAddress(order)
-	if (!paymentToken) {
-		throw new Error("Maker or taker should have an ERC20 asset")
-	}
+	if (!paymentToken) throw new Error("Maker or taker should have an ERC20 asset")
 
 	const nftAddress = getNftAddress(order)
-	if (!nftAddress) {
-		throw new Error("Maker or taker should have an NFT asset")
-	}
+	if (!nftAddress) throw new Error("Maker or taker should have an NFT asset")
 
-	let callData: Binary
-	let replacementPattern: Binary
-	let basePrice: BigNumber
-	const makeAssetType = order.make.assetType
-	const takeAssetType = order.take.assetType
-
-	if (makeAssetType.assetClass === "ERC721") {
-		const c = createErc721Contract(ethereum, makeAssetType.contract)
-		callData = toBinary(c.functionCall("transferFrom", order.maker, ZERO_ADDRESS, makeAssetType.tokenId).data)
-		replacementPattern = toBinary("0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000")
-		basePrice = toBigNumber(order.take.value)
-	} else if (makeAssetType.assetClass === "ERC1155") {
-		const c = createErc1155Contract(ethereum, makeAssetType.contract)
-		callData = toBinary(c.functionCall("safeTransferFrom", order.maker, ZERO_ADDRESS, makeAssetType.tokenId, order.make.value, "0x").data)
-		replacementPattern = toBinary("0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
-		basePrice = toBigNumber(order.take.value)
-	} else if (takeAssetType.assetClass === "ERC721") {
-		const c = createErc721Contract(ethereum, takeAssetType.contract)
-		callData = toBinary(c.functionCall("transferFrom", ZERO_ADDRESS, order.maker, takeAssetType.tokenId).data)
-		replacementPattern = toBinary("0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
-		basePrice = toBigNumber(order.make.value)
-	} else if (takeAssetType.assetClass === "ERC1155") {
-		const c = createErc1155Contract(ethereum, takeAssetType.contract)
-		callData = toBinary(c.functionCall("safeTransferFrom", ZERO_ADDRESS, order.maker, takeAssetType.tokenId, order.take.value, "0x").data)
-		replacementPattern = toBinary("0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
-		basePrice = toBigNumber(order.make.value)
-	} else {
-		throw new Error("should never happen")
-	}
+	const { callData, replacementPattern, basePrice } = prepareDataForOpenSea(
+		order, ethereum, order.make.assetType, order.take.assetType
+	)
 
 	return {
 		exchange: toAddress(order.data.exchange),
@@ -187,6 +143,48 @@ export function convertOpenSeaOrderToSignDTO(ethereum: Ethereum, order: SimpleOp
 	}
 }
 
+function prepareDataForOpenSea(
+	order: SimpleOpenSeaV1Order,
+	ethereum: Ethereum,
+	makeAssetType: AssetType,
+	takeAssetType: AssetType
+) {
+	if (makeAssetType.assetClass === "ERC721") {
+		const c = createErc721Contract(ethereum, makeAssetType.contract)
+		const func = c.functionCall("transferFrom", order.maker, ZERO_ADDRESS, makeAssetType.tokenId)
+		return {
+			callData: toBinary(func.data),
+			replacementPattern: toBinary("0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000"),
+			basePrice: toBigNumber(order.take.value),
+		}
+	} else if (makeAssetType.assetClass === "ERC1155") {
+		const c = createErc1155Contract(ethereum, makeAssetType.contract)
+		const func = c.functionCall("safeTransferFrom", order.maker, ZERO_ADDRESS, makeAssetType.tokenId, order.make.value, "0x")
+		return {
+			callData: toBinary(func.data),
+			replacementPattern: toBinary("0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+			basePrice: toBigNumber(order.take.value),
+		}
+	} else if (takeAssetType.assetClass === "ERC721") {
+		const c = createErc721Contract(ethereum, takeAssetType.contract)
+		const func = c.functionCall("transferFrom", ZERO_ADDRESS, order.maker, takeAssetType.tokenId)
+		return {
+			callData: toBinary(func.data),
+			replacementPattern: toBinary("0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+			basePrice: toBigNumber(order.make.value),
+		}
+	} else if (takeAssetType.assetClass === "ERC1155") {
+		const c = createErc1155Contract(ethereum, takeAssetType.contract)
+		const func = c.functionCall("safeTransferFrom", ZERO_ADDRESS, order.maker, takeAssetType.tokenId, order.take.value, "0x")
+		return {
+			callData: toBinary(func.data),
+			replacementPattern: toBinary("0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+			basePrice: toBigNumber(order.make.value),
+		}
+	}
+	throw new Error("Unsupported asset type")
+}
+
 function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712Domain {
 	return {
 		...EIP712_DOMAIN_TEMPLATE,
@@ -200,7 +198,7 @@ export function orderToStruct(ethereum: Ethereum, order: SimpleRaribleV2Order) {
 	return {
 		maker: order.maker,
 		makeAsset: assetToStruct(ethereum, order.make),
-		taker: order.taker ?? ZERO_ADDRESS,
+		taker: order.taker || ZERO_ADDRESS,
 		takeAsset: assetToStruct(ethereum, order.take),
 		salt: order.salt,
 		start: order.start ?? 0,

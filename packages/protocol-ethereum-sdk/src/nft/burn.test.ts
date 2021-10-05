@@ -1,11 +1,18 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
-import Web3 from "web3"
-import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber } from "@rarible/types"
-import { Configuration, GatewayControllerApi, NftCollectionControllerApi, NftLazyMintControllerApi, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
+import {
+	Configuration,
+	GatewayControllerApi,
+	NftCollectionControllerApi,
+	NftLazyMintControllerApi,
+	NftOwnershipControllerApi,
+} from "@rarible/protocol-api-client"
+import { toBn } from "@rarible/utils"
+import { Ethereum } from "@rarible/ethereum-provider"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
+import { createTestProviders } from "../common/create-test-providers"
 import { ERC1155RequestV1, ERC721RequestV2, mint as mintTemplate } from "./mint"
 import { signNft } from "./sign-nft"
 import { burn as burnTemplate } from "./burn"

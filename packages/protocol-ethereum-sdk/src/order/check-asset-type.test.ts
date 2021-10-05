@@ -54,7 +54,7 @@ describe.each(providers)("check-asset-type test", ethereum => {
 			})
 			expect(assetType.assetClass).toEqual("ERC721")
 		})
-	}, 50000)
+	})
 
 	test("should leave as is if assetClass present", async () => {
 		const request: ERC721RequestV3 = {
@@ -79,5 +79,5 @@ describe.each(providers)("check-asset-type test", ethereum => {
 			tokenId: toBigNumber(minted.tokenId),
 		})
 		expect(assetType.assetClass).toEqual("ERC721")
-	}, 50000)
+	})
 })

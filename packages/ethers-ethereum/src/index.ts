@@ -68,6 +68,7 @@ export class EthersEthereum implements Ethereum {
 	}
 
 	async signTypedData<T extends MessageTypes>(data: TypedMessage<T>): Promise<string> {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { EIP712Domain, ...types } = data.types
 		return this.signer._signTypedData(data.domain, types, data.message)
 	}

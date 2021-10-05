@@ -1,21 +1,17 @@
-import {
-	Configuration,
-	GatewayControllerApi,
-	NftOwnershipControllerApi,
-	OrderControllerApi,
-} from "@rarible/protocol-api-client"
+import { Configuration, NftOwnershipControllerApi, OrderControllerApi } from "@rarible/protocol-api-client"
 import { toAddress, toBigNumber, toWord } from "@rarible/types"
 import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { CONFIGS } from "../config"
-import { retry } from "../common/retry"
-import { send as sendTemplate } from "../common/send-transaction"
-import { getApiConfig } from "../config/api-config"
-import { signOrder, SimpleLegacyOrder, SimpleOrder } from "./sign-order"
-import { fillOrderSendTx } from "./fill-order"
-import { getMakeFee } from "./get-make-fee"
-import { deployTestErc721 } from "./contracts/test/test-erc721"
+import { CONFIGS } from "../../config"
+import { retry } from "../../common/retry"
+import { simpleSend } from "../../common/send-transaction"
+import { getApiConfig } from "../../config/api-config"
+import { signOrder } from "../sign-order"
+import { deployTestErc721 } from "../contracts/test/test-erc721"
+import { SimpleLegacyOrder, SimpleOrder } from "../types"
+import { RaribleV1OrderHandler } from "./rarible-v1"
+import { OrderFiller } from "./"
 
 describe("test exchange v1 order", () => {
 	const { provider: provider1, wallet: wallet1 } = createE2eProvider()
@@ -30,8 +26,10 @@ describe("test exchange v1 order", () => {
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const orderApi = new OrderControllerApi(configuration)
 	const ownershipApi = new NftOwnershipControllerApi(configuration)
-	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = sendTemplate.bind(null, gatewayApi)
+	const v1Handler = new RaribleV1OrderHandler(
+		ethereum2, orderApi, simpleSend, CONFIGS.e2e
+	)
+	const filler = new OrderFiller(ethereum2, v1Handler, null as any, null as any)
 
 	const seller = toAddress(wallet1.getAddressString())
 	const buyer = toAddress(wallet2.getAddressString())
@@ -41,10 +39,6 @@ describe("test exchange v1 order", () => {
 	})
 
 	const sign = signOrder.bind(null, ethereum1, { chainId: 17, exchange: CONFIGS.e2e.exchange })
-	const makeFee = getMakeFee.bind(null, { v2: 100 })
-	const fill = fillOrderSendTx
-		.bind(null, makeFee, ethereum2, send, CONFIGS.e2e.exchange)
-		.bind(null, orderApi)
 
 	test("", async () => {
 		const tokenId = toBigNumber("1")
@@ -77,7 +71,8 @@ describe("test exchange v1 order", () => {
 		await it.testErc721.methods.setApprovalForAll(CONFIGS.e2e.transferProxies.nft, true).send({ from: seller })
 
 		const signedOrder: SimpleLegacyOrder = { ...order, signature: await sign(order) }
-		await fill({ order: signedOrder, amount: 1, originFee: 0 })
+		const ab = await filler.fill({ order: signedOrder, amount: 1, originFee: 100 })
+		await ab.build().runAll()
 
 		await retry(10, async () => {
 			const ownership = await ownershipApi.getNftOwnershipById({

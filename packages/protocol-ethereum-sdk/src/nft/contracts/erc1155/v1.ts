@@ -1,28 +1,17 @@
-import { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
-import { Address } from "@rarible/protocol-api-client"
-import { AbiItem } from "../../../common/abi-item"
+import type { AbiItem } from "../../../common/abi-item"
 
-export function createRaribleTokenContract(ethereum: Ethereum, address?: Address): EthereumContract {
-	return ethereum.createContract(raribleTokenAbi, address)
-}
-
-const raribleTokenAbi: AbiItem[] = [
+export const erc1155v1Abi: AbiItem[] = [
 	{
 		"inputs": [
 			{
 				"internalType": "string",
-				"name": "_name",
+				"name": "name",
 				"type": "string",
 			},
 			{
 				"internalType": "string",
-				"name": "_symbol",
+				"name": "symbol",
 				"type": "string",
-			},
-			{
-				"internalType": "address",
-				"name": "signer",
-				"type": "address",
 			},
 			{
 				"internalType": "string",
@@ -33,6 +22,11 @@ const raribleTokenAbi: AbiItem[] = [
 				"internalType": "string",
 				"name": "tokenURIPrefix",
 				"type": "string",
+			},
+			{
+				"internalType": "address",
+				"name": "signer",
+				"type": "address",
 			},
 		],
 		"payable": false,
@@ -62,6 +56,31 @@ const raribleTokenAbi: AbiItem[] = [
 			},
 		],
 		"name": "ApprovalForAll",
+		"type": "event",
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "creator",
+				"type": "address",
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "name",
+				"type": "string",
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "symbol",
+				"type": "string",
+			},
+		],
+		"name": "CreateERC1155_v1",
 		"type": "event",
 	},
 	{
@@ -226,6 +245,21 @@ const raribleTokenAbi: AbiItem[] = [
 		],
 		"name": "URI",
 		"type": "event",
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address",
+			},
+		],
+		"name": "addSigner",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function",
 	},
 	{
 		"constant": true,
@@ -507,6 +541,21 @@ const raribleTokenAbi: AbiItem[] = [
 	},
 	{
 		"constant": false,
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address",
+			},
+		],
+		"name": "removeSigner",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function",
+	},
+	{
+		"constant": false,
 		"inputs": [],
 		"name": "renounceOwnership",
 		"outputs": [],
@@ -734,36 +783,6 @@ const raribleTokenAbi: AbiItem[] = [
 		"constant": false,
 		"inputs": [
 			{
-				"internalType": "address",
-				"name": "account",
-				"type": "address",
-			},
-		],
-		"name": "addSigner",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function",
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "account",
-				"type": "address",
-			},
-		],
-		"name": "removeSigner",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function",
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
 				"internalType": "uint256",
 				"name": "id",
 				"type": "uint256",
@@ -818,3 +837,5 @@ const raribleTokenAbi: AbiItem[] = [
 		"type": "function",
 	},
 ]
+
+export type ERC1155V1Abi = typeof erc1155v1Abi

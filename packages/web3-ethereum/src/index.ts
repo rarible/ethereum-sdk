@@ -55,7 +55,7 @@ export class Web3Contract implements EthereumContract {
 
 	functionCall(name: string, ...args: any): EthereumFunctionCall {
 		return new Web3FunctionCall(
-			this.config, this.contract.methods[name].bind(null, ...args), toAddress(this.contract.options.address)
+			this.config, this.contract.methods[name](...args), toAddress(this.contract.options.address)
 		)
 	}
 }
@@ -63,13 +63,21 @@ export class Web3Contract implements EthereumContract {
 export class Web3FunctionCall implements EthereumFunctionCall {
 	constructor(
 		private readonly config: Web3EthereumConfig,
-		private readonly getSendMethod: () => ContractSendMethod,
+		private readonly sendMethod: ContractSendMethod,
 		private readonly contract: Address
 	) {
 	}
 
+	get data(): string {
+		return this.sendMethod.encodeABI()
+	}
+
+	estimateGas() {
+		return this.sendMethod.estimateGas()
+	}
+
 	call(options: EthereumSendOptions = {}): Promise<any> {
-		return this.getSendMethod().call({
+		return this.sendMethod.call({
 			from: this.config.from,
 			gas: options.gas,
 			gasPrice: options.gasPrice?.toString(),
@@ -77,9 +85,8 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 	}
 
 	async send(options: EthereumSendOptions = {}): Promise<EthereumTransaction> {
-		const sendMethod = this.getSendMethod()
 		const from = toAddress(await this.getFrom())
-		const promiEvent: PromiEvent<Contract> = sendMethod.send({
+		const promiEvent: PromiEvent<Contract> = this.sendMethod.send({
 			from,
 			gas: this.config.gas || options.gas,
 			value: options.value,
@@ -91,7 +98,7 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 		return new Web3Transaction(
 			receipt,
 			toWord(hashValue),
-			toBinary(sendMethod.encodeABI()),
+			toBinary(this.data),
 			tx.nonce,
 			from,
 			this.contract

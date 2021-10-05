@@ -7,13 +7,16 @@ import { createTestProviders } from "../common/create-test-providers"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { upsertOrder } from "./upsert-order"
 import { signOrder } from "./sign-order"
-import { getMakeFee } from "./get-make-fee"
+import { RaribleV2OrderHandler } from "./fill-order/rarible-v2"
+import { OrderFiller } from "./fill-order"
 
 const { provider, wallet } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
 const { providers } = createTestProviders(provider, wallet)
 
 describe.each(providers)("upsertOrder", (ethereum) => {
 	const sign = signOrder.bind(null, ethereum, E2E_CONFIG)
+	const v2Handler = new RaribleV2OrderHandler(null as any, null as any, E2E_CONFIG)
+	const orderService = new OrderFiller(null as any, null as any, v2Handler, null as any)
 
 	test("sign and upsert works", async () => {
 		const approve = () => Promise.resolve(undefined)
@@ -32,7 +35,7 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 		}
 		const checkLazyOrder = async () => Promise.resolve(order)
 		const upsert = (
-			await upsertOrder(getMakeFee.bind(null, { v2: 0 }), checkLazyOrder, approve, sign, orderApi, order)
+			await upsertOrder(orderService, checkLazyOrder, approve, sign, orderApi, order)
 		).build()
 		await upsert.runAll()
 		const result = await upsert.result

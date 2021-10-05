@@ -2,24 +2,23 @@ import type { Ethereum } from "@rarible/ethereum-provider"
 import type { NftCollectionControllerApi, Part } from "@rarible/protocol-api-client"
 import { Address, BigNumber, toAddress } from "@rarible/types"
 import type { SendFunction } from "../common/send-transaction"
-import { createErc721LazyContract } from "./contracts/erc721/erc721-lazy"
-import { createMintableTokenContract } from "./contracts/erc721/mintable-token"
-import { createRaribleTokenContract } from "./contracts/erc1155/rarible-token"
-import { ERC1155Request, ERC721Request, LegacyERC1155Request, LegacyERC721Request, MintOnChainResponse, MintResponseTypeEnum } from "./mint"
+import { ERC1155RequestV1, ERC1155RequestV2, ERC721RequestV1, ERC721RequestV2, ERC721RequestV3, MintOnChainResponse, MintResponseTypeEnum } from "./mint"
 import { getTokenId } from "./get-token-id"
-import { createErc1155LazyContract } from "./contracts/erc1155/erc1155-lazy"
+import { getErc721Contract } from "./contracts/erc721"
+import { ERC1155VersionEnum, ERC721VersionEnum } from "./contracts/domain"
+import { getErc1155Contract } from "./contracts/erc1155"
 
-export async function mintErc721Legacy(
+export async function mintErc721v1(
 	ethereum: Ethereum,
 	send: SendFunction,
 	nftCollectionApi: NftCollectionControllerApi,
-	data: LegacyERC721Request
+	data: ERC721RequestV1
 ): Promise<MintOnChainResponse> {
 	const owner = toAddress(await ethereum.getFrom())
-	const erc721Contract = createMintableTokenContract(ethereum, data.collection.id)
-	const nftTokenId = await getTokenId(nftCollectionApi, data.collection.id, owner)
+	const erc721Contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V1, data.collection.id)
+	const nftTokenId = await getTokenId(nftCollectionApi, data.collection.id, owner, data.nftTokenId)
 	const { tokenId, signature: { v, r, s } } = nftTokenId
-	const transaction = await send(erc721Contract.functionCall("mint", tokenId, v, r, s, data.royalties, data.uri))
+	const transaction = await send(erc721Contract.functionCall("mint", tokenId, v, r, s, data.uri))
 
 	return createMintOnChainResponse({
 		transaction,
@@ -30,15 +29,37 @@ export async function mintErc721Legacy(
 	})
 }
 
-export async function mintErc721New(
+export async function mintErc721v2(
 	ethereum: Ethereum,
 	send: SendFunction,
 	nftCollectionApi: NftCollectionControllerApi,
-	data: ERC721Request
+	data: ERC721RequestV2
 ): Promise<MintOnChainResponse> {
 	const owner = toAddress(await ethereum.getFrom())
-	const erc721Contract = createErc721LazyContract(ethereum, data.collection.id)
-	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, owner)
+	const erc721Contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, data.collection.id)
+	const nftTokenId = await getTokenId(nftCollectionApi, data.collection.id, owner, data.nftTokenId)
+	const { tokenId, signature: { v, r, s } } = nftTokenId
+	const royalties = data.royalties.map((x) => ({ recipient: x.account, value: x.value }))
+	const transaction = await send(erc721Contract.functionCall("mint", tokenId, v, r, s, royalties, data.uri))
+
+	return createMintOnChainResponse({
+		transaction,
+		tokenId,
+		contract: data.collection.id,
+		owner,
+		itemId: createItemId(data.collection.id, tokenId),
+	})
+}
+
+export async function mintErc721v3(
+	ethereum: Ethereum,
+	send: SendFunction,
+	nftCollectionApi: NftCollectionControllerApi,
+	data: ERC721RequestV3
+): Promise<MintOnChainResponse> {
+	const owner = toAddress(await ethereum.getFrom())
+	const erc721Contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, data.collection.id)
+	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, owner, data.nftTokenId)
 
 	const args = {
 		tokenId,
@@ -58,17 +79,18 @@ export async function mintErc721New(
 	})
 }
 
-export async function mintErc1155Legacy(
+export async function mintErc1155v1(
 	ethereum: Ethereum,
 	send: SendFunction,
 	nftCollectionApi: NftCollectionControllerApi,
-	data: LegacyERC1155Request
+	data: ERC1155RequestV1
 ): Promise<MintOnChainResponse> {
 	const owner = toAddress(await ethereum.getFrom())
-	const erc155Contract = createRaribleTokenContract(ethereum, data.collection.id)
-	const nftTokenId = await getTokenId(nftCollectionApi, data.collection.id, owner)
+	const erc155Contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V1, data.collection.id)
+	const nftTokenId = await getTokenId(nftCollectionApi, data.collection.id, owner, data.nftTokenId)
 	const { tokenId, signature: { v, r, s } } = nftTokenId
-	const transaction = await send(erc155Contract.functionCall("mint", tokenId, v, r, s, data.royalties, data.supply, data.uri))
+	const royalties = data.royalties.map((x) => ({ recipient: x.account, value: x.value }))
+	const transaction = await send(erc155Contract.functionCall("mint", tokenId, v, r, s, royalties, data.supply, data.uri))
 
 	return createMintOnChainResponse({
 		transaction,
@@ -79,15 +101,15 @@ export async function mintErc1155Legacy(
 	})
 }
 
-export async function mintErc1155New(
+export async function mintErc1155v2(
 	ethereum: Ethereum,
 	send: SendFunction,
 	nftCollectionApi: NftCollectionControllerApi,
-	data: ERC1155Request
+	data: ERC1155RequestV2
 ): Promise<MintOnChainResponse> {
 	const owner = toAddress(await ethereum.getFrom())
-	const erc1155Contract = createErc1155LazyContract(ethereum, data.collection.id)
-	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, owner)
+	const erc1155Contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V2, data.collection.id)
+	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, owner, data.nftTokenId)
 
 	const args = {
 		tokenId,
@@ -107,7 +129,7 @@ export async function mintErc1155New(
 	})
 }
 
-function getCreators(data: ERC1155Request | ERC721Request, account: Address): Part[] {
+function getCreators(data: ERC1155RequestV2 | ERC721RequestV3, account: Address): Part[] {
 	if (data.creators) {
 		return data.creators
 	}

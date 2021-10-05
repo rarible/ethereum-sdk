@@ -5,10 +5,10 @@ import { ActionBuilder } from "@rarible/action"
 import { toBinary } from "@rarible/types"
 import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import { toBn } from "@rarible/utils/build/bn"
-import type { SimpleOrder } from "./sign-order"
+import type { SimpleOrder } from "./types"
 import { addFee } from "./add-fee"
-import type { GetMakeFeeFunction } from "./get-make-fee"
 import type { ApproveFunction } from "./approve"
+import { OrderFiller } from "./fill-order"
 
 export type UpsertOrderStageId = "approve" | "sign"
 export type UpsertOrderAction = ActionBuilder<UpsertOrderStageId, void, [EthereumTransaction | undefined, Order]>
@@ -20,7 +20,7 @@ export type UpsertOrderFunction = (order: OrderForm, infinite?: boolean) => Prom
  * @param infinite - pass true if you want to use infinite approval for ERC-20 tokens
  */
 export async function upsertOrder(
-	getMakeFee: GetMakeFeeFunction,
+	orderFiller: OrderFiller,
 	checkLazyOrder: (form: OrderForm) => Promise<OrderForm>,
 	approve: ApproveFunction,
 	signOrder: (order: SimpleOrder) => Promise<Binary>,
@@ -29,8 +29,8 @@ export async function upsertOrder(
 	infinite: boolean = false
 ): Promise<UpsertOrderAction> {
 	const checkedOrder = await checkLazyOrder(order)
-	const makeFee = getMakeFee(orderFormToSimpleOrder(checkedOrder))
-	const make = addFee(checkedOrder.make, makeFee)
+	const fee = await orderFiller.getOrderFee(orderFormToSimpleOrder(checkedOrder))
+	const make = addFee(checkedOrder.make, fee)
 	return ActionBuilder
 		.create({
 			id: "approve" as const,

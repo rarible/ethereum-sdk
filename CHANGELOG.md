@@ -3,6 +3,83 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.5.1...v0.5.2) (2021-09-29)
+
+
+### Bug Fixes
+
+* no tests ([ae3203d](https://github.com/rarible/protocol-ethereum-sdk/commit/ae3203d61751fa615d26e58364d4b02031209a81))
+* no tests ([ad5167a](https://github.com/rarible/protocol-ethereum-sdk/commit/ad5167a4c9b952cdece1a21a42141165a53fb8cf))
+
+
+
+
+
+## [0.5.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.4.4...v0.5.1) (2021-09-29)
+
+
+### Bug Fixes
+
+* use tokenId provided externally (for mint) ([#41](https://github.com/rarible/protocol-ethereum-sdk/issues/41)) ([8da6b5c](https://github.com/rarible/protocol-ethereum-sdk/commit/8da6b5c901a5420e2943bdf18a6f49daf9b20761))
+
+
+
+
+
+## [0.4.4](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.4.3...v0.4.4) (2021-09-27)
+
+
+### Bug Fixes
+
+* mint royalties [#36](https://github.com/rarible/protocol-ethereum-sdk/issues/36) ([a56d4ec](https://github.com/rarible/protocol-ethereum-sdk/commit/a56d4ec4e8a8328edd9201212e13b46c92a8506d))
+
+
+
+
+
+## [0.4.3](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.4.2...v0.4.3) (2021-09-27)
+
+
+### Bug Fixes
+
+* api for burning ([dfd3e14](https://github.com/rarible/protocol-ethereum-sdk/commit/dfd3e14fa5195ba27da4c8599571356df10784d6))
+
+
+
+
+
+## [0.4.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.4.1...v0.4.2) (2021-09-27)
+
+**Note:** Version bump only for package root
+
+
+
+
+
+## [0.4.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.4.0...v0.4.1) (2021-09-27)
+
+**Note:** Version bump only for package root
+
+
+
+
+
+# [0.4.0](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.3.2...v0.4.0) (2021-09-25)
+
+
+### Bug Fixes
+
+* cancel orders ([98149cc](https://github.com/rariblecom/protocol-ethereum-sdk/commit/98149cc3d99647e85b515ade8b0d27b75a48dcf9))
+
+
+### Features
+
+* add contract versions ([#34](https://github.com/rariblecom/protocol-ethereum-sdk/issues/34)) ([8f09938](https://github.com/rariblecom/protocol-ethereum-sdk/commit/8f099382fa3837b040e3856c2022433d447fd5d7))
+
+
+
+
+
 ## [0.3.2](https://github.com/rariblecom/protocol-ethereum-sdk/compare/v0.3.1...v0.3.2) (2021-09-17)
 
 **Note:** Version bump only for package root

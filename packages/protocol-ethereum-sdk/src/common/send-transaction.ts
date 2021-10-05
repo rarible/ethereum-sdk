@@ -18,6 +18,13 @@ export async function send(
 	return tx
 }
 
+export async function simpleSend(
+	functionCall: EthereumFunctionCall,
+	options?: EthereumSendOptions,
+) {
+	return functionCall.send(options)
+}
+
 export async function createPendingLogs(api: GatewayControllerApi, tx: EthereumTransaction) {
 	const createTransactionRequest = {
 		hash: toWord(tx.hash),

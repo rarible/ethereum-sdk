@@ -2,15 +2,15 @@ import type { BigNumber, Binary, NftCollectionControllerApi, NftLazyMintControll
 import { toBigNumber } from "@rarible/types"
 import type { SimpleLazyNft } from "./sign-nft"
 import { getTokenId } from "./get-token-id"
-import { ERC1155Request, ERC721Request, MintOffChainResponse, MintResponseTypeEnum } from "./mint"
+import { ERC1155RequestV2, ERC721RequestV3, MintOffChainResponse, MintResponseTypeEnum } from "./mint"
 
 export async function mintOffChain(
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	nftLazyMintApi: NftLazyMintControllerApi,
-	data: ERC721Request | ERC1155Request
+	data: ERC721RequestV3 | ERC1155RequestV2
 ): Promise<MintOffChainResponse> {
-	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, data.creators[0].account)
+	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, data.creators[0].account, data.nftTokenId)
 	const mintData = getMintOffChainData(data, tokenId)
 	const minted = await nftLazyMintApi.mintNftAsset({
 		lazyNft: Object.assign({}, mintData, {
@@ -28,7 +28,7 @@ export async function mintOffChain(
 	}
 }
 
-function getMintOffChainData(data: ERC721Request | ERC1155Request, tokenId: BigNumber): SimpleLazyNft<"signatures"> {
+function getMintOffChainData(data: ERC721RequestV3 | ERC1155RequestV2, tokenId: BigNumber): SimpleLazyNft<"signatures"> {
 	const base = {
 		contract: data.collection.id,
 		uri: data.uri,

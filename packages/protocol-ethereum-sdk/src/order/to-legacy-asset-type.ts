@@ -2,36 +2,36 @@ import { Address, AssetType, BigNumber } from "@rarible/protocol-api-client"
 import { toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 
 type LegacyAssetType = {
-	assetType: number
 	token: Address
-	tokenId: BigNumber
+	tokenId: BigNumber,
+	assetType: number
 }
 
 export function toLegacyAssetType(assetType: AssetType): LegacyAssetType {
 	switch (assetType.assetClass) {
 		case "ETH":
 			return {
-				assetType: 0,
 				token: ZERO_ADDRESS,
 				tokenId: toBigNumber("0"),
+				assetType: 0,
 			}
 		case "ERC20":
 			return {
-				assetType: 1,
 				token: assetType.contract,
 				tokenId: toBigNumber("0"),
+				assetType: 1,
 			}
 		case "ERC721":
 			return {
-				assetType: 3,
 				token: assetType.contract,
 				tokenId: assetType.tokenId,
+				assetType: 3,
 			}
 		case "ERC1155":
 			return {
-				assetType: 2,
 				token: assetType.contract,
 				tokenId: assetType.tokenId,
+				assetType: 2,
 			}
 		default: {
 			throw new Error("Unsupported")

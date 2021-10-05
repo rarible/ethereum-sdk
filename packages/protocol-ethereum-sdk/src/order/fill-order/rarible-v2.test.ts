@@ -3,19 +3,20 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils/build/bn"
-import { Configuration, GatewayControllerApi, OrderControllerApi } from "@rarible/protocol-api-client"
-import { getApiConfig } from "../config/api-config"
-import { send as sendTemplate, sentTx } from "../common/send-transaction"
-import { deployTestErc20 } from "./contracts/test/test-erc20"
-import { deployTestErc721 } from "./contracts/test/test-erc721"
-import { deployTransferProxy } from "./contracts/test/test-transfer-proxy"
-import { deployErc20TransferProxy } from "./contracts/test/test-erc20-transfer-proxy"
-import { deployTestExchangeV2 } from "./contracts/test/test-exchange-v2"
-import { deployTestRoyaltiesProvider } from "./contracts/test/test-royalties-provider"
-import { fillOrderSendTx } from "./fill-order"
-import { signOrder, SimpleOrder } from "./sign-order"
-import { deployTestErc1155 } from "./contracts/test/test-erc1155"
-import { getMakeFee } from "./get-make-fee"
+import { sentTx, simpleSend } from "../../common/send-transaction"
+import { E2E_CONFIG } from "../../config/e2e"
+import { Config } from "../../config/type"
+import { deployTestErc20 } from "../contracts/test/test-erc20"
+import { deployTestErc721 } from "../contracts/test/test-erc721"
+import { deployTransferProxy } from "../contracts/test/test-transfer-proxy"
+import { deployErc20TransferProxy } from "../contracts/test/test-erc20-transfer-proxy"
+import { deployTestExchangeV2 } from "../contracts/test/test-exchange-v2"
+import { deployTestRoyaltiesProvider } from "../contracts/test/test-royalties-provider"
+import { signOrder } from "../sign-order"
+import { deployTestErc1155 } from "../contracts/test/test-erc1155"
+import { SimpleOrder } from "../types"
+import { RaribleV2OrderHandler } from "./rarible-v2"
+import { OrderFiller } from "./index"
 
 describe("fillOrder", () => {
 	const { addresses, provider } = createGanacheProvider()
@@ -24,11 +25,9 @@ describe("fillOrder", () => {
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
-	const configuration = new Configuration(getApiConfig("e2e"))
-	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = sendTemplate.bind(ethereum1, gatewayApi)
-
-	let orderApi: OrderControllerApi
+	const config: Config = E2E_CONFIG
+	const v2Handler = new RaribleV2OrderHandler(ethereum1, simpleSend, config)
+	const filler = new OrderFiller(ethereum1, null as any, v2Handler, null as any)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -54,6 +53,11 @@ describe("fillOrder", () => {
 			),
 			{ from: sender1Address }
 		)
+		config.exchange.v1 = toAddress(it.exchangeV2.options.address)
+		config.exchange.v2 = toAddress(it.exchangeV2.options.address)
+		config.chainId = 1
+		config.fees.v2 = 100
+
 		await sentTx(it.transferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
 			from: sender1Address,
 		})
@@ -102,18 +106,11 @@ describe("fillOrder", () => {
 			from: sender2Address,
 		})
 
-		const a = toAddress(it.exchangeV2.options.address)
-		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
+		const signature = await signOrder(ethereum2, config, left)
 
 		const finalOrder = { ...left, signature }
-		await fillOrderSendTx(
-			getMakeFee.bind(null, { v2: 100 }),
-			ethereum1,
-			send,
-			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
-			orderApi,
-			{ order: finalOrder, amount: 2, payouts: [], originFees: [] }
-		)
+		const ab = await filler.fill({ order: finalOrder, amount: 2, payouts: [], originFees: [] })
+		await ab.build().runAll()
 
 		expect(toBn(await it.testErc20.methods.balanceOf(sender2Address).call()).toString()).toBe("4")
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString()).toBe("2")
@@ -153,21 +150,18 @@ describe("fillOrder", () => {
 			from: sender2Address,
 		})
 
-		const a = toAddress(it.exchangeV2.options.address)
-		const signature = await signOrder(ethereum2, { chainId: 1, exchange: { v1: a, v2: a } }, left)
+		const signature = await signOrder(ethereum2, config, left)
 
 		const before1 = toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call())
 		const before2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call())
 
 		const finalOrder = { ...left, signature }
-		await fillOrderSendTx(
-			getMakeFee.bind(null, { v2: 100 }),
-			ethereum1,
-			send,
-			{ v2: toAddress(it.exchangeV2.options.address), v1: toAddress(it.exchangeV2.options.address) },
-			orderApi,
-			{ order: finalOrder, amount: 2, originFees: [{ account: randomAddress(), value: 100 }] }
-		)
+		const originFees = [{
+			account: randomAddress(),
+			value: 100,
+		}]
+		const ab = await filler.fill({ order: finalOrder, amount: 2, originFees })
+		await ab.build().runAll()
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString()).toBe(
 			before2.minus(2).toFixed()

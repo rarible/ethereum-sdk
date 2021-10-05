@@ -1,6 +1,6 @@
 {
   "name": "@rarible/web3-ethereum",
-  "version": "0.3.0",
+  "version": "0.5.1",
   "description": "",
   "keywords": [
     "ethereum",
@@ -16,11 +16,11 @@
     "verify": "tsc --noEmit"
   },
   "dependencies": {
-    "@rarible/ethereum-provider": "^0.3.0",
+    "@rarible/ethereum-provider": "^0.5.1",
     "exponential-backoff": "3.1.0"
   },
   "devDependencies": {
-    "@rarible/ethereum-sdk-test-common": "^0.3.0",
+    "@rarible/ethereum-sdk-test-common": "^0.5.1",
     "@types/jest": "26.0.24",
     "jest": "27.0.6",
     "ts-jest": "27.0.3",

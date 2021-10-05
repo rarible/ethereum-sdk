@@ -1,50 +1,66 @@
-import type { Address, Binary, LazyErc1155, LazyErc721, NftCollectionControllerApi, NftLazyMintControllerApi, Part, NftItem, NftCollection, BigNumber } from "@rarible/protocol-api-client"
+import type {
+	Address,
+	Binary,
+	NftCollectionControllerApi,
+	NftLazyMintControllerApi,
+	Part,
+	NftItem,
+	NftCollection,
+	BigNumber,
+	NftTokenId,
+} from "@rarible/protocol-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { SendFunction } from "../common/send-transaction"
 import { mintOffChain } from "./mint-off-chain"
-import { mintErc1155Legacy, mintErc1155New, mintErc721Legacy, mintErc721New } from "./mint-on-chain"
+import { mintErc1155v1, mintErc1155v2, mintErc721v1, mintErc721v2, mintErc721v3 } from "./mint-on-chain"
 import type { SimpleLazyNft } from "./sign-nft"
+import { ERC1155VersionEnum, ERC721VersionEnum, NFTContractVersion } from "./contracts/domain"
 
-type Collection<T extends NftCollection["type"], K extends NftCollection["supportsLazyMint"]> =
-	& Pick<NftCollection, "id">
-	& Partial<Pick<NftCollection, "features">>
-	& {
-		type: T
-		supportsLazyMint: K
-	}
+type Collection<V extends NFTContractVersion> = NftCollection & { version: V }
+type ERC721CollectionV1 = Collection<ERC721VersionEnum.ERC721V1>
+type ERC721CollectionV2 = Collection<ERC721VersionEnum.ERC721V2>
+type ERC721CollectionV3 = Collection<ERC721VersionEnum.ERC721V3>
+type ERC1155CollectionV1 = Collection<ERC1155VersionEnum.ERC1155V1>
+type ERC1155CollectionV2 = Collection<ERC1155VersionEnum.ERC1155V2>
 
-export type AnyNFTCollection = Collection<NftCollection["type"], NftCollection["supportsLazyMint"]>
-export type LegacyERC721Collection = Collection<"ERC721", false>
-export type LazyERC721Collection = Collection<"ERC721", true>
-export type LegacyERC1155Collection = Collection<"ERC1155", false>
-export type LazyERC1155Collection = Collection<"ERC1155", true>
-
-
-export type LegacyERC721Request = {
-	collection: LegacyERC721Collection
+type CommonMintRequest = {
 	uri: string
+	nftTokenId?: NftTokenId
+}
+
+export type ERC721RequestV1 = {
+	collection: ERC721CollectionV1
+} & CommonMintRequest
+
+export type ERC721RequestV2 = {
+	collection: ERC721CollectionV2
 	royalties: Array<Part>
-}
+} & CommonMintRequest
 
-export type ERC721Request = Omit<LazyErc721, "signatures" | "contract" | "tokenId" | "@type"> & {
-	collection: LazyERC721Collection
+export type ERC721RequestV3 = {
+	collection: ERC721CollectionV3
 	lazy: boolean
-}
+	creators: Array<Part>
+	royalties: Array<Part>
+} & CommonMintRequest
 
-export type LegacyERC1155Request = {
-	collection: LegacyERC1155Collection
-	uri: string
+export type ERC1155RequestV1 = {
+	collection: ERC1155CollectionV1
 	supply: number
 	royalties: Array<Part>
-}
+} & CommonMintRequest
 
-export type ERC1155Request = Omit<LazyErc1155, "signatures" | "contract" | "tokenId" | "supply" | "@type"> & {
-	collection: LazyERC1155Collection
+export type ERC1155RequestV2 = {
+	collection: ERC1155CollectionV2
 	supply: number
 	lazy: boolean
-}
+	creators: Array<Part>
+	royalties: Array<Part>
+} & CommonMintRequest
 
-export type MintRequest = ERC721Request | ERC1155Request | LegacyERC721Request | LegacyERC1155Request
+export type MintRequestERC721 = ERC721RequestV1 | ERC721RequestV2 | ERC721RequestV3
+export type MintRequestERC1155 = ERC1155RequestV1 | ERC1155RequestV2
+export type MintRequest = MintRequestERC721 | MintRequestERC1155
 
 export type MintResponseCommon = {
 	contract: Address
@@ -76,48 +92,42 @@ export function mint(
 	nftLazyMintApi: NftLazyMintControllerApi,
 	data: MintRequest
 ): Promise<MintOffChainResponse | MintOnChainResponse> {
-	if (isERC721Request(data)) {
-		if (data.lazy) return mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, data)
-		return mintErc721New(ethereum, send, nftCollectionApi, data)
-	}
 	if (isERC1155Request(data)) {
-		if (data.lazy) return mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, data)
-		return mintErc1155New(ethereum, send, nftCollectionApi, data)
+		if (isERC1155v2Request(data)) {
+			if (data.lazy) return mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, data)
+			return mintErc1155v2(ethereum, send, nftCollectionApi, data)
+		}
+		return mintErc1155v1(ethereum, send, nftCollectionApi, data)
 	}
-	if (isLegacyERC721Request(data)) {
-		return mintErc721Legacy(ethereum, send, nftCollectionApi, data)
+	if (isERC721Request(data)) {
+		if (isERC721v3Request(data)) {
+			if (data.lazy) return mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, data)
+			return mintErc721v3(ethereum, send, nftCollectionApi, data)
+		}
+		if (isERC721v2Request(data)) {
+			return mintErc721v2(ethereum, send, nftCollectionApi, data)
+		}
+		return mintErc721v1(ethereum, send, nftCollectionApi, data)
 	}
-	if (isLegacyERC1155Request(data)) {
-		return mintErc1155Legacy(ethereum, send, nftCollectionApi, data)
-	}
-	throw new Error("Mint request is not correct")
+	throw new Error("Unsupported collection")
 }
 
-const isERC721Request = (data: MintRequest): data is ERC721Request => isLazyErc721Collection(data.collection)
+const isERC721v2Request = (data: MintRequest): data is ERC721RequestV2 => isErc721v2Collection(data.collection)
+const isERC721v3Request = (data: MintRequest): data is ERC721RequestV3 => isErc721v3Collection(data.collection)
+const isERC1155v2Request = (data: MintRequest): data is ERC1155RequestV2 => isErc1155v2Collection(data.collection)
+const isERC1155Request = (data: MintRequest): data is ERC1155RequestV1 | ERC1155RequestV2 =>
+	data.collection.type === "ERC1155"
+const isERC721Request = (data: MintRequest): data is ERC721RequestV1 | ERC721RequestV2 | ERC721RequestV3 =>
+	data.collection.type === "ERC721"
 
-const isLegacyERC721Request = (data: MintRequest): data is LegacyERC721Request =>
-	isLegacyErc721Collection(data.collection)
+export const isErc721v3Collection = (x: NftCollection): x is ERC721CollectionV3 =>
+	x.features.indexOf("MINT_AND_TRANSFER") !== -1 && x.type === "ERC721"
+export const isErc721v2Collection = (x: NftCollection): x is ERC721CollectionV2 =>
+	x.features.indexOf("SECONDARY_SALE_FEES") !== -1 && x.type === "ERC721"
+export const isErc721v1Collection = (x: NftCollection): x is ERC721CollectionV1 =>
+	!isErc721v3Collection(x) && !isErc721v2Collection(x) && x.type === "ERC721"
 
-const isERC1155Request = (data: MintRequest): data is ERC1155Request => isLazyErc1155Collection(data.collection)
-
-const isLegacyERC1155Request = (data: MintRequest): data is LegacyERC1155Request =>
-	isLegacyErc1155Collection(data.collection)
-
-export const isLazyErc721Collection = (collection: AnyNFTCollection): collection is LazyERC721Collection =>
-	collection.type === "ERC721" && isLazyCollection(collection)
-
-export const isLegacyErc721Collection = (collection: AnyNFTCollection): collection is LegacyERC721Collection =>
-	collection.type === "ERC721" && !isLazyCollection(collection)
-
-export const isLazyErc1155Collection = (collection: AnyNFTCollection): collection is LazyERC1155Collection =>
-	collection.type === "ERC1155" && isLazyCollection(collection)
-
-export const isLegacyErc1155Collection = (collection: AnyNFTCollection): collection is LegacyERC1155Collection =>
-	collection.type === "ERC1155" && !isLazyCollection(collection)
-
-export function isLazyCollection(
-	collection: AnyNFTCollection
-): collection is LazyERC1155Collection | LazyERC721Collection {
-	const supportsMintAndTransfer = (collection.features || []).indexOf("MINT_AND_TRANSFER") !== -1
-	return Boolean(collection.supportsLazyMint || supportsMintAndTransfer)
-}
+export const isErc1155v2Collection = (x: NftCollection): x is ERC1155CollectionV2 =>
+	x.features.indexOf("MINT_AND_TRANSFER") !== -1 && x.type === "ERC1155"
+export const isErc1155v1Collection = (x: NftCollection): x is ERC1155CollectionV1 =>
+	!isErc1155v2Collection(x) && x.type === "ERC1155"

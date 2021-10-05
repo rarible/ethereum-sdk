@@ -25,7 +25,7 @@
     "@rarible/action": "0.2.7",
     "@rarible/ethereum-provider": "^0.5.1",
     "@rarible/protocol-api-client": "0.1.7",
-    "@rarible/utils": "^0.0.3",
+    "@rarible/utils": "^0.0.7",
     "exponential-backoff": "3.1.0"
   },
   "devDependencies": {

@@ -1829,27 +1829,12 @@
     eslint-plugin-jest "24.4.0"
     eslint-plugin-unicorn "35.0.0"
 
-"@rarible/ethereum-provider@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@rarible/ethereum-provider/-/ethereum-provider-0.4.0.tgz#9c91e5a69a2f01488b46bedaac2d638c57f2c207"
-  integrity sha512-0TexYO7++6JHmf6bTX6lE2SGzTy23GL6VaFzTOtJPk3Wa4c+YWKZx+hBML5yVFq6hq34OAl81sCYz4MGOkMIhg==
-
 "@rarible/protocol-api-client@0.1.7":
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/@rarible/protocol-api-client/-/protocol-api-client-0.1.7.tgz#7a125eaed2083052deb5f7bf7dba409246011d47"
   integrity sha512-MWNPJlil3Wg6R+bn2wDWdQVI22jo0C1H4ajudhceGpfMBLnB1lRM38SAdRfpm3FgLwB/N2I4FwVQIeZObZKgtA==
   dependencies:
     "@rarible/types" "^0.1.7"
-
-"@rarible/protocol-ethereum-sdk@0.4.4":
-  version "0.4.4"
-  resolved "https://registry.yarnpkg.com/@rarible/protocol-ethereum-sdk/-/protocol-ethereum-sdk-0.4.4.tgz#b604bdeca43a23b8fb29e4648b0ac5a4398ffb2d"
-  integrity sha512-/n7sm+747rMREVVd45FflXRVPehVyDnqHAaY2T+6pNywIpTovo581cFo0YfkV1kSdr2C2pwZeZwBOlt5I7XZPw==
-  dependencies:
-    "@rarible/action" "0.2.7"
-    "@rarible/ethereum-provider" "^0.4.0"
-    "@rarible/protocol-api-client" "0.1.7"
-    "@rarible/utils" "^0.0.3"
 
 "@rarible/test-provider@0.1.20":
   version "0.1.20"
@@ -1861,10 +1846,10 @@
   resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.1.7.tgz#b88eeb7961f461067207c9f9cab73cf23dba1da3"
   integrity sha512-rq0vGMQlnTQstTPwmFy8lajkOaCTOe7Odf/W1g6o3uLUD6Dlj0Vroh2/erfiyA6vuDALrATWsP5mw2berdwrTw==
 
-"@rarible/utils@0.0.3", "@rarible/utils@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@rarible/utils/-/utils-0.0.3.tgz#543001a4373153936a1621917817f4d72121eea6"
-  integrity sha512-C2zh2SO1tWAMFrcYHMzyXFAj+gccGGcWFIHq7d7g/A/h3PKeeJCWjLquoIFzbCBebxIlMnadGs7+64lPt6nejg==
+"@rarible/utils@0.0.7", "@rarible/utils@^0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@rarible/utils/-/utils-0.0.7.tgz#9e5e83757fdb6572bda1e1ff3222990d33f684f6"
+  integrity sha512-Q48JeisVM63/ha+JLmtujTeR7/NIcM6EfZQXhB4+v8w6mtUOp3te5n4sPSS2hcxeYOZG4izXEM9nw6t6IzZbjA==
   dependencies:
     bignumber.js "9.0.1"
 

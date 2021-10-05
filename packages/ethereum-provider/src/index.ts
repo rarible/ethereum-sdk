@@ -1,6 +1,5 @@
 import type { Address, Binary, Word } from "@rarible/types"
-import type { MessageTypes, TypedMessage } from "./domain"
-import { signTypedDataInternal } from "./utils"
+import { MessageTypes, TypedMessage } from "./domain"
 
 export type EthereumTransactionEvent = {
 	event: string,
@@ -52,13 +51,10 @@ export interface EthereumContract {
 
 export interface Ethereum {
 	createContract(abi: any, address?: string): EthereumContract
-	send(method: string, params: any): Promise<any>
 	getFrom(): Promise<string>
 	personalSign(message: string): Promise<string>
-	ethSign(message: string): Promise<string>
+	signTypedData<T extends MessageTypes>(data: TypedMessage<T>): Promise<string>
 	encodeParameter(type: any, parameter: any): string
 }
 
-export async function signTypedData<T extends MessageTypes>(ethereum: Ethereum, data: TypedMessage<T>) {
-	return signTypedDataInternal(ethereum, data)
-}
+export { signTypedData } from "./sign-typed-data"

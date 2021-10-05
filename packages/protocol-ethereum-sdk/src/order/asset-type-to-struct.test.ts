@@ -1,14 +1,12 @@
 import { toAddress, toBigNumber, toBinary } from "@rarible/types"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
-import Web3 from "web3"
-import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { provider } from "web3-core"
+import { createTestProviders } from "../common/create-test-providers"
 import { assetTypeToStruct } from "./asset-type-to-struct"
 
-describe("assetTypeToStruct", () => {
-	const { provider } = createGanacheProvider()
-	const web3 = new Web3(provider as unknown as provider)
-	const ethereum = new Web3Ethereum({ web3 })
+const { provider, wallets } = createGanacheProvider()
+const { providers } = createTestProviders(provider, wallets[0])
+
+describe.each(providers)("assetTypeToStruct", ethereum => {
 
 	test("encodes ERC20", () => {
 		const result = assetTypeToStruct(ethereum, {

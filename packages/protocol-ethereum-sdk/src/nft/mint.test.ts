@@ -1,8 +1,18 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
-import Web3 from "web3"
-import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
-import { Configuration, GatewayControllerApi, NftCollectionControllerApi, NftItemControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
+import {
+	Address,
+	Configuration,
+	GatewayControllerApi,
+	NftCollectionControllerApi,
+	NftItemControllerApi,
+	NftLazyMintControllerApi,
+} from "@rarible/protocol-api-client"
+import { toBn } from "@rarible/utils"
+import { Web3Ethereum } from "@rarible/web3-ethereum"
+import { ethers } from "ethers"
+import { EthersEthereum, EthersWeb3ProviderEthereum } from "@rarible/ethers-ethereum"
+import Web3 from "web3"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { signNft } from "./sign-nft"
@@ -13,39 +23,53 @@ import { getErc721Contract } from "./contracts/erc721"
 import { getErc1155Contract } from "./contracts/erc1155"
 import { createErc1155V1Collection, createErc1155V2Collection, createErc721V1Collection, createErc721V2Collection, createErc721V3Collection } from "./test/mint"
 
-describe("mint test", () => {
-	const { provider, wallet } = createE2eProvider()
-	const minter = toAddress(wallet.getAddressString())
-	const web3 = new Web3(provider)
-	const ethereum = new Web3Ethereum({ web3, from: minter })
-	const configuration = new Configuration(getApiConfig("e2e"))
-	const nftCollectionApi = new NftCollectionControllerApi(configuration)
-	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
-	const nftItemApi = new NftItemControllerApi(configuration)
-	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = sendTemplate.bind(null, gatewayApi)
+const { provider: provider1 } = createE2eProvider()
+const { provider: provider2, wallet: wallet2 } = createE2eProvider()
+const { provider: provider3 } = createE2eProvider()
+const web3 = new Web3(provider1 as any)
+
+const providers = [
+	new Web3Ethereum({ web3 }),
+	new EthersEthereum(
+		new ethers.Wallet(wallet2.getPrivateKeyString(), new ethers.providers.Web3Provider(provider2 as any)),
+	),
+	new EthersWeb3ProviderEthereum(new ethers.providers.Web3Provider(provider3 as any)),
+]
+
+const configuration = new Configuration(getApiConfig("e2e"))
+const nftCollectionApi = new NftCollectionControllerApi(configuration)
+const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
+const nftItemApi = new NftItemControllerApi(configuration)
+const gatewayApi = new GatewayControllerApi(configuration)
+const send = sendTemplate.bind(null, gatewayApi)
+const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
+const e2eErc1155V2ContractAddress = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
+
+describe.each(providers)("mint test", ethereum => {
+	let minter: Address
+
+	beforeAll(async () => {
+		minter = toAddress(await ethereum.getFrom())
+	})
+
 	const sign = signNft.bind(null, ethereum, 17)
 
 	const mint = mintTemplate
 		.bind(null, ethereum, send, sign, nftCollectionApi)
 		.bind(null, nftLazyMintApi)
 
-	const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
-	const e2eErc1155V2ContractAddress = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
-
 	test("mint ERC-721 v1", async () => {
-		const deployed = await deployErc721V1(web3, "Test", "ERC721V1")
-		if (!deployed.contractAddress) {
-			throw new Error("No deployed contract")
+		if (ethereum instanceof Web3Ethereum) { //todo enable for other providers
+			const erc721v1 = await deployErc721V1(web3, "Test", "ERC721V1")
+			const address = toAddress(erc721v1.options.address)
+			await mint({
+				uri: "uri",
+				collection: createErc721V1Collection(address),
+			} as ERC721RequestV1)
+			const contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V1, address)
+			const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter).call()).toFixed()
+			expect(balanceOfMinter).toBe("1")
 		}
-		const address = toAddress(deployed.contractAddress)
-		await mint({
-			uri: "uri",
-			collection: createErc721V1Collection(address),
-		} as ERC721RequestV1)
-		const contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V1, address)
-		const balanceOfMinter = await contract.functionCall("balanceOf", minter).call()
-		expect(balanceOfMinter).toBe("1")
 	}, 20000)
 
 	test("mint ERC-721 v2", async () => {
@@ -59,7 +83,7 @@ describe("mint test", () => {
 			collection: createErc721V2Collection(mintableTokenE2eAddress),
 		} as ERC721RequestV2)
 		const contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, mintableTokenE2eAddress)
-		const balanceOfMinter = await contract.functionCall("balanceOf", minter).call()
+		const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter).call()).toFixed()
 		expect(balanceOfMinter).toBe("1")
 	})
 
@@ -92,7 +116,7 @@ describe("mint test", () => {
 			}],
 		} as ERC1155RequestV1)
 		const contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V1, raribleTokenE2eAddress)
-		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter, minted.tokenId).call()
+		const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter, minted.tokenId).call()).toFixed()
 		expect(balanceOfMinter).toBe(supply.toString())
 	})
 
@@ -105,7 +129,7 @@ describe("mint test", () => {
 			lazy: false,
 		} as ERC721RequestV3)
 		const contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, e2eErc721V3ContractAddress)
-		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter).call()
+		const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter).call()).toFixed()
 		expect(balanceOfMinter).toEqual("1")
 	}, 10000)
 
@@ -119,7 +143,7 @@ describe("mint test", () => {
 			lazy: false,
 		} as ERC1155RequestV2)
 		const contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V2, e2eErc1155V2ContractAddress)
-		const balanceOfMinter: string = await contract.functionCall("balanceOf", minter, minted.tokenId).call()
+		const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter, minted.tokenId).call()).toFixed()
 		expect(balanceOfMinter).toEqual("100")
 	}, 10000)
 

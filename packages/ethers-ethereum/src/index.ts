@@ -6,13 +6,17 @@ import {
 	EthereumFunctionCall,
 	EthereumSendOptions,
 	EthereumTransaction,
+	EthereumTransactionReceipt,
+	signTypedData,
 } from "@rarible/ethereum-provider"
 import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
-import { EthereumTransactionReceipt } from "@rarible/ethereum-provider"
+import { MessageTypes, TypedMessage } from "@rarible/ethereum-provider/src/domain"
+import { TypedDataSigner } from "@ethersproject/abstract-signer"
 import { encodeParameters } from "./abi-coder"
 
-export class EthersEthereum implements Ethereum {
+export class EthersWeb3ProviderEthereum implements Ethereum {
 	constructor(readonly web3Provider: ethers.providers.Web3Provider, readonly from?: string) {
+		this.send = this.send.bind(this)
 	}
 
 	createContract(abi: any, address?: string): EthereumContract {
@@ -30,9 +34,9 @@ export class EthersEthereum implements Ethereum {
 		return this.web3Provider.getSigner().signMessage(message)
 	}
 
-	async ethSign(message: string): Promise<string> {
+	async signTypedData<T extends MessageTypes>(data: TypedMessage<T>): Promise<string> {
 		const signer = await this.getFrom()
-		return this.send("eth_sign", [signer, message])
+		return signTypedData(this.send, signer, data)
 	}
 
 	async getFrom(): Promise<string> {
@@ -41,6 +45,36 @@ export class EthersEthereum implements Ethereum {
 			return first
 		}
 		return this.from
+	}
+
+	encodeParameter(type: any, parameter: any): string {
+		return encodeParameters([type], [parameter])
+	}
+}
+
+export class EthersEthereum implements Ethereum {
+	constructor(readonly signer: TypedDataSigner & ethers.Signer) {
+	}
+
+	createContract(abi: any, address?: string): EthereumContract {
+		if (!address) {
+			throw new Error("No Contract address provided, it's required for EthersEthereum")
+		}
+		return new EthersContract(new ethers.Contract(address, abi, this.signer))
+	}
+
+	personalSign(message: string): Promise<string> {
+		return this.signer.signMessage(message)
+	}
+
+	async signTypedData<T extends MessageTypes>(data: TypedMessage<T>): Promise<string> {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { EIP712Domain, ...types } = data.types
+		return this.signer._signTypedData(data.domain, types, data.message)
+	}
+
+	getFrom(): Promise<string> {
+		return this.signer.getAddress()
 	}
 
 	encodeParameter(type: any, parameter: any): string {

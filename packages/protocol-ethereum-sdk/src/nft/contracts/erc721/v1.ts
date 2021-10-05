@@ -760,27 +760,6 @@ export const erc721v1Abi: AbiItem[] = [
 		"stateMutability": "nonpayable",
 		"type": "function",
 	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_addr",
-				"type": "address",
-			},
-		],
-		"name": "toString",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string",
-			},
-		],
-		"payable": false,
-		"stateMutability": "pure",
-		"type": "function",
-	},
 ]
 
 export type ERC721V1Abi = typeof erc721v1Abi

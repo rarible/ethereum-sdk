@@ -1,7 +1,6 @@
 import type { Binary, EIP712Domain, LazyErc1155, LazyErc721 } from "@rarible/protocol-api-client"
 import { Address, toBinary } from "@rarible/types"
 import type { Ethereum } from "@rarible/ethereum-provider"
-import { signTypedData } from "@rarible/ethereum-provider"
 import type { TypedMessage } from "eth-sig-util"
 import {
 	EIP1155_DOMAIN_NFT_TEMPLATE,
@@ -28,7 +27,7 @@ export async function signNft(ethereum: Ethereum, chainId: number, nft: SimpleLa
 					tokenURI: nft.uri,
 				},
 			}
-			return toBinary(await signTypedData(ethereum, data))
+			return toBinary(await ethereum.signTypedData(data))
 		}
 		case "ERC1155": {
 			const domain = createEIP712NftDomain(chainId, nft.contract, "ERC1155")
@@ -42,7 +41,7 @@ export async function signNft(ethereum: Ethereum, chainId: number, nft: SimpleLa
 					tokenURI: nft.uri,
 				},
 			}
-			return toBinary(await signTypedData(ethereum, data))
+			return toBinary(await ethereum.signTypedData(data))
 		}
 		default: {
 			throw new Error("Unexpected")

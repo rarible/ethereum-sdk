@@ -15,7 +15,7 @@
     "verify": "tsc --noEmit"
   },
   "dependencies": {
-    "@rarible/protocol-ethereum-sdk": "0.4.4",
+    "@rarible/protocol-ethereum-sdk": "^0.5.1",
     "@rarible/web3-ethereum": "^0.5.1",
     "browserify": "^17.0.0"
   },

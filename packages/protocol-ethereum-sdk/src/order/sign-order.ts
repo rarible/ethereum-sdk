@@ -1,6 +1,6 @@
 import { Asset, Binary, EIP712Domain } from "@rarible/protocol-api-client"
 import { Address, toBinary, ZERO_ADDRESS } from "@rarible/types"
-import { Ethereum, signTypedData } from "@rarible/ethereum-provider"
+import { Ethereum } from "@rarible/ethereum-provider"
 import { Config } from "../config/type"
 import { hashLegacyOrder } from "./hash-legacy-order"
 import { assetTypeToStruct } from "./asset-type-to-struct"
@@ -20,7 +20,7 @@ export async function signOrder(
 		}
 		case "RARIBLE_V2": {
 			const domain = createEIP712Domain(config.chainId, config.exchange.v2)
-			const signature = await signTypedData(ethereum, {
+			const signature = await ethereum.signTypedData({
 				primaryType: EIP712_ORDER_TYPE,
 				domain,
 				types: EIP712_ORDER_TYPES,

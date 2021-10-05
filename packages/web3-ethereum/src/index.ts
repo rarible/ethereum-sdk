@@ -1,21 +1,24 @@
 import type { Contract, ContractSendMethod } from "web3-eth-contract"
 import type { PromiEvent, TransactionReceipt } from "web3-core"
-import type {
+import {
 	Ethereum,
 	EthereumContract,
 	EthereumFunctionCall,
 	EthereumSendOptions,
 	EthereumTransaction,
+	signTypedData,
 } from "@rarible/ethereum-provider"
 import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
 import { backOff } from "exponential-backoff"
 import type { EthereumTransactionEvent, EthereumTransactionReceipt } from "@rarible/ethereum-provider"
+import { MessageTypes, TypedMessage } from "@rarible/ethereum-provider/src/domain"
 import type { Web3EthereumConfig } from "./domain"
 import { providerRequest } from "./utils/provider-request"
 import { toPromises } from "./utils/to-promises"
 
 export class Web3Ethereum implements Ethereum {
 	constructor(private readonly config: Web3EthereumConfig) {
+		this.send = this.send.bind(this)
 	}
 
 	createContract(abi: any, address?: string): EthereumContract {
@@ -31,9 +34,9 @@ export class Web3Ethereum implements Ethereum {
 		return (this.config.web3.eth.personal as any).sign(message, signer)
 	}
 
-	async ethSign(message: string): Promise<string> {
+	async signTypedData<T extends MessageTypes>(data: TypedMessage<T>): Promise<string> {
 		const signer = await this.getFrom()
-		return this.send("eth_sign", [signer, message])
+		return signTypedData(this.send, signer, data)
 	}
 
 	async getFrom(): Promise<string> {

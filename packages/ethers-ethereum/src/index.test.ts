@@ -6,32 +6,34 @@ import {
 } from "@rarible/ethereum-sdk-test-common"
 import { ethers } from "ethers"
 import Web3 from "web3"
-import { recoverPersonalSignature } from "eth-sig-util"
-import { EthersEthereum } from "./index"
+import { Ethereum } from "@rarible/ethereum-provider"
+import { EthersEthereum, EthersWeb3ProviderEthereum } from "./index"
 
-describe("EthersEthereum", () => {
-	const { provider } = createGanacheProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
-	const web3 = new Web3(provider as any)
-	const ethereum = new EthersEthereum(new ethers.providers.Web3Provider(provider as any))
+const testPK = "d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469"
 
-	test("signs typed data correctly", async () => {
-		await testTypedSignature(ethereum)
+const { provider } = createGanacheProvider(testPK)
+const web3 = new Web3(provider as any)
+const web3Provider = new ethers.providers.Web3Provider(provider as any)
+const ethereum = new EthersWeb3ProviderEthereum(web3Provider)
+const wallet = new ethers.Wallet(testPK, web3Provider)
+const newEthereum = new EthersEthereum(wallet)
+
+const data = [
+	ethereum,
+	newEthereum,
+]
+
+describe.each(data)("ethers.js Ethereum", (eth: Ethereum) => {
+
+	test(`${eth.constructor.name} signs typed data correctly`, async () => {
+		await testTypedSignature(eth)
 	})
 
-	test("signs personal message correctly", async () => {
-		await testPersonalSign(ethereum)
+	test(`${eth.constructor.name} signs personal message correctly`, async () => {
+		await testPersonalSign(eth)
 	})
 
-	test("allows to send transactions and call functions", async () => {
-		await testSimpleContract(web3, ethereum)
-	})
-
-	test("ethSign works", async () => {
-		const data = "0xab4bd7e6f7d4ed647c43cd5b612660d8ee3c9aebdd1a323690b2b0ef48989906"
-		const sig = await ethereum.ethSign(data)
-		console.log("signature is", sig, await ethereum.getFrom())
-		const recovered = recoverPersonalSignature({ sig, data })
-		expect(recovered)
-			.toBe((await ethereum.getFrom()).toLowerCase())
+	test(`${eth.constructor.name} allows to send transactions and call functions`, async () => {
+		await testSimpleContract(web3, eth)
 	})
 })

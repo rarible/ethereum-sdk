@@ -8,10 +8,13 @@ import { getApiConfig } from "../config/api-config"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { upsertOrder } from "./upsert-order"
 import { signOrder } from "./sign-order"
-import { getMakeFee } from "./get-make-fee"
+import { RaribleV2OrderHandler } from "./fill-order/rarible-v2"
+import { OrderFiller } from "./fill-order"
 
 describe("upsertOrder", () => {
 	const { provider, wallet } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
+	const v2Handler = new RaribleV2OrderHandler(null as any, null as any, E2E_CONFIG)
+	const orderService = new OrderFiller(null as any, null as any, v2Handler, null as any)
 
 	test("sign and upsert works", async () => {
 		const approve = () => Promise.resolve(undefined)
@@ -32,7 +35,7 @@ describe("upsertOrder", () => {
 		}
 		const checkLazyOrder = async () => Promise.resolve(order)
 		const upsert = (
-			await upsertOrder(getMakeFee.bind(null, { v2: 0 }), checkLazyOrder, approve, sign, orderApi, order)
+			await upsertOrder(orderService, checkLazyOrder, approve, sign, orderApi, order)
 		).build()
 		await upsert.runAll()
 		const result = await upsert.result

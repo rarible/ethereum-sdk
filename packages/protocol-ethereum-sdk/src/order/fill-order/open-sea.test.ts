@@ -32,7 +32,7 @@ import {
 	getAtomicMatchArgAddresses,
 	getAtomicMatchArgCommonData,
 	getAtomicMatchArgUints,
-	OpenSeaFillOrderHandler,
+	OpenSeaOrderHandler,
 } from "./open-sea"
 import { convertOpenSeaOrderToDTO } from "./open-sea-converter"
 import { OrderFiller } from "./index"
@@ -53,8 +53,8 @@ describe("fillOrder: Opensea orders", function () {
 		},
 	}
 
-	const openSeaFillHandler1 = new OpenSeaFillOrderHandler(ethereum1, simpleSend, config)
-	const openSeaFillHandler2 = new OpenSeaFillOrderHandler(ethereum2, simpleSend, config)
+	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, simpleSend, config)
+	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, simpleSend, config)
 	const orderFiller1 = new OrderFiller(ethereum1, null as any, null as any, openSeaFillHandler1)
 	const orderFiller2 = new OrderFiller(ethereum2, null as any, null as any, openSeaFillHandler2)
 

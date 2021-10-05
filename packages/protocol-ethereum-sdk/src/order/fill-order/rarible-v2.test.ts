@@ -15,7 +15,7 @@ import { deployTestRoyaltiesProvider } from "../contracts/test/test-royalties-pr
 import { signOrder } from "../sign-order"
 import { deployTestErc1155 } from "../contracts/test/test-erc1155"
 import { SimpleOrder } from "../types"
-import { RaribleV2FillOrderHandler } from "./rarible-v2"
+import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OrderFiller } from "./index"
 
 describe("fillOrder", () => {
@@ -26,7 +26,7 @@ describe("fillOrder", () => {
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
 	const config: Config = E2E_CONFIG
-	const v2Handler = new RaribleV2FillOrderHandler(ethereum1, simpleSend, config)
+	const v2Handler = new RaribleV2OrderHandler(ethereum1, simpleSend, config)
 	const filler = new OrderFiller(ethereum1, null as any, v2Handler, null as any)
 
 	const it = awaitAll({

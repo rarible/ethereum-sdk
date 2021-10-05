@@ -16,10 +16,10 @@ import { toVrs } from "../../common/to-vrs"
 import { waitTx } from "../../common/wait-tx"
 import { SimpleOpenSeaV1Order } from "../types"
 import { OpenSeaOrderDTO } from "./open-sea-types"
-import { FillOrderHandler, OpenSeaV1OrderFillRequest } from "./types"
+import { OrderHandler, OpenSeaV1OrderFillRequest } from "./types"
 import { convertOpenSeaOrderToDTO } from "./open-sea-converter"
 
-export class OpenSeaFillOrderHandler implements FillOrderHandler<OpenSeaV1OrderFillRequest> {
+export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillRequest> {
 	constructor(
 		private readonly ethereum: Ethereum,
 		private readonly send: SendFunction,
@@ -54,8 +54,20 @@ export class OpenSeaFillOrderHandler implements FillOrderHandler<OpenSeaV1OrderF
 		}
 	}
 
+	getBaseOrderFee(order: SimpleOpenSeaV1Order): number {
+		if (order.data.feeRecipient === ZERO_ADDRESS) {
+			return toBn(order.data.takerProtocolFee).plus(order.data.takerRelayerFee).toNumber()
+		} else {
+			return toBn(order.data.makerProtocolFee).plus(order.data.makerRelayerFee).toNumber()
+		}
+	}
+
+	getOrderFee(order: SimpleOpenSeaV1Order): number {
+		return this.getBaseOrderFee(order)
+	}
+
 	async approve(order: SimpleOpenSeaV1Order, infinite: boolean) {
-		const fee = toBn(order.data.takerProtocolFee).plus(order.data.takerRelayerFee).toNumber()
+		const fee = this.getOrderFee(order)
 		if (order.data.side === "BUY") {
 			const assetWithFee = getAssetWithFee(order.make, fee)
 			await waitTx(this.approveSingle(order.maker, assetWithFee, infinite))

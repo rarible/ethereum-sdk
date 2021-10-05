@@ -10,9 +10,9 @@ import { createExchangeV2Contract } from "../contracts/exchange-v2"
 import { waitTx } from "../../common/wait-tx"
 import { SimpleRaribleV2Order } from "../types"
 import { invertOrder } from "./invert-order"
-import { FillOrderHandler, RaribleV2OrderFillRequest } from "./types"
+import { OrderHandler, RaribleV2OrderFillRequest } from "./types"
 
-export class RaribleV2FillOrderHandler implements FillOrderHandler<RaribleV2OrderFillRequest> {
+export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillRequest> {
 
 	constructor(
 		private readonly ethereum: Ethereum,
@@ -65,7 +65,14 @@ export class RaribleV2FillOrderHandler implements FillOrderHandler<RaribleV2Orde
 	}
 
 	private getMakeAssetWithFee(order: SimpleRaribleV2Order) {
-		const fee = order.data.originFees.map(f => f.value).reduce((v, acc) => v + acc, 0) + this.config.fees.v2
-		return getAssetWithFee(order.make, fee)
+		return getAssetWithFee(order.make, this.getOrderFee(order))
+	}
+
+	getOrderFee(order: SimpleRaribleV2Order): number {
+		return order.data.originFees.map(f => f.value).reduce((v, acc) => v + acc, 0) + this.getBaseOrderFee()
+	}
+
+	getBaseOrderFee(): number {
+		return this.config.fees.v2
 	}
 }

@@ -18,8 +18,10 @@ export type FillOrderRequest = LegacyOrderFillRequest | RaribleV2OrderFillReques
 export type FillOrderAction = ActionBuilder<FillOrderStageId, void, [void, EthereumTransaction]>
 export type FillOrderStageId = "approve" | "send-tx"
 
-export interface FillOrderHandler<T extends FillOrderRequest> {
+export interface OrderHandler<T extends FillOrderRequest> {
 	invert: (request: T, maker: Address) => T["order"]
 	approve: (order: T["order"], infinite: boolean) => Promise<void>
 	sendTransaction: (initial: T["order"], inverted: T["order"], request: T) => Promise<EthereumTransaction>
+	getBaseOrderFee(order: T["order"]): number
+	getOrderFee(order: T["order"]): number
 }

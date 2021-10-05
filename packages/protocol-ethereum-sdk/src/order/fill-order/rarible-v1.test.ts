@@ -10,7 +10,7 @@ import { getApiConfig } from "../../config/api-config"
 import { signOrder } from "../sign-order"
 import { deployTestErc721 } from "../contracts/test/test-erc721"
 import { SimpleLegacyOrder, SimpleOrder } from "../types"
-import { RaribleV1FillOrderHandler } from "./rarible-v1"
+import { RaribleV1OrderHandler } from "./rarible-v1"
 import { OrderFiller } from "./"
 
 describe("test exchange v1 order", () => {
@@ -26,7 +26,7 @@ describe("test exchange v1 order", () => {
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const orderApi = new OrderControllerApi(configuration)
 	const ownershipApi = new NftOwnershipControllerApi(configuration)
-	const v1Handler = new RaribleV1FillOrderHandler(
+	const v1Handler = new RaribleV1OrderHandler(
 		ethereum2, orderApi, simpleSend, CONFIGS.e2e
 	)
 	const filler = new OrderFiller(ethereum2, v1Handler, null as any, null as any)

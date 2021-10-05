@@ -12,9 +12,9 @@ import { toLegacyAssetType } from "../to-legacy-asset-type"
 import { toVrs } from "../../common/to-vrs"
 import { waitTx } from "../../common/wait-tx"
 import { invertOrder } from "./invert-order"
-import { FillOrderHandler, LegacyOrderFillRequest } from "./types"
+import { OrderHandler, LegacyOrderFillRequest } from "./types"
 
-export class RaribleV1FillOrderHandler implements FillOrderHandler<LegacyOrderFillRequest> {
+export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillRequest> {
 
 	constructor(
 		private readonly ethereum: Ethereum,
@@ -34,8 +34,16 @@ export class RaribleV1FillOrderHandler implements FillOrderHandler<LegacyOrderFi
 	}
 
 	async approve(order: SimpleLegacyOrder, infinite: boolean): Promise<void> {
-		const withFee = getAssetWithFee(order.make, order.data.fee)
+		const withFee = getAssetWithFee(order.make, this.getOrderFee(order))
 		await waitTx(approve(this.ethereum, this.send, this.config.transferProxies, order.maker, withFee, infinite))
+	}
+
+	getBaseOrderFee(): number {
+		return 0
+	}
+
+	getOrderFee(order: SimpleLegacyOrder): number {
+		return order.data.fee
 	}
 
 	async sendTransaction(

@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.3](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.5.2...v0.5.3) (2021-10-05)
+
+
+### Bug Fixes
+
+* get rid of getMakeFee, fix base order fee ([fe1a206](https://github.com/rarible/protocol-ethereum-sdk/commit/fe1a206a43c25ee422f12cc516aff2c3e1e27b95))
+* refactor fill-order, simplify ([575cea6](https://github.com/rarible/protocol-ethereum-sdk/commit/575cea6466f4372d27a9c9b3177d99f6ae9c875c))
+
+
+
+
+
 ## [0.5.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.4.4...v0.5.1) (2021-09-29)
 
 

@@ -7,8 +7,7 @@ import { CONFIGS } from "./config"
 import { upsertOrder as upsertOrderTemplate, UpsertOrderAction } from "./order/upsert-order"
 import { approve as approveTemplate } from "./order/approve"
 import { sell as sellTemplate, SellRequest } from "./order/sell"
-import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
-import { fillOrder, FillOrderAction, FillOrderRequest } from "./order/fill-order"
+import { signOrder as signOrderTemplate } from "./order/sign-order"
 import { bid as bidTemplate, BidRequest } from "./order/bid"
 import { checkLazyAsset as checkLazyAssetTemplate, checkLazyAssetType as checkLazyAssetTypeTemplate, checkLazyOrder as checkLazyOrderTemplate } from "./order"
 import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
@@ -19,6 +18,12 @@ import { getMakeFee as getMakeFeeTemplate } from "./order/get-make-fee"
 import { burn as burnTemplate, BurnAsset } from "./nft/burn"
 import { send as sendTemplate } from "./common/send-transaction"
 import { cancel as cancelTemplate } from "./order/cancel"
+import { FillOrderAction, FillOrderRequest } from "./order/fill-order/types"
+import { SimpleOrder } from "./order/types"
+import { RaribleV1FillOrderHandler } from "./order/fill-order/rarible-v1"
+import { OrderFiller } from "./order/fill-order"
+import { RaribleV2FillOrderHandler } from "./order/fill-order/rarible-v2"
+import { OpenSeaFillOrderHandler } from "./order/fill-order/open-sea"
 
 export interface RaribleApis {
 	nftItem: NftItemControllerApi
@@ -126,7 +131,12 @@ export function createRaribleSdk(
 	)
 	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
 	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
-	const fill = partialCall(fillOrder, getMakeFee, send, orderControllerApi, config, ethereum)
+	const filler = new OrderFiller(
+		ethereum,
+		new RaribleV1FillOrderHandler(ethereum, orderControllerApi, send, config),
+		new RaribleV2FillOrderHandler(ethereum, send, config),
+		new OpenSeaFillOrderHandler(ethereum, send, config),
+	)
 
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
 	const mint = partialCall(mintTemplate, ethereum, send, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
@@ -146,7 +156,7 @@ export function createRaribleSdk(
 		},
 		order: {
 			sell,
-			fill,
+			fill: filler.fill,
 			bid,
 			upsertOrder,
 			cancel,

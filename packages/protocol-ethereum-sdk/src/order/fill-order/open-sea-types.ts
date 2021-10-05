@@ -21,7 +21,7 @@ export enum OrderOpenSeaV1DataV1HowToCall {
 	DELEGATE_CALL
 }
 
-export type OpenSeaOrderToSignDTO = {
+export type OpenSeaOrderDTO = {
 	exchange: Address
 	maker: Address
 	taker: Address

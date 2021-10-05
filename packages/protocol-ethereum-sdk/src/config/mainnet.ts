@@ -1,4 +1,4 @@
-import { toAddress, ZERO_ADDRESS } from "@rarible/types"
+import { toAddress } from "@rarible/types"
 import { id32 } from "../common/id"
 import { Config } from "./type"
 
@@ -17,14 +17,11 @@ export const MAINNET_CONFIG: Config = {
 		erc1155Lazy: toAddress("0x75a8B7c0B22D973E0B46CfBD3e2f6566905AA79f"),
 		openseaV1: toAddress("0xe5c783ee536cf5e63e792988335c4255169be4e1"),
 	},
-	proxyRegistries: {
-		openseaV1: toAddress("0xa5409ec958c83c3f309868babaca7c86dcb077c1"),
-	},
 	fees: {
 		v2: 0,
 	},
 	openSea: {
-		feeRecipient: ZERO_ADDRESS,
 		metadata: id32("RARIBLE"),
+		proxyRegistry: toAddress("0xa5409ec958c83c3f309868babaca7c86dcb077c1"),
 	},
 }

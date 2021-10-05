@@ -2,8 +2,9 @@ import { Asset } from "@rarible/protocol-api-client"
 import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { ethers } from "ethers"
-import { convertOpenSeaOrderToSignDTO, SimpleOpenSeaV1Order } from "../sign-order"
-import { OpenSeaOrderToSignDTO } from "../../common/orders"
+import { OpenSeaOrderDTO } from "../fill-order/open-sea-types"
+import { SimpleOpenSeaV1Order } from "../types"
+import { convertOpenSeaOrderToDTO } from "../fill-order/open-sea-converter"
 
 function getRandomTokenId(): string {
 	return Math.floor(Math.random() * 300000000).toString()
@@ -132,7 +133,7 @@ const hashOrderType = [
 	"uint",
 ]
 
-export function hashOrder(order: OpenSeaOrderToSignDTO): string {
+export function hashOrder(order: OpenSeaOrderDTO): string {
 	return ethers.utils.solidityKeccak256(hashOrderType, [
 		order.exchange,
 		order.maker,
@@ -168,5 +169,5 @@ export function hashToSign(hash: string): string {
 }
 
 export function hashOpenSeaV1Order(ethereum: Ethereum, order: SimpleOpenSeaV1Order): string {
-	return hashOrder(convertOpenSeaOrderToSignDTO(ethereum, order))
+	return hashOrder(convertOpenSeaOrderToDTO(ethereum, order))
 }

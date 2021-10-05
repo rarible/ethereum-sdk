@@ -1,5 +1,5 @@
 import { toBn } from "@rarible/utils"
-import { SimpleOrder } from "./sign-order"
+import { SimpleOrder } from "./types"
 
 export async function getBaseOrderFillFee(order: SimpleOrder) {
 	if (order.type === "RARIBLE_V1") {

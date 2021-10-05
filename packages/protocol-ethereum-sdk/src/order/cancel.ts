@@ -1,19 +1,15 @@
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { Address } from "@rarible/protocol-api-client"
 import { ExchangeAddresses } from "../config/type"
-import {
-	convertOpenSeaOrderToSignDTO,
-	orderToStruct,
-	SimpleLegacyOrder,
-	SimpleOpenSeaV1Order,
-	SimpleOrder,
-	SimpleRaribleV2Order,
-} from "./sign-order"
+import { toVrs } from "../common/to-vrs"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
-import { toStructLegacyOrderKey } from "./to-struct-legacy-order"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
-import { getAtomicMatchArgAddresses, getAtomicMatchArgUints, toVrs } from "./fill-order"
+import { toStructLegacyOrderKey } from "./fill-order/rarible-v1"
+import { getAtomicMatchArgAddresses, getAtomicMatchArgUints } from "./fill-order/open-sea"
+import { SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleOrder, SimpleRaribleV2Order } from "./types"
+import { orderToStruct } from "./sign-order"
+import { convertOpenSeaOrderToDTO } from "./fill-order/open-sea-converter"
 
 export async function cancel(
 	ethereum: Ethereum,
@@ -45,7 +41,7 @@ async function cancelV2Order(ethereum: Ethereum, contract: Address, order: Simpl
 export function cancelOpenseaOrderV1(ethereum: Ethereum, contract: Address, order: SimpleOpenSeaV1Order) {
 	const exchangeContract = createOpenseaContract(ethereum, contract)
 
-	const dto = convertOpenSeaOrderToSignDTO(ethereum, order)
+	const dto = convertOpenSeaOrderToDTO(ethereum, order)
 	const makerVRS = toVrs(order.signature || "0x")
 
 	return exchangeContract.functionCall(

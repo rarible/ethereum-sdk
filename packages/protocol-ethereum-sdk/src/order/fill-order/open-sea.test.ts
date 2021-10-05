@@ -6,10 +6,10 @@ import { Contract } from "web3-eth-contract"
 import { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
-import { sentTx, simpleSend } from "../common/send-transaction"
-import { Config } from "../config/type"
-import { E2E_CONFIG } from "../config/e2e"
-import { id32 } from "../common/id"
+import { sentTx, simpleSend } from "../../common/send-transaction"
+import { Config } from "../../config/type"
+import { E2E_CONFIG } from "../../config/e2e"
+import { id32 } from "../../common/id"
 import {
 	getAssetTypeBlank,
 	getOrderSignature,
@@ -17,26 +17,25 @@ import {
 	hashOpenSeaV1Order,
 	hashToSign,
 	OPENSEA_ORDER_TEMPLATE,
-} from "./test/order-opensea"
-import { deployTestErc20 } from "./contracts/test/test-erc20"
-import { deployTestErc721 } from "./contracts/test/test-erc721"
-import { deployTestErc1155 } from "./contracts/test/test-erc1155"
-import { deployOpenseaProxyRegistry } from "./contracts/test/opensea/test-proxy-registry"
-import { deployOpenseaTokenTransferProxy } from "./contracts/test/opensea/test-token-transfer-proxy"
-import { deployOpenSeaExchangeV1 } from "./contracts/test/opensea/test-exchange-opensea-v1"
-import { createOpenseaProxyRegistryEthContract } from "./contracts/proxy-registry-opensea"
-import { convertOpenSeaOrderToSignDTO, SimpleOpenSeaV1Order } from "./sign-order"
-import { approveOpensea } from "./approve-opensea"
+} from "../test/order-opensea"
+import { deployTestErc20 } from "../contracts/test/test-erc20"
+import { deployTestErc721 } from "../contracts/test/test-erc721"
+import { deployTestErc1155 } from "../contracts/test/test-erc1155"
+import { deployOpenseaProxyRegistry } from "../contracts/test/opensea/test-proxy-registry"
+import { deployOpenseaTokenTransferProxy } from "../contracts/test/opensea/test-token-transfer-proxy"
+import { deployOpenSeaExchangeV1 } from "../contracts/test/opensea/test-exchange-opensea-v1"
+import { createOpenseaProxyRegistryEthContract } from "../contracts/proxy-registry-opensea"
+import { createOpenseaContract } from "../contracts/exchange-opensea-v1"
+import { cancel } from "../cancel"
+import { SimpleOpenSeaV1Order } from "../types"
 import {
-	fillOrder as fillOrderTemplate,
 	getAtomicMatchArgAddresses,
 	getAtomicMatchArgCommonData,
 	getAtomicMatchArgUints,
-	getOpenseaOrdersForMatching,
-} from "./fill-order"
-import { getMakeFee } from "./get-make-fee"
-import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
-import { cancel } from "./cancel"
+	OpenSeaFillOrderHandler,
+} from "./open-sea"
+import { convertOpenSeaOrderToDTO } from "./open-sea-converter"
+import { OrderFiller } from "./index"
 
 describe("fillOrder: Opensea orders", function () {
 	const { addresses, provider } = createGanacheProvider()
@@ -50,17 +49,14 @@ describe("fillOrder: Opensea orders", function () {
 		chainId: 1,
 		openSea: {
 			metadata: id32("RARIBLE"),
-			feeRecipient: feeRecipient,
+			proxyRegistry: ZERO_ADDRESS,
 		},
 	}
 
-	const fillOrder = fillOrderTemplate.bind(
-		null,
-		getMakeFee.bind(null, { v2: 100 }),
-		simpleSend,
-		null as any,
-		config
-	)
+	const openSeaFillHandler1 = new OpenSeaFillOrderHandler(ethereum1, simpleSend, config)
+	const openSeaFillHandler2 = new OpenSeaFillOrderHandler(ethereum2, simpleSend, config)
+	const orderFiller1 = new OrderFiller(ethereum1, null as any, null as any, openSeaFillHandler1)
+	const orderFiller2 = new OrderFiller(ethereum2, null as any, null as any, openSeaFillHandler2)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -89,7 +85,7 @@ describe("fillOrder: Opensea orders", function () {
 		)
 
 		config.exchange.openseaV1 = toAddress(wyvernExchange.options.address)
-		config.proxyRegistries.openseaV1 = toAddress(wyvernProxyRegistry.options.address)
+		config.openSea.proxyRegistry = toAddress(wyvernProxyRegistry.options.address)
 		config.transferProxies.openseaV1 = toAddress(wyvernTokenTransferProxy.options.address)
 
 		proxyRegistryEthContract = await createOpenseaProxyRegistryEthContract(
@@ -186,7 +182,7 @@ describe("fillOrder: Opensea orders", function () {
 		}
 
 		const orderHash = hashOpenSeaV1Order(ethereum1, order)
-		const orderDTO = convertOpenSeaOrderToSignDTO(ethereum1, order)
+		const orderDTO = convertOpenSeaOrderToDTO(ethereum1, order)
 
 		const contractCalculatedHash = await exchangeContract
 			.functionCall(
@@ -206,29 +202,8 @@ describe("fillOrder: Opensea orders", function () {
 		expect(orderHash).toBe(contractCalculatedHash)
 	})
 
-
 	test("should orders be matchable", async () => {
-		const exchangeContract = await createOpenseaContract(ethereum1, toAddress(wyvernExchange.options.address))
-
-		const order: SimpleOpenSeaV1Order = {
-			...OPENSEA_ORDER_TEMPLATE,
-			make: getAssetTypeBlank("ERC721"),
-			maker: toAddress(sender1Address),
-			take: getAssetTypeBlank("ETH"),
-			data: {
-				...OPENSEA_ORDER_TEMPLATE.data,
-				exchange: toAddress(wyvernExchange.options.address),
-				side: "SELL",
-			},
-		}
-		const { buy, sell } = await getOpenseaOrdersForMatching(
-			ethereum1,
-			order,
-			sender1Address,
-			config.openSea.feeRecipient
-		)
-		const buyDTO = convertOpenSeaOrderToSignDTO(ethereum1, buy)
-		const sellDTO = convertOpenSeaOrderToSignDTO(ethereum1, sell)
+		const { exchangeContract, buyDTO, sellDTO } = await prepareSimpleOrdersForTest()
 
 		const ordersCanMatch = await exchangeContract
 			.functionCall(
@@ -249,27 +224,7 @@ describe("fillOrder: Opensea orders", function () {
 	})
 
 	test("should order price be correct", async () => {
-		const exchangeContract = await createOpenseaContract(ethereum1, toAddress(wyvernExchange.options.address))
-
-		const order: SimpleOpenSeaV1Order = {
-			...OPENSEA_ORDER_TEMPLATE,
-			make: getAssetTypeBlank("ERC721"),
-			maker: toAddress(sender1Address),
-			take: getAssetTypeBlank("ETH"),
-			data: {
-				...OPENSEA_ORDER_TEMPLATE.data,
-				exchange: toAddress(wyvernExchange.options.address),
-				side: "SELL",
-			},
-		}
-		const { buy, sell } = await getOpenseaOrdersForMatching(
-			ethereum1,
-			order,
-			sender1Address,
-			config.openSea.feeRecipient
-		)
-		const buyDTO = convertOpenSeaOrderToSignDTO(ethereum1, buy)
-		const sellDTO = convertOpenSeaOrderToSignDTO(ethereum1, sell)
+		const { exchangeContract, buyDTO, sellDTO } = await prepareSimpleOrdersForTest()
 
 		const orderMatchPrice = await exchangeContract
 			.functionCall(
@@ -305,7 +260,7 @@ describe("fillOrder: Opensea orders", function () {
 		await mintTestAsset(order.make, sender2Address)
 		order.make = setTestContract(order.make)
 		order.take = setTestContract(order.take)
-		await approveOpensea(ethereum2, simpleSend, config, sender2Address, order.make)
+		await openSeaFillHandler2.approveSingle(sender2Address, order.make)
 
 		const signature = toBinary(await getOrderSignature(ethereum1, order))
 
@@ -347,7 +302,6 @@ describe("fillOrder: Opensea orders", function () {
 			const nftOwner = sender2Address
 			const nftBuyer = sender1Address
 			const nftOwnerEthereum = ethereum2
-			const nftBuyerEthereum = ethereum1
 
 			beforeEach(async () => {
 				order.make = setTestContract(order.make)
@@ -362,8 +316,8 @@ describe("fillOrder: Opensea orders", function () {
 
 				await mintTestAsset(order.make, nftOwner)
 				await mintTestAsset(order.take, nftBuyer)
-				await approveOpensea(nftOwnerEthereum, simpleSend, config, nftOwner, order.make, false)
-				await approveOpensea(nftOwnerEthereum, simpleSend, config, nftOwner, order.take, false)
+				await openSeaFillHandler2.approveSingle(nftOwner, order.make, false)
+				await openSeaFillHandler2.approveSingle(nftOwner, order.take, false)
 
 				order.signature = toBinary(await getOrderSignature(nftOwnerEthereum, order))
 
@@ -373,7 +327,7 @@ describe("fillOrder: Opensea orders", function () {
 
 				const nftSellerInitBalance = await getBalance(order.make, nftOwner)
 
-				const filledOrder = await fillOrder(nftBuyerEthereum,  { order })
+				const filledOrder = await orderFiller1.fill({ order })
 				await filledOrder.build().runAll()
 
 				const nftSellerFinalBalance = await getBalance(order.make, nftOwner)
@@ -385,8 +339,6 @@ describe("fillOrder: Opensea orders", function () {
 
 	// Buy-side orders
 	describe.each([
-		getOrderTemplate("ETH", "ERC721", "BUY"),
-		getOrderTemplate("ETH", "ERC1155", "BUY"),
 		getOrderTemplate("ERC20", "ERC721", "BUY"),
 		getOrderTemplate("ERC20", "ERC1155", "BUY"),
 	])(
@@ -395,7 +347,6 @@ describe("fillOrder: Opensea orders", function () {
 			let order: SimpleOpenSeaV1Order = testOrder
 			const nftOwner = sender2Address
 			const nftBuyer = sender1Address
-			const nftOwnerEthereum = ethereum2
 			const nftBuyerEthereum = ethereum1
 
 			beforeEach(async () => {
@@ -404,7 +355,7 @@ describe("fillOrder: Opensea orders", function () {
 				order.data.makerProtocolFee = toBigNumber("500")
 				order.data.takerRelayerFee = toBigNumber("500")
 				order.data.takerProtocolFee = toBigNumber("500")
-				order.data.feeRecipient = toAddress(ZERO_ADDRESS)
+				order.data.feeRecipient = feeRecipient
 				order.maker = toAddress(nftBuyer)
 				order.make = setTestContract(order.make)
 				order.take = setTestContract(order.take)
@@ -415,7 +366,7 @@ describe("fillOrder: Opensea orders", function () {
 					...order.make,
 					value: toBigNumber(+order.data.takerRelayerFee + +order.data.takerProtocolFee + order.make.value),
 				}
-				await approveOpensea(nftBuyerEthereum, simpleSend, config, nftBuyer, buyerApprovalAsset, false)
+				await openSeaFillHandler1.approveSingle(nftBuyer, buyerApprovalAsset, false)
 
 				order.signature = toBinary(await getOrderSignature(nftBuyerEthereum, order))
 			})
@@ -423,7 +374,7 @@ describe("fillOrder: Opensea orders", function () {
 			test("should match order", async () => {
 				const nftSellerInitBalance = await getBalance(order.take, nftOwner)
 
-				const filledOrder = await fillOrder(nftOwnerEthereum, { order })
+				const filledOrder = await orderFiller2.fill({ order })
 				await filledOrder.build().runAll()
 
 				const nftSellerFinalBalance = await getBalance(order.take, nftOwner)
@@ -431,5 +382,29 @@ describe("fillOrder: Opensea orders", function () {
 			})
 		})
 
+	async function prepareSimpleOrdersForTest() {
+		const exchangeContract = await createOpenseaContract(ethereum1, toAddress(wyvernExchange.options.address))
 
+		const sell: SimpleOpenSeaV1Order = {
+			...OPENSEA_ORDER_TEMPLATE,
+			make: getAssetTypeBlank("ERC721"),
+			maker: toAddress(sender1Address),
+			take: getAssetTypeBlank("ETH"),
+			data: {
+				...OPENSEA_ORDER_TEMPLATE.data,
+				exchange: toAddress(wyvernExchange.options.address),
+				side: "SELL",
+				feeRecipient,
+			},
+		}
+		const buy = openSeaFillHandler1.invert({ order: sell }, sender1Address)
+		const buyDTO = convertOpenSeaOrderToDTO(ethereum1, buy)
+		const sellDTO = convertOpenSeaOrderToDTO(ethereum1, sell)
+
+		return {
+			exchangeContract,
+			buyDTO,
+			sellDTO,
+		}
+	}
 })

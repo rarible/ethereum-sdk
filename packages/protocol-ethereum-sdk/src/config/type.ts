@@ -19,13 +19,9 @@ export type TransferProxies = {
 	openseaV1: Address
 }
 
-export type ProxyRegistries = {
-	openseaV1: Address
-}
-
 export type OpenSeaConfig = {
-	feeRecipient: Address
 	metadata: Word
+	proxyRegistry: Address
 }
 
 export type Config = {
@@ -33,7 +29,6 @@ export type Config = {
 	chainId: number
 	exchange: ExchangeAddresses
 	transferProxies: TransferProxies
-	proxyRegistries: ProxyRegistries
 	fees: ExchangeFees
 	openSea: OpenSeaConfig
 }

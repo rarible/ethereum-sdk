@@ -17,14 +17,11 @@ export const E2E_CONFIG: Config = {
 		erc1155Lazy: toAddress("0x6E605A7d1FD15e9087f0756ab57E0ED99735a7a7"),
 		openseaV1: ZERO_ADDRESS,
 	},
-	proxyRegistries: {
-		openseaV1: ZERO_ADDRESS,
-	},
 	fees: {
 		v2: 0,
 	},
 	openSea: {
-		feeRecipient: ZERO_ADDRESS,
 		metadata: id32("RARIBLE"),
+		proxyRegistry: ZERO_ADDRESS,
 	},
 }

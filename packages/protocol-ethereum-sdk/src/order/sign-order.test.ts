@@ -3,8 +3,9 @@ import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { E2E_CONFIG } from "../config/e2e"
-import { signOrder, SimpleOrder } from "./sign-order"
+import { signOrder } from "./sign-order"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
+import { SimpleOrder } from "./types"
 
 describe("signOrder", () => {
 	const { provider } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")

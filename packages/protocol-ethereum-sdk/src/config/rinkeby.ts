@@ -1,4 +1,4 @@
-import { toAddress, ZERO_ADDRESS } from "@rarible/types"
+import { toAddress } from "@rarible/types"
 import { id32 } from "../common/id"
 import { Config } from "./type"
 
@@ -17,14 +17,11 @@ export const RINKEBY_CONFIG: Config = {
 		erc1155Lazy: toAddress("0x0cF0AAb68432a3710ECbf2f1b112a11cEe31a83C"),
 		openseaV1: toAddress("0x82d102457854c985221249f86659c9d6cf12aa72"),
 	},
-	proxyRegistries: {
-		openseaV1: toAddress("0xf57b2c51ded3a29e6891aba85459d600256cf317"),
-	},
 	fees: {
 		v2: 0,
 	},
 	openSea: {
-		feeRecipient: ZERO_ADDRESS,
 		metadata: id32("RARIBLE"),
+		proxyRegistry: toAddress("0xf57b2c51ded3a29e6891aba85459d600256cf317"),
 	},
 }

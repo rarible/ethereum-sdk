@@ -1,9 +1,8 @@
 // noinspection JSCommentMatchesSignature
 
 import { Binary, Order, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
-import { ActionBuilder } from "@rarible/action"
+import { Action } from "@rarible/action"
 import { toBinary } from "@rarible/types"
-import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import { toBn } from "@rarible/utils/build/bn"
 import type { SimpleOrder } from "./types"
 import { addFee } from "./add-fee"
@@ -11,7 +10,7 @@ import type { ApproveFunction } from "./approve"
 import { OrderFiller } from "./fill-order"
 
 export type UpsertOrderStageId = "approve" | "sign"
-export type UpsertOrderAction = ActionBuilder<UpsertOrderStageId, void, [EthereumTransaction | undefined, Order]>
+export type UpsertOrderAction = Action<void, string, Order>
 export type UpsertOrderFunction = (order: OrderForm, infinite?: boolean) => Promise<UpsertOrderAction>
 
 /**
@@ -31,7 +30,7 @@ export async function upsertOrder(
 	const checkedOrder = await checkLazyOrder(order)
 	const fee = await orderFiller.getOrderFee(orderFormToSimpleOrder(checkedOrder))
 	const make = addFee(checkedOrder.make, fee)
-	return ActionBuilder
+	return Action
 		.create({
 			id: "approve" as const,
 			run: () => approve(checkedOrder.maker, make, infinite),

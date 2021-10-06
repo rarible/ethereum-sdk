@@ -1,6 +1,6 @@
 import { Address } from "@rarible/types"
 import { Part } from "@rarible/protocol-api-client"
-import { Action, Execution } from "@rarible/action"
+import { Action } from "@rarible/action"
 import { EthereumTransaction } from "@rarible/ethereum-provider"
 import { SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleRaribleV2Order } from "../types"
 
@@ -15,7 +15,7 @@ export type OpenSeaV1OrderFillRequest =
 
 export type FillOrderRequest = LegacyOrderFillRequest | RaribleV2OrderFillRequest | OpenSeaV1OrderFillRequest
 
-export type FillOrderAction = Execution<FillOrderRequest, string, EthereumTransaction>
+export type FillOrderAction = Action<FillOrderRequest, FillOrderStageId, EthereumTransaction>
 export type FillOrderStageId = "approve" | "send-tx"
 
 export interface OrderHandler<T extends FillOrderRequest> {

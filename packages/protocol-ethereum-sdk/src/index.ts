@@ -15,7 +15,7 @@ import { signNft as signNftTemplate } from "./nft/sign-nft"
 import { burn as burnTemplate, BurnAsset } from "./nft/burn"
 import { send as sendTemplate } from "./common/send-transaction"
 import { cancel as cancelTemplate } from "./order/cancel"
-import { FillOrderAction, FillOrderRequest } from "./order/fill-order/types"
+import { FillOrderAction } from "./order/fill-order/types"
 import { SimpleOrder } from "./order/types"
 import { RaribleV1OrderHandler } from "./order/fill-order/rarible-v1"
 import { OrderFiller } from "./order/fill-order"
@@ -47,7 +47,7 @@ export interface RaribleOrderSdk {
 	 *
 	 * @param request order and parameters (amount to fill, fees etc)
 	 */
-	fill(request: FillOrderRequest): Promise<FillOrderAction>
+	fill: FillOrderAction
 
 	/**
 	 * Sell or create bid. Low-level method

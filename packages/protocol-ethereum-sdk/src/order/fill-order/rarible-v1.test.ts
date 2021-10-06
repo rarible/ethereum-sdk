@@ -71,8 +71,8 @@ describe("test exchange v1 order", () => {
 		await it.testErc721.methods.setApprovalForAll(CONFIGS.e2e.transferProxies.nft, true).send({ from: seller })
 
 		const signedOrder: SimpleLegacyOrder = { ...order, signature: await sign(order) }
-		const ab = await filler.fill({ order: signedOrder, amount: 1, originFee: 100 })
-		await ab.runAll()
+		const execution = await filler.fill.build({ order: signedOrder, amount: 1, originFee: 100 })
+		await execution.runAll()
 
 		await retry(10, async () => {
 			const ownership = await ownershipApi.getNftOwnershipById({

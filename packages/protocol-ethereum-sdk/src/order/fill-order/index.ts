@@ -1,7 +1,7 @@
 import { Ethereum } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import { Action } from "@rarible/action"
-import { Address} from "@rarible/protocol-api-client"
+import { Address } from "@rarible/protocol-api-client"
 import { SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleOrder, SimpleRaribleV2Order } from "../types"
 import {
 	FillOrderAction,
@@ -22,32 +22,27 @@ export class OrderFiller {
 		private readonly v2Handler: RaribleV2OrderHandler,
 		private readonly openSeaHandler: OpenSeaOrderHandler,
 	) {
-		this.fill = this.fill.bind(this)
 		this.getBaseOrderFillFee = this.getBaseOrderFillFee.bind(this)
 	}
 
-	async fill(request: FillOrderRequest): Promise<FillOrderAction> {
-		return this.action.build(request)
-	}
-
-	action = Action
+	fill: FillOrderAction = Action
 		.create({
-			id: "approve",
+			id: "approve" as const,
 			run: async (request: FillOrderRequest) => {
 				const from = toAddress(await this.ethereum.getFrom())
 				const inverted = await this.invertOrder(request, from)
 				await this.approveOrder(inverted, Boolean(request.infinite))
-				return {request, inverted}
+				return { request, inverted }
 			},
 		})
 		.thenStage({
-			id: "send-tx",
-			run: async ({inverted, request}: { inverted: SimpleOrder, request: FillOrderRequest }) => {
+			id: "send-tx" as const,
+			run: async ({ inverted, request }: { inverted: SimpleOrder, request: FillOrderRequest }) => {
 				return this.sendTransaction(request, inverted)
 			},
 		})
 
-	async invertOrder(request: FillOrderRequest, from: Address) {
+	private async invertOrder(request: FillOrderRequest, from: Address) {
 		switch (request.order.type) {
 			case "RARIBLE_V1":
 				return this.v1Handler.invert(<LegacyOrderFillRequest>request, from)
@@ -60,7 +55,7 @@ export class OrderFiller {
 		}
 	}
 
-	async approveOrder(inverted: SimpleOrder, isInfinite: boolean) {
+	private async approveOrder(inverted: SimpleOrder, isInfinite: boolean) {
 		switch (inverted.type) {
 			case "RARIBLE_V1":
 				return this.v1Handler.approve(inverted, isInfinite)
@@ -73,7 +68,7 @@ export class OrderFiller {
 		}
 	}
 
-	async sendTransaction(request: FillOrderRequest, inverted: SimpleOrder) {
+	private async sendTransaction(request: FillOrderRequest, inverted: SimpleOrder) {
 		switch (inverted.type) {
 			case "RARIBLE_V1":
 				return this.v1Handler.sendTransaction(

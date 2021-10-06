@@ -37,7 +37,7 @@
     "@babel/core": "7.15.0",
     "@ethereumjs/common": "2.4.0",
     "@ethereumjs/tx": "3.3.0",
-    "@rarible/action": "^0.2.11",
+    "@rarible/action": "^0.2.12",
     "@rarible/eslint-config-ts": "0.0.5",
     "@rarible/protocol-api-client": "0.1.7",
     "@rarible/types": "0.1.7",
@@ -61,8 +61,5 @@
     "web3-eth-contract": "1.2.11",
     "web3-provider-engine": "16.0.1",
     "web3-utils": "1.2.11"
-  },
-  "dependencies": {
-    "callable-instance": "^2.0.0"
   }
 }

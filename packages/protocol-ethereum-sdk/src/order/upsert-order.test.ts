@@ -5,7 +5,7 @@ import { E2E_CONFIG } from "../config/e2e"
 import { getApiConfig } from "../config/api-config"
 import { createTestProviders } from "../common/create-test-providers"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
-import { upsertOrder } from "./upsert-order"
+import { UpsertOrder } from "./upsert-order"
 import { signOrder } from "./sign-order"
 import { RaribleV2OrderHandler } from "./fill-order/rarible-v2"
 import { OrderFiller } from "./fill-order"
@@ -34,9 +34,15 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 			},
 		}
 		const checkLazyOrder = async () => Promise.resolve(order)
-		const upsert = (
-			await upsertOrder(orderService, checkLazyOrder, approve, sign, orderApi, order)
-		).build()
+		const upserter = new UpsertOrder(
+			orderService,
+			checkLazyOrder,
+			approve,
+			sign,
+			orderApi
+		)
+
+		const upsert = await upserter.upsert.build({ order })
 		await upsert.runAll()
 		const result = await upsert.result
 		expect(result.hash).toBeTruthy()

@@ -2,14 +2,16 @@ import type {
 	Address,
 	Erc20AssetType,
 	EthAssetType,
-	NftItemControllerApi,
+	NftItemControllerApi, Order,
 	OrderForm,
 	Part,
 } from "@rarible/protocol-api-client"
 import { randomWord, toBigNumber } from "@rarible/types"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
+import { Action } from "@rarible/action"
 import type { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type"
 import type { UpsertOrderFunction } from "./upsert-order"
+import { UpsertOrder } from "./upsert-order"
 
 export type SellRequest = {
 	maker: Address
@@ -21,7 +23,7 @@ export type SellRequest = {
 	originFees: Array<Part>
 }
 
-export async function sell(
+export async function sell1(
 	api: NftItemControllerApi,
 	upsertOrder: UpsertOrderFunction,
 	checkAssetType: (asset: AssetTypeRequest) => Promise<AssetTypeResponse>,
@@ -46,4 +48,50 @@ export async function sell(
 		salt: toBigNumber(toBn(randomWord(), 16).toString(10)) as any,
 	}
 	return upsertOrder(order, false)
+}
+
+export type SellOrderAction = Action<SellRequest, SellOrderStageId, Order>
+export type SellOrderStageId = "approve" | "sign"
+
+export class OrderSell {
+	constructor(
+		private readonly upserter: UpsertOrder,
+		private readonly checkAssetType: (asset: AssetTypeRequest) => Promise<AssetTypeResponse>,
+	) {}
+
+	sell: SellOrderAction = Action
+		.create({
+			id: "approve" as const,
+			run: async (request: SellRequest) => {
+				const orderForm = await this.prepareOrderForm(request)
+				const checkedOrder = await this.upserter.checkLazyOrder(orderForm)
+				await this.upserter.approve(checkedOrder, false)
+				return checkedOrder
+			},
+		})
+		.thenStage({
+			id: "sign" as const,
+			run: async (checkedOrder: OrderForm) => this.upserter.upsertRequest(checkedOrder),
+		})
+
+	private async prepareOrderForm(request: SellRequest): Promise<OrderForm> {
+		return {
+			maker: request.maker,
+			make: {
+				assetType: await this.checkAssetType(request.makeAssetType),
+				value: toBigNumber(request.amount.toString()),
+			},
+			take: {
+				assetType: request.takeAssetType,
+				value: toBigNumber(toBn(request.price).multipliedBy(request.amount).toString()),
+			},
+			type: "RARIBLE_V2",
+			data: {
+				dataType: "RARIBLE_V2_DATA_V1",
+				payouts: request.payouts,
+				originFees: request.originFees,
+			},
+			salt: toBigNumber(toBn(randomWord(), 16).toString(10)) as any,
+		}
+	}
 }

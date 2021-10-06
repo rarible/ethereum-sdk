@@ -24,7 +24,7 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 	) {
 	}
 
-	invert(request: LegacyOrderFillRequest, maker: Address): LegacyOrderFillRequest["order"] {
+	invert(request: LegacyOrderFillRequest, maker: Address): SimpleLegacyOrder {
 		const inverted = invertOrder(request.order, request.amount, maker)
 		inverted.data = {
 			dataType: "LEGACY",

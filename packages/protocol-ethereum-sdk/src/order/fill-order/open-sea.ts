@@ -27,7 +27,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	) {
 	}
 
-	invert({ order }: OpenSeaV1OrderFillRequest, maker: Address) {
+	invert({ order }: OpenSeaV1OrderFillRequest, maker: Address): SimpleOpenSeaV1Order {
 		if (order.data.side === "BUY" && order.make.assetType.assetClass === "ETH") {
 			throw new Error("BUY order with make=ETH can be only")
 		}

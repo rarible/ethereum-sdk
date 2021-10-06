@@ -1811,10 +1811,10 @@
   dependencies:
     "@octokit/openapi-types" "^9.5.0"
 
-"@rarible/action@0.2.7":
-  version "0.2.7"
-  resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.2.7.tgz#8c137cccbb41a4d319614dfbe983cf378399ac2c"
-  integrity sha512-BHF8O3ZigY943fSA1oy5iR7yvnENvOYIS/yUDnOhOuKcRH7JAHyrsfPi2DmzqZl1zK3V/O6WBmV+VRgWlPQ48w==
+"@rarible/action@^0.2.11":
+  version "0.2.11"
+  resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.2.11.tgz#f8d021c578f788c9220290cdf4a1ec4ffe227453"
+  integrity sha512-Pz42PTTkVpKMmM57HrFgn13TyXdmQGaEWHeU0nDc/vU+0+zOD9iasIWLv/ZOpR0Uhf9N7t93odcGMakct4xAHQ==
 
 "@rarible/eslint-config-ts@0.0.5":
   version "0.0.5"

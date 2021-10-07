@@ -1,10 +1,10 @@
 import { Ethereum } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
-import { ActionBuilder } from "@rarible/action"
-import { SimpleOrder } from "../types"
+import { Action } from "@rarible/action"
+import { Address } from "@rarible/protocol-api-client"
+import { SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleOrder, SimpleRaribleV2Order } from "../types"
 import {
 	FillOrderAction,
-	OrderHandler,
 	FillOrderRequest,
 	LegacyOrderFillRequest,
 	OpenSeaV1OrderFillRequest,
@@ -22,35 +22,67 @@ export class OrderFiller {
 		private readonly v2Handler: RaribleV2OrderHandler,
 		private readonly openSeaHandler: OpenSeaOrderHandler,
 	) {
-		this.fill = this.fill.bind(this)
 		this.getBaseOrderFillFee = this.getBaseOrderFillFee.bind(this)
 	}
 
-	async fill(request: FillOrderRequest): Promise<FillOrderAction> {
-		if (isLegacyRequest(request)) {
-			return this.fillInternal(request, this.v1Handler)
-		} else if (isOrderV2Request(request)) {
-			return this.fillInternal(request, this.v2Handler)
-		} else if (isOpenseaOrderV1Request(request)) {
-			return this.fillInternal(request, this.openSeaHandler)
+	fill: FillOrderAction = Action
+		.create({
+			id: "approve" as const,
+			run: async (request: FillOrderRequest) => {
+				const from = toAddress(await this.ethereum.getFrom())
+				const inverted = await this.invertOrder(request, from)
+				await this.approveOrder(inverted, Boolean(request.infinite))
+				return { request, inverted }
+			},
+		})
+		.thenStep({
+			id: "send-tx" as const,
+			run: async ({ inverted, request }: { inverted: SimpleOrder, request: FillOrderRequest }) => {
+				return this.sendTransaction(request, inverted)
+			},
+		})
+
+	private async invertOrder(request: FillOrderRequest, from: Address) {
+		switch (request.order.type) {
+			case "RARIBLE_V1":
+				return this.v1Handler.invert(<LegacyOrderFillRequest>request, from)
+			case "RARIBLE_V2":
+				return this.v2Handler.invert(<RaribleV2OrderFillRequest>request, from)
+			case "OPEN_SEA_V1":
+				return this.openSeaHandler.invert(<OpenSeaV1OrderFillRequest>request, from)
+			default:
+				throw new Error(`Unsupported order: ${JSON.stringify(request)}`)
 		}
-		throw new Error(`Unsupported request: ${JSON.stringify(request)}`)
 	}
 
-	private async fillInternal<T extends FillOrderRequest>(
-		request: T, handler: OrderHandler<T>,
-	): Promise<FillOrderAction> {
-		const from = toAddress(await this.ethereum.getFrom())
-		const inverted = handler.invert(request, from)
-		return ActionBuilder
-			.create({
-				id: "approve" as const,
-				run: () => handler.approve(inverted, Boolean(request.infinite)),
-			})
-			.thenStage({
-				id: "send-tx",
-				run: () => handler.sendTransaction(request.order, inverted, request),
-			})
+	private async approveOrder(inverted: SimpleOrder, isInfinite: boolean) {
+		switch (inverted.type) {
+			case "RARIBLE_V1":
+				return this.v1Handler.approve(inverted, isInfinite)
+			case "RARIBLE_V2":
+				return this.v2Handler.approve(inverted, isInfinite)
+			case "OPEN_SEA_V1":
+				return this.openSeaHandler.approve(inverted, isInfinite)
+			default:
+				throw new Error(`Unsupported order: ${JSON.stringify(inverted)}`)
+		}
+	}
+
+	private async sendTransaction(request: FillOrderRequest, inverted: SimpleOrder) {
+		switch (inverted.type) {
+			case "RARIBLE_V1":
+				return this.v1Handler.sendTransaction(
+					<SimpleLegacyOrder>request.order,
+					inverted,
+					<LegacyOrderFillRequest>request
+				)
+			case "RARIBLE_V2":
+				return this.v2Handler.sendTransaction(<SimpleRaribleV2Order>request.order, inverted)
+			case "OPEN_SEA_V1":
+				return this.openSeaHandler.sendTransaction(<SimpleOpenSeaV1Order>request.order, inverted)
+			default:
+				throw new Error(`Unsupported order: ${JSON.stringify(inverted)}`)
+		}
 	}
 
 	async getOrderFee(order: SimpleOrder): Promise<number> {
@@ -78,16 +110,4 @@ export class OrderFiller {
 				throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
 		}
 	}
-}
-
-function isLegacyRequest(request: FillOrderRequest): request is LegacyOrderFillRequest {
-	return request.order.type === "RARIBLE_V1"
-}
-
-function isOrderV2Request(request: FillOrderRequest): request is RaribleV2OrderFillRequest {
-	return request.order.type === "RARIBLE_V2"
-}
-
-function isOpenseaOrderV1Request(request: FillOrderRequest): request is OpenSeaV1OrderFillRequest {
-	return request.order.type === "OPEN_SEA_V1"
 }

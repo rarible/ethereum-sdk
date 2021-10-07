@@ -8,7 +8,7 @@ import { getApiConfig } from "../config/api-config"
 import { retry } from "../common/retry"
 import { cancel } from "./cancel"
 import { signOrder } from "./sign-order"
-import { upsertOrder } from "./upsert-order"
+import { UpsertOrder } from "./upsert-order"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
@@ -80,8 +80,15 @@ describe("cancel order", () => {
 
 	async function testOrder(form: OrderForm) {
 		const checkLazyOrder = async () => Promise.resolve(form)
-		const a = await upsertOrder(orderService, checkLazyOrder, approve, sign, orderApi, form)
-		const order = await a.build().runAll()
+		const upserter = new UpsertOrder(
+			orderService,
+			checkLazyOrder,
+			approve,
+			sign,
+			orderApi
+		)
+
+		const order = await upserter.upsert.start({ order: form }).runAll()
 
 		const tx = await cancel(ethereum, E2E_CONFIG.exchange, order)
 		await tx.wait()

@@ -109,8 +109,8 @@ describe("fillOrder", () => {
 		const signature = await signOrder(ethereum2, config, left)
 
 		const finalOrder = { ...left, signature }
-		const ab = await filler.fill({ order: finalOrder, amount: 2, payouts: [], originFees: [] })
-		await ab.build().runAll()
+		const execution = await filler.fill.start({ order: finalOrder, amount: 2, payouts: [], originFees: [] })
+		await execution.runAll()
 
 		expect(toBn(await it.testErc20.methods.balanceOf(sender2Address).call()).toString()).toBe("4")
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString()).toBe("2")
@@ -160,8 +160,8 @@ describe("fillOrder", () => {
 			account: randomAddress(),
 			value: 100,
 		}]
-		const ab = await filler.fill({ order: finalOrder, amount: 2, originFees })
-		await ab.build().runAll()
+		const execution = await filler.fill.start({ order: finalOrder, amount: 2, originFees })
+		await execution.runAll()
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString()).toBe(
 			before2.minus(2).toFixed()

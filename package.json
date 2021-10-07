@@ -37,7 +37,7 @@
     "@babel/core": "7.15.0",
     "@ethereumjs/common": "2.4.0",
     "@ethereumjs/tx": "3.3.0",
-    "@rarible/action": "0.2.7",
+    "@rarible/action": "^0.3.2",
     "@rarible/eslint-config-ts": "0.0.5",
     "@rarible/protocol-api-client": "0.1.7",
     "@rarible/types": "0.1.7",

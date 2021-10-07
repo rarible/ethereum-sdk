@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.5.4...v0.6.0) (2021-10-07)
+
+
+### Features
+
+* add test desc ([cfb2ac1](https://github.com/rarible/protocol-ethereum-sdk/commit/cfb2ac1f2fbfbbe28708b800fb5541187807a2b4))
+
+
+
+
+
 ## [0.5.4](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.5.3...v0.5.4) (2021-10-07)
 
 

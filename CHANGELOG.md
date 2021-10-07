@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.4](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.5.3...v0.5.4) (2021-10-07)
+
+
+### Bug Fixes
+
+* check lazy asset type ERC-1155 ([6714ea6](https://github.com/rarible/protocol-ethereum-sdk/commit/6714ea668402860f0c5f8e551708caf94b35f782))
+
+
+
+
+
 ## [0.5.3](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.5.2...v0.5.3) (2021-10-05)
 
 

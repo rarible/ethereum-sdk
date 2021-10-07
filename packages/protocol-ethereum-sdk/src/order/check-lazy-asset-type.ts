@@ -21,7 +21,7 @@ export async function checkLazyAssetType(itemApi: NftItemControllerApi, type: As
 					case "ERC1155": {
 						return {
 							...lazy,
-							assetClass: "ERC721_LAZY",
+							assetClass: "ERC1155_LAZY",
 						}
 					}
 					default: return type

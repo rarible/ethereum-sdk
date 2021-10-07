@@ -13,13 +13,13 @@ import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-t
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { createTestProviders } from "../common/create-test-providers"
+import { createErc1155V1Collection, createErc721V2Collection } from "../common/mint"
 import { ERC1155RequestV1, ERC721RequestV2, mint as mintTemplate } from "./mint"
 import { signNft } from "./sign-nft"
 import { burn as burnTemplate } from "./burn"
 import { ERC1155VersionEnum, ERC721VersionEnum } from "./contracts/domain"
 import { getErc721Contract } from "./contracts/erc721"
 import { getErc1155Contract } from "./contracts/erc1155"
-import { createErc1155V1Collection, createErc721V2Collection } from "./test/mint"
 
 const { provider, wallet } = createE2eProvider()
 const { providers } = createTestProviders(provider, wallet)

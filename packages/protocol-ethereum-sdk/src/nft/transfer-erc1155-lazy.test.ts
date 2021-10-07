@@ -6,12 +6,12 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
+import { createErc1155V2Collection } from "../common/mint"
 import { signNft } from "./sign-nft"
 import { ERC1155RequestV2, mint } from "./mint"
 import { transfer, TransferAsset } from "./transfer"
 import { ERC1155VersionEnum } from "./contracts/domain"
 import { getErc1155Contract } from "./contracts/erc1155"
-import { createErc1155V2Collection } from "./test/mint"
 
 describe("transfer Erc721 lazy", () => {
 	const { provider, wallet } = createE2eProvider()

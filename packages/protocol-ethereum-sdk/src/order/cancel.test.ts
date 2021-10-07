@@ -88,7 +88,7 @@ describe("cancel order", () => {
 			orderApi
 		)
 
-		const order = await upserter.upsert.build({ order: form }).runAll()
+		const order = await upserter.upsert.start({ order: form }).runAll()
 
 		const tx = await cancel(ethereum, E2E_CONFIG.exchange, order)
 		await tx.wait()

@@ -3,7 +3,8 @@ import {
 	OrderForm,
 	Part,
 	EthAssetType,
-	Erc20AssetType, Order,
+	Erc20AssetType,
+	Order,
 } from "@rarible/protocol-api-client"
 import { randomWord, toBigNumber } from "@rarible/types"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
@@ -21,7 +22,7 @@ export type BidRequest = {
 	originFees: Array<Part>
 }
 
-export type BidOrderAction = Action<BidRequest, BidOrderOrderStageId, Order>
+export type BidOrderAction = Action<BidOrderOrderStageId, BidRequest, Order>
 export type BidOrderOrderStageId = "approve" | "sign"
 
 export class OrderBid {
@@ -40,7 +41,7 @@ export class OrderBid {
 				return checkedOrder
 			},
 		})
-		.thenStage({
+		.thenStep({
 			id: "sign" as const,
 			run: async (checkedOrder: OrderForm) => this.upserter.upsertRequest(checkedOrder),
 		})

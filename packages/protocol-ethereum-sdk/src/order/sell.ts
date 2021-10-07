@@ -50,7 +50,7 @@ export async function sell1(
 	return upsertOrder(order, false)
 }
 
-export type SellOrderAction = Action<SellRequest, SellOrderStageId, Order>
+export type SellOrderAction = Action<SellOrderStageId, SellRequest, Order>
 export type SellOrderStageId = "approve" | "sign"
 
 export class OrderSell {
@@ -69,7 +69,7 @@ export class OrderSell {
 				return checkedOrder
 			},
 		})
-		.thenStage({
+		.thenStep({
 			id: "sign" as const,
 			run: async (checkedOrder: OrderForm) => this.upserter.upsertRequest(checkedOrder),
 		})

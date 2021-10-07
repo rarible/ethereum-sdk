@@ -35,7 +35,7 @@ export class OrderFiller {
 				return { request, inverted }
 			},
 		})
-		.thenStage({
+		.thenStep({
 			id: "send-tx" as const,
 			run: async ({ inverted, request }: { inverted: SimpleOrder, request: FillOrderRequest }) => {
 				return this.sendTransaction(request, inverted)

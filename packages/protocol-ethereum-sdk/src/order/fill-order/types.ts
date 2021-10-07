@@ -15,7 +15,7 @@ export type OpenSeaV1OrderFillRequest =
 
 export type FillOrderRequest = LegacyOrderFillRequest | RaribleV2OrderFillRequest | OpenSeaV1OrderFillRequest
 
-export type FillOrderAction = Action<FillOrderRequest, FillOrderStageId, EthereumTransaction>
+export type FillOrderAction = Action<FillOrderStageId, FillOrderRequest, EthereumTransaction>
 export type FillOrderStageId = "approve" | "send-tx"
 
 export interface OrderHandler<T extends FillOrderRequest> {

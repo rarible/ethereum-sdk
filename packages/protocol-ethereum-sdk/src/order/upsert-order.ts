@@ -11,8 +11,8 @@ import { OrderFiller } from "./fill-order"
 
 export type UpsertOrderStageId = "approve" | "sign"
 export type UpsertOrderActionArg = {order: OrderForm, infinite?: boolean}
-export type UpsertOrderAction = Action<UpsertOrderActionArg, UpsertOrderStageId, Order>
-export type UpsertOrderExecution = Execution<UpsertOrderActionArg, UpsertOrderStageId, Order>
+export type UpsertOrderAction = Action<UpsertOrderStageId, UpsertOrderActionArg, Order>
+export type UpsertOrderExecution = Execution<UpsertOrderStageId, Order>
 export type UpsertOrderFunction = (order: OrderForm, infinite?: boolean) => Promise<UpsertOrderAction>
 
 export class UpsertOrder {
@@ -24,7 +24,8 @@ export class UpsertOrder {
 		private readonly orderApi: OrderControllerApi,
 	) {}
 
-	upsert: UpsertOrderAction = Action
+	// upsert: UpsertOrderAction = Action
+	upsert = Action
 		.create({
 			id: "approve" as const,
 			run: async ({ order, infinite }: UpsertOrderActionArg) => {
@@ -33,7 +34,7 @@ export class UpsertOrder {
 				return checkedOrder
 			},
 		})
-		.thenStage({
+		.thenStep({
 			id: "sign" as const,
 			run: async (checkedOrder: OrderForm) => {
 				return this.upsertRequest(checkedOrder)
@@ -41,7 +42,7 @@ export class UpsertOrder {
 		})
 
 	upsertFn(order: OrderForm, infinite?: (boolean | undefined)): UpsertOrderExecution {
-		return this.upsert.build({ order, infinite })
+		return this.upsert.start({ order, infinite })
 	}
 
 	async approve(checkedOrder: OrderForm, infinite: boolean = false) {

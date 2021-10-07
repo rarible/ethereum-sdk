@@ -1897,10 +1897,10 @@
   dependencies:
     "@octokit/openapi-types" "^10.6.4"
 
-"@rarible/action@^0.2.12":
-  version "0.2.12"
-  resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.2.12.tgz#067eb5125e8c663ab2c79d5a8a33d20dbd8303b7"
-  integrity sha512-bkGHIDexXy3ExbHQXBp4hKEHv45upQavlru8zRFUa/6sv1IJt/GHStq6BeekTtcFmBbXeZyCOzaHpWSbBvmCpQ==
+"@rarible/action@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.3.2.tgz#477a6d6e54fad898fa5b4b0cac0e75b370a86a60"
+  integrity sha512-T9T8F00uKQYfVUuaICzx/wsvthLoCVuAZT5UWeLJG8xcojUiIuxs+Eec7dUE5ZV5qHr/JDem+pvlpmqQXrsuAg==
   dependencies:
     callable-instance "2.0.0"
 

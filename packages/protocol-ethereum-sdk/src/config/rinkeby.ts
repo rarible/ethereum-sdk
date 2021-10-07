@@ -24,4 +24,14 @@ export const RINKEBY_CONFIG: Config = {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: toAddress("0xf57b2c51ded3a29e6891aba85459d600256cf317"),
 	},
+	nftContracts: {
+		erc721: {
+			v2: toAddress("0x509FD4cdAa29Be7B1fAD251d8Ea0fCA2Ca91eb60"),
+			v3: toAddress("0x6ede7f3c26975aad32a475e1021d8f6f39c89d82"),
+		},
+		erc1155: {
+			v1: toAddress("0x2eBecaBBbe8a8C629b99aB23ed154d74CD5d4342"),
+			v2: toAddress("0x1AF7A7555263F275433c6Bb0b8FdCD231F89B1D7"),
+		},
+	},
 }

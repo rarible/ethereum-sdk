@@ -1,13 +1,6 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import { toAddress } from "@rarible/types"
-import {
-	Address,
-	Configuration,
-	GatewayControllerApi,
-	NftCollectionControllerApi,
-	NftItemControllerApi,
-	NftLazyMintControllerApi,
-} from "@rarible/protocol-api-client"
+import { Address, Configuration, GatewayControllerApi, NftCollectionControllerApi, NftItemControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
 import { toBn } from "@rarible/utils"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { ethers } from "ethers"
@@ -16,6 +9,7 @@ import Web3 from "web3"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { createErc1155V1Collection, createErc1155V2Collection, createErc721V1Collection, createErc721V2Collection, createErc721V3Collection } from "../common/mint"
+import { E2E_CONFIG } from "../config/e2e"
 import { signNft } from "./sign-nft"
 import { ERC1155RequestV1, ERC1155RequestV2, ERC721RequestV1, ERC721RequestV2, ERC721RequestV3, mint as mintTemplate } from "./mint"
 import { deployErc721V1 } from "./contracts/erc721/deploy/v1"
@@ -23,17 +17,17 @@ import { ERC1155VersionEnum, ERC721VersionEnum } from "./contracts/domain"
 import { getErc721Contract } from "./contracts/erc721"
 import { getErc1155Contract } from "./contracts/erc1155"
 
-const { provider: provider1 } = createE2eProvider()
-const { provider: provider2, wallet: wallet2 } = createE2eProvider()
-const { provider: provider3 } = createE2eProvider()
-const web3 = new Web3(provider1 as any)
+const case1 = createE2eProvider()
+const case2 = createE2eProvider()
+const case3 = createE2eProvider()
 
+const web3 = new Web3(case1.provider)
 const providers = [
 	new Web3Ethereum({ web3 }),
 	new EthersEthereum(
-		new ethers.Wallet(wallet2.getPrivateKeyString(), new ethers.providers.Web3Provider(provider2 as any)),
+		new ethers.Wallet(case2.wallet.getPrivateKeyString(), new ethers.providers.Web3Provider(case2.provider as any)),
 	),
-	new EthersWeb3ProviderEthereum(new ethers.providers.Web3Provider(provider3 as any)),
+	new EthersWeb3ProviderEthereum(new ethers.providers.Web3Provider(case3.provider as any)),
 ]
 
 const configuration = new Configuration(getApiConfig("e2e"))
@@ -42,8 +36,8 @@ const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 const nftItemApi = new NftItemControllerApi(configuration)
 const gatewayApi = new GatewayControllerApi(configuration)
 const send = sendTemplate.bind(null, gatewayApi)
-const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
-const e2eErc1155V2ContractAddress = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
+const e2eErc721V3ContractAddress = E2E_CONFIG.nftContracts.erc721.v3
+const e2eErc1155V2ContractAddress = E2E_CONFIG.nftContracts.erc1155.v2
 
 describe.each(providers)("mint test", ethereum => {
 	let minter: Address
@@ -53,13 +47,13 @@ describe.each(providers)("mint test", ethereum => {
 	})
 
 	const sign = signNft.bind(null, ethereum, 17)
-
 	const mint = mintTemplate
 		.bind(null, ethereum, send, sign, nftCollectionApi)
 		.bind(null, nftLazyMintApi)
 
 	test("mint ERC-721 v1", async () => {
-		if (ethereum instanceof Web3Ethereum) { //todo enable for other providers
+		// @todo enable for other providers
+		if (ethereum instanceof Web3Ethereum) {
 			const erc721v1 = await deployErc721V1(web3, "Test", "ERC721V1")
 			const address = toAddress(erc721v1.options.address)
 			await mint({

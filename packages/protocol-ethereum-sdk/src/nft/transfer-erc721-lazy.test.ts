@@ -7,6 +7,7 @@ import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-t
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { createErc721V3Collection } from "../common/mint"
+import { E2E_CONFIG } from "../config/e2e"
 import { signNft } from "./sign-nft"
 import { ERC721RequestV3, mint } from "./mint"
 import { transfer, TransferAsset } from "./transfer"
@@ -31,7 +32,7 @@ describe("transfer Erc721 lazy", () => {
 	test("should transfer erc721 lazy token", async () => {
 		const from = toAddress(wallet.getAddressString())
 		const recipient = randomAddress()
-		const contract = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
+		const contract = E2E_CONFIG.nftContracts.erc721.v3
 
 		const request: ERC721RequestV3 = {
 			uri: "//uri",

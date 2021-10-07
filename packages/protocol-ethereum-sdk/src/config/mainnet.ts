@@ -24,4 +24,14 @@ export const MAINNET_CONFIG: Config = {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: toAddress("0xa5409ec958c83c3f309868babaca7c86dcb077c1"),
 	},
+	nftContracts: {
+		erc721: {
+			v2: toAddress("0x60f80121c31a0d46b5279700f9df786054aa5ee5"),
+			v3: toAddress("0xF6793dA657495ffeFF9Ee6350824910Abc21356C"),
+		},
+		erc1155: {
+			v1: toAddress("0xd07dc4262bcdbf85190c01c996b4c06a461d2430"),
+			v2: toAddress("0xB66a603f4cFe17e3D27B87a8BfCaD319856518B8"),
+		},
+	},
 }

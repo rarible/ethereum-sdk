@@ -24,4 +24,14 @@ export const ROPSTEN_CONFIG: Config = {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: ZERO_ADDRESS,
 	},
+	nftContracts: {
+		erc721: {
+			v2: toAddress("0x25ec3bbc85af8b7498c8f5b1cd1c39675431a13c"),
+			v3: toAddress("0xB0EA149212Eb707a1E5FC1D2d3fD318a8d94cf05"),
+		},
+		erc1155: {
+			v1: toAddress("0x71b053bcaf286ba20d9006845412d4532a8e1f34"),
+			v2: toAddress("0x6a94aC200342AC823F909F142a65232E2f052183"),
+		},
+	},
 }

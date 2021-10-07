@@ -24,4 +24,14 @@ export const E2E_CONFIG: Config = {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: ZERO_ADDRESS,
 	},
+	nftContracts: {
+		erc721: {
+			v2: toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21"),
+			v3: toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7"),
+		},
+		erc1155: {
+			v1: toAddress("0x8812cFb55853da0968a02AaaEA84CD93EC4b42A1"),
+			v2: toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d"),
+		},
+	},
 }

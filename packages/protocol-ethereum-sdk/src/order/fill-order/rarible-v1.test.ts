@@ -40,7 +40,7 @@ describe("test exchange v1 order", () => {
 
 	const sign = signOrder.bind(null, ethereum1, { chainId: 17, exchange: CONFIGS.e2e.exchange })
 
-	test("", async () => {
+	test("simple test v1", async () => {
 		const tokenId = toBigNumber("1")
 		await it.testErc721.methods.mint(seller, tokenId, "url").send({ from: seller })
 

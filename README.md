@@ -41,7 +41,7 @@ const sdk = createRaribleSdk(web3, env, { fetchApi: fetch })
 #### Create sell order
 
 ```typescript
-const order: Order = await sdk.order.sell(request).then(a => a.runAll())
+const order: Order = await sdk.order.sell(request)
 // Sell request example:
 const contractErc20Address: Address = '0x0' // your ERC20 contract address
 const contractErc721Address: Address = '0x0' // your ERC721 contract address
@@ -75,7 +75,7 @@ Returns an object of created order.
 
 ```typescript
 
-const order: Order = await sdk.order.bid(request).then(a => a.runAll())
+const order: Order = await sdk.order.bid(request)
 
 // Bid request example:
 const contractErc20Address: Address = '0x0' // your ERC20 contract address
@@ -115,10 +115,7 @@ Returns an object of created bid order.
 
 const order: SimpleOrder
 
-sdk.order.fill(
-	order,
-	{ payouts: [], originFees: [], amount: 1, infinite: true }
-).then(a => a.runAll())
+sdk.order.fill({ order, payouts: [], originFees: [], amount: 1, infinite: true })
 ```
 
 For example, you can get the `order` object using our sdk api methods `sdk.apis.order.getSellOrders({})` and pass it

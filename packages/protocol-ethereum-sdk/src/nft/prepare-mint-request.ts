@@ -1,5 +1,4 @@
-import { Collection } from "@rarible/api-client"
-import { Collection as APIClientCollection } from "@rarible/api-client/build/models/Collection"
+import { NftCollection } from "@rarible/protocol-api-client"
 import {
 	isErc1155v2Collection,
 	isErc721v2Collection,
@@ -12,7 +11,7 @@ export type PrepareMintResponse = {
 	supportsLazyMint: boolean
 }
 
-export function isSupportsRoyalties(collection: APIClientCollection): boolean {
+export function isSupportsRoyalties(collection: NftCollection): boolean {
 	if (collection.type === "ERC721") {
 		return isErc721v3Collection(collection) || isErc721v2Collection(collection)
 	} else if (collection.type === "ERC1155") {
@@ -22,15 +21,15 @@ export function isSupportsRoyalties(collection: APIClientCollection): boolean {
 	}
 }
 
-export function isSupportsLazyMint(collection: APIClientCollection) {
+export function isSupportsLazyMint(collection: NftCollection) {
 	return isErc721v3Collection(collection) || isErc1155v2Collection(collection)
 }
 
-export function isMultiple(collection: APIClientCollection): boolean {
+export function isMultiple(collection: NftCollection): boolean {
 	return collection.type === "ERC1155"
 }
 
-export function prepareMintRequest(collection: Collection): PrepareMintResponse {
+export function prepareMintRequest(collection: NftCollection): PrepareMintResponse {
 	return {
 		multiple: isMultiple(collection),
 		supportsRoyalties: isSupportsRoyalties(collection),

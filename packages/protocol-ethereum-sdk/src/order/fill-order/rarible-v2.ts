@@ -1,7 +1,8 @@
 import { Address } from "@rarible/protocol-api-client"
 import { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { ZERO_WORD } from "@rarible/types"
-import { orderToStruct } from "../sign-order"
+import { bufferToHex, ecrecover, pubToAddress, fromRpcSig } from "ethereumjs-util"
+import { hashToSign, orderToStruct } from "../sign-order"
 import { getAssetWithFee } from "../get-asset-with-fee"
 import { Config } from "../../config/type"
 import { approve } from "../approve"
@@ -42,12 +43,21 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		const exchangeContract = createExchangeV2Contract(this.ethereum, this.config.exchange.v2)
 		const method = exchangeContract.functionCall(
 			"matchOrders",
-			orderToStruct(this.ethereum, initial),
+			this.fixForTx(initial),
 			initial.signature || "0x",
 			orderToStruct(this.ethereum, inverted),
 			inverted.signature || "0x",
 		)
 		return this.send(method, this.getMatchV2Options(initial, inverted))
+	}
+
+	private fixForTx(order: SimpleRaribleV2Order): any {
+		const hash = hashToSign(this.config, this.ethereum, order)
+		const sig = fromRpcSig(order.signature!)
+		const signer = bufferToHex(pubToAddress(ecrecover(hash, sig.v, sig.r, sig.s)))
+		//todo implement ERC-1271 check + hw wallet support
+		const wrongEncode = signer !== order.maker
+		return orderToStruct(this.ethereum, order, wrongEncode)
 	}
 
 	private getMatchV2Options(

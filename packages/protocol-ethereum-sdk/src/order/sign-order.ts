@@ -1,6 +1,7 @@
 import { Asset, Binary, EIP712Domain } from "@rarible/protocol-api-client"
 import { Address, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { Ethereum } from "@rarible/ethereum-provider"
+import { TypedDataUtils } from "eth-sig-util"
 import { Config } from "../config/type"
 import { hashLegacyOrder } from "./hash-legacy-order"
 import { assetTypeToStruct } from "./asset-type-to-struct"
@@ -34,6 +35,16 @@ export async function signOrder(
 	}
 }
 
+export function hashToSign(config: Pick<Config, "exchange" | "chainId">, ethereum: Ethereum, order: SimpleRaribleV2Order) {
+	const domain = createEIP712Domain(config.chainId, config.exchange.v2)
+	return TypedDataUtils.sign({
+		primaryType: EIP712_ORDER_TYPE,
+		domain,
+		types: EIP712_ORDER_TYPES,
+		message: orderToStruct(ethereum, order),
+	})
+}
+
 function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712Domain {
 	return {
 		...EIP712_DOMAIN_TEMPLATE,
@@ -42,8 +53,8 @@ function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712
 	}
 }
 
-export function orderToStruct(ethereum: Ethereum, order: SimpleRaribleV2Order) {
-	const [dataType, data] = encodeData(ethereum, order.data)
+export function orderToStruct(ethereum: Ethereum, order: SimpleRaribleV2Order, wrongEncode: Boolean = false): any {
+	const [dataType, data] = encodeData(ethereum, order.data, wrongEncode)
 	return {
 		maker: order.maker,
 		makeAsset: assetToStruct(ethereum, order.make),

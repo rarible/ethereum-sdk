@@ -1904,13 +1904,6 @@
   dependencies:
     callable-instance "2.0.0"
 
-"@rarible/api-client@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@rarible/api-client/-/api-client-0.0.2.tgz#aa39011be6493129a6e93ce3e519941b6f3eb724"
-  integrity sha512-O1LH3/xC6gtTWS2G1nUSxnLonHhuAtpBgzMWbz45Alwwjbd2rlK/teZzTRyurxRrHINdGH8Al+Txv1RO15tVKw==
-  dependencies:
-    "@rarible/types" "^0.1.9"
-
 "@rarible/eslint-config-ts@0.0.5":
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/@rarible/eslint-config-ts/-/eslint-config-ts-0.0.5.tgz#ef978e5d0a0b4edd5c5bde8d12fd4d2faaa72370"
@@ -1941,7 +1934,7 @@
   resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.1.7.tgz#b88eeb7961f461067207c9f9cab73cf23dba1da3"
   integrity sha512-rq0vGMQlnTQstTPwmFy8lajkOaCTOe7Odf/W1g6o3uLUD6Dlj0Vroh2/erfiyA6vuDALrATWsP5mw2berdwrTw==
 
-"@rarible/types@^0.1.7", "@rarible/types@^0.1.9":
+"@rarible/types@^0.1.7":
   version "0.1.9"
   resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.1.9.tgz#e396e59a7cf04c6d366dc9127f26ec9f58f2f113"
   integrity sha512-r/SlX1uZMdULnxD0MG7KFpUI1U7FPdd91JWtpPUnCM8t966kEBr2MWfswrBJYzxxe4le2e6Zwa2fH+Yxi87ScA==

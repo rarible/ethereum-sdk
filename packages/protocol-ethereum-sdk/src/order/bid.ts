@@ -6,7 +6,7 @@ import {
 	Erc20AssetType,
 	Order,
 } from "@rarible/protocol-api-client"
-import { randomWord, toBigNumber } from "@rarible/types"
+import { randomWord, toBigNumber, Word } from "@rarible/types"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import { Action } from "@rarible/action"
 import { UpsertOrder } from "./upsert-order"
@@ -20,6 +20,7 @@ export type BidRequest = {
 	price: BigNumberValue
 	payouts: Array<Part>
 	originFees: Array<Part>
+	salt?: Word
 }
 
 export type BidOrderAction = Action<BidOrderOrderStageId, BidRequest, Order>
@@ -47,6 +48,7 @@ export class OrderBid {
 		})
 
 	private async prepareOrderForm(request: BidRequest): Promise<OrderForm> {
+		const salt = request.salt ?? randomWord()
 		return {
 			maker: request.maker,
 			make: {
@@ -63,7 +65,7 @@ export class OrderBid {
 				payouts: request.payouts,
 				originFees: request.originFees,
 			},
-			salt: toBigNumber(toBn(randomWord(), 16).toString(10)) as any,
+			salt: toBigNumber(toBn(salt, 16).toString(10)) as any,
 		}
 	}
 }

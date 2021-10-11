@@ -6,7 +6,7 @@ import type {
 	OrderForm,
 	Part,
 } from "@rarible/protocol-api-client"
-import { randomWord, toBigNumber } from "@rarible/types"
+import { randomWord, toBigNumber, Word } from "@rarible/types"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import { Action } from "@rarible/action"
 import type { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type"
@@ -21,6 +21,7 @@ export type SellRequest = {
 	price: BigNumberValue
 	payouts: Array<Part>
 	originFees: Array<Part>
+	salt?: Word
 }
 
 export async function sell1(
@@ -75,6 +76,7 @@ export class OrderSell {
 		})
 
 	private async prepareOrderForm(request: SellRequest): Promise<OrderForm> {
+		const salt = request.salt ?? randomWord()
 		return {
 			maker: request.maker,
 			make: {
@@ -91,7 +93,7 @@ export class OrderSell {
 				payouts: request.payouts,
 				originFees: request.originFees,
 			},
-			salt: toBigNumber(toBn(randomWord(), 16).toString(10)) as any,
+			salt: toBigNumber(toBn(salt, 16).toString(10)) as any,
 		}
 	}
 }

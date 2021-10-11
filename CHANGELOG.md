@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.6.1...v0.6.2) (2021-10-11)
+
+
+### Bug Fixes
+
+* **MP-1742:** add salt to bid/sell request ([0b65e3d](https://github.com/rarible/protocol-ethereum-sdk/commit/0b65e3d100a0588359019b6590be693774545209))
+
+
+
+
+
 ## [0.6.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.6.0...v0.6.1) (2021-10-11)
 
 **Note:** Version bump only for package root

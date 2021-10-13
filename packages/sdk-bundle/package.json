@@ -1,6 +1,6 @@
 {
   "name": "@rarible/sdk-bundle",
-  "version": "0.6.3",
+  "version": "0.7.1",
   "license": "Apache-2.0",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -15,8 +15,8 @@
     "verify": "tsc --noEmit"
   },
   "dependencies": {
-    "@rarible/protocol-ethereum-sdk": "^0.6.3",
-    "@rarible/web3-ethereum": "^0.6.0",
+    "@rarible/protocol-ethereum-sdk": "^0.7.1",
+    "@rarible/web3-ethereum": "^0.7.0",
     "browserify": "^17.0.0"
   },
   "devDependencies": {

@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.0...v0.7.1) (2021-10-13)
+
+
+### Bug Fixes
+
+* getBaseOrderFee - default order type ([feeb703](https://github.com/rarible/protocol-ethereum-sdk/commit/feeb703795b1666da2c404a49284343295313cd4))
+
+
+
+
+
+# [0.7.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.6.3...v0.7.0) (2021-10-13)
+
+
+### Features
+
+* improve getBaseOrderFee: set default order type version ([298ba1d](https://github.com/rarible/protocol-ethereum-sdk/commit/298ba1dba16ab0c06c21b59e868160dfb52fdc0e))
+
+
+
+
+
 ## [0.6.3](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.6.2...v0.6.3) (2021-10-13)
 
 

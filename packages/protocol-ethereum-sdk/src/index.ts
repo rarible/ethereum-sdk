@@ -57,7 +57,7 @@ export interface RaribleOrderSdk {
 	/**
 	 * Get base fee (this fee will be hold by the processing platform - in basis points)
 	 */
-	getBaseOrderFee(type: OrderForm["type"]): Promise<number>
+	getBaseOrderFee(type?: OrderForm["type"]): Promise<number>
 
 	/**
 	 * Get base fee for filling an order (this fee will be hold by the processing platform - in basis points)

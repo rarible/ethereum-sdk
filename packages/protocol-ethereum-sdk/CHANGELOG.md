@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.3](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.6.2...v0.6.3) (2021-10-13)
+
+
+### Bug Fixes
+
+* better isNft type, export helpers from index ([595cb4a](https://github.com/rarible/protocol-ethereum-sdk/commit/595cb4a16b343dc13d033df12ecad02c4f58652c))
+
+
+
+
+
 ## [0.6.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.6.1...v0.6.2) (2021-10-11)
 
 

@@ -7,7 +7,12 @@ import { approve as approveTemplate } from "./order/approve"
 import { OrderSell, SellOrderAction } from "./order/sell"
 import { signOrder as signOrderTemplate } from "./order/sign-order"
 import { BidOrderAction, OrderBid } from "./order/bid"
-import { checkLazyAsset as checkLazyAssetTemplate, checkLazyAssetType as checkLazyAssetTypeTemplate, checkLazyOrder as checkLazyOrderTemplate } from "./order"
+import {
+	checkLazyAsset as checkLazyAssetTemplate,
+	checkLazyAssetType as checkLazyAssetTypeTemplate,
+	checkLazyOrder as checkLazyOrderTemplate,
+	CheckLazyOrderPart,
+} from "./order"
 import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
 import { mint as mintTemplate, MintOffChainResponse, MintOnChainResponse, MintRequest } from "./nft/mint"
 import { transfer as transferTemplate, TransferAsset } from "./nft/transfer"
@@ -118,7 +123,8 @@ export function createRaribleSdk(
 
 	const checkLazyAssetType = partialCall(checkLazyAssetTypeTemplate, nftItemControllerApi)
 	const checkLazyAsset = partialCall(checkLazyAssetTemplate, checkLazyAssetType)
-	const checkLazyOrder = partialCall(checkLazyOrderTemplate, checkLazyAsset)
+	const checkLazyOrder: <T extends CheckLazyOrderPart>(form: T) => Promise<T> =
+		checkLazyOrderTemplate.bind(null, checkLazyAsset) as any
 	const checkAssetType = partialCall(checkAssetTypeTemplate, nftCollectionControllerApi)
 
 	const filler = new OrderFiller(
@@ -148,7 +154,7 @@ export function createRaribleSdk(
 		transferTemplate, ethereum, send, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi
 	)
 	const burn = partialCall(burnTemplate, ethereum, send, checkAssetType, nftOwnershipControllerApi)
-	const cancel = partialCall(cancelTemplate, ethereum, config.exchange)
+	const cancel = partialCall(cancelTemplate, checkLazyOrder, ethereum, config.exchange)
 	const getBaseOrderFee = getBaseOrderFeeTemplate.bind(null, config)
 
 	return {

@@ -10,12 +10,15 @@ import { getAtomicMatchArgAddresses, getAtomicMatchArgUints } from "./fill-order
 import { SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleOrder, SimpleRaribleV2Order } from "./types"
 import { orderToStruct } from "./sign-order"
 import { convertOpenSeaOrderToDTO } from "./fill-order/open-sea-converter"
+import { CheckLazyOrderPart } from "./check-lazy-order"
 
 export async function cancel(
+	checkLazyOrder: <T extends CheckLazyOrderPart>(form: T) => Promise<T>,
 	ethereum: Ethereum,
 	config: ExchangeAddresses,
-	order: SimpleOrder,
+	orderToCheck: SimpleOrder,
 ): Promise<EthereumTransaction> {
+	const order = await checkLazyOrder(orderToCheck)
 	switch (order.type) {
 		case "RARIBLE_V1":
 			return cancelLegacyOrder(ethereum, config.v1, order)

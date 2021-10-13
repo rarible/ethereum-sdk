@@ -33,7 +33,7 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 				originFees: [],
 			},
 		}
-		const checkLazyOrder = async () => Promise.resolve(order)
+		const checkLazyOrder: any = async (form: any) => Promise.resolve(form)
 		const upserter = new UpsertOrder(
 			orderService,
 			checkLazyOrder,

@@ -49,6 +49,7 @@ export class OrderBid {
 
 	private async prepareOrderForm(request: BidRequest): Promise<OrderForm> {
 		const salt = request.salt ?? randomWord()
+		console.log("salt is", salt)
 		return {
 			maker: request.maker,
 			make: {

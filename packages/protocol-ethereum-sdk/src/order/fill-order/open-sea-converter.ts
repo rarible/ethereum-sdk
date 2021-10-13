@@ -4,11 +4,12 @@ import { Ethereum } from "@rarible/ethereum-provider"
 import { toBn } from "@rarible/utils"
 import { createErc721Contract } from "../contracts/erc721"
 import { createErc1155Contract } from "../contracts/erc1155"
-import { extractNftType } from "../is-nft"
+import { isNft } from "../is-nft"
 import { SimpleOpenSeaV1Order, SimpleOrder } from "../types"
 import {
 	OpenSeaOrderDTO,
-	OrderOpenSeaV1DataV1FeeMethod, OrderOpenSeaV1DataV1HowToCall,
+	OrderOpenSeaV1DataV1FeeMethod,
+	OrderOpenSeaV1DataV1HowToCall,
 	OrderOpenSeaV1DataV1SaleKind,
 	OrderOpenSeaV1DataV1Side,
 } from "./open-sea-types"
@@ -115,13 +116,11 @@ function extractPaymentTokenAddress(assetType: AssetType): Address | undefined {
 }
 
 function getNftAddress(order: SimpleOrder): Address | undefined {
-	const makeNft = extractNftType(order.make.assetType)
-	if (makeNft !== undefined) {
-		return makeNft.contract
+	if (isNft(order.make.assetType)) {
+		return order.make.assetType.contract
 	}
-	const takeNft = extractNftType(order.take.assetType)
-	if (takeNft !== undefined) {
-		return takeNft.contract
+	if (isNft(order.take.assetType)) {
+		return order.take.assetType.contract
 	}
 	return undefined
 }

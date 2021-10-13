@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.1...v0.7.2) (2021-10-13)
+
+
+### Bug Fixes
+
+* **MP-1738:** handle cancel of lazy nfts sales ([5b5404f](https://github.com/rarible/protocol-ethereum-sdk/commit/5b5404f9bd568c997e09682604221ea4c97fcfda))
+
+
+
+
+
 ## [0.7.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.0...v0.7.1) (2021-10-13)
 
 

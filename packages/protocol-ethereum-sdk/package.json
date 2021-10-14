@@ -1,6 +1,6 @@
 {
   "name": "@rarible/protocol-ethereum-sdk",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "keywords": [
     "axios",
     "typescript",

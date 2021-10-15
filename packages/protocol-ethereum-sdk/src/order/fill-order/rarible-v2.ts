@@ -1,7 +1,6 @@
 import { Address } from "@rarible/protocol-api-client"
 import { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { ZERO_WORD } from "@rarible/types"
-import { bufferToHex, ecrecover, pubToAddress, fromRpcSig } from "ethereumjs-util"
 import { hashToSign, orderToStruct } from "../sign-order"
 import { getAssetWithFee } from "../get-asset-with-fee"
 import { Config } from "../../config/type"
@@ -10,6 +9,7 @@ import { SendFunction } from "../../common/send-transaction"
 import { createExchangeV2Contract } from "../contracts/exchange-v2"
 import { waitTx } from "../../common/wait-tx"
 import { SimpleRaribleV2Order } from "../types"
+import { isSigner } from "../../common/is-signer"
 import { invertOrder } from "./invert-order"
 import { OrderHandler, RaribleV2OrderFillRequest } from "./types"
 
@@ -37,13 +37,13 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		await waitTx(approve(this.ethereum, this.send, this.config.transferProxies, order.maker, withFee, infinite))
 	}
 
-	sendTransaction(
+	async sendTransaction(
 		initial: SimpleRaribleV2Order, inverted: SimpleRaribleV2Order,
 	): Promise<EthereumTransaction> {
 		const exchangeContract = createExchangeV2Contract(this.ethereum, this.config.exchange.v2)
 		const method = exchangeContract.functionCall(
 			"matchOrders",
-			this.fixForTx(initial),
+			await this.fixForTx(initial),
 			initial.signature || "0x",
 			orderToStruct(this.ethereum, inverted),
 			inverted.signature || "0x",
@@ -51,13 +51,10 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		return this.send(method, this.getMatchV2Options(initial, inverted))
 	}
 
-	private fixForTx(order: SimpleRaribleV2Order): any {
+	private async fixForTx(order: SimpleRaribleV2Order): Promise<any> {
 		const hash = hashToSign(this.config, this.ethereum, order)
-		const sig = fromRpcSig(order.signature!)
-		const signer = bufferToHex(pubToAddress(ecrecover(hash, sig.v, sig.r, sig.s)))
-		//todo implement ERC-1271 check + hw wallet support
-		const wrongEncode = signer !== order.maker
-		return orderToStruct(this.ethereum, order, wrongEncode)
+		const isMakerSigner = await isSigner(this.ethereum, order.maker, hash, order.signature!)
+		return orderToStruct(this.ethereum, order, !isMakerSigner)
 	}
 
 	private getMatchV2Options(

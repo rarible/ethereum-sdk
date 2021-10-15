@@ -24,8 +24,10 @@ export async function transferNftLazy(
 		uri: lazyNft.uri,
 		creators: lazyNft.creators,
 		royalties: lazyNft.royalties,
-		supply: amount,
 		signatures: lazyNft.signatures,
+	}
+	if (lazyNft["@type"] === "ERC1155") {
+		(params as any).supply = lazyNft.supply
 	}
 	switch (lazyNft["@type"]) {
 		case "ERC721": {

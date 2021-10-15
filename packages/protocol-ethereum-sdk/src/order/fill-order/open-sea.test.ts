@@ -267,7 +267,9 @@ describe("fillOrder: Opensea orders", function () {
 		const orderHash = hashOpenSeaV1Order(ethereum2, order)
 		const signedHash = hashToSign(orderHash)
 
+		const checkLazyOrder: any = async (form: any) => Promise.resolve(form)
 		const cancelledOrder = await cancel(
+			checkLazyOrder,
 			ethereum1,
 			{
 				openseaV1: toAddress(wyvernExchange.options.address),

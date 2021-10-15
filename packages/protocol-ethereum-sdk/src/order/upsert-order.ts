@@ -8,9 +8,10 @@ import type { SimpleOrder } from "./types"
 import { addFee } from "./add-fee"
 import type { ApproveFunction } from "./approve"
 import { OrderFiller } from "./fill-order"
+import { CheckLazyOrderPart } from "./check-lazy-order"
 
 export type UpsertOrderStageId = "approve" | "sign"
-export type UpsertOrderActionArg = {order: OrderForm, infinite?: boolean}
+export type UpsertOrderActionArg = { order: OrderForm, infinite?: boolean }
 export type UpsertOrderAction = Action<UpsertOrderStageId, UpsertOrderActionArg, Order>
 export type UpsertOrderExecution = Execution<UpsertOrderStageId, Order>
 export type UpsertOrderFunction = (order: OrderForm, infinite?: boolean) => Promise<UpsertOrderAction>
@@ -18,7 +19,7 @@ export type UpsertOrderFunction = (order: OrderForm, infinite?: boolean) => Prom
 export class UpsertOrder {
 	constructor(
 		private readonly orderFiller: OrderFiller,
-		public readonly checkLazyOrder: (form: OrderForm) => Promise<OrderForm>,
+		public readonly checkLazyOrder: <T extends CheckLazyOrderPart>(form: T) => Promise<T>,
 		private readonly approveFn: ApproveFunction,
 		private readonly signOrder: (order: SimpleOrder) => Promise<Binary>,
 		private readonly orderApi: OrderControllerApi,

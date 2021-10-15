@@ -2,15 +2,14 @@ import type {
 	Address,
 	Erc20AssetType,
 	EthAssetType,
-	NftItemControllerApi, Order,
+	Order,
 	OrderForm,
 	Part,
 } from "@rarible/protocol-api-client"
-import { randomWord, toBigNumber } from "@rarible/types"
+import { randomWord, toBigNumber, Word } from "@rarible/types"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import { Action } from "@rarible/action"
 import type { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type"
-import type { UpsertOrderFunction } from "./upsert-order"
 import { UpsertOrder } from "./upsert-order"
 
 export type SellRequest = {
@@ -21,33 +20,7 @@ export type SellRequest = {
 	price: BigNumberValue
 	payouts: Array<Part>
 	originFees: Array<Part>
-}
-
-export async function sell1(
-	api: NftItemControllerApi,
-	upsertOrder: UpsertOrderFunction,
-	checkAssetType: (asset: AssetTypeRequest) => Promise<AssetTypeResponse>,
-	request: SellRequest
-) {
-	const order: OrderForm = {
-		maker: request.maker,
-		make: {
-			assetType: await checkAssetType(request.makeAssetType),
-			value: toBigNumber(request.amount.toString()),
-		},
-		take: {
-			assetType: request.takeAssetType,
-			value: toBigNumber(toBn(request.price).multipliedBy(request.amount).toString()),
-		},
-		type: "RARIBLE_V2",
-		data: {
-			dataType: "RARIBLE_V2_DATA_V1",
-			payouts: request.payouts,
-			originFees: request.originFees,
-		},
-		salt: toBigNumber(toBn(randomWord(), 16).toString(10)) as any,
-	}
-	return upsertOrder(order, false)
+	salt?: Word
 }
 
 export type SellOrderAction = Action<SellOrderStageId, SellRequest, Order>
@@ -75,6 +48,7 @@ export class OrderSell {
 		})
 
 	private async prepareOrderForm(request: SellRequest): Promise<OrderForm> {
+		const salt = request.salt ?? randomWord()
 		return {
 			maker: request.maker,
 			make: {
@@ -91,7 +65,7 @@ export class OrderSell {
 				payouts: request.payouts,
 				originFees: request.originFees,
 			},
-			salt: toBigNumber(toBn(randomWord(), 16).toString(10)) as any,
+			salt: toBigNumber(toBn(salt, 16).toString(10)) as any,
 		}
 	}
 }

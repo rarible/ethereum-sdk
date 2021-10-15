@@ -79,10 +79,10 @@ describe("cancel order", () => {
 	})
 
 	async function testOrder(form: OrderForm) {
-		const checkLazyOrder = async () => Promise.resolve(form)
+		const checkLazyOrder: any = async (form: any) => Promise.resolve(form)
 		const upserter = new UpsertOrder(
 			orderService,
-			checkLazyOrder,
+			checkLazyOrder as any,
 			approve,
 			sign,
 			orderApi
@@ -90,7 +90,7 @@ describe("cancel order", () => {
 
 		const order = await upserter.upsert.start({ order: form }).runAll()
 
-		const tx = await cancel(ethereum, E2E_CONFIG.exchange, order)
+		const tx = await cancel(checkLazyOrder, ethereum, E2E_CONFIG.exchange, order)
 		await tx.wait()
 
 		await retry(15, async () => {

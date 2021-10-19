@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.6](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.5...v0.7.6) (2021-10-19)
+
+
+### Bug Fixes
+
+* v value fix for some signatures ([06e4e76](https://github.com/rarible/protocol-ethereum-sdk/commit/06e4e769b03ccf69e12f79f964f83107af914f59))
+
+
+
+
+
 ## [0.7.5](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.4...v0.7.5) (2021-10-15)
 
 **Note:** Version bump only for package root

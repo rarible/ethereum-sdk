@@ -10,6 +10,7 @@ import { createExchangeV2Contract } from "../contracts/exchange-v2"
 import { waitTx } from "../../common/wait-tx"
 import { SimpleRaribleV2Order } from "../types"
 import { isSigner } from "../../common/is-signer"
+import { fixSignature } from "../../common/fix-signature"
 import { invertOrder } from "./invert-order"
 import { OrderHandler, RaribleV2OrderFillRequest } from "./types"
 
@@ -44,9 +45,9 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		const method = exchangeContract.functionCall(
 			"matchOrders",
 			await this.fixForTx(initial),
-			initial.signature || "0x",
+			fixSignature(initial.signature) || "0x",
 			orderToStruct(this.ethereum, inverted),
-			inverted.signature || "0x",
+			fixSignature(inverted.signature) || "0x",
 		)
 		return this.send(method, this.getMatchV2Options(initial, inverted))
 	}

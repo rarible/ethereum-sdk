@@ -5,7 +5,7 @@ import type {
 	Order,
 	OrderForm,
 	Part,
-} from "@rarible/protocol-api-client"
+} from "@rarible/ethereum-api-client"
 import { randomWord, toBigNumber, Word } from "@rarible/types"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import { Action } from "@rarible/action"

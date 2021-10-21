@@ -1,5 +1,5 @@
 import { randomAddress, toAddress } from "@rarible/types"
-import { Address, Configuration, GatewayControllerApi } from "@rarible/protocol-api-client"
+import { Address, Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
 import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"

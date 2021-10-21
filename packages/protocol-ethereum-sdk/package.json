@@ -23,8 +23,8 @@
   },
   "dependencies": {
     "@rarible/action": "^0.3.3",
+    "@rarible/ethereum-api-client": "^0.1.9",
     "@rarible/ethereum-provider": "^0.7.2",
-    "@rarible/protocol-api-client": "^0.1.8",
     "@rarible/utils": "^0.0.7",
     "exponential-backoff": "3.1.0"
   },

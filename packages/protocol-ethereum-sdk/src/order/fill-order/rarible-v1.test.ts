@@ -1,4 +1,4 @@
-import { Configuration, NftOwnershipControllerApi, OrderControllerApi } from "@rarible/protocol-api-client"
+import { Configuration, NftOwnershipControllerApi, OrderControllerApi } from "@rarible/ethereum-api-client"
 import { toAddress, toBigNumber, toWord } from "@rarible/types"
 import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"

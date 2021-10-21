@@ -1,4 +1,4 @@
-import type { Address, NftCollection } from "@rarible/protocol-api-client"
+import type { Address, NftCollection } from "@rarible/ethereum-api-client"
 import { ERC1155VersionEnum, ERC721VersionEnum } from "../nft/contracts/domain"
 
 export function createErc721V2Collection(address: Address): NftCollection & { version: ERC721VersionEnum.ERC721V2 } {

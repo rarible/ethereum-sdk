@@ -1,4 +1,4 @@
-import { Asset, Binary, EIP712Domain } from "@rarible/protocol-api-client"
+import { Asset, Binary, EIP712Domain } from "@rarible/ethereum-api-client"
 import { Address, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { TypedDataUtils } from "eth-sig-util"

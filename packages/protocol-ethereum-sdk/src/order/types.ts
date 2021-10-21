@@ -1,4 +1,4 @@
-import { LegacyOrder, OpenSeaV1Order, RaribleV2Order } from "@rarible/protocol-api-client"
+import { LegacyOrder, OpenSeaV1Order, RaribleV2Order } from "@rarible/ethereum-api-client"
 
 export type SimpleLegacyOrder =
 	Pick<LegacyOrder, "data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature">

@@ -1,5 +1,11 @@
 import type { BigNumber } from "@rarible/types"
-import type { Address, Erc1155AssetType, Erc721AssetType, NftCollectionControllerApi } from "@rarible/protocol-api-client"
+import type {
+	Address,
+	CryptoPunksAssetType,
+	Erc1155AssetType,
+	Erc721AssetType,
+	NftCollectionControllerApi,
+} from "@rarible/ethereum-api-client"
 
 export type NftAssetType = {
 	contract: Address
@@ -7,7 +13,7 @@ export type NftAssetType = {
 }
 
 export type AssetTypeRequest = Erc721AssetType | Erc1155AssetType | NftAssetType
-export type AssetTypeResponse = Erc721AssetType | Erc1155AssetType
+export type AssetTypeResponse = Erc721AssetType | Erc1155AssetType | CryptoPunksAssetType
 export type CheckAssetTypeFunction = (asset: AssetTypeRequest) => Promise<AssetTypeResponse>
 
 export async function checkAssetType(

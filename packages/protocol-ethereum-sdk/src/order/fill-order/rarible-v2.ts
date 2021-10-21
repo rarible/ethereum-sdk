@@ -1,4 +1,4 @@
-import { Address } from "@rarible/protocol-api-client"
+import { Address } from "@rarible/ethereum-api-client"
 import { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { ZERO_WORD } from "@rarible/types"
 import { hashToSign, orderToStruct } from "../sign-order"
@@ -17,9 +17,9 @@ import { OrderHandler, RaribleV2OrderFillRequest } from "./types"
 export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillRequest> {
 
 	constructor(
-		private readonly ethereum: Ethereum,
-		private readonly send: SendFunction,
-		private readonly config: Config,
+		readonly ethereum: Ethereum,
+		readonly send: SendFunction,
+		readonly config: Config,
 	) {
 	}
 
@@ -52,13 +52,13 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		return this.send(method, this.getMatchV2Options(initial, inverted))
 	}
 
-	private async fixForTx(order: SimpleRaribleV2Order): Promise<any> {
+	async fixForTx(order: SimpleRaribleV2Order): Promise<any> {
 		const hash = hashToSign(this.config, this.ethereum, order)
 		const isMakerSigner = await isSigner(this.ethereum, order.maker, hash, order.signature!)
 		return orderToStruct(this.ethereum, order, !isMakerSigner)
 	}
 
-	private getMatchV2Options(
+	getMatchV2Options(
 		left: SimpleRaribleV2Order, right: SimpleRaribleV2Order,
 	): EthereumSendOptions {
 		if (left.make.assetType.assetClass === "ETH" && left.salt === ZERO_WORD) {
@@ -72,7 +72,7 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		}
 	}
 
-	private getMakeAssetWithFee(order: SimpleRaribleV2Order) {
+	getMakeAssetWithFee(order: SimpleRaribleV2Order) {
 		return getAssetWithFee(order.make, this.getOrderFee(order))
 	}
 

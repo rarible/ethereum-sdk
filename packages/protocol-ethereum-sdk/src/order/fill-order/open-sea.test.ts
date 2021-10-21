@@ -1,7 +1,7 @@
 import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { Address, Asset } from "@rarible/protocol-api-client"
+import { Address, Asset } from "@rarible/ethereum-api-client"
 import { Contract } from "web3-eth-contract"
 import { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"

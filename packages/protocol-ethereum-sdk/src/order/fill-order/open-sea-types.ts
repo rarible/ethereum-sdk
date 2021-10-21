@@ -1,4 +1,4 @@
-import { Address, Binary } from "@rarible/protocol-api-client"
+import { Address, Binary } from "@rarible/ethereum-api-client"
 import { BigNumber } from "@rarible/types"
 
 export enum OrderOpenSeaV1DataV1FeeMethod {

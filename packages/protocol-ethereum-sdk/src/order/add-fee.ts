@@ -1,4 +1,4 @@
-import { Asset } from "@rarible/protocol-api-client"
+import { Asset } from "@rarible/ethereum-api-client"
 import { toBigNumber } from "@rarible/types"
 import { BigNumber, toBn } from "@rarible/utils"
 

@@ -1,4 +1,4 @@
-import { Configuration, NftItemControllerApi } from "@rarible/protocol-api-client"
+import { Configuration, NftItemControllerApi } from "@rarible/ethereum-api-client"
 import { toAddress, toBigNumber } from "@rarible/types"
 import { checkLazyAssetType } from "./check-lazy-asset-type"
 import { checkLazyAsset } from "./check-lazy-asset"

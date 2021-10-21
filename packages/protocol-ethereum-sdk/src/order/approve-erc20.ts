@@ -1,4 +1,4 @@
-import { Address, BigNumber } from "@rarible/protocol-api-client"
+import { Address, BigNumber } from "@rarible/ethereum-api-client"
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import { SendFunction } from "../common/send-transaction"

@@ -1,4 +1,4 @@
-import { OrderForm } from "@rarible/protocol-api-client"
+import { OrderForm } from "@rarible/ethereum-api-client"
 import { Config } from "../config/type"
 import { CURRENT_ORDER_TYPE_VERSION } from "../common/order"
 

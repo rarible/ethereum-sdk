@@ -1,4 +1,4 @@
-import { Asset } from "@rarible/protocol-api-client"
+import { Asset } from "@rarible/ethereum-api-client"
 import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { ethers } from "ethers"

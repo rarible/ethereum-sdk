@@ -1,6 +1,6 @@
 // noinspection JSCommentMatchesSignature
 
-import { Binary, Order, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
+import { Binary, Order, OrderControllerApi, OrderForm } from "@rarible/ethereum-api-client"
 import { Action, Execution } from "@rarible/action"
 import { toBinary } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"

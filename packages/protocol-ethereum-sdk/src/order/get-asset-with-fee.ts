@@ -1,4 +1,4 @@
-import { Asset } from "@rarible/protocol-api-client"
+import { Asset } from "@rarible/ethereum-api-client"
 import { addFee } from "./add-fee"
 
 export function getAssetWithFee(asset: Asset, fee: number) {

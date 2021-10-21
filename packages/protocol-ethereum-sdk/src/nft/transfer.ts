@@ -1,4 +1,4 @@
-import type { Address, Erc1155AssetType, Erc721AssetType, NftItemControllerApi, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
+import type { Address, Erc1155AssetType, Erc721AssetType, NftItemControllerApi, NftOwnershipControllerApi } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { BigNumber, toAddress } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"

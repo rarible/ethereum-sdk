@@ -1,5 +1,5 @@
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
-import { Address } from "@rarible/protocol-api-client"
+import { Address } from "@rarible/ethereum-api-client"
 import { ExchangeAddresses } from "../config/type"
 import { toVrs } from "../common/to-vrs"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"

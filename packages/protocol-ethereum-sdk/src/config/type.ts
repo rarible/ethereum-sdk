@@ -1,4 +1,4 @@
-import { Address } from "@rarible/protocol-api-client"
+import { Address } from "@rarible/ethereum-api-client"
 import { Word } from "@rarible/types"
 
 export type ExchangeFees = {
@@ -17,6 +17,7 @@ export type TransferProxies = {
 	erc721Lazy: Address
 	erc1155Lazy: Address
 	openseaV1: Address
+	cryptoPunks: Address
 }
 
 export type OpenSeaConfig = {

@@ -6,7 +6,7 @@ import {
 	NftCollectionControllerApi,
 	NftLazyMintControllerApi,
 	NftOwnershipControllerApi,
-} from "@rarible/protocol-api-client"
+} from "@rarible/ethereum-api-client"
 import { toBn } from "@rarible/utils"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"

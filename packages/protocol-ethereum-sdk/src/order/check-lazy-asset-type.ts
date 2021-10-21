@@ -1,4 +1,4 @@
-import { AssetType, NftItemControllerApi } from "@rarible/protocol-api-client"
+import { AssetType, NftItemControllerApi } from "@rarible/ethereum-api-client"
 
 export async function checkLazyAssetType(itemApi: NftItemControllerApi, type: AssetType): Promise<AssetType> {
 	switch (type.assetClass) {

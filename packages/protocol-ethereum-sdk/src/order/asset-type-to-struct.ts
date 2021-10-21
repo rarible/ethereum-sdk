@@ -1,4 +1,4 @@
-import { AssetType } from "@rarible/protocol-api-client"
+import { AssetType } from "@rarible/ethereum-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { id } from "../common/id"
 

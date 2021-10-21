@@ -1,4 +1,4 @@
-import { Configuration, GatewayControllerApi, NftCollectionControllerApi } from "@rarible/protocol-api-client"
+import { Configuration, GatewayControllerApi, NftCollectionControllerApi } from "@rarible/ethereum-api-client"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"

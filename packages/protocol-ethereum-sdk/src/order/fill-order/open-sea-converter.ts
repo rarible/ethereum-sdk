@@ -1,5 +1,5 @@
 import { Address, BigNumber, toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
-import { AssetType, Binary } from "@rarible/protocol-api-client"
+import { AssetType, Binary } from "@rarible/ethereum-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { toBn } from "@rarible/utils"
 import { createErc721Contract } from "../contracts/erc721"

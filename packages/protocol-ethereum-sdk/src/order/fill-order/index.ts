@@ -1,7 +1,7 @@
 import { Ethereum } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import { Action } from "@rarible/action"
-import { Address } from "@rarible/protocol-api-client"
+import { Address } from "@rarible/ethereum-api-client"
 import { SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleOrder, SimpleRaribleV2Order } from "../types"
 import {
 	FillOrderAction,
@@ -32,6 +32,7 @@ export class OrderFiller {
 				const from = toAddress(await this.ethereum.getFrom())
 				const inverted = await this.invertOrder(request, from)
 				await this.approveOrder(inverted, Boolean(request.infinite))
+				console.log("fill approve ok")
 				return { request, inverted }
 			},
 		})

@@ -4,7 +4,7 @@ import {
 	Erc1155LazyAssetType,
 	Erc721AssetType,
 	Erc721LazyAssetType,
-} from "@rarible/protocol-api-client"
+} from "@rarible/ethereum-api-client"
 
 export function isNft(
 	type: AssetType,

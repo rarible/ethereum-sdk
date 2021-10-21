@@ -1,4 +1,4 @@
-import type { Address } from "@rarible/protocol-api-client"
+import type { Address } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { createErc721Contract } from "../order/contracts/erc721"
 import type { SendFunction } from "../common/send-transaction"

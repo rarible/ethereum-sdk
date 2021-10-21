@@ -1,7 +1,7 @@
 import { BigNumber, toAddress } from "@rarible/types"
 import { toBn } from "@rarible/utils"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
-import type { Erc1155AssetType, Erc721AssetType, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
+import type { Erc1155AssetType, Erc721AssetType, NftOwnershipControllerApi } from "@rarible/ethereum-api-client"
 import type { CheckAssetTypeFunction, NftAssetType } from "../order/check-asset-type"
 import type { SendFunction } from "../common/send-transaction"
 import { getOwnershipId } from "../common/get-ownership-id"

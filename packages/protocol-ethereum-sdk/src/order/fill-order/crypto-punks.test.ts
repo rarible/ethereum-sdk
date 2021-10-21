@@ -52,8 +52,8 @@ describe("fillOrder", () => {
 		 */
 		await sentTx(
 			it.exchangeV2.methods.__ExchangeV2_init(
-				// toAddress(it.transferProxy.options.address),
-				ZERO_ADDRESS,
+				toAddress(it.transferProxy.options.address),
+				// ZERO_ADDRESS,
 				toAddress(it.erc20TransferProxy.options.address),
 				toBigNumber("0"),
 				// sender1Address,
@@ -65,18 +65,14 @@ describe("fillOrder", () => {
 		)
 		config.exchange.v1 = toAddress(it.exchangeV2.options.address)
 		config.exchange.v2 = toAddress(it.exchangeV2.options.address)
+		config.transferProxies.cryptoPunks = toAddress(it.punksTransferProxy.options.address)
 		config.chainId = 1
 		config.fees.v2 = 100
 
-		// await sentTx(it.transferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
-		// 	from: sender1Address,
-		// })
 		await sentTx(it.erc20TransferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
 			from: sender1Address,
 		})
 
-
-		//Set transfer proxy for crypto punks
 		await sentTx(
 			it.exchangeV2.methods.setTransferProxy(
 				id("CRYPTO_PUNKS"),
@@ -94,131 +90,21 @@ describe("fillOrder", () => {
 			{from: sender1Address}
 		)
 
+		await sentTx(it.punksMarket.methods.allInitialOwnersAssigned(), {from: sender1Address})
+
 	})
-
-	/*
-	test("should match order(buy erc1155 for erc20)", async () => {
-		//sender1 has ERC20, sender2 has ERC1155
-
-		await sentTx(it.testErc20.methods.mint(sender1Address, 100), { from: sender1Address })
-		await sentTx(it.testErc1155.methods.mint(sender2Address, 1, 10, "0x"), { from: sender1Address })
-
-		const left: SimpleOrder = {
-			make: {
-				assetType: {
-					assetClass: "ERC1155",
-					contract: toAddress(it.testErc1155.options.address),
-					tokenId: toBigNumber("1"),
-				},
-				value: toBigNumber("5"),
-			},
-			maker: sender2Address,
-			take: {
-				assetType: {
-					assetClass: "ERC20",
-					contract: toAddress(it.testErc20.options.address),
-				},
-				value: toBigNumber("10"),
-			},
-			salt: randomWord(),
-			type: "RARIBLE_V2",
-			data: {
-				dataType: "RARIBLE_V2_DATA_V1",
-				payouts: [],
-				originFees: [],
-			},
-		}
-
-		await sentTx(it.testErc20.methods.approve(it.erc20TransferProxy.options.address, toBn(10)), {
-			from: sender1Address,
-		})
-
-		await sentTx(it.testErc1155.methods.setApprovalForAll(it.transferProxy.options.address, true), {
-			from: sender2Address,
-		})
-
-		const signature = await signOrder(ethereum2, config, left)
-
-		const finalOrder = { ...left, signature }
-		const execution = await filler.fill.start({ order: finalOrder, amount: 2, payouts: [], originFees: [] })
-		await execution.runAll()
-
-		expect(toBn(await it.testErc20.methods.balanceOf(sender2Address).call()).toString()).toBe("4")
-		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString()).toBe("2")
-	})
-
-	test("should match order(buy erc1155 for eth)", async () => {
-		//sender1 has ETH, sender2 has ERC1155
-
-		await sentTx(it.testErc1155.methods.mint(sender2Address, 1, 10, "0x"), { from: sender1Address })
-
-		const left: SimpleOrder = {
-			make: {
-				assetType: {
-					assetClass: "ERC1155",
-					contract: toAddress(it.testErc1155.options.address),
-					tokenId: toBigNumber("1"),
-				},
-				value: toBigNumber("5"),
-			},
-			maker: sender2Address,
-			take: {
-				assetType: {
-					assetClass: "ETH",
-				},
-				value: toBigNumber("1000000"),
-			},
-			salt: randomWord(),
-			type: "RARIBLE_V2",
-			data: {
-				dataType: "RARIBLE_V2_DATA_V1",
-				payouts: [],
-				originFees: [],
-			},
-		}
-
-		await sentTx(it.testErc1155.methods.setApprovalForAll(it.transferProxy.options.address, true), {
-			from: sender2Address,
-		})
-
-		const signature = await signOrder(ethereum2, config, left)
-
-		const before1 = toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call())
-		const before2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call())
-
-		const finalOrder = { ...left, signature }
-		const originFees = [{
-			account: randomAddress(),
-			value: 100,
-		}]
-		const execution = await filler.fill.start({ order: finalOrder, amount: 2, originFees })
-		await execution.runAll()
-
-		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString()).toBe(
-			before2.minus(2).toFixed()
-		)
-		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString()).toBe(
-			before1.plus(2).toFixed()
-		)
-	})
-
-
-	 */
 	test("should fill order with crypto punks asset", async () => {
 		//Mint crypto punks
-		console.log("before test")
+		const punkId = 43
+		await sentTx(it.punksMarket.methods.getPunk(punkId), {from: sender2Address})
+		await it.testErc20.methods.mint(sender1Address, 100).send({ from: sender1Address, gas: 200000 })
 
-		await sentTx(it.punksMarket.methods.allInitialOwnersAssigned(), {from: sender1Address})
-		console.log("after all initial")
-		await sentTx(it.punksMarket.methods.getPunk(42), {from: sender2Address})
-
-		console.log("after getpunk")
 		const left: SimpleOrder = {
 			make: {
 				assetType: {
 					assetClass: "CRYPTO_PUNKS",
-					contract: toAddress(it.testErc1155.options.address),
-					punkId: 0,
+					contract: toAddress(it.punksMarket.options.address),
+					punkId: punkId,
 				},
 				value: toBigNumber("1"),
 			},
@@ -227,7 +113,7 @@ describe("fillOrder", () => {
 				assetType: {
 					assetClass: "ETH",
 				},
-				value: toBigNumber("10"),
+				value: toBigNumber("1"),
 			},
 			salt: randomWord(),
 			type: "RARIBLE_V2",
@@ -240,27 +126,21 @@ describe("fillOrder", () => {
 
 		await sentTx(
 			it.punksMarket.methods.offerPunkForSaleToAddress(
-				42,
+				punkId,
 				0,
 				toAddress(it.punksTransferProxy.options.address),
 			),
 			{from: sender2Address}
 		)
-		console.log("after offer")
 		const signature = await signOrder(ethereum2, config, left)
-		console.log("after sign")
-
-		// const before1 = toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call())
-		// const before2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call())
 
 		const finalOrder = { ...left, signature }
-		const originFees = [{
-			account: randomAddress(),
-			value: 100,
-		}]
-		// const execution = await filler.fill.start({ order: finalOrder, amount: 2, originFees })
-		// await execution.runAll()
+		const execution = await filler.fill.start({ order: finalOrder, amount: 1, originFees: []})
+		await execution.runAll()
 
+		const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()
+
+		expect(ownerAddress.toLowerCase()).toBe(sender1Address.toLowerCase())
 	})
 
 })

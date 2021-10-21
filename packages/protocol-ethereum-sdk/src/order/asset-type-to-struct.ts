@@ -19,6 +19,14 @@ export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 				assetClass: id("GEN_ART"),
 				data: ethereum.encodeParameter("address", assetType.contract),
 			}
+		case "CRYPTO_PUNKS":
+			return {
+				assetClass: id("CRYPTO_PUNKS"),
+				data: ethereum.encodeParameter(
+					{ root: CONTRACT_TOKEN_ID },
+					{ contract: assetType.contract, tokenId: assetType.punkId }
+				),
+			}
 		case "ERC721":
 			return {
 				assetClass: id("ERC721"),
@@ -69,7 +77,7 @@ export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 			}
 		}
 		default: {
-			throw new Error(`Unsupported asset class: ${assetType.assetClass}`)
+			throw new Error("Unsupported asset class")
 		}
 	}
 }

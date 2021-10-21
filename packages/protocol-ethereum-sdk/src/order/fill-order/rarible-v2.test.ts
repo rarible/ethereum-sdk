@@ -15,6 +15,10 @@ import { deployTestRoyaltiesProvider } from "../contracts/test/test-royalties-pr
 import { signOrder } from "../sign-order"
 import { deployTestErc1155 } from "../contracts/test/test-erc1155"
 import { SimpleOrder } from "../types"
+import { deployCryptoPunks } from "../../nft/contracts/cryptoPunks/deploy"
+import { deployCryptoPunkTransferProxy } from "../contracts/test/test-crypto-punks-transfer-proxy"
+import { deployCryptoPunkAssetMatcher } from "../contracts/test/opensea/test-crypto-punks-asset-matcher"
+import { id } from "../../common/id"
 import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OrderFiller } from "./index"
 
@@ -37,6 +41,9 @@ describe("fillOrder", () => {
 		erc20TransferProxy: deployErc20TransferProxy(web3),
 		royaltiesProvider: deployTestRoyaltiesProvider(web3),
 		exchangeV2: deployTestExchangeV2(web3),
+		punksMarket: deployCryptoPunks(web3),
+		punksTransferProxy: deployCryptoPunkTransferProxy(web3),
+		punkAssetMatcher: deployCryptoPunkAssetMatcher(web3),
 	})
 
 	beforeAll(async () => {
@@ -55,6 +62,7 @@ describe("fillOrder", () => {
 		)
 		config.exchange.v1 = toAddress(it.exchangeV2.options.address)
 		config.exchange.v2 = toAddress(it.exchangeV2.options.address)
+		config.transferProxies.cryptoPunks = toAddress(it.punksTransferProxy.options.address)
 		config.chainId = 1
 		config.fees.v2 = 100
 
@@ -64,6 +72,27 @@ describe("fillOrder", () => {
 		await sentTx(it.erc20TransferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
 			from: sender1Address,
 		})
+
+		//Set transfer proxy for crypto punks
+		const tx = await sentTx(
+			it.exchangeV2.methods.setTransferProxy(
+				id("CRYPTO_PUNKS"),
+				it.punksTransferProxy.options.address
+			),
+			{from: sender1Address}
+		)
+
+		//Set asset matcher for crypto punks
+		await sentTx(
+			it.exchangeV2.methods.setAssetMatcher(
+				id("CRYPTO_PUNKS"),
+				it.punkAssetMatcher.options.address
+			),
+			{from: sender1Address}
+		)
+
+		await sentTx(it.punksMarket.methods.allInitialOwnersAssigned(), {from: sender1Address})
+
 	})
 
 	test("should match order(buy erc1155 for erc20)", async () => {
@@ -170,4 +199,56 @@ describe("fillOrder", () => {
 			before1.plus(2).toFixed()
 		)
 	})
+
+	test("should fill order with crypto punks asset", async () => {
+		//Mint crypto punks
+		const punkId = 43
+		await sentTx(it.punksMarket.methods.getPunk(punkId), {from: sender2Address})
+		await it.testErc20.methods.mint(sender1Address, 100).send({ from: sender1Address, gas: 200000 })
+
+		const left: SimpleOrder = {
+			make: {
+				assetType: {
+					assetClass: "CRYPTO_PUNKS",
+					contract: toAddress(it.punksMarket.options.address),
+					punkId: punkId,
+				},
+				value: toBigNumber("1"),
+			},
+			maker: sender2Address,
+			take: {
+				assetType: {
+					assetClass: "ETH",
+				},
+				value: toBigNumber("1"),
+			},
+			salt: randomWord(),
+			type: "RARIBLE_V2",
+			data: {
+				dataType: "RARIBLE_V2_DATA_V1",
+				payouts: [],
+				originFees: [],
+			},
+		}
+
+		await sentTx(
+			it.punksMarket.methods.offerPunkForSaleToAddress(
+				punkId,
+				0,
+				toAddress(it.punksTransferProxy.options.address),
+			),
+			{from: sender2Address}
+		)
+		const signature = await signOrder(ethereum2, config, left)
+
+
+		const finalOrder = { ...left, signature }
+		const execution = await filler.fill.start({ order: finalOrder, amount: 1, originFees: []})
+		await execution.runAll()
+
+		const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()
+
+		expect(ownerAddress.toLowerCase()).toBe(sender1Address.toLowerCase())
+	})
+
 })

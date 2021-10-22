@@ -1,5 +1,5 @@
 import { Address } from "@rarible/types"
-import { CryptoPunkOrder, Part } from "@rarible/ethereum-api-client"
+import { Part } from "@rarible/ethereum-api-client"
 import { Action } from "@rarible/action"
 import { EthereumTransaction } from "@rarible/ethereum-provider"
 import { SimpleCryptoPunkOrder, SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleRaribleV2Order } from "../types"

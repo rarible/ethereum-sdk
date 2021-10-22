@@ -1,4 +1,4 @@
-import { toAddress, ZERO_ADDRESS } from "@rarible/types"
+import { ZERO_ADDRESS } from "@rarible/types"
 import { id32 } from "../common/id"
 import { Config } from "./type"
 

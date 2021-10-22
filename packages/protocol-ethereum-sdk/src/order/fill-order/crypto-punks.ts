@@ -1,19 +1,15 @@
 import { Address } from "@rarible/ethereum-api-client"
 import { Ethereum, EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { ZERO_WORD } from "@rarible/types"
-import { hashToSign, orderToStruct } from "../sign-order"
 import { getAssetWithFee } from "../get-asset-with-fee"
 import { Config } from "../../config/type"
 import { approve } from "../approve"
 import { SendFunction } from "../../common/send-transaction"
-import { createExchangeV2Contract } from "../contracts/exchange-v2"
 import { waitTx } from "../../common/wait-tx"
-import { SimpleCryptoPunkOrder, SimpleRaribleV2Order } from "../types"
-import { isSigner } from "../../common/is-signer"
-import { fixSignature } from "../../common/fix-signature"
+import { SimpleCryptoPunkOrder } from "../types"
 import { createCryptoPunksMarketContract } from "../../nft/contracts/cryptoPunks"
 import { invertOrder } from "./invert-order"
-import { CryptoPunksOrderFillRequest, OrderHandler, RaribleV2OrderFillRequest } from "./types"
+import { CryptoPunksOrderFillRequest, OrderHandler } from "./types"
 
 export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFillRequest> {
 

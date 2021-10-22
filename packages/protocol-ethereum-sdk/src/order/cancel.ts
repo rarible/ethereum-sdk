@@ -1,5 +1,5 @@
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
-import { Address, Asset, CryptoPunksAssetType } from "@rarible/ethereum-api-client"
+import { Address, CryptoPunksAssetType } from "@rarible/ethereum-api-client"
 import { ExchangeAddresses } from "../config/type"
 import { toVrs } from "../common/to-vrs"
 import { createCryptoPunksMarketContract } from "../nft/contracts/cryptoPunks"

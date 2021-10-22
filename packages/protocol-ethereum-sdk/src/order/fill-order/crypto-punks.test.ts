@@ -11,9 +11,8 @@ import { deployTransferProxy } from "../contracts/test/test-transfer-proxy"
 import { deployErc20TransferProxy } from "../contracts/test/test-erc20-transfer-proxy"
 import { deployTestExchangeV2 } from "../contracts/test/test-exchange-v2"
 import { deployTestRoyaltiesProvider } from "../contracts/test/test-royalties-provider"
-import { signOrder } from "../sign-order"
 import { deployTestErc1155 } from "../contracts/test/test-erc1155"
-import { SimpleCryptoPunkOrder, SimpleOrder } from "../types"
+import { SimpleOrder } from "../types"
 import { deployCryptoPunks } from "../../nft/contracts/cryptoPunks/deploy"
 import { deployCryptoPunkTransferProxy } from "../contracts/test/test-crypto-punks-transfer-proxy"
 import { id } from "../../common/id"
@@ -26,7 +25,6 @@ describe("fillOrder", () => {
 	const [sender1Address, sender2Address] = addresses
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
-	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
 	const config: Config = E2E_CONFIG
 	const punkHandler = new CryptoPunksOrderHandler(ethereum1, simpleSend, config)

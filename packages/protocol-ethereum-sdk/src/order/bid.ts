@@ -38,7 +38,7 @@ export class OrderBid {
 			run: async (request: BidRequest) => {
 				const orderForm = await this.prepareOrderForm(request)
 				const checkedOrder = await this.upserter.checkLazyOrder(orderForm)
-				await this.upserter.approve(checkedOrder, false)
+				await this.upserter.approve(checkedOrder, true)
 				return checkedOrder
 			},
 		})

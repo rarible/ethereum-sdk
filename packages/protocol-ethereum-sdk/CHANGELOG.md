@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.7](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.6...v0.7.7) (2021-10-22)
+
+
+### Bug Fixes
+
+* use infinite approval for bids ([aba6886](https://github.com/rarible/protocol-ethereum-sdk/commit/aba68864c03f518faf151ab2e8b4b09b97f72be2))
+
+
+
+
+
 ## [0.7.6](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.5...v0.7.6) (2021-10-19)
 
 

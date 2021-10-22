@@ -26,6 +26,7 @@ import { RaribleV1OrderHandler } from "./order/fill-order/rarible-v1"
 import { OrderFiller } from "./order/fill-order"
 import { RaribleV2OrderHandler } from "./order/fill-order/rarible-v2"
 import { OpenSeaOrderHandler } from "./order/fill-order/open-sea"
+import { CryptoPunksOrderHandler } from "./order/fill-order/crypto-punks"
 import { getBaseOrderFee as getBaseOrderFeeTemplate } from "./order/get-base-order-fee"
 
 export interface RaribleApis {
@@ -132,6 +133,7 @@ export function createRaribleSdk(
 		new RaribleV1OrderHandler(ethereum, orderControllerApi, send, config),
 		new RaribleV2OrderHandler(ethereum, send, config),
 		new OpenSeaOrderHandler(ethereum, send, config),
+		new CryptoPunksOrderHandler(ethereum, send, config)
 	)
 
 	const approve = partialCall(approveTemplate, ethereum, send, config.transferProxies)

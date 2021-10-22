@@ -55,8 +55,8 @@ describe("fillOrder: Opensea orders", function () {
 
 	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, simpleSend, config)
 	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, simpleSend, config)
-	const orderFiller1 = new OrderFiller(ethereum1, null as any, null as any, openSeaFillHandler1)
-	const orderFiller2 = new OrderFiller(ethereum2, null as any, null as any, openSeaFillHandler2)
+	const orderFiller1 = new OrderFiller(ethereum1, null as any, null as any, openSeaFillHandler1, null as any)
+	const orderFiller2 = new OrderFiller(ethereum2, null as any, null as any, openSeaFillHandler2, null as any)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

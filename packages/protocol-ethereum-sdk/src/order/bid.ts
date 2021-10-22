@@ -44,12 +44,13 @@ export class OrderBid {
 		})
 		.thenStep({
 			id: "sign" as const,
-			run: async (checkedOrder: OrderForm) => this.upserter.upsertRequest(checkedOrder),
+			run: async (checkedOrder: OrderForm) => {
+				return this.upserter.upsertRequest(checkedOrder)
+			},
 		})
 
 	private async prepareOrderForm(request: BidRequest): Promise<OrderForm> {
 		const salt = request.salt ?? randomWord()
-		console.log("salt is", salt)
 		return {
 			maker: request.maker,
 			make: {

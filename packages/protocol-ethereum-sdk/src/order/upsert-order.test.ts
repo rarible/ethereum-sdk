@@ -16,7 +16,7 @@ const { providers } = createTestProviders(provider, wallet)
 describe.each(providers)("upsertOrder", (ethereum) => {
 	const sign = signOrder.bind(null, ethereum, E2E_CONFIG)
 	const v2Handler = new RaribleV2OrderHandler(null as any, null as any, E2E_CONFIG)
-	const orderService = new OrderFiller(null as any, null as any, v2Handler, null as any)
+	const orderService = new OrderFiller(null as any, null as any, v2Handler, null as any, null as any)
 
 	test("sign and upsert works", async () => {
 		const approve = () => Promise.resolve(undefined)

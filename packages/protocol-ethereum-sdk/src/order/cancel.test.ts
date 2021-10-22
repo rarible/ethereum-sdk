@@ -27,7 +27,7 @@ const orderApi = new OrderControllerApi(configuration)
 describe("cancel order", () => {
 	const v1Handler = new RaribleV1OrderHandler(null as any, orderApi, null as any, E2E_CONFIG)
 	const v2Handler = new RaribleV2OrderHandler(null as any, null as any, E2E_CONFIG)
-	const orderService = new OrderFiller(null as any, v1Handler, v2Handler, null as any)
+	const orderService = new OrderFiller(null as any, v1Handler, v2Handler, null as any, null as any)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

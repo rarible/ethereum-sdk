@@ -12,7 +12,7 @@ export type NftAssetType = {
 	tokenId: BigNumber
 }
 
-export type AssetTypeRequest = Erc721AssetType | Erc1155AssetType | NftAssetType
+export type AssetTypeRequest = Erc721AssetType | Erc1155AssetType | NftAssetType | CryptoPunksAssetType
 export type AssetTypeResponse = Erc721AssetType | Erc1155AssetType | CryptoPunksAssetType
 export type CheckAssetTypeFunction = (asset: AssetTypeRequest) => Promise<AssetTypeResponse>
 
@@ -24,9 +24,24 @@ export async function checkAssetType(
 	} else {
 		const collectionResponse = await collectionApi.getNftCollectionByIdRaw({ collection: asset.contract })
 		if (collectionResponse.status === 200) {
-			return {
-				...asset,
-				assetClass: collectionResponse.value.type,
+			switch (collectionResponse.value.type) {
+				case "ERC721":
+				case "ERC1155": {
+					return {
+						...asset,
+						assetClass: collectionResponse.value.type,
+					}
+				}
+				case "CRYPTO_PUNKS": {
+					return {
+						assetClass: collectionResponse.value.type,
+						contract: asset.contract,
+						punkId: parseInt(asset.tokenId),
+					}
+				}
+				default: {
+					throw new Error("Unrecognized collection asset class")
+				}
 			}
 		} else {
 			throw new Error(`Can't get info of NFT collection with id ${asset.contract}`)

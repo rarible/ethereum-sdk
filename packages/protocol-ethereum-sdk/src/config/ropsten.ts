@@ -16,7 +16,7 @@ export const ROPSTEN_CONFIG: Config = {
 		erc721Lazy: toAddress("0x6c49c170c82C40709a32Fb4E827ad3011CD86227"),
 		erc1155Lazy: toAddress("0x9F7fBc52A53f85e57a5DAde35dFa14797A4dA412"),
 		openseaV1: toAddress(ZERO_ADDRESS),
-		cryptoPunks: ZERO_ADDRESS,
+		cryptoPunks: toAddress("0x6B8ABca06F4D08310dc09540B8E27E5A0D9572E9"),
 	},
 	fees: {
 		v2: 0,

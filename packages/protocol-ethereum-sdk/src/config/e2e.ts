@@ -16,7 +16,7 @@ export const E2E_CONFIG: Config = {
 		erc721Lazy: toAddress("0xe853B9994304264ff418b818A8D23FD39e8DABe6"),
 		erc1155Lazy: toAddress("0x6E605A7d1FD15e9087f0756ab57E0ED99735a7a7"),
 		openseaV1: ZERO_ADDRESS,
-		cryptoPunks: ZERO_ADDRESS,
+		cryptoPunks: toAddress("0x7A8f9ad7B4062D10a0792Da40277E2abe6bFdBaD"),
 	},
 	fees: {
 		v2: 0,

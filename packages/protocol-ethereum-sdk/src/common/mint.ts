@@ -7,7 +7,6 @@ export function createErc721V2Collection(address: Address): NftCollection & { ve
 		id: address,
 		name: "Test-collection",
 		type: "ERC721",
-		supportsLazyMint: false,
 		version: ERC721VersionEnum.ERC721V2,
 	}
 }
@@ -18,7 +17,6 @@ export function createErc721V3Collection(address: Address): NftCollection & { ve
 		id: address,
 		name: "Test-collection",
 		type: "ERC721",
-		supportsLazyMint: true,
 		version: ERC721VersionEnum.ERC721V3,
 	}
 }
@@ -29,7 +27,6 @@ export function createErc721V1Collection(address: Address): NftCollection & { ve
 		id: address,
 		name: "Test-collection",
 		type: "ERC721",
-		supportsLazyMint: false,
 		version: ERC721VersionEnum.ERC721V1,
 	}
 }
@@ -40,7 +37,6 @@ export function createErc1155V1Collection(address: Address): NftCollection & { v
 		id: address,
 		name: "Test-collection",
 		type: "ERC1155",
-		supportsLazyMint: false,
 		version: ERC1155VersionEnum.ERC1155V1,
 	}
 }
@@ -51,7 +47,6 @@ export function createErc1155V2Collection(address: Address): NftCollection & { v
 		id: address,
 		name: "Test-collection",
 		type: "ERC1155",
-		supportsLazyMint: true,
 		version: ERC1155VersionEnum.ERC1155V2,
 	}
 }

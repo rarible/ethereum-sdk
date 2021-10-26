@@ -1917,10 +1917,10 @@
     eslint-plugin-jest "24.4.0"
     eslint-plugin-unicorn "35.0.0"
 
-"@rarible/ethereum-api-client@^0.1.9":
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/@rarible/ethereum-api-client/-/ethereum-api-client-0.1.9.tgz#e5bd4cb12c9c73a22b9ea1cec77c0f0f4b2cb8f6"
-  integrity sha512-bikl6AXrNJYN8xm0PWRxAXjNaKmBOCGP0tMXAHfrsI4q0yvqu57QPGPXBSw/+G0WuZH2zl8hEg8xi716cIrzgQ==
+"@rarible/ethereum-api-client@0.1.10":
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/@rarible/ethereum-api-client/-/ethereum-api-client-0.1.10.tgz#91c26af7aeee972d6d477b460092d94fee31d1ae"
+  integrity sha512-lCSMV9R3UVaaydIUBL/wXMLjCVfPZht6Uup5H70mVMQcJ1M3IcOdGoneryg8eVom6n1x+YNBifykQ3QoMQTQgQ==
   dependencies:
     "@rarible/types" "^0.1.7"
 

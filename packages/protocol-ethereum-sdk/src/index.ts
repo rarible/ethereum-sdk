@@ -2,11 +2,11 @@ import { Address, Configuration, ConfigurationParameters, GatewayControllerApi, 
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
 import { CONFIGS } from "./config"
-import { UpsertOrder, UpsertOrderExecution } from "./order/upsert-order"
+import { UpsertOrder, UpsertOrderAction } from "./order/upsert-order"
 import { approve as approveTemplate } from "./order/approve"
 import { OrderSell, SellOrderAction, SellOrderUpdateAction } from "./order/sell"
 import { signOrder as signOrderTemplate } from "./order/sign-order"
-import { BidOrderAction, OrderBid } from "./order/bid"
+import { BidOrderAction, BidUpdateOrderAction, OrderBid } from "./order/bid"
 import {
 	checkLazyAsset as checkLazyAssetTemplate,
 	checkLazyAssetType as checkLazyAssetTypeTemplate,
@@ -43,7 +43,7 @@ export interface RaribleOrderSdk {
 	sell: SellOrderAction
 
 	/**
-	 * Update price in existing order (with approval checking)
+	 * Update price in existing sell order (with approval checking)
 	 */
 	sellUpdate: SellOrderUpdateAction
 
@@ -51,6 +51,11 @@ export interface RaribleOrderSdk {
 	 * Create bid (create off-chain order and check if approval is needed)
 	 */
 	bid: BidOrderAction
+
+	/**
+	 * Update price in existing bid order (with approval checking)
+	 */
+	bidUpdate: BidUpdateOrderAction
 
 	/**
 	 * Fill order (buy or accept bid - depending on the order type)
@@ -62,7 +67,7 @@ export interface RaribleOrderSdk {
 	/**
 	 * Sell or create bid. Low-level method
 	 */
-	upsertOrder(order: OrderForm, infinite?: (boolean | undefined)): UpsertOrderExecution
+	upsert: UpsertOrderAction
 
 	/**
 	 * Get base fee (this fee will be hold by the processing platform - in basis points)
@@ -151,7 +156,7 @@ export function createRaribleSdk(
 	)
 
 	const sellService = new OrderSell(upsertService, checkAssetType, orderControllerApi)
-	const bidService = new OrderBid(upsertService, checkAssetType)
+	const bidService = new OrderBid(upsertService, checkAssetType, orderControllerApi)
 
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
 	const mint = partialCall(mintTemplate, ethereum, send, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
@@ -175,7 +180,8 @@ export function createRaribleSdk(
 			sellUpdate: sellService.update,
 			fill: filler.fill,
 			bid: bidService.bid,
-			upsertOrder: upsertService.upsertFn,
+			bidUpdate: bidService.update,
+			upsert: upsertService.upsert,
 			cancel,
 			getBaseOrderFee,
 			getBaseOrderFillFee: filler.getBaseOrderFillFee,

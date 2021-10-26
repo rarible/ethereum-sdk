@@ -4,7 +4,7 @@ import { BigNumber } from "@rarible/types"
 import { CONFIGS } from "./config"
 import { UpsertOrder, UpsertOrderExecution } from "./order/upsert-order"
 import { approve as approveTemplate } from "./order/approve"
-import { OrderSell, SellOrderAction } from "./order/sell"
+import { OrderSell, SellOrderAction, SellOrderUpdateAction } from "./order/sell"
 import { signOrder as signOrderTemplate } from "./order/sign-order"
 import { BidOrderAction, OrderBid } from "./order/bid"
 import {
@@ -41,6 +41,11 @@ export interface RaribleOrderSdk {
 	 * Sell asset (create off-chain order and check if approval is needed)
 	 */
 	sell: SellOrderAction
+
+	/**
+	 * Update price in existing order (with approval checking)
+	 */
+	sellUpdate: SellOrderUpdateAction
 
 	/**
 	 * Create bid (create off-chain order and check if approval is needed)
@@ -145,7 +150,7 @@ export function createRaribleSdk(
 		orderControllerApi
 	)
 
-	const sellService = new OrderSell(upsertService, checkAssetType)
+	const sellService = new OrderSell(upsertService, checkAssetType, orderControllerApi)
 	const bidService = new OrderBid(upsertService, checkAssetType)
 
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
@@ -167,6 +172,7 @@ export function createRaribleSdk(
 		},
 		order: {
 			sell: sellService.sell,
+			sellUpdate: sellService.update,
 			fill: filler.fill,
 			bid: bidService.bid,
 			upsertOrder: upsertService.upsertFn,

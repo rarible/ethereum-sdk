@@ -25,8 +25,7 @@ export class UpsertOrder {
 		private readonly orderApi: OrderControllerApi,
 	) {}
 
-	// upsert: UpsertOrderAction = Action
-	upsert = Action
+	readonly upsert = Action
 		.create({
 			id: "approve" as const,
 			run: async ({ order, infinite }: UpsertOrderActionArg) => {
@@ -37,9 +36,7 @@ export class UpsertOrder {
 		})
 		.thenStep({
 			id: "sign" as const,
-			run: async (checkedOrder: OrderForm) => {
-				return this.upsertRequest(checkedOrder)
-			},
+			run: (checkedOrder: OrderForm) => this.upsertRequest(checkedOrder),
 		})
 
 	upsertFn(order: OrderForm, infinite?: (boolean | undefined)): UpsertOrderExecution {

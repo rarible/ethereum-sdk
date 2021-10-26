@@ -16,7 +16,7 @@ import { createTestProviders } from "../common/create-test-providers"
 import { send as sendTemplate } from "../common/send-transaction"
 import { signNft as signNftTemplate } from "../nft/sign-nft"
 import { createErc721V3Collection } from "../common/mint"
-import { OrderSell } from "./sell"
+import { OrderBid } from "./bid"
 import { signOrder as signOrderTemplate } from "./sign-order"
 import { RaribleV2OrderHandler } from "./fill-order/rarible-v2"
 import { OrderFiller } from "./fill-order"
@@ -31,7 +31,7 @@ const { provider, wallet } = createE2eProvider(
 )
 const { providers } = createTestProviders(provider, wallet)
 
-describe.each(providers)("sell", (ethereum) => {
+describe.each(providers)("bid", (ethereum) => {
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
@@ -65,7 +65,7 @@ describe.each(providers)("sell", (ethereum) => {
 		signOrder,
 		orderApi,
 	)
-	const orderSell = new OrderSell(upserter, checkAssetType, orderApi)
+	const orderSell = new OrderBid(upserter, checkAssetType, orderApi)
 	const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 	const treasury = createE2eWallet()
 	const treasuryAddress = toAddress(treasury.getAddressString())
@@ -83,15 +83,15 @@ describe.each(providers)("sell", (ethereum) => {
 			lazy: false,
 		} as ERC721RequestV3)
 
-		const createExecution = orderSell.sell.start({
+		const createExecution = orderSell.bid.start({
 			maker: toAddress(wallet.getAddressString()),
-			makeAssetType: {
+			takeAssetType: {
 				assetClass: "ERC721",
 				contract: minted.contract,
 				tokenId: minted.tokenId,
 			},
-			price: toBn("2"),
-			takeAssetType: {
+			price: toBn("10000000000000000"),
+			makeAssetType: {
 				assetClass: "ETH",
 			},
 			amount: 1,
@@ -108,11 +108,11 @@ describe.each(providers)("sell", (ethereum) => {
 
 		const updateExecution = orderSell.update.start({
 			orderHash: order.hash,
-			price: toBigNumber("1"),
+			price: toBigNumber("20000000000000000"),
 		})
 		const updatedOrder = await updateExecution.runAll()
 		const nextOrder = await orderApi.getOrderByHash({ hash: updatedOrder.hash })
-    	expect(nextOrder.take.value.toString()).toBe(toBigNumber("1").toString())
+    	expect(nextOrder.make.value.toString()).toBe(toBigNumber("20000000000000000").toString())
 	}, 10000)
 
 	test("create and update of v1 works", async () => {
@@ -131,7 +131,7 @@ describe.each(providers)("sell", (ethereum) => {
 		const form: OrderForm = {
 			...TEST_ORDER_TEMPLATE,
 			maker: makerAddress,
-			make: {
+			take: {
 				assetType: {
 					assetClass: "ERC721",
 					contract: minted.contract,
@@ -139,11 +139,11 @@ describe.each(providers)("sell", (ethereum) => {
 				},
 				value: toBigNumber("1"),
 			},
-			take: {
+			make: {
 				assetType: {
 					assetClass: "ETH",
 				},
-				value: toBigNumber("2"),
+				value: toBigNumber("10000000000000000"),
 			},
 			salt: toBigNumber("10"),
 			type: "RARIBLE_V1",
@@ -157,10 +157,10 @@ describe.each(providers)("sell", (ethereum) => {
 
 		const updateExecution = orderSell.update.start({
 			orderHash: order.hash,
-			price: toBigNumber("1"),
+			price: toBigNumber("20000000000000000"),
 		})
 		const updatedOrder = await updateExecution.runAll()
 		const nextOrder = await orderApi.getOrderByHash({ hash: updatedOrder.hash })
-    	expect(nextOrder.take.value.toString()).toBe(toBigNumber("1").toString())
+    	expect(nextOrder.make.value.toString()).toBe(toBigNumber("20000000000000000").toString())
 	}, 10000)
 })

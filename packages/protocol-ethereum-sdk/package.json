@@ -18,7 +18,7 @@
   "scripts": {
     "build": "tsc --project tsconfig-build.json",
     "clean": "rimraf ./build",
-    "test": "jest --maxWorkers=1 --silent",
+    "test": "jest --runInBand --silent",
     "verify": "tsc --noEmit"
   },
   "dependencies": {

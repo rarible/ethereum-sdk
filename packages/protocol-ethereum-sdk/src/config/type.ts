@@ -24,6 +24,13 @@ export type OpenSeaConfig = {
 	proxyRegistry: Address
 }
 
+export type FactoriesAddresses = {
+	erc721: Address
+	erc721User: Address
+	erc1155: Address
+	erc1155User: Address
+}
+
 export type Config = {
 	basePath: string
 	chainId: number
@@ -31,4 +38,5 @@ export type Config = {
 	transferProxies: TransferProxies
 	fees: ExchangeFees
 	openSea: OpenSeaConfig
+	factories: FactoriesAddresses
 }

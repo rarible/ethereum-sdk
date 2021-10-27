@@ -27,6 +27,9 @@ import { OrderFiller } from "./order/fill-order"
 import { RaribleV2OrderHandler } from "./order/fill-order/rarible-v2"
 import { OpenSeaOrderHandler } from "./order/fill-order/open-sea"
 import { getBaseOrderFee as getBaseOrderFeeTemplate } from "./order/get-base-order-fee"
+import { DeployErc721 } from "./nft/deploy-erc721"
+import { DeployErc1155 } from "./nft/deploy-erc1155"
+import { DeployNft } from "./common/deploy"
 
 export interface RaribleApis {
 	nftItem: NftItemControllerApi
@@ -94,6 +97,8 @@ export interface RaribleNftSdk {
 	 * @param amount amount to burn for Erc1155 token
 	 */
 	burn(asset: BurnAsset, amount?: BigNumber): Promise<EthereumTransaction>
+
+	deploy: DeployNft
 }
 
 export interface RaribleSdk {
@@ -157,6 +162,9 @@ export function createRaribleSdk(
 	const cancel = partialCall(cancelTemplate, checkLazyOrder, ethereum, config.exchange)
 	const getBaseOrderFee = getBaseOrderFeeTemplate.bind(null, config)
 
+	const deployErc721 = new DeployErc721(ethereum, send, config)
+	const deployErc1155 = new DeployErc1155(ethereum, send, config)
+
 	return {
 		apis: {
 			nftItem: nftItemControllerApi,
@@ -178,6 +186,10 @@ export function createRaribleSdk(
 			mint,
 			transfer,
 			burn,
+			deploy: {
+				erc721: deployErc721,
+				erc1155: deployErc1155,
+			},
 		},
 	}
 }

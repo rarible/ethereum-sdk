@@ -13,6 +13,8 @@ export class DeployErc1155 {
 	) {
 		this.deployToken = this.deployToken.bind(this)
 		this.deployUserToken = this.deployUserToken.bind(this)
+		this.getContractAddress = this.getContractAddress.bind(this)
+		this.getUserContractAddress = this.getUserContractAddress.bind(this)
 	}
 
 	deployToken(

@@ -1,9 +1,16 @@
 // noinspection JSCommentMatchesSignature
 
-import { Binary, Order, OrderControllerApi, OrderForm, Part, RaribleV2OrderForm } from "@rarible/protocol-api-client"
-import { Action, Execution } from "@rarible/action"
-import { Address, randomWord, toBigNumber, toBinary } from "@rarible/types"
-import { toBn } from "@rarible/utils/build/bn"
+import {
+	Binary, Erc20AssetType, EthAssetType,
+	Order,
+	OrderControllerApi,
+	OrderForm,
+	Part,
+	RaribleV2OrderForm,
+} from "@rarible/protocol-api-client"
+import { Action } from "@rarible/action"
+import { Address, randomWord, toBigNumber, toBinary, Word } from "@rarible/types"
+import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import type { SimpleOrder } from "./types"
 import { addFee } from "./add-fee"
 import type { ApproveFunction } from "./approve"
@@ -16,8 +23,9 @@ export type UpsertOrderActionArg = {
 	infinite?: boolean
 }
 export type UpsertOrderAction = Action<UpsertOrderStageId, UpsertOrderActionArg, Order>
-export type UpsertOrderExecution = Execution<UpsertOrderStageId, Order>
-export type UpsertOrderFunction = (order: OrderForm, infinite?: boolean) => Promise<UpsertOrderAction>
+
+export type HasOrder = { orderHash: Word } | { order: SimpleOrder }
+export type HasPrice = { price: BigNumberValue } | { priceDecimal: BigNumberValue }
 
 export type OrderRequest = {
 	maker: Address
@@ -47,6 +55,30 @@ export class UpsertOrder {
 			id: "sign" as const,
 			run: (checked: OrderForm) => this.upsertRequest(checked),
 		})
+
+	async getOrder(hasOrder: HasOrder): Promise<SimpleOrder> {
+		if ("order" in hasOrder) {
+			return hasOrder.order
+		} else {
+			return this.orderApi.getOrderByHash({ hash: hasOrder.orderHash })
+		}
+	}
+
+	async getPrice(hasPrice: HasPrice, assetType: Erc20AssetType | EthAssetType): Promise<BigNumberValue> {
+		if ("price" in hasPrice) {
+			return hasPrice.price
+		} else {
+			switch (assetType.assetClass) {
+				case "ETH":
+					return toBn(hasPrice.priceDecimal).multipliedBy(toBn(10).pow(18))
+				case "ERC20":
+					//todo call decimals from the contract
+					//todo add case for ERC-20. fetch decimals, multiply
+				default:
+					throw new Error(`Not a currency: ${JSON.stringify(assetType)}`)
+			}
+		}
+	}
 
 	async approve(checkedOrder: OrderForm, infinite: boolean = false) {
 		const simple = UpsertOrder.orderFormToSimpleOrder(checkedOrder)
@@ -85,7 +117,7 @@ export class UpsertOrder {
 		}
 	}
 
-	getOrderFormFromOrder<T extends Order>(order: T, make: T["make"], take: T["take"]): OrderForm {
+	getOrderFormFromOrder<T extends SimpleOrder>(order: T, make: T["make"], take: T["take"]): OrderForm {
 		return {
 			...order,
 			make,

@@ -1,23 +1,22 @@
-import type { OrderForm, Order, OrderControllerApi, Erc20AssetType, EthAssetType, RaribleV2OrderForm } from "@rarible/protocol-api-client"
+import type { Erc20AssetType, EthAssetType, Order, OrderForm, RaribleV2OrderForm } from "@rarible/protocol-api-client"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import { Action } from "@rarible/action"
 import { toBigNumber } from "@rarible/types"
-import type { OrderRequest, UpsertOrder } from "./upsert-order"
+import type { HasOrder, HasPrice, OrderRequest, UpsertOrder } from "./upsert-order"
 import type { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type"
+import { SimpleOrder } from "./types"
+import { isCurrency } from "./is-currency"
 
-export type BidRequest = OrderRequest & {
+export type BidRequest = {
 	makeAssetType: EthAssetType | Erc20AssetType
 	amount: number
 	takeAssetType: AssetTypeRequest
-	price: BigNumberValue
-}
+} & HasPrice & OrderRequest
+
 export type BidOrderOrderStageId = "approve" | "sign"
 export type BidOrderAction = Action<BidOrderOrderStageId, BidRequest, Order>
 
-export type BidUpdateRequest = {
-	orderHash: string
-	price: BigNumberValue
-}
+export type BidUpdateRequest = HasOrder & HasPrice
 
 export type BidUpdateOrderAction = Action<BidOrderOrderStageId, BidUpdateRequest, Order>
 
@@ -25,7 +24,6 @@ export class OrderBid {
 	constructor(
 		private readonly upserter: UpsertOrder,
 		private readonly checkAssetType: (asset: AssetTypeRequest) => Promise<AssetTypeResponse>,
-		private readonly orderApi: OrderControllerApi
 	) {}
 
 	readonly bid: BidOrderAction = Action
@@ -46,8 +44,12 @@ export class OrderBid {
 	readonly update: BidUpdateOrderAction = Action
 		.create({
 			id: "approve" as const,
-			run: async ({ orderHash, price }: BidUpdateRequest) => {
-				const order = await this.orderApi.getOrderByHash({ hash: orderHash })
+			run: async (request: BidUpdateRequest) => {
+				const order = await this.upserter.getOrder(request)
+				if (!isCurrency(order.make.assetType)) {
+					throw new Error(`Not a bid order: ${JSON.stringify(order)}`)
+				}
+				const price = await this.upserter.getPrice(request, order.make.assetType)
 				const form = await this.prepareOrderUpdateForm(order, price)
 				const checked = await this.upserter.checkLazyOrder(form)
 				await this.upserter.approve(checked, false)
@@ -61,11 +63,12 @@ export class OrderBid {
 
 	private async getBidForm(request: BidRequest): Promise<RaribleV2OrderForm> {
 		const form = this.upserter.prepareOrderForm(request)
+		const price = await this.upserter.getPrice(request, request.makeAssetType)
 		return {
 			...form,
 			make: {
 				assetType: request.makeAssetType,
-				value: toBigNumber(toBn(request.price).multipliedBy(request.amount).toString()),
+				value: toBigNumber(toBn(price).multipliedBy(request.amount).toString()),
 			},
 			take: {
 				assetType: await this.checkAssetType(request.takeAssetType),
@@ -74,7 +77,7 @@ export class OrderBid {
 		}
 	}
 
-	async prepareOrderUpdateForm(order: Order, price: BigNumberValue): Promise<OrderForm> {
+	async prepareOrderUpdateForm(order: SimpleOrder, price: BigNumberValue): Promise<OrderForm> {
 		if (order.type === "RARIBLE_V1" || order.type === "RARIBLE_V2") {
 			return this.upserter.getOrderFormFromOrder(order, {
 				assetType: order.make.assetType,

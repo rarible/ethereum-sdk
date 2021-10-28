@@ -64,8 +64,9 @@ describe.each(providers)("bid", (ethereum) => {
 		() => Promise.resolve(undefined),
 		signOrder,
 		orderApi,
+		ethereum
 	)
-	const orderSell = new OrderBid(upserter, checkAssetType, orderApi)
+	const orderSell = new OrderBid(upserter, checkAssetType)
 	const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 	const treasury = createE2eWallet()
 	const treasuryAddress = toAddress(treasury.getAddressString())
@@ -83,14 +84,14 @@ describe.each(providers)("bid", (ethereum) => {
 			lazy: false,
 		} as ERC721RequestV3)
 
-		const createExecution = orderSell.bid.start({
+		const order = await orderSell.bid({
 			maker: toAddress(wallet.getAddressString()),
 			takeAssetType: {
 				assetClass: "ERC721",
 				contract: minted.contract,
 				tokenId: minted.tokenId,
 			},
-			price: toBn("10000000000000000"),
+			price: toBn("20000000000000000"),
 			makeAssetType: {
 				assetClass: "ETH",
 			},
@@ -102,18 +103,14 @@ describe.each(providers)("bid", (ethereum) => {
 			}],
 		})
 
-		await createExecution.runAll()
-		const order = await createExecution.result
 		expect(order.hash).toBeTruthy()
 
-		const updateExecution = orderSell.update.start({
+		const updatedOrder = await orderSell.update({
 			orderHash: order.hash,
-			price: toBigNumber("20000000000000000"),
+			price: toBigNumber("40000000000000000"),
 		})
-		const updatedOrder = await updateExecution.runAll()
-		const nextOrder = await orderApi.getOrderByHash({ hash: updatedOrder.hash })
-    	expect(nextOrder.make.value.toString()).toBe(toBigNumber("20000000000000000").toString())
-	}, 10000)
+		expect(updatedOrder.make.value.toString()).toBe("40000000000000000")
+	})
 
 	test("create and update of v1 works", async () => {
 		const makerAddress = toAddress(wallet.getAddressString())
@@ -152,15 +149,12 @@ describe.each(providers)("bid", (ethereum) => {
 				fee: 250,
 			},
 		}
-		const createExecution = upserter.upsert.start({ order: form })
-		const order = await createExecution.runAll()
+		const order = await upserter.upsert({ order: form })
 
-		const updateExecution = orderSell.update.start({
+		const updatedOrder = await orderSell.update({
 			orderHash: order.hash,
 			price: toBigNumber("20000000000000000"),
 		})
-		const updatedOrder = await updateExecution.runAll()
-		const nextOrder = await orderApi.getOrderByHash({ hash: updatedOrder.hash })
-    	expect(nextOrder.make.value.toString()).toBe(toBigNumber("20000000000000000").toString())
-	}, 10000)
+		expect(updatedOrder.make.value.toString()).toBe("20000000000000000")
+	})
 })

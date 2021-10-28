@@ -64,8 +64,9 @@ describe.each(providers)("sell", (ethereum) => {
 		() => Promise.resolve(undefined),
 		signOrder,
 		orderApi,
+		ethereum
 	)
-	const orderSell = new OrderSell(upserter, checkAssetType, orderApi)
+	const orderSell = new OrderSell(upserter, checkAssetType)
 	const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 	const treasury = createE2eWallet()
 	const treasuryAddress = toAddress(treasury.getAddressString())
@@ -83,7 +84,7 @@ describe.each(providers)("sell", (ethereum) => {
 			lazy: false,
 		} as ERC721RequestV3)
 
-		const createExecution = orderSell.sell.start({
+		const order = await orderSell.sell({
 			maker: toAddress(wallet.getAddressString()),
 			makeAssetType: {
 				assetClass: "ERC721",
@@ -102,18 +103,14 @@ describe.each(providers)("sell", (ethereum) => {
 			}],
 		})
 
-		await createExecution.runAll()
-		const order = await createExecution.result
 		expect(order.hash).toBeTruthy()
 
-		const updateExecution = orderSell.update.start({
+		const updatedOrder = await orderSell.update({
 			orderHash: order.hash,
 			price: toBigNumber("1"),
 		})
-		const updatedOrder = await updateExecution.runAll()
-		const nextOrder = await orderApi.getOrderByHash({ hash: updatedOrder.hash })
-    	expect(nextOrder.take.value.toString()).toBe(toBigNumber("1").toString())
-	}, 10000)
+		expect(updatedOrder.take.value.toString()).toBe("1")
+	})
 
 	test("create and update of v1 works", async () => {
 		const makerAddress = toAddress(wallet.getAddressString())
@@ -152,15 +149,12 @@ describe.each(providers)("sell", (ethereum) => {
 				fee: 250,
 			},
 		}
-		const createExecution = upserter.upsert.start({ order: form })
-		const order = await createExecution.runAll()
+		const order = await upserter.upsert({ order: form })
 
-		const updateExecution = orderSell.update.start({
+		const updatedOrder = await orderSell.update({
 			orderHash: order.hash,
 			price: toBigNumber("1"),
 		})
-		const updatedOrder = await updateExecution.runAll()
-		const nextOrder = await orderApi.getOrderByHash({ hash: updatedOrder.hash })
-    	expect(nextOrder.take.value.toString()).toBe(toBigNumber("1").toString())
-	}, 10000)
+		expect(updatedOrder.take.value.toString()).toBe("1")
+	})
 })

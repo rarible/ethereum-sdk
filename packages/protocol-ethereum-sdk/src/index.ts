@@ -152,11 +152,12 @@ export function createRaribleSdk(
 		checkLazyOrder,
 		approve,
 		signOrder,
-		orderControllerApi
+		orderControllerApi,
+		ethereum
 	)
 
-	const sellService = new OrderSell(upsertService, checkAssetType, orderControllerApi)
-	const bidService = new OrderBid(upsertService, checkAssetType, orderControllerApi)
+	const sellService = new OrderSell(upsertService, checkAssetType)
+	const bidService = new OrderBid(upsertService, checkAssetType)
 
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
 	const mint = partialCall(mintTemplate, ethereum, send, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)

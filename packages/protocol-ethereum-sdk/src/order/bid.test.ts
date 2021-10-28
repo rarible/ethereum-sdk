@@ -16,6 +16,7 @@ import { createTestProviders } from "../common/create-test-providers"
 import { send as sendTemplate } from "../common/send-transaction"
 import { signNft as signNftTemplate } from "../nft/sign-nft"
 import { createErc721V3Collection } from "../common/mint"
+import { retry } from "../common/retry"
 import { OrderBid } from "./bid"
 import { signOrder as signOrderTemplate } from "./sign-order"
 import { RaribleV2OrderHandler } from "./fill-order/rarible-v2"
@@ -91,7 +92,7 @@ describe.each(providers)("bid", (ethereum) => {
 				contract: minted.contract,
 				tokenId: minted.tokenId,
 			},
-			price: toBn("10000000000000000"),
+			price: toBn("20000000000000000"),
 			makeAssetType: {
 				assetClass: "ETH",
 			},
@@ -109,11 +110,14 @@ describe.each(providers)("bid", (ethereum) => {
 
 		const updateExecution = orderSell.update.start({
 			orderHash: order.hash,
-			price: toBigNumber("20000000000000000"),
+			price: toBigNumber("40000000000000000"),
 		})
 		const updatedOrder = await updateExecution.runAll()
-		const nextOrder = await orderApi.getOrderByHash({ hash: updatedOrder.hash })
-    	expect(nextOrder.make.value.toString()).toBe(toBigNumber("20000000000000000").toString())
+
+		await retry(5, async () => {
+			const nextOrder = await orderApi.getOrderByHash({hash: updatedOrder.hash})
+			expect(nextOrder.make.value.toString()).toBe(toBigNumber("40000000000000000").toString())
+		})
 	}, 10000)
 
 	test("create and update of v1 works", async () => {
@@ -153,15 +157,17 @@ describe.each(providers)("bid", (ethereum) => {
 				fee: 250,
 			},
 		}
-		const createExecution = upserter.upsert.start({ order: form })
+		const createExecution = await upserter.upsert.start({ order: form })
 		const order = await createExecution.runAll()
 
-		const updateExecution = orderSell.update.start({
+		const updateExecution = await orderSell.update.start({
 			orderHash: order.hash,
 			price: toBigNumber("20000000000000000"),
 		})
 		const updatedOrder = await updateExecution.runAll()
-		const nextOrder = await orderApi.getOrderByHash({ hash: updatedOrder.hash })
-    	expect(nextOrder.make.value.toString()).toBe(toBigNumber("20000000000000000").toString())
+		await retry(5, async () => {
+			const nextOrder = await orderApi.getOrderByHash({hash: updatedOrder.hash})
+			expect(nextOrder.make.value.toString()).toBe(toBigNumber("20000000000000000").toString())
+		})
 	}, 10000)
 })

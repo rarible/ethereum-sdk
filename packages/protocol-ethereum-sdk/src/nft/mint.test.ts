@@ -131,7 +131,7 @@ describe.each(providers)("mint test", ethereum => {
 		const contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, e2eErc721V3ContractAddress)
 		const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter).call()).toFixed()
 		expect(balanceOfMinter).toEqual("1")
-	}, 10000)
+	})
 
 	test("mint ERC-1155 v2", async () => {
 		const minted = await mint({

@@ -11,11 +11,13 @@ import {
 import { Action } from "@rarible/action"
 import { Address, randomWord, toBigNumber, toBinary, Word } from "@rarible/types"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
+import { Ethereum } from "@rarible/ethereum-provider"
 import type { SimpleOrder } from "./types"
 import { addFee } from "./add-fee"
 import type { ApproveFunction } from "./approve"
 import type { OrderFiller } from "./fill-order"
 import type { CheckLazyOrderPart } from "./check-lazy-order"
+import { createErc20Contract } from "./contracts/erc20"
 
 export type UpsertOrderStageId = "approve" | "sign"
 export type UpsertOrderActionArg = {
@@ -40,6 +42,7 @@ export class UpsertOrder {
 		private readonly approveFn: ApproveFunction,
 		private readonly signOrder: (order: SimpleOrder) => Promise<Binary>,
 		private readonly orderApi: OrderControllerApi,
+		private readonly ethereum: Ethereum
 	) {}
 
 	readonly upsert = Action
@@ -72,8 +75,10 @@ export class UpsertOrder {
 				case "ETH":
 					return toBn(hasPrice.priceDecimal).multipliedBy(toBn(10).pow(18))
 				case "ERC20":
-					//todo call decimals from the contract
-					//todo add case for ERC-20. fetch decimals, multiply
+					const decimals = await createErc20Contract(this.ethereum, assetType.contract)
+						.functionCall("decimals")
+						.call()
+					return toBn(hasPrice.priceDecimal).multipliedBy(toBn(10).pow(Number(decimals)))
 				default:
 					throw new Error(`Not a currency: ${JSON.stringify(assetType)}`)
 			}

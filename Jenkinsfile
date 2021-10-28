@@ -18,9 +18,7 @@ pipeline {
         sh 'yarn bootstrap'
         sh 'yarn clean'
         sh 'yarn build-all'
-        script {
-          yarn test
-        }
+        sh 'yarn test'
       }
     }
     stage('build and deploy') {

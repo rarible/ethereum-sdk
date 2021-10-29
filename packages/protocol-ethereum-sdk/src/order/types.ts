@@ -17,3 +17,7 @@ export type SimpleOrder =
 	SimpleRaribleV2Order |
 	SimpleOpenSeaV1Order |
 	SimpleCryptoPunkOrder
+
+export type UpsertSimpleOrder =
+	SimpleLegacyOrder |
+	SimpleRaribleV2Order

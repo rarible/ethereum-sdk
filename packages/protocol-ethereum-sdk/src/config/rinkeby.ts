@@ -1,4 +1,4 @@
-import { toAddress } from "@rarible/types"
+import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 import { id32 } from "../common/id"
 import { Config } from "./type"
 
@@ -23,5 +23,11 @@ export const RINKEBY_CONFIG: Config = {
 	openSea: {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: toAddress("0xf57b2c51ded3a29e6891aba85459d600256cf317"),
+	},
+	factories: {
+		erc721: ZERO_ADDRESS,
+		erc721User: ZERO_ADDRESS,
+		erc1155: ZERO_ADDRESS,
+		erc1155User: ZERO_ADDRESS,
 	},
 }

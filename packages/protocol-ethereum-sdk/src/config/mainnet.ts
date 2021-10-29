@@ -1,4 +1,4 @@
-import { toAddress } from "@rarible/types"
+import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 import { id32 } from "../common/id"
 import { Config } from "./type"
 
@@ -23,5 +23,11 @@ export const MAINNET_CONFIG: Config = {
 	openSea: {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: toAddress("0xa5409ec958c83c3f309868babaca7c86dcb077c1"),
+	},
+	factories: {
+		erc721: ZERO_ADDRESS,
+		erc721User: ZERO_ADDRESS,
+		erc1155: ZERO_ADDRESS,
+		erc1155User: ZERO_ADDRESS,
 	},
 }

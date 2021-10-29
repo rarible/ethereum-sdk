@@ -1,7 +1,7 @@
 import Web3 from "web3"
 import { Address } from "@rarible/ethereum-api-client"
 import { Contract } from "web3-eth-contract"
-import { AbiItem } from "../../../../common/abi-item"
+import { AbiItem } from "../../../common/abi-item"
 
 export function createCryptoPunkAssetMatcherContract(web3: Web3, address?: Address): Contract {
 	return new web3.eth.Contract(punkAssetMatcherAbi, address)

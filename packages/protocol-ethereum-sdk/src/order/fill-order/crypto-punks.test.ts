@@ -16,7 +16,7 @@ import { SimpleOrder } from "../types"
 import { deployCryptoPunks } from "../../nft/contracts/cryptoPunks/deploy"
 import { deployCryptoPunkTransferProxy } from "../contracts/test/test-crypto-punks-transfer-proxy"
 import { id } from "../../common/id"
-import { deployCryptoPunkAssetMatcher } from "../contracts/test/opensea/test-crypto-punks-asset-matcher"
+import { deployCryptoPunkAssetMatcher } from "../contracts/test/test-crypto-punks-asset-matcher"
 import { CryptoPunksOrderHandler } from "./crypto-punks"
 import { OrderFiller } from "./index"
 

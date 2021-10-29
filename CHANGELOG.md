@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.8.1...v0.9.0) (2021-10-29)
+
+
+### Bug Fixes
+
+* royalties and creators optional in Mint requests ([6757bfb](https://github.com/rarible/protocol-ethereum-sdk/commit/6757bfbd9ded6c8cee747154ed8907ea845a25e0))
+
+
+### Features
+
+* deploy sdk methods ([a52c7d1](https://github.com/rarible/protocol-ethereum-sdk/commit/a52c7d19355af831a3c1f287f9be2f3ea8a1a935))
+* new version api client; createCollections update ([6d1dd5e](https://github.com/rarible/protocol-ethereum-sdk/commit/6d1dd5e181479e60c58979b41d8b54fe5a6b7347))
+
+
+
+
+
 ## [0.8.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.8.0...v0.8.1) (2021-10-28)
 
 **Note:** Version bump only for package root

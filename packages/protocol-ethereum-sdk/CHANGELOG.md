@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.8.0...v0.8.1) (2021-10-28)
+
+**Note:** Version bump only for package @rarible/protocol-ethereum-sdk
+
+
+
+
+
+# [0.8.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.7...v0.8.0) (2021-10-27)
+
+
+### Features
+
+* add bid update function ([0d28b8f](https://github.com/rarible/protocol-ethereum-sdk/commit/0d28b8f2e8138b0ceb67c92b4564c009dc1712cc))
+* add sell order updating ([ecf7ef8](https://github.com/rarible/protocol-ethereum-sdk/commit/ecf7ef8cd5a98d7ad250343b9c5cf62c72078f4f))
+
+
+
+
+
+## [0.7.7](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.6...v0.7.7) (2021-10-22)
+
+
+### Bug Fixes
+
+* use infinite approval for bids ([aba6886](https://github.com/rarible/protocol-ethereum-sdk/commit/aba68864c03f518faf151ab2e8b4b09b97f72be2))
+
+
+
+
+
 ## [0.7.6](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.5...v0.7.6) (2021-10-19)
 
 

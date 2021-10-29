@@ -85,7 +85,8 @@ describe("cancel order", () => {
 			checkLazyOrder as any,
 			approve,
 			sign,
-			orderApi
+			orderApi,
+			ethereum
 		)
 
 		const order = await upserter.upsert.start({ order: form }).runAll()

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.7...v0.8.0) (2021-10-27)
+
+
+### Features
+
+* add sell order updating ([ecf7ef8](https://github.com/rarible/protocol-ethereum-sdk/commit/ecf7ef8cd5a98d7ad250343b9c5cf62c72078f4f))
+
+
+
+
+
 ## [0.7.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.1...v0.7.2) (2021-10-13)
 
 **Note:** Version bump only for package @rarible/ethereum-sdk-test-common

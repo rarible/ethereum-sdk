@@ -16,6 +16,7 @@ import { createTestProviders } from "../common/create-test-providers"
 import { send as sendTemplate } from "../common/send-transaction"
 import { signNft as signNftTemplate } from "../nft/sign-nft"
 import { createErc721V3Collection } from "../common/mint"
+import { delay } from "../common/retry"
 import { OrderSell } from "./sell"
 import { signOrder as signOrderTemplate } from "./sign-order"
 import { RaribleV2OrderHandler } from "./fill-order/rarible-v2"
@@ -105,6 +106,7 @@ describe.each(providers)("sell", (ethereum) => {
 
 		expect(order.hash).toBeTruthy()
 
+		await delay(500)
 		const updatedOrder = await orderSell.update({
 			orderHash: order.hash,
 			price: toBigNumber("1"),
@@ -151,6 +153,7 @@ describe.each(providers)("sell", (ethereum) => {
 		}
 		const order = await upserter.upsert({ order: form })
 
+		await delay(500)
 		const updatedOrder = await orderSell.update({
 			orderHash: order.hash,
 			price: toBigNumber("1"),

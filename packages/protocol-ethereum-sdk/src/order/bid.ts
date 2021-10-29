@@ -52,7 +52,7 @@ export class OrderBid {
 				const price = await this.upserter.getPrice(request, order.make.assetType)
 				const form = await this.prepareOrderUpdateForm(order, price)
 				const checked = await this.upserter.checkLazyOrder(form)
-				await this.upserter.approve(checked, false)
+				await this.upserter.approve(checked, true)
 				return checked
 			},
 		})

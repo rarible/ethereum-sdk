@@ -1897,10 +1897,10 @@
   dependencies:
     "@octokit/openapi-types" "^10.6.4"
 
-"@rarible/action@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.3.3.tgz#4ba26d7e306e79bd50f3d49b85d20d8c8df829a4"
-  integrity sha512-0Vhw+uDQxncydy9sXPbPt6tYVrt8pWDRz7a5uGHtSO5eN4ySxcWsuwyEaQ7MD3fkivrSLkhwoRTsRhgumZ0hUQ==
+"@rarible/action@^0.3.4":
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.3.4.tgz#09f795724ef0bceb90fe7ff9e60bd00a21f7c7b6"
+  integrity sha512-RcwNucRdgjrZwHvImX1sLQvBhR3WN1EI3ae4wZ4ZGGSDQxdVM9wRbOs8eiNBL9R+cbRhQgNIYXCikycwkHVCbQ==
   dependencies:
     callable-instance "2.0.0"
 
@@ -1917,34 +1917,22 @@
     eslint-plugin-jest "24.4.0"
     eslint-plugin-unicorn "35.0.0"
 
-"@rarible/ethereum-api-client@^0.1.10":
+"@rarible/ethereum-api-client@^0.1.11":
+  version "0.1.11"
+  resolved "https://registry.yarnpkg.com/@rarible/ethereum-api-client/-/ethereum-api-client-0.1.11.tgz#6a7cadfecff9fb13857b67012ecd94fb82089142"
+  integrity sha512-y6tkK6xpA3X5QURgrBwaiROtvyYAkR/X/4CFhYV1X/zLr9HlD2KuioQlpfv1DgLP5YodQgDGn9M9gcxCiQXtAQ==
+  dependencies:
+    "@rarible/types" "^0.1.10"
+
+"@rarible/test-provider@0.1.23", "@rarible/test-provider@^0.1.23":
+  version "0.1.23"
+  resolved "https://registry.yarnpkg.com/@rarible/test-provider/-/test-provider-0.1.23.tgz#d4082925d764d429dfc1e4b62ad2fe71086de4a1"
+  integrity sha512-BpifUxBp+oQULyWyiMlFGgn6zgLsm/nJzy8+qAHq+WtTLlEmKn/cjQmulW28M8ThDKqQoHCG8lIb04BniJcOEg==
+
+"@rarible/types@^0.1.10":
   version "0.1.10"
-  resolved "https://registry.yarnpkg.com/@rarible/ethereum-api-client/-/ethereum-api-client-0.1.10.tgz#91c26af7aeee972d6d477b460092d94fee31d1ae"
-  integrity sha512-lCSMV9R3UVaaydIUBL/wXMLjCVfPZht6Uup5H70mVMQcJ1M3IcOdGoneryg8eVom6n1x+YNBifykQ3QoMQTQgQ==
-  dependencies:
-    "@rarible/types" "^0.1.7"
-
-"@rarible/protocol-api-client@^0.1.8":
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/@rarible/protocol-api-client/-/protocol-api-client-0.1.8.tgz#7ccf73f3fd6335a8adfb11af113a24ca437fbbcc"
-  integrity sha512-rsKxzs8xKB+p7lMOnxP+l+oIOustoQpn6XVulSNhqrKaK8zzs4Norlpyliy1l5hutRyZIyaLgxXH9HkpynJ6rQ==
-  dependencies:
-    "@rarible/types" "^0.1.7"
-
-"@rarible/test-provider@0.1.20":
-  version "0.1.20"
-  resolved "https://registry.yarnpkg.com/@rarible/test-provider/-/test-provider-0.1.20.tgz#de5a01f25db2487853060d7f88671794cb2fc20c"
-  integrity sha512-D5fLPg8eok4Rv19F7z53z7TG5WwICNmCLtz0mthKdXMIZoXIXC9BehZdyRxQu7PBQ2lTzwHAF0OITGrdSRkAnQ==
-
-"@rarible/types@0.1.7":
-  version "0.1.7"
-  resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.1.7.tgz#b88eeb7961f461067207c9f9cab73cf23dba1da3"
-  integrity sha512-rq0vGMQlnTQstTPwmFy8lajkOaCTOe7Odf/W1g6o3uLUD6Dlj0Vroh2/erfiyA6vuDALrATWsP5mw2berdwrTw==
-
-"@rarible/types@^0.1.7":
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.1.9.tgz#e396e59a7cf04c6d366dc9127f26ec9f58f2f113"
-  integrity sha512-r/SlX1uZMdULnxD0MG7KFpUI1U7FPdd91JWtpPUnCM8t966kEBr2MWfswrBJYzxxe4le2e6Zwa2fH+Yxi87ScA==
+  resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.1.10.tgz#0e91b5727be6e228e4dc2c4a7f907065ed81858d"
+  integrity sha512-/eFNU2AeB7beMN9W0DYYNyfOEJtvppvFBzB7V3++fky2SL5S245/wxpqVjQvtkJcga8dQ81gCUZHooOlVLw7Zw==
 
 "@rarible/utils@0.0.7", "@rarible/utils@^0.0.7":
   version "0.0.7"

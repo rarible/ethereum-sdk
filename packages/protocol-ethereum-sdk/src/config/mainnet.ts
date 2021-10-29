@@ -25,4 +25,10 @@ export const MAINNET_CONFIG: Config = {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: toAddress("0xa5409ec958c83c3f309868babaca7c86dcb077c1"),
 	},
+	factories: {
+		erc721: ZERO_ADDRESS,
+		erc721User: ZERO_ADDRESS,
+		erc1155: ZERO_ADDRESS,
+		erc1155User: ZERO_ADDRESS,
+	},
 }

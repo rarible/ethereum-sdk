@@ -26,4 +26,10 @@ const TEMPLATE_CONFIG: Config = {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: ZERO_ADDRESS,
 	},
+	factories: {
+		erc721: ZERO_ADDRESS,
+		erc721User: ZERO_ADDRESS,
+		erc1155: ZERO_ADDRESS,
+		erc1155User: ZERO_ADDRESS,
+	},
 }

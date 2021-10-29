@@ -1,4 +1,4 @@
-import type { BigNumber, Binary, NftCollectionControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
+import type { BigNumber, Binary, NftCollectionControllerApi, NftLazyMintControllerApi } from "@rarible/ethereum-api-client"
 import { toBigNumber } from "@rarible/types"
 import type { SimpleLazyNft } from "./sign-nft"
 import { getTokenId } from "./get-token-id"

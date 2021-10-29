@@ -1,7 +1,7 @@
 import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { Address, Asset } from "@rarible/protocol-api-client"
+import { Address, Asset } from "@rarible/ethereum-api-client"
 import { Contract } from "web3-eth-contract"
 import { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
@@ -55,8 +55,8 @@ describe("fillOrder: Opensea orders", function () {
 
 	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, simpleSend, config)
 	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, simpleSend, config)
-	const orderFiller1 = new OrderFiller(ethereum1, null as any, null as any, openSeaFillHandler1)
-	const orderFiller2 = new OrderFiller(ethereum2, null as any, null as any, openSeaFillHandler2)
+	const orderFiller1 = new OrderFiller(ethereum1, null as any, null as any, openSeaFillHandler1, null as any)
+	const orderFiller2 = new OrderFiller(ethereum2, null as any, null as any, openSeaFillHandler2, null as any)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

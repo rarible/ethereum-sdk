@@ -5,7 +5,7 @@ import { toAddress, toWord } from "@rarible/types"
 import { Contract } from "web3-eth-contract"
 import {
 	Configuration, GatewayControllerApi,
-} from "@rarible/protocol-api-client"
+} from "@rarible/ethereum-api-client"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { Config } from "../config/type"

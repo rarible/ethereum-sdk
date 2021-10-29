@@ -7,7 +7,7 @@ import {
 	OrderForm,
 	Part,
 	RaribleV2OrderForm,
-} from "@rarible/protocol-api-client"
+} from "@rarible/ethereum-api-client"
 import { Action } from "@rarible/action"
 import { Address, randomWord, toBigNumber, toBinary, Word } from "@rarible/types"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
@@ -18,6 +18,7 @@ import type { ApproveFunction } from "./approve"
 import type { OrderFiller } from "./fill-order"
 import type { CheckLazyOrderPart } from "./check-lazy-order"
 import { createErc20Contract } from "./contracts/erc20"
+import { UpsertSimpleOrder } from "./types"
 
 export type UpsertOrderStageId = "approve" | "sign"
 export type UpsertOrderActionArg = {
@@ -122,7 +123,7 @@ export class UpsertOrder {
 		}
 	}
 
-	getOrderFormFromOrder<T extends SimpleOrder>(order: T, make: T["make"], take: T["take"]): OrderForm {
+	getOrderFormFromOrder<T extends UpsertSimpleOrder>(order: T, make: T["make"], take: T["take"]): OrderForm {
 		return {
 			...order,
 			make,

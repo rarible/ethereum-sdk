@@ -1,4 +1,4 @@
-import { AssetType } from "@rarible/protocol-api-client"
+import { AssetType } from "@rarible/ethereum-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { id } from "../common/id"
 
@@ -18,6 +18,14 @@ export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 			return {
 				assetClass: id("GEN_ART"),
 				data: ethereum.encodeParameter("address", assetType.contract),
+			}
+		case "CRYPTO_PUNKS":
+			return {
+				assetClass: id("CRYPTO_PUNKS"),
+				data: ethereum.encodeParameter(
+					{ root: CONTRACT_TOKEN_ID },
+					{ contract: assetType.contract, tokenId: assetType.punkId }
+				),
 			}
 		case "ERC721":
 			return {
@@ -69,7 +77,7 @@ export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 			}
 		}
 		default: {
-			throw new Error(`Unsupported asset class: ${assetType.assetClass}`)
+			throw new Error("Unsupported asset class")
 		}
 	}
 }

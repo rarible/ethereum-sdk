@@ -1,4 +1,4 @@
-import type { Erc20AssetType, EthAssetType, Order, OrderForm, RaribleV2OrderForm } from "@rarible/protocol-api-client"
+import type { Erc20AssetType, EthAssetType, Order, OrderForm, RaribleV2OrderForm } from "@rarible/ethereum-api-client"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import { Action } from "@rarible/action"
 import { toBigNumber } from "@rarible/types"

@@ -8,7 +8,7 @@ import type {
 	NftCollection,
 	BigNumber,
 	NftTokenId,
-} from "@rarible/protocol-api-client"
+} from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { SendFunction } from "../common/send-transaction"
 import { mintOffChain } from "./mint-off-chain"

@@ -1,4 +1,4 @@
-import { Configuration, NftOwnershipControllerApi, OrderControllerApi } from "@rarible/protocol-api-client"
+import { Configuration, NftOwnershipControllerApi, OrderControllerApi } from "@rarible/ethereum-api-client"
 import { toAddress, toBigNumber, toWord } from "@rarible/types"
 import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
@@ -29,7 +29,7 @@ describe("test exchange v1 order", () => {
 	const v1Handler = new RaribleV1OrderHandler(
 		ethereum2, orderApi, simpleSend, CONFIGS.e2e
 	)
-	const filler = new OrderFiller(ethereum2, v1Handler, null as any, null as any)
+	const filler = new OrderFiller(ethereum2, v1Handler, null as any, null as any, null as any)
 
 	const seller = toAddress(wallet1.getAddressString())
 	const buyer = toAddress(wallet2.getAddressString())

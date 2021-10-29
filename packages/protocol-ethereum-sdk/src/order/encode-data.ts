@@ -1,4 +1,4 @@
-import { OrderData } from "@rarible/protocol-api-client"
+import { OrderData } from "@rarible/ethereum-api-client"
 import { Ethereum } from "@rarible/ethereum-provider"
 
 //todo wrongEncode когда применять?

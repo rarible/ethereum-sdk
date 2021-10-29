@@ -951,9 +951,9 @@
   resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.1.2.tgz#9b3651eac758cef98a9b68ccb4117d40cf30c45a"
   integrity sha512-nhlvS4W6+5/nznxuAylWZ602iKFysi4TBzkVCGJdD4wWUkiyebIrJvBnrOwa7e+xADDHMfa/xaSemP/Xxl3YSw==
 
-"@rarible/protocol-api-client@0.0.7":
+"@rarible/ethereum-api-client@0.0.7":
   version "0.0.7"
-  resolved "https://registry.yarnpkg.com/@rarible/protocol-api-client/-/protocol-api-client-0.0.7.tgz#e56bf7c8b550dc7c83fdd5f4f194eaa464bdf5e9"
+  resolved "https://registry.yarnpkg.com/@rarible/ethereum-api-client/-/protocol-api-client-0.0.7.tgz#e56bf7c8b550dc7c83fdd5f4f194eaa464bdf5e9"
   integrity sha512-THHlwtz3wj7iXDS2vIv5uTm4XVi9uje8JZwAtzWUncg9xg7oVCCFLqXL0ZNkeYUQX6g3+YzXYF5L0dTaMRz+8w==
   dependencies:
     "@rarible/types" "0.1.3"

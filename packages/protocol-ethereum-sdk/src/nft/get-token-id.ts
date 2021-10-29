@@ -1,4 +1,4 @@
-import { Address, NftCollectionControllerApi, NftTokenId } from "@rarible/protocol-api-client"
+import { Address, NftCollectionControllerApi, NftTokenId } from "@rarible/ethereum-api-client"
 
 export async function getTokenId(
 	nftCollectionApi: NftCollectionControllerApi, collection: Address, minter: Address, nftTokenId?: NftTokenId

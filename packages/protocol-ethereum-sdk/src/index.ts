@@ -1,4 +1,4 @@
-import { Address, Configuration, ConfigurationParameters, GatewayControllerApi, NftCollectionControllerApi, NftItemControllerApi, NftLazyMintControllerApi, NftOwnershipControllerApi, OrderActivityControllerApi, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
+import { Address, Configuration, ConfigurationParameters, GatewayControllerApi, NftCollectionControllerApi, NftItemControllerApi, NftLazyMintControllerApi, NftOwnershipControllerApi, OrderActivityControllerApi, OrderControllerApi, OrderForm } from "@rarible/ethereum-api-client"
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
 import { CONFIGS } from "./config"
@@ -26,6 +26,7 @@ import { RaribleV1OrderHandler } from "./order/fill-order/rarible-v1"
 import { OrderFiller } from "./order/fill-order"
 import { RaribleV2OrderHandler } from "./order/fill-order/rarible-v2"
 import { OpenSeaOrderHandler } from "./order/fill-order/open-sea"
+import { CryptoPunksOrderHandler } from "./order/fill-order/crypto-punks"
 import { getBaseOrderFee as getBaseOrderFeeTemplate } from "./order/get-base-order-fee"
 import { DeployErc721 } from "./nft/deploy-erc721"
 import { DeployErc1155 } from "./nft/deploy-erc1155"
@@ -147,6 +148,7 @@ export function createRaribleSdk(
 		new RaribleV1OrderHandler(ethereum, orderControllerApi, send, config),
 		new RaribleV2OrderHandler(ethereum, send, config),
 		new OpenSeaOrderHandler(ethereum, send, config),
+		new CryptoPunksOrderHandler(ethereum, send, config)
 	)
 
 	const approve = partialCall(approveTemplate, ethereum, send, config.transferProxies)

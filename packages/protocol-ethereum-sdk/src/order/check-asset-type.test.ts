@@ -5,7 +5,7 @@ import {
 	GatewayControllerApi,
 	NftCollectionControllerApi,
 	NftLazyMintControllerApi,
-} from "@rarible/protocol-api-client"
+} from "@rarible/ethereum-api-client"
 import { retry } from "../common/retry"
 import { ERC721RequestV3, mint } from "../nft/mint"
 import { signNft } from "../nft/sign-nft"

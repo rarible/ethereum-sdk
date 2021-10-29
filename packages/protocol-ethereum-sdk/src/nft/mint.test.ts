@@ -7,7 +7,7 @@ import {
 	NftCollectionControllerApi,
 	NftItemControllerApi,
 	NftLazyMintControllerApi,
-} from "@rarible/protocol-api-client"
+} from "@rarible/ethereum-api-client"
 import { toBn } from "@rarible/utils"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { ethers } from "ethers"

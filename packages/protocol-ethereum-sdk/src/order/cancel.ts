@@ -1,13 +1,20 @@
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
-import { Address } from "@rarible/protocol-api-client"
+import { Address, CryptoPunksAssetType } from "@rarible/ethereum-api-client"
 import { ExchangeAddresses } from "../config/type"
 import { toVrs } from "../common/to-vrs"
+import { createCryptoPunksMarketContract } from "../nft/contracts/cryptoPunks"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
 import { toStructLegacyOrderKey } from "./fill-order/rarible-v1"
 import { getAtomicMatchArgAddresses, getAtomicMatchArgUints } from "./fill-order/open-sea"
-import { SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleOrder, SimpleRaribleV2Order } from "./types"
+import {
+	SimpleCryptoPunkOrder,
+	SimpleLegacyOrder,
+	SimpleOpenSeaV1Order,
+	SimpleOrder,
+	SimpleRaribleV2Order,
+} from "./types"
 import { orderToStruct } from "./sign-order"
 import { convertOpenSeaOrderToDTO } from "./fill-order/open-sea-converter"
 import { CheckLazyOrderPart } from "./check-lazy-order"
@@ -26,6 +33,8 @@ export async function cancel(
 			return cancelV2Order(ethereum, config.v2, order)
 		case "OPEN_SEA_V1":
 			return cancelOpenseaOrderV1(ethereum, config.openseaV1, order)
+		case "CRYPTO_PUNK":
+			return cancelCryptoPunksOrder(ethereum, order)
 		default:
 			throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
 	}
@@ -63,4 +72,19 @@ export function cancelOpenseaOrderV1(ethereum: Ethereum, contract: Address, orde
 		makerVRS.s,
 	)
 		.send()
+}
+
+export function cancelCryptoPunksOrder(ethereum: Ethereum, order: SimpleCryptoPunkOrder) {
+	if (order.make.assetType.assetClass === "CRYPTO_PUNKS") {
+		return cancelCryptoPunkOrderByAsset(ethereum, order.make.assetType)
+	} else if (order.take.assetType.assetClass === "CRYPTO_PUNKS") {
+		return cancelCryptoPunkOrderByAsset(ethereum, order.take.assetType)
+	} else {
+		throw new Error("Crypto punks asset has not been found")
+	}
+}
+
+export function cancelCryptoPunkOrderByAsset(ethereum: Ethereum, assetType: CryptoPunksAssetType) {
+	const ethContract = createCryptoPunksMarketContract(ethereum, assetType.contract)
+	return ethContract.functionCall("punkNoLongerForSale", assetType.punkId).send()
 }

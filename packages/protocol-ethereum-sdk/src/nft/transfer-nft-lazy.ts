@@ -1,4 +1,4 @@
-import type { Address, NftItemControllerApi } from "@rarible/protocol-api-client"
+import type { Address, NftItemControllerApi } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { BigNumber } from "@rarible/types"
 import type { SendFunction } from "../common/send-transaction"

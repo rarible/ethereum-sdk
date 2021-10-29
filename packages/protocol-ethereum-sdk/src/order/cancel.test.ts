@@ -2,7 +2,7 @@ import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber } from "@rarible/types"
-import { Configuration, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
+import { Configuration, OrderControllerApi, OrderForm } from "@rarible/ethereum-api-client"
 import { E2E_CONFIG } from "../config/e2e"
 import { getApiConfig } from "../config/api-config"
 import { retry } from "../common/retry"
@@ -27,7 +27,7 @@ const orderApi = new OrderControllerApi(configuration)
 describe("cancel order", () => {
 	const v1Handler = new RaribleV1OrderHandler(null as any, orderApi, null as any, E2E_CONFIG)
 	const v2Handler = new RaribleV2OrderHandler(null as any, null as any, E2E_CONFIG)
-	const orderService = new OrderFiller(null as any, v1Handler, v2Handler, null as any)
+	const orderService = new OrderFiller(null as any, v1Handler, v2Handler, null as any, null as any)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

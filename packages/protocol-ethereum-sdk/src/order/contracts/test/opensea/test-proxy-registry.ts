@@ -1,5 +1,5 @@
 import Web3 from "web3"
-import { Address } from "@rarible/protocol-api-client"
+import { Address } from "@rarible/ethereum-api-client"
 import { Contract } from "web3-eth-contract"
 import { proxyRegistryAbi } from "../../proxy-registry-opensea"
 

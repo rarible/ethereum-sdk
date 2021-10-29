@@ -1,4 +1,4 @@
-import type { Address, Asset, AssetType, Erc1155LazyAssetType, Erc721LazyAssetType, OrderForm } from "@rarible/protocol-api-client"
+import type { Address, Asset, AssetType, Erc1155LazyAssetType, Erc721LazyAssetType, OrderForm } from "@rarible/ethereum-api-client"
 
 export type CheckLazyOrderPart = Pick<OrderForm, "make" | "take" | "maker">
 

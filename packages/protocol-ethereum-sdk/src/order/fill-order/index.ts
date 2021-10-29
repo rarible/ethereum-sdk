@@ -1,9 +1,16 @@
 import { Ethereum } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import { Action } from "@rarible/action"
-import { Address } from "@rarible/protocol-api-client"
-import { SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleOrder, SimpleRaribleV2Order } from "../types"
+import { Address } from "@rarible/ethereum-api-client"
 import {
+	SimpleCryptoPunkOrder,
+	SimpleLegacyOrder,
+	SimpleOpenSeaV1Order,
+	SimpleOrder,
+	SimpleRaribleV2Order,
+} from "../types"
+import {
+	CryptoPunksOrderFillRequest,
 	FillOrderAction,
 	FillOrderRequest,
 	LegacyOrderFillRequest,
@@ -13,6 +20,7 @@ import {
 import { RaribleV1OrderHandler } from "./rarible-v1"
 import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OpenSeaOrderHandler } from "./open-sea"
+import { CryptoPunksOrderHandler } from "./crypto-punks"
 
 export class OrderFiller {
 
@@ -21,6 +29,7 @@ export class OrderFiller {
 		private readonly v1Handler: RaribleV1OrderHandler,
 		private readonly v2Handler: RaribleV2OrderHandler,
 		private readonly openSeaHandler: OpenSeaOrderHandler,
+		private readonly punkHandler: CryptoPunksOrderHandler
 	) {
 		this.getBaseOrderFillFee = this.getBaseOrderFillFee.bind(this)
 	}
@@ -50,6 +59,8 @@ export class OrderFiller {
 				return this.v2Handler.invert(<RaribleV2OrderFillRequest>request, from)
 			case "OPEN_SEA_V1":
 				return this.openSeaHandler.invert(<OpenSeaV1OrderFillRequest>request, from)
+			case "CRYPTO_PUNK":
+				return this.punkHandler.invert(<CryptoPunksOrderFillRequest>request, from)
 			default:
 				throw new Error(`Unsupported order: ${JSON.stringify(request)}`)
 		}
@@ -63,6 +74,8 @@ export class OrderFiller {
 				return this.v2Handler.approve(inverted, isInfinite)
 			case "OPEN_SEA_V1":
 				return this.openSeaHandler.approve(inverted, isInfinite)
+			case "CRYPTO_PUNK":
+				return this.punkHandler.approve(inverted, isInfinite)
 			default:
 				throw new Error(`Unsupported order: ${JSON.stringify(inverted)}`)
 		}
@@ -80,6 +93,8 @@ export class OrderFiller {
 				return this.v2Handler.sendTransaction(<SimpleRaribleV2Order>request.order, inverted)
 			case "OPEN_SEA_V1":
 				return this.openSeaHandler.sendTransaction(<SimpleOpenSeaV1Order>request.order, inverted)
+			case "CRYPTO_PUNK":
+				return this.punkHandler.sendTransaction(<SimpleCryptoPunkOrder>request.order, inverted)
 			default:
 				throw new Error(`Unsupported order: ${JSON.stringify(inverted)}`)
 		}
@@ -93,6 +108,8 @@ export class OrderFiller {
 				return this.v2Handler.getOrderFee(order)
 			case "OPEN_SEA_V1":
 				return this.openSeaHandler.getOrderFee(order)
+			case "CRYPTO_PUNK":
+				return this.punkHandler.getOrderFee()
 			default:
 				throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
 		}
@@ -106,6 +123,8 @@ export class OrderFiller {
 				return this.v2Handler.getBaseOrderFee()
 			case "OPEN_SEA_V1":
 				return this.openSeaHandler.getBaseOrderFee(order)
+			case "CRYPTO_PUNK":
+				return this.punkHandler.getBaseOrderFee()
 			default:
 				throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
 		}

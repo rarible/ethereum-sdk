@@ -1,5 +1,5 @@
 import Web3 from "web3"
-import { Address } from "@rarible/protocol-api-client"
+import { Address } from "@rarible/ethereum-api-client"
 
 const testErc20Abi = [
 	{

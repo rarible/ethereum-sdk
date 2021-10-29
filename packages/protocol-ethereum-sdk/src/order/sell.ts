@@ -4,10 +4,10 @@ import type {
 	Order,
 	OrderForm,
 	RaribleV2OrderForm,
-} from "@rarible/protocol-api-client"
+} from "@rarible/ethereum-api-client"
+import { toBigNumber } from "@rarible/types"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import { Action } from "@rarible/action"
-import { toBigNumber } from "@rarible/types"
 import type { HasOrder, HasPrice, OrderRequest, UpsertOrder } from "./upsert-order"
 import { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type"
 import { SimpleOrder } from "./types"

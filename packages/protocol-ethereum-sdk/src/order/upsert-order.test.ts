@@ -1,6 +1,6 @@
 import { toAddress, toBigNumber } from "@rarible/types"
-import { Configuration, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
-import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
+import { Configuration, OrderControllerApi, OrderForm } from "@rarible/ethereum-api-client"
+import { createE2eProvider, awaitAll } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils"
 import { E2E_CONFIG } from "../config/e2e"
 import { getApiConfig } from "../config/api-config"
@@ -21,7 +21,7 @@ const it = awaitAll({
 describe.each(providers)("upsertOrder", (ethereum) => {
 	const sign = signOrder.bind(null, ethereum, E2E_CONFIG)
 	const v2Handler = new RaribleV2OrderHandler(null as any, null as any, E2E_CONFIG)
-	const orderService = new OrderFiller(null as any, null as any, v2Handler, null as any)
+	const orderService = new OrderFiller(null as any, null as any, v2Handler, null as any, null as any)
 	const approve = () => Promise.resolve(undefined)
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const orderApi = new OrderControllerApi(configuration)

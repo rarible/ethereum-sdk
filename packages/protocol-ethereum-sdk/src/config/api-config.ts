@@ -1,4 +1,4 @@
-import type { ConfigurationParameters } from "@rarible/protocol-api-client"
+import type { ConfigurationParameters } from "@rarible/ethereum-api-client"
 import { CONFIGS } from "./index"
 
 export function getApiConfig(

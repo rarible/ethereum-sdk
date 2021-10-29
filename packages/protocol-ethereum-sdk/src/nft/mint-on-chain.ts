@@ -1,5 +1,5 @@
 import type { Ethereum } from "@rarible/ethereum-provider"
-import type { NftCollectionControllerApi, Part } from "@rarible/protocol-api-client"
+import type { NftCollectionControllerApi, Part } from "@rarible/ethereum-api-client"
 import { Address, BigNumber, toAddress } from "@rarible/types"
 import type { SendFunction } from "../common/send-transaction"
 import { ERC1155RequestV1, ERC1155RequestV2, ERC721RequestV1, ERC721RequestV2, ERC721RequestV3, MintOnChainResponse, MintResponseTypeEnum } from "./mint"

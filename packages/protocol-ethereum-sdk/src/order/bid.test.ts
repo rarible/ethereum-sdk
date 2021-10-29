@@ -6,7 +6,7 @@ import {
 	NftLazyMintControllerApi,
 	OrderControllerApi,
 	OrderForm,
-} from "@rarible/protocol-api-client"
+} from "@rarible/ethereum-api-client"
 import { createE2eProvider, createE2eWallet } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils"
 import { E2E_CONFIG } from "../config/e2e"
@@ -57,7 +57,8 @@ describe.each(providers)("bid", (ethereum) => {
 		ethereum,
 		v1Handler,
 		v2Handler,
-		openSeaHandler
+		openSeaHandler,
+		null as any,
 	)
 	const upserter = new UpsertOrder(
 		orderService,

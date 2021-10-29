@@ -1,4 +1,4 @@
-import { Address, LegacyOrderForm, OrderControllerApi } from "@rarible/protocol-api-client"
+import { Address, LegacyOrderForm, OrderControllerApi } from "@rarible/ethereum-api-client"
 import { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils"

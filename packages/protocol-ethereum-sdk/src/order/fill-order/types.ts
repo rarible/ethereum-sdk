@@ -1,8 +1,8 @@
 import { Address } from "@rarible/types"
-import { Part } from "@rarible/protocol-api-client"
+import { Part } from "@rarible/ethereum-api-client"
 import { Action } from "@rarible/action"
 import { EthereumTransaction } from "@rarible/ethereum-provider"
-import { SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleRaribleV2Order } from "../types"
+import { SimpleCryptoPunkOrder, SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleRaribleV2Order } from "../types"
 
 type CommonFillRequest<T> = { order: T, amount: number, infinite?: boolean }
 
@@ -12,8 +12,13 @@ export type RaribleV2OrderFillRequest =
 	CommonFillRequest<SimpleRaribleV2Order> & { payouts?: Part[], originFees?: Part[] }
 export type OpenSeaV1OrderFillRequest =
 	Omit<CommonFillRequest<SimpleOpenSeaV1Order>, "amount">
+export type CryptoPunksOrderFillRequest = CommonFillRequest<SimpleCryptoPunkOrder>
 
-export type FillOrderRequest = LegacyOrderFillRequest | RaribleV2OrderFillRequest | OpenSeaV1OrderFillRequest
+export type FillOrderRequest =
+	LegacyOrderFillRequest |
+	RaribleV2OrderFillRequest |
+	OpenSeaV1OrderFillRequest |
+	CryptoPunksOrderFillRequest
 
 export type FillOrderAction = Action<FillOrderStageId, FillOrderRequest, EthereumTransaction>
 export type FillOrderStageId = "approve" | "send-tx"

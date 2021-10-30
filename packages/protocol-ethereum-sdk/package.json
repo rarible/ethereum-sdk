@@ -22,7 +22,7 @@
     "verify": "tsc --noEmit"
   },
   "dependencies": {
-    "@rarible/action": "^0.3.4",
+    "@rarible/action": "^0.3.5",
     "@rarible/ethereum-api-client": "^0.1.11",
     "@rarible/ethereum-provider": "^0.9.0",
     "@rarible/utils": "^0.0.7",

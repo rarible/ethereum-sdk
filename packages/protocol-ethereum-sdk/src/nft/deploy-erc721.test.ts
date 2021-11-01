@@ -1,7 +1,7 @@
 import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { toAddress, toWord } from "@rarible/types"
+import { toAddress } from "@rarible/types"
 import { Contract } from "web3-eth-contract"
 import {
 	Configuration, GatewayControllerApi,
@@ -57,104 +57,40 @@ describe("deploy token test", () => {
 		config.factories.erc721User = toAddress(raribleUserFactory.options.address)
 	})
 
-	test("should calculate correct contract address", async () => {
-		const tokenContractAddress1 = await raribleFactory.methods.getAddress(
-			"name",
-			"RARI",
-			"https://ipfs.rarible.com",
-			"https://ipfs.rarible.com",
-			3
-		).call()
-
-		const tokenContractAddress2 = await deployErc721.getContractAddress(
-			"name",
-			"RARI",
-			"https://ipfs.rarible.com",
-			"https://ipfs.rarible.com",
-			toWord("0x0000000000000000000000000000000000000000000000000000000000000003")
-		)
-
-		expect(tokenContractAddress2.toLowerCase()).toBe(tokenContractAddress1.toLowerCase())
-	})
-
 	test("should deploy erc721 token and mint", async () => {
-		const deployedToken = await deployErc721.deployToken(
+		const {tx, address} = await deployErc721.deployToken(
 			"name",
 			"RARI",
 			"https://ipfs.rarible.com",
 			"https://ipfs.rarible.com",
-			toWord("0x0000000000000000000000000000000000000000000000000000000000000003")
 		)
-		const receipt = await deployedToken.wait()
+		const receipt = await tx.wait()
 		const createProxyEvent = receipt.events.find(e => e.event === "Create721RaribleProxy")
 
 		if (!createProxyEvent || !createProxyEvent.args) {
 			throw new Error("Proxy has not been created")
 		}
-
 		const proxy = createProxyEvent.args.proxy
 
-		const calculatedTokenContractAddress = await raribleFactory.methods.getAddress(
-			"name",
-			"RARI",
-			"https://ipfs.rarible.com",
-			"https://ipfs.rarible.com",
-			toWord("0x0000000000000000000000000000000000000000000000000000000000000003")
-		).call()
-
-		expect(calculatedTokenContractAddress.toLowerCase()).toBe(proxy.toLowerCase())
-	})
-
-
-	test("should calculate correct user contract address", async () => {
-		const tokenContractAddress1 = await raribleUserFactory.methods.getAddress(
-			"name",
-			"RARI",
-			"https://ipfs.rarible.com",
-			"https://ipfs.rarible.com",
-			[],
-			3
-		).call()
-
-		const tokenContractAddress2 = await deployErc721.getUserContractAddress(
-			"name",
-			"RARI",
-			"https://ipfs.rarible.com",
-			"https://ipfs.rarible.com",
-			[],
-			toWord("0x0000000000000000000000000000000000000000000000000000000000000003")
-		)
-
-		expect(tokenContractAddress2.toLowerCase()).toBe(tokenContractAddress1.toLowerCase())
+		expect(address.toLowerCase()).toBe(proxy.toLowerCase())
 	})
 
 	test("should deploy erc721 user token and mint", async () => {
-		const deployedToken = await deployErc721.deployUserToken(
+		const {tx, address} = await deployErc721.deployUserToken(
 			"name",
 			"RARI",
 			"https://ipfs.rarible.com",
 			"https://ipfs.rarible.com",
 			[],
-			toWord("0x0000000000000000000000000000000000000000000000000000000000000003")
 		)
-		const receipt = await deployedToken.wait()
+		const receipt = await tx.wait()
 		const createProxyEvent = receipt.events.find(e => e.event === "Create721RaribleUserProxy")
 
 		if (!createProxyEvent || !createProxyEvent.args) {
 			throw new Error("Proxy has not been created")
 		}
-
 		const proxy = createProxyEvent.args.proxy
 
-		const calculatedContractAddress = await raribleUserFactory.methods.getAddress(
-			"name",
-			"RARI",
-			"https://ipfs.rarible.com",
-			"https://ipfs.rarible.com",
-			[],
-			toWord("0x0000000000000000000000000000000000000000000000000000000000000003")
-		).call()
-
-		expect(calculatedContractAddress.toLowerCase()).toBe(proxy.toLowerCase())
+		expect(address.toLowerCase()).toBe(proxy.toLowerCase())
 	})
 })

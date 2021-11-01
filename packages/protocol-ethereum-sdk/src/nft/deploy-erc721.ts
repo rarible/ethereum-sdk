@@ -1,5 +1,5 @@
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
-import { Address, Word } from "@rarible/types"
+import { Address, randomWord, Word } from "@rarible/types"
 import { SendFunction } from "../common/send-transaction"
 import { Config } from "../config/type"
 import { Maybe } from "../common/maybe"
@@ -14,24 +14,25 @@ export class DeployErc721 {
 	) {
 		this.deployToken = this.deployToken.bind(this)
 		this.deployUserToken = this.deployUserToken.bind(this)
-		this.getContractAddress = this.getContractAddress.bind(this)
-		this.getUserContractAddress = this.getUserContractAddress.bind(this)
 	}
 
-	deployToken(
-		name: string, symbol: string, baseURI: string, contractURI: string, salt: Word
-	): Promise<EthereumTransaction> {
+	async deployToken(
+		name: string, symbol: string, baseURI: string, contractURI: string
+	): Promise<{tx: EthereumTransaction, address: Address}> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
 		const contract = createErc721FactoryContract(this.ethereum, this.config.factories.erc721)
-
-		return this.send(
-			contract.functionCall("createToken", name, symbol, baseURI, contractURI, salt)
-		)
+		const salt = randomWord()
+		return {
+			tx: await this.send(
+				contract.functionCall("createToken", name, symbol, baseURI, contractURI, salt)
+			),
+			address: await this.getContractAddress(name, symbol, baseURI, contractURI, salt),
+		}
 	}
 
-	getContractAddress(
+	private getContractAddress(
 		name: string, symbol: string, baseURI: string, contractURI: string, salt: Word
 	): Promise<Address> {
 		if (!this.ethereum) {
@@ -41,20 +42,23 @@ export class DeployErc721 {
 		return contract.functionCall("getAddress", name, symbol, baseURI, contractURI, salt).call()
 	}
 
-	deployUserToken(
-		name: string, symbol: string, baseURI: string, contractURI: string, operators: Address[], salt: Word
-	): Promise<EthereumTransaction> {
+	async deployUserToken(
+		name: string, symbol: string, baseURI: string, contractURI: string, operators: Address[]
+	): Promise<{tx: EthereumTransaction, address: Address}> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
 		const contract = createErc721UserFactoryContract(this.ethereum, this.config.factories.erc721User)
-
-		return this.send(
-			contract.functionCall("createToken", name, symbol, baseURI, contractURI, operators, salt)
-		)
+		const salt = randomWord()
+		return {
+			tx: await this.send(
+				contract.functionCall("createToken", name, symbol, baseURI, contractURI, operators, salt)
+			),
+			address: await this.getUserContractAddress(name, symbol, baseURI, contractURI, operators, salt),
+		}
 	}
 
-	getUserContractAddress(
+	private getUserContractAddress(
 		name: string, symbol: string, baseURI: string, contractURI: string, operators: Address[], salt: Word
 	): Promise<Address> {
 		if (!this.ethereum) {

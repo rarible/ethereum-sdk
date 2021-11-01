@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.4](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.9.3...v0.9.4) (2021-11-01)
+
+
+### Bug Fixes
+
+* made Ethereum optional in createRaribleSdk ([a2d1df0](https://github.com/rarible/protocol-ethereum-sdk/commit/a2d1df03df950566b28e1d571e870a46e1725da6))
+
+
+
+
+
 ## [0.9.3](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.9.2...v0.9.3) (2021-10-30)
 
 

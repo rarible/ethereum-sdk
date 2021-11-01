@@ -1,7 +1,7 @@
 import { Address, toBigNumber, toWord, Word } from "@rarible/types"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
-import { SimpleOrder } from "./sign-order"
-import { isNft } from "./is-nft"
+import { SimpleOrder } from "../types"
+import { isNft } from "../is-nft"
 
 const ZERO = toWord("0x0000000000000000000000000000000000000000000000000000000000000000")
 export function invertOrder<T extends SimpleOrder>(

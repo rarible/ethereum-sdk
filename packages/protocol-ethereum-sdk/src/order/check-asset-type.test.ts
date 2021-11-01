@@ -1,21 +1,25 @@
 import { toAddress, toBigNumber } from "@rarible/types"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
-import Web3 from "web3"
-import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { Configuration, GatewayControllerApi, NftCollectionControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
+import {
+	Configuration,
+	GatewayControllerApi,
+	NftCollectionControllerApi,
+	NftLazyMintControllerApi,
+} from "@rarible/ethereum-api-client"
 import { retry } from "../common/retry"
 import { ERC721RequestV3, mint } from "../nft/mint"
 import { signNft } from "../nft/sign-nft"
 import { send as sendTemplate } from "../common/send-transaction"
-import { createErc721V3Collection } from "../nft/test/mint"
+import { createErc721V3Collection } from "../common/mint"
 import { getApiConfig } from "../config/api-config"
+import { createTestProviders } from "../common/create-test-providers"
 import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
 
-describe("check-asset-type test", function () {
-	const { provider, wallet } = createE2eProvider()
-	const from = toAddress(wallet.getAddressString())
-	const web3 = new Web3(provider)
-	const ethereum = new Web3Ethereum({ web3, from })
+const { provider, wallet } = createE2eProvider()
+const { providers } = createTestProviders(provider, wallet)
+const from = toAddress(wallet.getAddressString())
+
+describe.each(providers)("check-asset-type test", ethereum => {
 
 	const e2eErc721ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 	const configuration = new Configuration(getApiConfig("e2e"))
@@ -50,7 +54,7 @@ describe("check-asset-type test", function () {
 			})
 			expect(assetType.assetClass).toEqual("ERC721")
 		})
-	}, 50000)
+	})
 
 	test("should leave as is if assetClass present", async () => {
 		const request: ERC721RequestV3 = {
@@ -75,5 +79,5 @@ describe("check-asset-type test", function () {
 			tokenId: toBigNumber(minted.tokenId),
 		})
 		expect(assetType.assetClass).toEqual("ERC721")
-	}, 50000)
+	})
 })

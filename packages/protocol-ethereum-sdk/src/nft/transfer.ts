@@ -1,10 +1,11 @@
-import type { Address, Erc1155AssetType, Erc721AssetType, NftItemControllerApi, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
+import type { Address, Erc1155AssetType, Erc721AssetType, NftItemControllerApi, NftOwnershipControllerApi } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { BigNumber, toAddress } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
 import type { CheckAssetTypeFunction, NftAssetType } from "../order/check-asset-type"
 import { getOwnershipId } from "../common/get-ownership-id"
 import type { SendFunction } from "../common/send-transaction"
+import { Maybe } from "../common/maybe"
 import { transferErc721 } from "./transfer-erc721"
 import { transferErc1155 } from "./transfer-erc1155"
 import { transferNftLazy } from "./transfer-nft-lazy"
@@ -12,7 +13,7 @@ import { transferNftLazy } from "./transfer-nft-lazy"
 export type TransferAsset = NftAssetType | Erc721AssetType | Erc1155AssetType
 
 export async function transfer(
-	ethereum: Ethereum,
+	ethereum: Maybe<Ethereum>,
 	send: SendFunction,
 	checkAssetType: CheckAssetTypeFunction,
 	nftItemApi: NftItemControllerApi,
@@ -21,6 +22,9 @@ export async function transfer(
 	to: Address,
 	amount?: BigNumber
 ): Promise<EthereumTransaction> {
+	if (!ethereum) {
+		throw new Error("Wallet undefined")
+	}
 	const from = toAddress(await ethereum.getFrom())
 	const ownership = await nftOwnershipApi.getNftOwnershipByIdRaw({
 		ownershipId: getOwnershipId(asset.contract, asset.tokenId, from),

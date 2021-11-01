@@ -1,10 +1,11 @@
 import { BigNumber, toAddress } from "@rarible/types"
 import { toBn } from "@rarible/utils"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
-import type { Erc1155AssetType, Erc721AssetType, NftOwnershipControllerApi } from "@rarible/protocol-api-client"
+import type { Erc1155AssetType, Erc721AssetType, NftOwnershipControllerApi } from "@rarible/ethereum-api-client"
 import type { CheckAssetTypeFunction, NftAssetType } from "../order/check-asset-type"
 import type { SendFunction } from "../common/send-transaction"
 import { getOwnershipId } from "../common/get-ownership-id"
+import { Maybe } from "../common/maybe"
 import { getErc721Contract } from "./contracts/erc721"
 import { ERC1155VersionEnum, ERC721VersionEnum } from "./contracts/domain"
 import { getErc1155Contract } from "./contracts/erc1155"
@@ -12,13 +13,16 @@ import { getErc1155Contract } from "./contracts/erc1155"
 export type BurnAsset = Erc721AssetType | Erc1155AssetType | NftAssetType
 
 export async function burn(
-	ethereum: Ethereum,
+	ethereum: Maybe<Ethereum>,
 	send: SendFunction,
 	checkAssetType: CheckAssetTypeFunction,
 	nftOwnershipApi: NftOwnershipControllerApi,
 	asset: BurnAsset,
 	amount?: BigNumber
 ): Promise<EthereumTransaction> {
+	if (!ethereum) {
+		throw new Error("Wallet undefined")
+	}
 	const checked = await checkAssetType(asset)
 	const from = toAddress(await ethereum.getFrom())
 	const ownership = await nftOwnershipApi.getNftOwnershipByIdRaw({

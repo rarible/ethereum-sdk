@@ -1,16 +1,17 @@
 import type {
 	Address,
-	Binary,
-	NftCollectionControllerApi,
-	NftLazyMintControllerApi,
-	Part,
-	NftItem,
-	NftCollection,
 	BigNumber,
+	Binary,
+	NftCollection,
+	NftCollectionControllerApi,
+	NftItem,
+	NftLazyMintControllerApi,
 	NftTokenId,
-} from "@rarible/protocol-api-client"
+	Part,
+} from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { SendFunction } from "../common/send-transaction"
+import { Maybe } from "../common/maybe"
 import { mintOffChain } from "./mint-off-chain"
 import { mintErc1155v1, mintErc1155v2, mintErc721v1, mintErc721v2, mintErc721v3 } from "./mint-on-chain"
 import type { SimpleLazyNft } from "./sign-nft"
@@ -34,28 +35,28 @@ export type ERC721RequestV1 = {
 
 export type ERC721RequestV2 = {
 	collection: ERC721CollectionV2
-	royalties: Array<Part>
+	royalties?: Array<Part>
 } & CommonMintRequest
 
 export type ERC721RequestV3 = {
 	collection: ERC721CollectionV3
 	lazy: boolean
-	creators: Array<Part>
-	royalties: Array<Part>
+	creators?: Array<Part>
+	royalties?: Array<Part>
 } & CommonMintRequest
 
 export type ERC1155RequestV1 = {
 	collection: ERC1155CollectionV1
 	supply: number
-	royalties: Array<Part>
+	royalties?: Array<Part>
 } & CommonMintRequest
 
 export type ERC1155RequestV2 = {
 	collection: ERC1155CollectionV2
 	supply: number
 	lazy: boolean
-	creators: Array<Part>
-	royalties: Array<Part>
+	creators?: Array<Part>
+	royalties?: Array<Part>
 } & CommonMintRequest
 
 export type MintRequestERC721 = ERC721RequestV1 | ERC721RequestV2 | ERC721RequestV3
@@ -85,23 +86,26 @@ export type MintOnChainResponse = MintResponseCommon & {
 }
 
 export function mint(
-	ethereum: Ethereum,
+	ethereum: Maybe<Ethereum>,
 	send: SendFunction,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	nftLazyMintApi: NftLazyMintControllerApi,
 	data: MintRequest
 ): Promise<MintOffChainResponse | MintOnChainResponse> {
+	if (!ethereum) {
+		throw new Error("Wallet undefined")
+	}
 	if (isERC1155Request(data)) {
 		if (isERC1155v2Request(data)) {
-			if (data.lazy) return mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, data)
+			if (data.lazy) return mintOffChain(ethereum, signNft, nftCollectionApi, nftLazyMintApi, data)
 			return mintErc1155v2(ethereum, send, nftCollectionApi, data)
 		}
 		return mintErc1155v1(ethereum, send, nftCollectionApi, data)
 	}
 	if (isERC721Request(data)) {
 		if (isERC721v3Request(data)) {
-			if (data.lazy) return mintOffChain(signNft, nftCollectionApi, nftLazyMintApi, data)
+			if (data.lazy) return mintOffChain(ethereum, signNft, nftCollectionApi, nftLazyMintApi, data)
 			return mintErc721v3(ethereum, send, nftCollectionApi, data)
 		}
 		if (isERC721v2Request(data)) {

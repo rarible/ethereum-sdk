@@ -1,7 +1,7 @@
 import type { ContractSendMethod, SendOptions } from "web3-eth-contract"
 import { PromiEvent } from "web3-core"
 import { toBinary, toWord, toAddress } from "@rarible/types"
-import { GatewayControllerApi } from "@rarible/protocol-api-client"
+import { GatewayControllerApi } from "@rarible/ethereum-api-client"
 import { EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 
 export type SendFunction = (
@@ -16,6 +16,13 @@ export async function send(
 	const tx = await functionCall.send(options)
 	await createPendingLogs(api, tx)
 	return tx
+}
+
+export async function simpleSend(
+	functionCall: EthereumFunctionCall,
+	options?: EthereumSendOptions,
+) {
+	return functionCall.send(options)
 }
 
 export async function createPendingLogs(api: GatewayControllerApi, tx: EthereumTransaction) {

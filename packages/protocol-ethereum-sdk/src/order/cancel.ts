@@ -1,24 +1,44 @@
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
-import { Address } from "@rarible/protocol-api-client"
+import { Address, CryptoPunksAssetType } from "@rarible/ethereum-api-client"
 import { ExchangeAddresses } from "../config/type"
-import { orderToStruct, SimpleLegacyOrder, SimpleOrder, SimpleRaribleV2Order } from "./sign-order"
+import { toVrs } from "../common/to-vrs"
+import { createCryptoPunksMarketContract } from "../nft/contracts/cryptoPunks"
+import { Maybe } from "../common/maybe"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
-import { toStructLegacyOrderKey } from "./to-struct-legacy-order"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
+import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
+import { toStructLegacyOrderKey } from "./fill-order/rarible-v1"
+import { getAtomicMatchArgAddresses, getAtomicMatchArgUints } from "./fill-order/open-sea"
+import {
+	SimpleCryptoPunkOrder,
+	SimpleLegacyOrder,
+	SimpleOpenSeaV1Order,
+	SimpleOrder,
+	SimpleRaribleV2Order,
+} from "./types"
+import { orderToStruct } from "./sign-order"
+import { convertOpenSeaOrderToDTO } from "./fill-order/open-sea-converter"
+import { CheckLazyOrderPart } from "./check-lazy-order"
 
 export async function cancel(
-	ethereum: Ethereum,
+	checkLazyOrder: <T extends CheckLazyOrderPart>(form: T) => Promise<T>,
+	ethereum: Maybe<Ethereum>,
 	config: ExchangeAddresses,
-	order: SimpleOrder,
+	orderToCheck: SimpleOrder,
 ): Promise<EthereumTransaction> {
+	if (!ethereum) {
+		throw new Error("Wallet undefined")
+	}
+	const order = await checkLazyOrder(orderToCheck)
 	switch (order.type) {
 		case "RARIBLE_V1":
 			return cancelLegacyOrder(ethereum, config.v1, order)
 		case "RARIBLE_V2":
 			return cancelV2Order(ethereum, config.v2, order)
 		case "OPEN_SEA_V1":
-			//todo implement for opensea + test
-			throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
+			return cancelOpenseaOrderV1(ethereum, config.openseaV1, order)
+		case "CRYPTO_PUNK":
+			return cancelCryptoPunksOrder(ethereum, order)
 		default:
 			throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
 	}
@@ -32,4 +52,43 @@ async function cancelLegacyOrder(ethereum: Ethereum, contract: Address, order: S
 async function cancelV2Order(ethereum: Ethereum, contract: Address, order: SimpleRaribleV2Order) {
 	const v2 = createExchangeV2Contract(ethereum, contract)
 	return v2.functionCall("cancel", orderToStruct(ethereum, order)).send()
+}
+
+export function cancelOpenseaOrderV1(ethereum: Ethereum, contract: Address, order: SimpleOpenSeaV1Order) {
+	const exchangeContract = createOpenseaContract(ethereum, contract)
+
+	const dto = convertOpenSeaOrderToDTO(ethereum, order)
+	const makerVRS = toVrs(order.signature || "0x")
+
+	return exchangeContract.functionCall(
+		"cancelOrder_",
+		getAtomicMatchArgAddresses(dto),
+		getAtomicMatchArgUints(dto),
+		dto.feeMethod,
+		dto.side,
+		dto.saleKind,
+		dto.howToCall,
+		dto.calldata,
+		dto.replacementPattern,
+		dto.staticExtradata,
+		makerVRS.v,
+		makerVRS.r,
+		makerVRS.s,
+	)
+		.send()
+}
+
+export function cancelCryptoPunksOrder(ethereum: Ethereum, order: SimpleCryptoPunkOrder) {
+	if (order.make.assetType.assetClass === "CRYPTO_PUNKS") {
+		return cancelCryptoPunkOrderByAsset(ethereum, order.make.assetType)
+	} else if (order.take.assetType.assetClass === "CRYPTO_PUNKS") {
+		return cancelCryptoPunkOrderByAsset(ethereum, order.take.assetType)
+	} else {
+		throw new Error("Crypto punks asset has not been found")
+	}
+}
+
+export function cancelCryptoPunkOrderByAsset(ethereum: Ethereum, assetType: CryptoPunksAssetType) {
+	const ethContract = createCryptoPunksMarketContract(ethereum, assetType.contract)
+	return ethContract.functionCall("punkNoLongerForSale", assetType.punkId).send()
 }

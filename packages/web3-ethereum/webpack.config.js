@@ -1,4 +1,5 @@
 const path = require("path")
+const webpack = require("webpack")
 
 module.exports = {
 	entry: "./build/index.js",
@@ -10,6 +11,17 @@ module.exports = {
 			type: "umd",
 		},
 	},
+	resolve: {
+		fallback: {
+			"stream": require.resolve("stream-browserify"),
+			"Buffer": require.resolve("buffer"),
+		},
+	},
+	plugins: [
+		new webpack.ProvidePlugin({
+			Buffer: ["buffer", "Buffer"],
+		}),
+	],
 	mode: "production",
 	optimization: {
 		minimize: true,

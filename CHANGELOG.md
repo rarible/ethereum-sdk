@@ -3,6 +3,236 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.4](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.9.3...v0.9.4) (2021-11-01)
+
+
+### Bug Fixes
+
+* made Ethereum optional in createRaribleSdk ([a2d1df0](https://github.com/rarible/protocol-ethereum-sdk/commit/a2d1df03df950566b28e1d571e870a46e1725da6))
+
+
+
+
+
+## [0.9.3](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.9.2...v0.9.3) (2021-10-30)
+
+
+### Bug Fixes
+
+* upgrade action ([2cc6e6b](https://github.com/rarible/protocol-ethereum-sdk/commit/2cc6e6b1127c2116059a8a8c4756bc6a365f2e0e))
+
+
+
+
+
+## [0.9.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.9.1...v0.9.2) (2021-10-29)
+
+
+### Bug Fixes
+
+* fix update bid infinite approval ([79072a6](https://github.com/rarible/protocol-ethereum-sdk/commit/79072a69ea11a7b246baa46dd5c93ab877c96edc))
+
+
+
+
+
+## [0.9.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.9.0...v0.9.1) (2021-10-29)
+
+
+### Bug Fixes
+
+* upgrade deps ([62121f9](https://github.com/rarible/protocol-ethereum-sdk/commit/62121f975bd01d89459db256e328990973e2650f))
+
+
+
+
+
+# [0.9.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.8.1...v0.9.0) (2021-10-29)
+
+
+### Bug Fixes
+
+* royalties and creators optional in Mint requests ([6757bfb](https://github.com/rarible/protocol-ethereum-sdk/commit/6757bfbd9ded6c8cee747154ed8907ea845a25e0))
+
+
+### Features
+
+* deploy sdk methods ([a52c7d1](https://github.com/rarible/protocol-ethereum-sdk/commit/a52c7d19355af831a3c1f287f9be2f3ea8a1a935))
+* new version api client; createCollections update ([6d1dd5e](https://github.com/rarible/protocol-ethereum-sdk/commit/6d1dd5e181479e60c58979b41d8b54fe5a6b7347))
+
+
+
+
+
+## [0.8.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.8.0...v0.8.1) (2021-10-28)
+
+**Note:** Version bump only for package root
+
+
+
+
+
+# [0.8.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.7...v0.8.0) (2021-10-27)
+
+
+### Features
+
+* add bid update function ([0d28b8f](https://github.com/rarible/protocol-ethereum-sdk/commit/0d28b8f2e8138b0ceb67c92b4564c009dc1712cc))
+* add sell order updating ([ecf7ef8](https://github.com/rarible/protocol-ethereum-sdk/commit/ecf7ef8cd5a98d7ad250343b9c5cf62c72078f4f))
+
+
+
+
+
+## [0.7.7](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.6...v0.7.7) (2021-10-22)
+
+
+### Bug Fixes
+
+* use infinite approval for bids ([aba6886](https://github.com/rarible/protocol-ethereum-sdk/commit/aba68864c03f518faf151ab2e8b4b09b97f72be2))
+
+
+
+
+
+## [0.7.6](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.5...v0.7.6) (2021-10-19)
+
+
+### Bug Fixes
+
+* v value fix for some signatures ([06e4e76](https://github.com/rarible/protocol-ethereum-sdk/commit/06e4e769b03ccf69e12f79f964f83107af914f59))
+
+
+
+
+
+## [0.7.5](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.4...v0.7.5) (2021-10-15)
+
+**Note:** Version bump only for package root
+
+
+
+
+
+## [0.7.4](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.3...v0.7.4) (2021-10-14)
+
+
+### Bug Fixes
+
+* upgrade action ([6508d81](https://github.com/rarible/protocol-ethereum-sdk/commit/6508d811ca9c64937ae98b777b8bf18809a7be8b))
+
+
+
+
+
+## [0.7.3](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.2...v0.7.3) (2021-10-14)
+
+
+### Bug Fixes
+
+* **MP-1763:** fix incorrect first transfer for lazy NFTs ([9bc08f6](https://github.com/rarible/protocol-ethereum-sdk/commit/9bc08f6192e62af8b9061c23bd1116d28c45087a))
+
+
+
+
+
+## [0.7.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.1...v0.7.2) (2021-10-13)
+
+
+### Bug Fixes
+
+* **MP-1738:** handle cancel of lazy nfts sales ([5b5404f](https://github.com/rarible/protocol-ethereum-sdk/commit/5b5404f9bd568c997e09682604221ea4c97fcfda))
+
+
+
+
+
+## [0.7.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.7.0...v0.7.1) (2021-10-13)
+
+
+### Bug Fixes
+
+* getBaseOrderFee - default order type ([feeb703](https://github.com/rarible/protocol-ethereum-sdk/commit/feeb703795b1666da2c404a49284343295313cd4))
+
+
+
+
+
+# [0.7.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.6.3...v0.7.0) (2021-10-13)
+
+
+### Features
+
+* improve getBaseOrderFee: set default order type version ([298ba1d](https://github.com/rarible/protocol-ethereum-sdk/commit/298ba1dba16ab0c06c21b59e868160dfb52fdc0e))
+
+
+
+
+
+## [0.6.3](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.6.2...v0.6.3) (2021-10-13)
+
+
+### Bug Fixes
+
+* better isNft type, export helpers from index ([595cb4a](https://github.com/rarible/protocol-ethereum-sdk/commit/595cb4a16b343dc13d033df12ecad02c4f58652c))
+
+
+
+
+
+## [0.6.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.6.1...v0.6.2) (2021-10-11)
+
+
+### Bug Fixes
+
+* **MP-1742:** add salt to bid/sell request ([0b65e3d](https://github.com/rarible/protocol-ethereum-sdk/commit/0b65e3d100a0588359019b6590be693774545209))
+
+
+
+
+
+## [0.6.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.6.0...v0.6.1) (2021-10-11)
+
+**Note:** Version bump only for package root
+
+
+
+
+
+# [0.6.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.5.4...v0.6.0) (2021-10-07)
+
+
+### Features
+
+* add test desc ([cfb2ac1](https://github.com/rarible/protocol-ethereum-sdk/commit/cfb2ac1f2fbfbbe28708b800fb5541187807a2b4))
+
+
+
+
+
+## [0.5.4](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.5.3...v0.5.4) (2021-10-07)
+
+
+### Bug Fixes
+
+* check lazy asset type ERC-1155 ([6714ea6](https://github.com/rarible/protocol-ethereum-sdk/commit/6714ea668402860f0c5f8e551708caf94b35f782))
+
+
+
+
+
+## [0.5.3](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.5.2...v0.5.3) (2021-10-05)
+
+
+### Bug Fixes
+
+* get rid of getMakeFee, fix base order fee ([fe1a206](https://github.com/rarible/protocol-ethereum-sdk/commit/fe1a206a43c25ee422f12cc516aff2c3e1e27b95))
+* refactor fill-order, simplify ([575cea6](https://github.com/rarible/protocol-ethereum-sdk/commit/575cea6466f4372d27a9c9b3177d99f6ae9c875c))
+
+
+
+
+
 ## [0.5.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.5.1...v0.5.2) (2021-09-29)
 
 

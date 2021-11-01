@@ -1,17 +1,27 @@
-import type { BigNumber, Binary, NftCollectionControllerApi, NftLazyMintControllerApi } from "@rarible/protocol-api-client"
+import type {
+	BigNumber,
+	Binary,
+	NftCollectionControllerApi,
+	NftLazyMintControllerApi,
+} from "@rarible/ethereum-api-client"
 import { toBigNumber } from "@rarible/types"
+import { Ethereum } from "@rarible/ethereum-provider"
+import { Part } from "@rarible/ethereum-api-client"
 import type { SimpleLazyNft } from "./sign-nft"
 import { getTokenId } from "./get-token-id"
 import { ERC1155RequestV2, ERC721RequestV3, MintOffChainResponse, MintResponseTypeEnum } from "./mint"
+import { getCreators } from "./mint-on-chain"
 
 export async function mintOffChain(
+	ethereum: Ethereum,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	nftLazyMintApi: NftLazyMintControllerApi,
 	data: ERC721RequestV3 | ERC1155RequestV2
 ): Promise<MintOffChainResponse> {
-	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, data.creators[0].account, data.nftTokenId)
-	const mintData = getMintOffChainData(data, tokenId)
+	const creators = await getCreators(data, ethereum)
+	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, creators[0].account, data.nftTokenId)
+	const mintData = getMintOffChainData(data, creators, tokenId)
 	const minted = await nftLazyMintApi.mintNftAsset({
 		lazyNft: Object.assign({}, mintData, {
 			tokenId,
@@ -21,19 +31,19 @@ export async function mintOffChain(
 	return {
 		type: MintResponseTypeEnum.OFF_CHAIN,
 		item: minted,
-		owner: data.creators[0].account,
+		owner: creators[0].account,
 		tokenId,
 		contract: minted.contract,
 		itemId: `${minted.contract}:${tokenId}`,
 	}
 }
 
-function getMintOffChainData(data: ERC721RequestV3 | ERC1155RequestV2, tokenId: BigNumber): SimpleLazyNft<"signatures"> {
+function getMintOffChainData(data: ERC721RequestV3 | ERC1155RequestV2, creators: Part[], tokenId: BigNumber): SimpleLazyNft<"signatures"> {
 	const base = {
 		contract: data.collection.id,
 		uri: data.uri,
-		royalties: data.royalties,
-		creators: data.creators,
+		royalties: data.royalties || [],
+		creators,
 		tokenId,
 	}
 	if ("supply" in data) {

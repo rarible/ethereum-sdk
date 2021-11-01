@@ -1,7 +1,7 @@
 import { Ethereum } from "@rarible/ethereum-provider"
 import { keccak256 } from "ethereumjs-util"
 import { toLegacyAssetType } from "./to-legacy-asset-type"
-import { SimpleOrder } from "./sign-order"
+import { SimpleOrder } from "./types"
 
 export function hashLegacyOrder(ethereum: Ethereum, order: SimpleOrder): string {
 	if (order.type !== "RARIBLE_V1") {

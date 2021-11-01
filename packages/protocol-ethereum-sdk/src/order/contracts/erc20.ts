@@ -1,4 +1,4 @@
-import { Address } from "@rarible/protocol-api-client"
+import { Address } from "@rarible/ethereum-api-client"
 import { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
 import { AbiItem } from "../../common/abi-item"
 

@@ -1,31 +1,23 @@
-import { Asset, Binary, EIP712Domain, LegacyOrder, OpenSeaV1Order, RaribleV2Order } from "@rarible/protocol-api-client"
+import { Asset, Binary, EIP712Domain } from "@rarible/ethereum-api-client"
 import { Address, toBinary, ZERO_ADDRESS } from "@rarible/types"
-import { Ethereum, signTypedData } from "@rarible/ethereum-provider"
+import { Ethereum } from "@rarible/ethereum-provider"
+import { TypedDataUtils } from "eth-sig-util"
 import { Config } from "../config/type"
+import { Maybe } from "../common/maybe"
 import { hashLegacyOrder } from "./hash-legacy-order"
 import { assetTypeToStruct } from "./asset-type-to-struct"
 import { EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES } from "./eip712"
 import { encodeData } from "./encode-data"
-
-export type SimpleLegacyOrder =
-	Pick<LegacyOrder, "data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature">
-
-export type SimpleRaribleV2Order =
-	Pick<RaribleV2Order, "data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature">
-
-export type SimpleOpenSeaV1Order =
-	Pick<OpenSeaV1Order, "data" | "maker" | "taker" | "make" | "take" | "salt" | "start" | "end" | "type" | "signature">
-
-export type SimpleOrder =
-	SimpleLegacyOrder |
-	SimpleRaribleV2Order |
-	SimpleOpenSeaV1Order
+import { SimpleOrder, SimpleRaribleV2Order } from "./types"
 
 export async function signOrder(
-	ethereum: Ethereum,
+	ethereum: Maybe<Ethereum>,
 	config: Pick<Config, "exchange" | "chainId">,
 	order: SimpleOrder
 ): Promise<Binary> {
+	if (!ethereum) {
+		throw new Error("Wallet undefined")
+	}
 	switch (order.type) {
 		case "RARIBLE_V1": {
 			const legacyHash = hashLegacyOrder(ethereum, order)
@@ -33,7 +25,7 @@ export async function signOrder(
 		}
 		case "RARIBLE_V2": {
 			const domain = createEIP712Domain(config.chainId, config.exchange.v2)
-			const signature = await signTypedData(ethereum, {
+			const signature = await ethereum.signTypedData({
 				primaryType: EIP712_ORDER_TYPE,
 				domain,
 				types: EIP712_ORDER_TYPES,
@@ -42,9 +34,19 @@ export async function signOrder(
 			return toBinary(signature)
 		}
 		default: {
-			throw new Error(`Unsupported order type: ${order.type}`)
+			throw new Error(`Unsupported order type: ${(order as any).type}`)
 		}
 	}
+}
+
+export function hashToSign(config: Pick<Config, "exchange" | "chainId">, ethereum: Ethereum, order: SimpleRaribleV2Order) {
+	const domain = createEIP712Domain(config.chainId, config.exchange.v2)
+	return TypedDataUtils.sign({
+		primaryType: EIP712_ORDER_TYPE,
+		domain,
+		types: EIP712_ORDER_TYPES,
+		message: orderToStruct(ethereum, order),
+	})
 }
 
 function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712Domain {
@@ -55,8 +57,8 @@ function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712
 	}
 }
 
-export function orderToStruct(ethereum: Ethereum, order: SimpleRaribleV2Order) {
-	const [dataType, data] = encodeData(ethereum, order.data)
+export function orderToStruct(ethereum: Ethereum, order: SimpleRaribleV2Order, wrongEncode: Boolean = false): any {
+	const [dataType, data] = encodeData(ethereum, order.data, wrongEncode)
 	return {
 		maker: order.maker,
 		makeAsset: assetToStruct(ethereum, order.make),

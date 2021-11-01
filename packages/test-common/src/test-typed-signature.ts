@@ -1,4 +1,4 @@
-import { Ethereum, signTypedData } from "@rarible/ethereum-provider"
+import { Ethereum } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import * as sigUtil from "eth-sig-util"
 import { MessageTypes } from "packages/ethereum-provider/build/domain"
@@ -45,7 +45,7 @@ export async function testTypedSignature(eth: Ethereum) {
 		types,
 		message,
 	}
-	const signature = await signTypedData(eth, data)
+	const signature = await eth.signTypedData(data)
 	expect(signature).toBe("0xcdb06d43817c98f1aefb9e3ecdfc45c35a07795b89f15930913e9150442b157f7fb5b37ae49e3c8674857660c16f7512f140ed4594e6d426f4db5fae57701d491b")
 	const result = sigUtil.recoverTypedSignature_v4({
 		data,

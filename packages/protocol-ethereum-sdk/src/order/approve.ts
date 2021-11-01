@@ -1,16 +1,18 @@
-import { Address, Asset } from "@rarible/protocol-api-client"
+import { Address, Asset } from "@rarible/ethereum-api-client"
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { TransferProxies } from "../config/type"
 import { SendFunction } from "../common/send-transaction"
+import { Maybe } from "../common/maybe"
 import { approveErc20 } from "./approve-erc20"
 import { approveErc721 } from "./approve-erc721"
 import { approveErc1155 } from "./approve-erc1155"
+import { approveCryptoPunk } from "./approve-crypto-punk"
 
 export type ApproveFunction =
 	(owner: Address, asset: Asset, infinite: undefined | boolean) => Promise<EthereumTransaction | undefined>
 
 export async function approve(
-	ethereum: Ethereum,
+	ethereum: Maybe<Ethereum>,
 	send: SendFunction,
 	config: TransferProxies,
 	owner: Address,
@@ -41,6 +43,11 @@ export async function approve(
 			const contract = asset.assetType.contract
 			const operator = config.erc1155Lazy
 			return approveErc1155(ethereum, send, contract, owner, operator)
+		}
+		case "CRYPTO_PUNKS": {
+			const contract = asset.assetType.contract
+			const operator = config.cryptoPunks
+			return approveCryptoPunk(ethereum, send, contract, owner, operator, asset.assetType.punkId)
 		}
 		default: return undefined
 	}

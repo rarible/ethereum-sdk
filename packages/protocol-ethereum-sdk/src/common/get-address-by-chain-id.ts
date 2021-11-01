@@ -1,4 +1,4 @@
-import { Address } from "@rarible/protocol-api-client"
+import { Address } from "@rarible/ethereum-api-client"
 
 export function getAddressByChainId(map: Record<number, Address>, chainId: number): Address {
 	const result = map[chainId]

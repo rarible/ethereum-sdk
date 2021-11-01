@@ -1,9 +1,11 @@
-import { Address, Asset, OrderForm } from "@rarible/protocol-api-client"
+import type { Address, Asset, AssetType, Erc1155LazyAssetType, Erc721LazyAssetType, OrderForm } from "@rarible/ethereum-api-client"
 
-export async function checkLazyOrder(
+export type CheckLazyOrderPart = Pick<OrderForm, "make" | "take" | "maker">
+
+export async function checkLazyOrder<T extends CheckLazyOrderPart>(
 	checkLazyAsset: (asset: Asset) => Promise<Asset>,
-	form: OrderForm
-): Promise<OrderForm> {
+	form: T,
+): Promise<T> {
 	const make = await checkLazyMakeAsset(checkLazyAsset, form.make, form.maker)
 	const take = await checkLazyAsset(form.take)
 	return {
@@ -19,12 +21,12 @@ async function checkLazyMakeAsset(
 	maker: Address
 ): Promise<Asset> {
 	const make = await checkLazyAsset(asset)
-	if (
-		(make.assetType.assetClass === "ERC1155_LAZY" || make.assetType.assetClass === "ERC721_LAZY") &&
-		make.assetType.creators[0].account === maker
-	) {
+	if (isLazyAsset(make.assetType) && make.assetType.creators[0].account === maker) {
 		return make
-	} else {
-		return asset
 	}
+	return asset
+}
+
+function isLazyAsset(x: AssetType): x is Erc721LazyAssetType | Erc1155LazyAssetType {
+	return x.assetClass === "ERC1155_LAZY" || x.assetClass === "ERC721_LAZY"
 }

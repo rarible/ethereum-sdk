@@ -1,4 +1,4 @@
-import type { Address, NftItemControllerApi } from "@rarible/protocol-api-client"
+import type { Address, NftItemControllerApi } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { BigNumber } from "@rarible/types"
 import type { SendFunction } from "../common/send-transaction"
@@ -24,8 +24,10 @@ export async function transferNftLazy(
 		uri: lazyNft.uri,
 		creators: lazyNft.creators,
 		royalties: lazyNft.royalties,
-		supply: amount,
 		signatures: lazyNft.signatures,
+	}
+	if (lazyNft["@type"] === "ERC1155") {
+		(params as any).supply = lazyNft.supply
 	}
 	switch (lazyNft["@type"]) {
 		case "ERC721": {

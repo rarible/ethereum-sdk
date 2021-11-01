@@ -1,4 +1,4 @@
-import { AssetType, NftItemControllerApi } from "@rarible/protocol-api-client"
+import { AssetType, NftItemControllerApi } from "@rarible/ethereum-api-client"
 
 export async function checkLazyAssetType(itemApi: NftItemControllerApi, type: AssetType): Promise<AssetType> {
 	switch (type.assetClass) {
@@ -21,7 +21,7 @@ export async function checkLazyAssetType(itemApi: NftItemControllerApi, type: As
 					case "ERC1155": {
 						return {
 							...lazy,
-							assetClass: "ERC721_LAZY",
+							assetClass: "ERC1155_LAZY",
 						}
 					}
 					default: return type

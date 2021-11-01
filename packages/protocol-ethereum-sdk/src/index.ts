@@ -1,24 +1,49 @@
-import { Address, Configuration, ConfigurationParameters, GatewayControllerApi, NftCollectionControllerApi, NftItemControllerApi, NftLazyMintControllerApi, NftOwnershipControllerApi, OrderActivityControllerApi, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
+import {
+	Address,
+	Configuration,
+	ConfigurationParameters,
+	GatewayControllerApi,
+	NftCollectionControllerApi,
+	NftItemControllerApi,
+	NftLazyMintControllerApi,
+	NftOwnershipControllerApi,
+	OrderActivityControllerApi,
+	OrderControllerApi,
+	OrderForm,
+} from "@rarible/ethereum-api-client"
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
-import { getBaseOrderFee } from "./order/get-base-order-fee"
-import { getBaseOrderFillFee } from "./order/get-base-order-fill-fee"
 import { CONFIGS } from "./config"
-import { upsertOrder as upsertOrderTemplate, UpsertOrderAction } from "./order/upsert-order"
+import { UpsertOrder, UpsertOrderAction } from "./order/upsert-order"
 import { approve as approveTemplate } from "./order/approve"
-import { sell as sellTemplate, SellRequest } from "./order/sell"
-import { signOrder as signOrderTemplate, SimpleOrder } from "./order/sign-order"
-import { fillOrder, FillOrderAction, FillOrderRequest } from "./order/fill-order"
-import { bid as bidTemplate, BidRequest } from "./order/bid"
-import { checkLazyAsset as checkLazyAssetTemplate, checkLazyAssetType as checkLazyAssetTypeTemplate, checkLazyOrder as checkLazyOrderTemplate } from "./order"
+import { OrderSell, SellOrderAction, SellOrderUpdateAction } from "./order/sell"
+import { signOrder as signOrderTemplate } from "./order/sign-order"
+import { BidOrderAction, BidUpdateOrderAction, OrderBid } from "./order/bid"
+import {
+	checkLazyAsset as checkLazyAssetTemplate,
+	checkLazyAssetType as checkLazyAssetTypeTemplate,
+	checkLazyOrder as checkLazyOrderTemplate,
+	CheckLazyOrderPart,
+} from "./order"
 import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
 import { mint as mintTemplate, MintOffChainResponse, MintOnChainResponse, MintRequest } from "./nft/mint"
 import { transfer as transferTemplate, TransferAsset } from "./nft/transfer"
 import { signNft as signNftTemplate } from "./nft/sign-nft"
-import { getMakeFee as getMakeFeeTemplate } from "./order/get-make-fee"
 import { burn as burnTemplate, BurnAsset } from "./nft/burn"
 import { send as sendTemplate } from "./common/send-transaction"
 import { cancel as cancelTemplate } from "./order/cancel"
+import { FillOrderAction } from "./order/fill-order/types"
+import { SimpleOrder } from "./order/types"
+import { RaribleV1OrderHandler } from "./order/fill-order/rarible-v1"
+import { OrderFiller } from "./order/fill-order"
+import { RaribleV2OrderHandler } from "./order/fill-order/rarible-v2"
+import { OpenSeaOrderHandler } from "./order/fill-order/open-sea"
+import { CryptoPunksOrderHandler } from "./order/fill-order/crypto-punks"
+import { getBaseOrderFee as getBaseOrderFeeTemplate } from "./order/get-base-order-fee"
+import { DeployErc721 } from "./nft/deploy-erc721"
+import { DeployErc1155 } from "./nft/deploy-erc1155"
+import { DeployNft } from "./common/deploy"
+import { Maybe } from "./common/maybe"
 
 export interface RaribleApis {
 	nftItem: NftItemControllerApi
@@ -32,32 +57,42 @@ export interface RaribleOrderSdk {
 	/**
 	 * Sell asset (create off-chain order and check if approval is needed)
 	 */
-	sell(request: SellRequest): Promise<UpsertOrderAction>
+	sell: SellOrderAction
+
+	/**
+	 * Update price in existing sell order (with approval checking)
+	 */
+	sellUpdate: SellOrderUpdateAction
 
 	/**
 	 * Create bid (create off-chain order and check if approval is needed)
 	 */
-	bid(request: BidRequest): Promise<UpsertOrderAction>
+	bid: BidOrderAction
+
+	/**
+	 * Update price in existing bid order (with approval checking)
+	 */
+	bidUpdate: BidUpdateOrderAction
 
 	/**
 	 * Fill order (buy or accept bid - depending on the order type)
 	 *
 	 * @param request order and parameters (amount to fill, fees etc)
 	 */
-	fill(request: FillOrderRequest): Promise<FillOrderAction>
+	fill: FillOrderAction
 
 	/**
 	 * Sell or create bid. Low-level method
 	 */
-	upsertOrder(order: OrderForm, infinite?: (boolean | undefined)): Promise<UpsertOrderAction>
+	upsert: UpsertOrderAction
 
 	/**
-	 * Get base fee (this fee will be hold by the processing platform)
+	 * Get base fee (this fee will be hold by the processing platform - in basis points)
 	 */
-	getBaseOrderFee(order: OrderForm): Promise<number>
+	getBaseOrderFee(type?: OrderForm["type"]): Promise<number>
 
 	/**
-	 * Get base fee for filling an order (this fee will be hold by the processing platform)
+	 * Get base fee for filling an order (this fee will be hold by the processing platform - in basis points)
 	 */
 	getBaseOrderFillFee(order: SimpleOrder): Promise<number>
 
@@ -86,6 +121,8 @@ export interface RaribleNftSdk {
 	 * @param amount amount to burn for Erc1155 token
 	 */
 	burn(asset: BurnAsset, amount?: BigNumber): Promise<EthereumTransaction>
+
+	deploy: DeployNft
 }
 
 export interface RaribleSdk {
@@ -94,8 +131,9 @@ export interface RaribleSdk {
 	apis: RaribleApis
 }
 
+// noinspection JSUnusedGlobalSymbols
 export function createRaribleSdk(
-	ethereum: Ethereum, env: keyof typeof CONFIGS, configurationParameters?: ConfigurationParameters,
+	ethereum: Maybe<Ethereum>, env: keyof typeof CONFIGS, configurationParameters?: ConfigurationParameters,
 ): RaribleSdk {
 	const config = CONFIGS[env]
 	const apiConfiguration = new Configuration({
@@ -115,18 +153,32 @@ export function createRaribleSdk(
 
 	const checkLazyAssetType = partialCall(checkLazyAssetTypeTemplate, nftItemControllerApi)
 	const checkLazyAsset = partialCall(checkLazyAssetTemplate, checkLazyAssetType)
-	const checkLazyOrder = partialCall(checkLazyOrderTemplate, checkLazyAsset)
+	const checkLazyOrder: <T extends CheckLazyOrderPart>(form: T) => Promise<T> =
+		checkLazyOrderTemplate.bind(null, checkLazyAsset) as any
 	const checkAssetType = partialCall(checkAssetTypeTemplate, nftCollectionControllerApi)
+
+	const filler = new OrderFiller(
+		ethereum,
+		new RaribleV1OrderHandler(ethereum, orderControllerApi, send, config),
+		new RaribleV2OrderHandler(ethereum, send, config),
+		new OpenSeaOrderHandler(ethereum, send, config),
+		new CryptoPunksOrderHandler(ethereum, send, config)
+	)
 
 	const approve = partialCall(approveTemplate, ethereum, send, config.transferProxies)
 	const signOrder = partialCall(signOrderTemplate, ethereum, config)
-	const getMakeFee = partialCall(getMakeFeeTemplate, config.fees)
-	const upsertOrder = partialCall(
-		upsertOrderTemplate, getMakeFee, checkLazyOrder, approve, signOrder, orderControllerApi,
+
+	const upsertService = new UpsertOrder(
+		filler,
+		checkLazyOrder,
+		approve,
+		signOrder,
+		orderControllerApi,
+		ethereum
 	)
-	const sell = partialCall(sellTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
-	const bid = partialCall(bidTemplate, nftItemControllerApi, upsertOrder, checkAssetType)
-	const fill = partialCall(fillOrder, getMakeFee, ethereum, send, orderControllerApi, approve, config.exchange)
+
+	const sellService = new OrderSell(upsertService, checkAssetType)
+	const bidService = new OrderBid(upsertService, checkAssetType)
 
 	const signNft = partialCall(signNftTemplate, ethereum, config.chainId)
 	const mint = partialCall(mintTemplate, ethereum, send, signNft, nftCollectionControllerApi, nftLazyMintControllerApi)
@@ -134,7 +186,11 @@ export function createRaribleSdk(
 		transferTemplate, ethereum, send, checkAssetType, nftItemControllerApi, nftOwnershipControllerApi
 	)
 	const burn = partialCall(burnTemplate, ethereum, send, checkAssetType, nftOwnershipControllerApi)
-	const cancel = partialCall(cancelTemplate, ethereum, config.exchange)
+	const cancel = partialCall(cancelTemplate, checkLazyOrder, ethereum, config.exchange)
+	const getBaseOrderFee = getBaseOrderFeeTemplate.bind(null, config)
+
+	const deployErc721 = new DeployErc721(ethereum, send, config)
+	const deployErc1155 = new DeployErc1155(ethereum, send, config)
 
 	return {
 		apis: {
@@ -145,18 +201,24 @@ export function createRaribleSdk(
 			nftCollection: nftCollectionControllerApi,
 		},
 		order: {
-			sell,
-			fill,
-			bid,
-			upsertOrder,
+			sell: sellService.sell,
+			sellUpdate: sellService.update,
+			fill: filler.fill,
+			bid: bidService.bid,
+			bidUpdate: bidService.update,
+			upsert: upsertService.upsert,
 			cancel,
 			getBaseOrderFee,
-			getBaseOrderFillFee,
+			getBaseOrderFillFee: filler.getBaseOrderFillFee,
 		},
 		nft: {
 			mint,
 			transfer,
 			burn,
+			deploy: {
+				erc721: deployErc721,
+				erc1155: deployErc1155,
+			},
 		},
 	}
 }
@@ -176,3 +238,7 @@ export {
 	isErc1155v1Collection,
 	isErc721v1Collection,
 } from "./nft/mint"
+export * from "./order/is-nft"
+export * from "./common/get-ownership-id"
+export * from "./common/parse-item-id"
+export * from "./common/parse-ownership-id"

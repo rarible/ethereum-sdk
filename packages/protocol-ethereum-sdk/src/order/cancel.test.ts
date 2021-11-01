@@ -2,17 +2,19 @@ import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber } from "@rarible/types"
-import { Configuration, OrderControllerApi, OrderForm } from "@rarible/protocol-api-client"
+import { Configuration, OrderControllerApi, OrderForm } from "@rarible/ethereum-api-client"
 import { E2E_CONFIG } from "../config/e2e"
 import { getApiConfig } from "../config/api-config"
 import { retry } from "../common/retry"
 import { cancel } from "./cancel"
 import { signOrder } from "./sign-order"
-import { upsertOrder } from "./upsert-order"
-import { getMakeFee } from "./get-make-fee"
+import { UpsertOrder } from "./upsert-order"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
+import { RaribleV2OrderHandler } from "./fill-order/rarible-v2"
+import { OrderFiller } from "./fill-order"
+import { RaribleV1OrderHandler } from "./fill-order/rarible-v1"
 
 const { provider, wallet } = createE2eProvider()
 const web3 = new Web3(provider)
@@ -21,9 +23,12 @@ const approve = () => Promise.resolve(undefined)
 const sign = signOrder.bind(null, ethereum, E2E_CONFIG)
 const configuration = new Configuration(getApiConfig("e2e"))
 const orderApi = new OrderControllerApi(configuration)
-const makeFee = getMakeFee.bind(null, { v2: 0 })
 
 describe("cancel order", () => {
+	const v1Handler = new RaribleV1OrderHandler(null as any, orderApi, null as any, E2E_CONFIG)
+	const v2Handler = new RaribleV2OrderHandler(null as any, null as any, E2E_CONFIG)
+	const orderService = new OrderFiller(null as any, v1Handler, v2Handler, null as any, null as any)
+
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
 		testErc721: deployTestErc721(web3, "Test", "TST"),
@@ -74,11 +79,19 @@ describe("cancel order", () => {
 	})
 
 	async function testOrder(form: OrderForm) {
-		const checkLazyOrder = async () => Promise.resolve(form)
-		const a = await upsertOrder(makeFee, checkLazyOrder, approve, sign, orderApi, form)
-		const order = await a.build().runAll()
+		const checkLazyOrder: any = async (form: any) => Promise.resolve(form)
+		const upserter = new UpsertOrder(
+			orderService,
+			checkLazyOrder as any,
+			approve,
+			sign,
+			orderApi,
+			ethereum
+		)
 
-		const tx = await cancel(ethereum, E2E_CONFIG.exchange, order)
+		const order = await upserter.upsert.start({ order: form }).runAll()
+
+		const tx = await cancel(checkLazyOrder, ethereum, E2E_CONFIG.exchange, order)
 		await tx.wait()
 
 		await retry(15, async () => {

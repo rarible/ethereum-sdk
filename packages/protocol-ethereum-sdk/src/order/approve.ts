@@ -2,6 +2,7 @@ import { Address, Asset } from "@rarible/ethereum-api-client"
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { TransferProxies } from "../config/type"
 import { SendFunction } from "../common/send-transaction"
+import { Maybe } from "../common/maybe"
 import { approveErc20 } from "./approve-erc20"
 import { approveErc721 } from "./approve-erc721"
 import { approveErc1155 } from "./approve-erc1155"
@@ -11,7 +12,7 @@ export type ApproveFunction =
 	(owner: Address, asset: Asset, infinite: undefined | boolean) => Promise<EthereumTransaction | undefined>
 
 export async function approve(
-	ethereum: Ethereum,
+	ethereum: Maybe<Ethereum>,
 	send: SendFunction,
 	config: TransferProxies,
 	owner: Address,

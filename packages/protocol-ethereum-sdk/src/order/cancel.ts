@@ -3,6 +3,7 @@ import { Address, CryptoPunksAssetType } from "@rarible/ethereum-api-client"
 import { ExchangeAddresses } from "../config/type"
 import { toVrs } from "../common/to-vrs"
 import { createCryptoPunksMarketContract } from "../nft/contracts/cryptoPunks"
+import { Maybe } from "../common/maybe"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
@@ -21,10 +22,13 @@ import { CheckLazyOrderPart } from "./check-lazy-order"
 
 export async function cancel(
 	checkLazyOrder: <T extends CheckLazyOrderPart>(form: T) => Promise<T>,
-	ethereum: Ethereum,
+	ethereum: Maybe<Ethereum>,
 	config: ExchangeAddresses,
 	orderToCheck: SimpleOrder,
 ): Promise<EthereumTransaction> {
+	if (!ethereum) {
+		throw new Error("Wallet undefined")
+	}
 	const order = await checkLazyOrder(orderToCheck)
 	switch (order.type) {
 		case "RARIBLE_V1":

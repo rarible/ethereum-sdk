@@ -8,13 +8,14 @@ import { SendFunction } from "../../common/send-transaction"
 import { waitTx } from "../../common/wait-tx"
 import { SimpleCryptoPunkOrder } from "../types"
 import { createCryptoPunksMarketContract } from "../../nft/contracts/cryptoPunks"
+import { Maybe } from "../../common/maybe"
 import { invertOrder } from "./invert-order"
 import { CryptoPunksOrderFillRequest, OrderHandler } from "./types"
 
 export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFillRequest> {
 
 	constructor(
-		readonly ethereum: Ethereum,
+		readonly ethereum: Maybe<Ethereum>,
 		readonly send: SendFunction,
 		readonly config: Config,
 	) {
@@ -29,6 +30,9 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 	}
 
 	async approve(order: SimpleCryptoPunkOrder, infinite: boolean): Promise<void> {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
 		const withFee = this.getMakeAssetWithFee(order)
 		await waitTx(approve(this.ethereum, this.send, this.config.transferProxies, order.maker, withFee, infinite))
 	}
@@ -41,6 +45,9 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 	}
 
 	getPunkOrderCallMethod(initial: SimpleCryptoPunkOrder): EthereumFunctionCall {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
 		if (initial.make.assetType.assetClass === "CRYPTO_PUNKS") {
 			// Call "buyPunk" if makeAsset=cryptoPunk
 			const contract = createCryptoPunksMarketContract(this.ethereum, initial.make.assetType.contract)

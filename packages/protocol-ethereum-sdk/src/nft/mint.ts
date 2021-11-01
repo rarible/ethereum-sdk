@@ -1,16 +1,17 @@
 import type {
 	Address,
-	Binary,
-	NftCollectionControllerApi,
-	NftLazyMintControllerApi,
-	Part,
-	NftItem,
-	NftCollection,
 	BigNumber,
+	Binary,
+	NftCollection,
+	NftCollectionControllerApi,
+	NftItem,
+	NftLazyMintControllerApi,
 	NftTokenId,
+	Part,
 } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { SendFunction } from "../common/send-transaction"
+import { Maybe } from "../common/maybe"
 import { mintOffChain } from "./mint-off-chain"
 import { mintErc1155v1, mintErc1155v2, mintErc721v1, mintErc721v2, mintErc721v3 } from "./mint-on-chain"
 import type { SimpleLazyNft } from "./sign-nft"
@@ -85,13 +86,16 @@ export type MintOnChainResponse = MintResponseCommon & {
 }
 
 export function mint(
-	ethereum: Ethereum,
+	ethereum: Maybe<Ethereum>,
 	send: SendFunction,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	nftLazyMintApi: NftLazyMintControllerApi,
 	data: MintRequest
 ): Promise<MintOffChainResponse | MintOnChainResponse> {
+	if (!ethereum) {
+		throw new Error("Wallet undefined")
+	}
 	if (isERC1155Request(data)) {
 		if (isERC1155v2Request(data)) {
 			if (data.lazy) return mintOffChain(ethereum, signNft, nftCollectionApi, nftLazyMintApi, data)

@@ -15,13 +15,14 @@ import { createOpenseaContract } from "../contracts/exchange-opensea-v1"
 import { toVrs } from "../../common/to-vrs"
 import { waitTx } from "../../common/wait-tx"
 import { SimpleOpenSeaV1Order } from "../types"
+import { Maybe } from "../../common/maybe"
 import { OpenSeaOrderDTO } from "./open-sea-types"
 import { OrderHandler, OpenSeaV1OrderFillRequest } from "./types"
 import { convertOpenSeaOrderToDTO } from "./open-sea-converter"
 
 export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillRequest> {
 	constructor(
-		private readonly ethereum: Ethereum,
+		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
 		private readonly config: Config,
 	) {
@@ -87,6 +88,9 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	}
 
 	async sendTransaction(initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order): Promise<EthereumTransaction> {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
 		const { buy, sell } = getBuySellOrders(initial, inverted)
 		const sellOrderToSignDTO = convertOpenSeaOrderToDTO(this.ethereum, sell)
 		const buyOrderToSignDTO = convertOpenSeaOrderToDTO(this.ethereum, buy)
@@ -122,6 +126,9 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		asset: Asset,
 		infinite: undefined | boolean = true,
 	): Promise<EthereumTransaction | undefined> {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
 		switch (asset.assetType.assetClass) {
 			case "ERC20": {
 				const contract = asset.assetType.contract
@@ -144,6 +151,9 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	}
 
 	private async getRegisteredProxy(maker: Address): Promise<Address> {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
 		const proxyRegistry = this.config.openSea.proxyRegistry
 		const proxyRegistryContract = createOpenseaProxyRegistryEthContract(this.ethereum, proxyRegistry)
 		const proxyAddress = await getSenderProxy(proxyRegistryContract, maker)

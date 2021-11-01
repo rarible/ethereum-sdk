@@ -1,4 +1,16 @@
-import { Address, Configuration, ConfigurationParameters, GatewayControllerApi, NftCollectionControllerApi, NftItemControllerApi, NftLazyMintControllerApi, NftOwnershipControllerApi, OrderActivityControllerApi, OrderControllerApi, OrderForm } from "@rarible/ethereum-api-client"
+import {
+	Address,
+	Configuration,
+	ConfigurationParameters,
+	GatewayControllerApi,
+	NftCollectionControllerApi,
+	NftItemControllerApi,
+	NftLazyMintControllerApi,
+	NftOwnershipControllerApi,
+	OrderActivityControllerApi,
+	OrderControllerApi,
+	OrderForm,
+} from "@rarible/ethereum-api-client"
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
 import { CONFIGS } from "./config"
@@ -31,6 +43,7 @@ import { getBaseOrderFee as getBaseOrderFeeTemplate } from "./order/get-base-ord
 import { DeployErc721 } from "./nft/deploy-erc721"
 import { DeployErc1155 } from "./nft/deploy-erc1155"
 import { DeployNft } from "./common/deploy"
+import { Maybe } from "./common/maybe"
 
 export interface RaribleApis {
 	nftItem: NftItemControllerApi
@@ -118,8 +131,9 @@ export interface RaribleSdk {
 	apis: RaribleApis
 }
 
+// noinspection JSUnusedGlobalSymbols
 export function createRaribleSdk(
-	ethereum: Ethereum, env: keyof typeof CONFIGS, configurationParameters?: ConfigurationParameters,
+	ethereum: Maybe<Ethereum>, env: keyof typeof CONFIGS, configurationParameters?: ConfigurationParameters,
 ): RaribleSdk {
 	const config = CONFIGS[env]
 	const apiConfiguration = new Configuration({

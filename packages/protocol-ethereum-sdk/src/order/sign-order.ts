@@ -3,6 +3,7 @@ import { Address, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { TypedDataUtils } from "eth-sig-util"
 import { Config } from "../config/type"
+import { Maybe } from "../common/maybe"
 import { hashLegacyOrder } from "./hash-legacy-order"
 import { assetTypeToStruct } from "./asset-type-to-struct"
 import { EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES } from "./eip712"
@@ -10,10 +11,13 @@ import { encodeData } from "./encode-data"
 import { SimpleOrder, SimpleRaribleV2Order } from "./types"
 
 export async function signOrder(
-	ethereum: Ethereum,
+	ethereum: Maybe<Ethereum>,
 	config: Pick<Config, "exchange" | "chainId">,
 	order: SimpleOrder
 ): Promise<Binary> {
+	if (!ethereum) {
+		throw new Error("Wallet undefined")
+	}
 	switch (order.type) {
 		case "RARIBLE_V1": {
 			const legacyHash = hashLegacyOrder(ethereum, order)

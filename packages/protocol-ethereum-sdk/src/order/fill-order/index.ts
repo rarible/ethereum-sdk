@@ -9,6 +9,7 @@ import {
 	SimpleOrder,
 	SimpleRaribleV2Order,
 } from "../types"
+import { Maybe } from "../../common/maybe"
 import {
 	CryptoPunksOrderFillRequest,
 	FillOrderAction,
@@ -25,7 +26,7 @@ import { CryptoPunksOrderHandler } from "./crypto-punks"
 export class OrderFiller {
 
 	constructor(
-		private readonly ethereum: Ethereum,
+		private readonly ethereum: Maybe<Ethereum>,
 		private readonly v1Handler: RaribleV1OrderHandler,
 		private readonly v2Handler: RaribleV2OrderHandler,
 		private readonly openSeaHandler: OpenSeaOrderHandler,
@@ -38,6 +39,9 @@ export class OrderFiller {
 		.create({
 			id: "approve" as const,
 			run: async (request: FillOrderRequest) => {
+				if (!this.ethereum) {
+					throw new Error("Wallet undefined")
+				}
 				const from = toAddress(await this.ethereum.getFrom())
 				const inverted = await this.invertOrder(request, from)
 				await this.approveOrder(inverted, Boolean(request.infinite))

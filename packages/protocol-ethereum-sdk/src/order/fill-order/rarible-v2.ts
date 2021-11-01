@@ -11,13 +11,14 @@ import { waitTx } from "../../common/wait-tx"
 import { SimpleRaribleV2Order } from "../types"
 import { isSigner } from "../../common/is-signer"
 import { fixSignature } from "../../common/fix-signature"
+import { Maybe } from "../../common/maybe"
 import { invertOrder } from "./invert-order"
 import { OrderHandler, RaribleV2OrderFillRequest } from "./types"
 
 export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillRequest> {
 
 	constructor(
-		readonly ethereum: Ethereum,
+		readonly ethereum: Maybe<Ethereum>,
 		readonly send: SendFunction,
 		readonly config: Config,
 	) {
@@ -34,6 +35,9 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 	}
 
 	async approve(order: SimpleRaribleV2Order, infinite: boolean): Promise<void> {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
 		const withFee = this.getMakeAssetWithFee(order)
 		await waitTx(approve(this.ethereum, this.send, this.config.transferProxies, order.maker, withFee, infinite))
 	}
@@ -41,6 +45,9 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 	async sendTransaction(
 		initial: SimpleRaribleV2Order, inverted: SimpleRaribleV2Order,
 	): Promise<EthereumTransaction> {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
 		const exchangeContract = createExchangeV2Contract(this.ethereum, this.config.exchange.v2)
 		const method = exchangeContract.functionCall(
 			"matchOrders",
@@ -53,6 +60,9 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 	}
 
 	async fixForTx(order: SimpleRaribleV2Order): Promise<any> {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
 		const hash = hashToSign(this.config, this.ethereum, order)
 		const isMakerSigner = await isSigner(this.ethereum, order.maker, hash, order.signature!)
 		return orderToStruct(this.ethereum, order, !isMakerSigner)

@@ -47,7 +47,7 @@ export class OrderSell {
 
 	private async getSellForm(request: SellRequest): Promise<RaribleV2OrderForm> {
 		const price = await this.upserter.getPrice(request, request.takeAssetType)
-		const form = this.upserter.prepareOrderForm(request)
+		const form = await this.upserter.prepareOrderForm(request)
 		return {
 			...form,
 			make: {

@@ -1,7 +1,9 @@
 // noinspection JSCommentMatchesSignature
 
 import {
-	Binary, Erc20AssetType, EthAssetType,
+	Binary,
+	Erc20AssetType,
+	EthAssetType,
 	Order,
 	OrderControllerApi,
 	OrderForm,
@@ -9,16 +11,17 @@ import {
 	RaribleV2OrderForm,
 } from "@rarible/ethereum-api-client"
 import { Action } from "@rarible/action"
-import { Address, randomWord, toBigNumber, toBinary, Word } from "@rarible/types"
+import { Address, randomWord, toAddress, toBigNumber, toBinary, Word } from "@rarible/types"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import { Ethereum } from "@rarible/ethereum-provider"
+import { Maybe } from "../common/maybe"
 import type { SimpleOrder } from "./types"
+import { UpsertSimpleOrder } from "./types"
 import { addFee } from "./add-fee"
 import type { ApproveFunction } from "./approve"
 import type { OrderFiller } from "./fill-order"
 import type { CheckLazyOrderPart } from "./check-lazy-order"
 import { createErc20Contract } from "./contracts/erc20"
-import { UpsertSimpleOrder } from "./types"
 
 export type UpsertOrderStageId = "approve" | "sign"
 export type UpsertOrderActionArg = {
@@ -31,7 +34,7 @@ export type HasOrder = { orderHash: Word } | { order: SimpleOrder }
 export type HasPrice = { price: BigNumberValue } | { priceDecimal: BigNumberValue }
 
 export type OrderRequest = {
-	maker: Address
+	maker?: Address
 	payouts: Part[]
 	originFees: Part[]
 }
@@ -43,7 +46,7 @@ export class UpsertOrder {
 		private readonly approveFn: ApproveFunction,
 		private readonly signOrder: (order: SimpleOrder) => Promise<Binary>,
 		private readonly orderApi: OrderControllerApi,
-		private readonly ethereum: Ethereum
+		private readonly ethereum: Maybe<Ethereum>
 	) {}
 
 	readonly upsert = Action
@@ -69,6 +72,10 @@ export class UpsertOrder {
 	}
 
 	async getPrice(hasPrice: HasPrice, assetType: Erc20AssetType | EthAssetType): Promise<BigNumberValue> {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
+
 		if ("price" in hasPrice) {
 			return hasPrice.price
 		} else {
@@ -103,9 +110,9 @@ export class UpsertOrder {
 		})
 	}
 
-	prepareOrderForm(request: OrderRequest): Omit<RaribleV2OrderForm, "take" | "make"> {
+	async prepareOrderForm(request: OrderRequest): Promise<Omit<RaribleV2OrderForm, "take" | "make">> {
 		return {
-			maker: request.maker,
+			maker: await this.getOrderMaker(request),
 			type: "RARIBLE_V2",
 			data: {
 				dataType: "RARIBLE_V2_DATA_V1",
@@ -113,6 +120,17 @@ export class UpsertOrder {
 				originFees: request.originFees,
 			},
 			salt: toBigNumber(toBn(randomWord(), 16).toString(10)),
+		}
+	}
+
+	private async getOrderMaker(request: OrderRequest): Promise<Address> {
+		if (request.maker) {
+			return request.maker
+		} else {
+			if (!this.ethereum) {
+				throw new Error("Wallet undefined")
+			}
+			return toAddress(await this.ethereum.getFrom())
 		}
 	}
 

@@ -2,12 +2,13 @@ import { Address, BigNumber } from "@rarible/ethereum-api-client"
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
 import { SendFunction } from "../common/send-transaction"
+import { Maybe } from "../common/maybe"
 import { createErc20Contract } from "./contracts/erc20"
 
 const infiniteBn = toBn(2).pow(256).minus(1)
 
 export async function approveErc20(
-	ethereum: Ethereum,
+	ethereum: Maybe<Ethereum>,
 	send: SendFunction,
 	contract: Address,
 	owner: Address,
@@ -15,6 +16,9 @@ export async function approveErc20(
 	value: BigNumber | BigNumberValue,
 	infinite: boolean = true
 ): Promise<EthereumTransaction | undefined> {
+	if (!ethereum) {
+		throw new Error("Wallet undefined")
+	}
 	const erc20 = createErc20Contract(ethereum, contract)
 	const allowance = toBn(await erc20.functionCall("allowance", owner, operator).call())
 	const bnValue = toBn(value)

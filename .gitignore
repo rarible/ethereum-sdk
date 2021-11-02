@@ -9,6 +9,7 @@ coverage/
 
 # Build
 build/
+umd/
 test-reports/
 cypress/screenshots/
 source/locales/_build/

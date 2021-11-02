@@ -120,6 +120,7 @@ export class UpsertOrder {
 				originFees: request.originFees,
 			},
 			salt: toBigNumber(toBn(randomWord(), 16).toString(10)),
+			signature: toBinary("0x"),
 		}
 	}
 
@@ -147,6 +148,7 @@ export class UpsertOrder {
 			make,
 			take,
 			salt: toBigNumber(toBn(order.salt, 16).toString(10)),
+			signature: order.signature || toBinary("0x"),
 		}
 	}
 }

@@ -1,4 +1,10 @@
-import { Asset } from "@rarible/ethereum-api-client"
+import {
+	Asset,
+	OrderOpenSeaV1DataV1FeeMethod,
+	OrderOpenSeaV1DataV1HowToCall,
+	OrderOpenSeaV1DataV1SaleKind,
+	OrderOpenSeaV1DataV1Side,
+} from "@rarible/ethereum-api-client"
 import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { Ethereum } from "@rarible/ethereum-provider"
 import { ethers } from "ethers"
@@ -68,10 +74,10 @@ export const OPENSEA_ORDER_TEMPLATE: Omit<SimpleOpenSeaV1Order, "make" | "take">
 		makerProtocolFee: toBigNumber("0"),
 		takerProtocolFee: toBigNumber("0"),
 		feeRecipient: toAddress(ZERO_ADDRESS),
-		feeMethod: "SPLIT_FEE",
-		side: "SELL",
-		saleKind: "FIXED_PRICE",
-		howToCall: "CALL",
+		feeMethod: OrderOpenSeaV1DataV1FeeMethod.SPLIT_FEE,
+		side: OrderOpenSeaV1DataV1Side.SELL,
+		saleKind: OrderOpenSeaV1DataV1SaleKind.FIXED_PRICE,
+		howToCall: OrderOpenSeaV1DataV1HowToCall.CALL,
 		callData: toBinary("0x"),
 		replacementPattern: toBinary("0x"),
 		staticTarget: ZERO_ADDRESS,
@@ -82,7 +88,9 @@ export const OPENSEA_ORDER_TEMPLATE: Omit<SimpleOpenSeaV1Order, "make" | "take">
 
 export type TestAssetClass = "ETH" | "ERC20" | "ERC721" | "ERC1155"
 
-export function getOrderTemplate(makeAsset: TestAssetClass, takeAsset: TestAssetClass, side: "SELL" | "BUY"): SimpleOpenSeaV1Order {
+export function getOrderTemplate(
+	makeAsset: TestAssetClass, takeAsset: TestAssetClass, side: OrderOpenSeaV1DataV1Side,
+): SimpleOpenSeaV1Order {
 
 	return {
 		...OPENSEA_ORDER_TEMPLATE,
@@ -164,7 +172,7 @@ export function hashOrder(order: OpenSeaOrderDTO): string {
 export function hashToSign(hash: string): string {
 	return ethers.utils.solidityKeccak256(
 		["string", "bytes32"],
-		["\x19Ethereum Signed Message:\n32", hash]
+		["\x19Ethereum Signed Message:\n32", hash],
 	)
 }
 

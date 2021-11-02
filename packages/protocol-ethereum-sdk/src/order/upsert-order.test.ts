@@ -1,4 +1,4 @@
-import { toAddress, toBigNumber } from "@rarible/types"
+import { toAddress, toBigNumber, toBinary } from "@rarible/types"
 import { Configuration, OrderControllerApi, OrderForm } from "@rarible/ethereum-api-client"
 import { createE2eProvider, awaitAll } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils"
@@ -39,6 +39,7 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 				payouts: [],
 				originFees: [],
 			},
+			signature: toBinary("0x"),
 		}
 		const upserter = new UpsertOrder(
 			orderService,

@@ -1,4 +1,4 @@
-import { toAddress, toBigNumber } from "@rarible/types"
+import { toAddress, toBigNumber, toBinary } from "@rarible/types"
 import {
 	Configuration,
 	GatewayControllerApi,
@@ -151,6 +151,7 @@ describe.each(providers)("bid", (ethereum) => {
 				dataType: "LEGACY",
 				fee: 250,
 			},
+			signature: toBinary("0x"),
 		}
 		const order = await upserter.upsert({ order: form })
 

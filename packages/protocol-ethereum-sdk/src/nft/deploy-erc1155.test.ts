@@ -1,7 +1,7 @@
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { toAddress, toWord } from "@rarible/types"
+import { toAddress } from "@rarible/types"
 import { Contract } from "web3-eth-contract"
 import {
 	Configuration, GatewayControllerApi,
@@ -67,33 +67,12 @@ describe("deploy token test", () => {
 		config.factories.erc1155User = toAddress(erc1155UserFactory.options.address)
 	})
 
-	test("should calculate correct erc1155 contract address", async () => {
-		const tokenContractAddress1 = await erc1155Factory.methods.getAddress(
-			"FreeMintable",
-			"TST",
-			"ipfs:/",
-			"ipfs:/",
-			3
-		).call()
-
-		const tokenContractAddress2 = await deployErc1155.getContractAddress(
-			"FreeMintable",
-			"TST",
-			"ipfs:/",
-			"ipfs:/",
-			toWord("0x0000000000000000000000000000000000000000000000000000000000000003")
-		)
-
-		expect(tokenContractAddress2.toLowerCase()).toBe(tokenContractAddress1.toLowerCase())
-	})
-
 	test("should deploy erc1155 token", async () => {
-		const tx = await deployErc1155.deployToken(
+		const {tx, address} = await deployErc1155.deployToken(
 			"FreeMintable",
 			"TSA",
 			"ipfs:/",
 			"ipfs:/",
-			toWord("0x0000000000000000000000000000000000000000000000000000000000000003")
 		)
 
 		const receipt = await tx.wait()
@@ -106,47 +85,16 @@ describe("deploy token test", () => {
 
 		const proxy = createProxyEvent.args.proxy
 
-		const calculatedContractAddress = await erc1155Factory.methods.getAddress(
-			"FreeMintable",
-			"TSA",
-			"ipfs:/",
-			"ipfs:/",
-			3
-		).call()
-
-		expect(proxy.toLowerCase()).toBe(calculatedContractAddress.toLowerCase())
-	})
-
-	test("should calculate correct contract address", async () => {
-		const calculatedUserContractAddress = await deployErc1155.getUserContractAddress(
-			"FreeMintable",
-			"TSA",
-			"ipfs:/",
-			"ipfs:/",
-			[],
-			toWord("0x0000000000000000000000000000000000000000000000000000000000000003")
-		)
-
-		const userContractAddress = await erc1155UserFactory.methods.getAddress(
-			"FreeMintable",
-			"TSA",
-			"ipfs:/",
-			"ipfs:/",
-			[],
-			3
-		).call()
-
-		expect(userContractAddress.toLowerCase()).toBe(calculatedUserContractAddress.toLowerCase())
+		expect(proxy.toLowerCase()).toBe(address.toLowerCase())
 	})
 
 	test("should deploy user erc1155 token", async () => {
-		const tx = await deployErc1155.deployUserToken(
+		const {tx, address} = await deployErc1155.deployUserToken(
 			"FreeMintable",
 			"TSA",
 			"ipfs:/",
 			"ipfs:/",
 			[],
-			toWord("0x0000000000000000000000000000000000000000000000000000000000000003")
 		)
 		const receipt = await tx.wait()
 		const createProxyEvent = receipt.events.find(e => e.event === "Create1155RaribleUserProxy")
@@ -157,16 +105,7 @@ describe("deploy token test", () => {
 
 		const proxy = createProxyEvent.args.proxy
 
-		const calculatedContractAddress = await erc1155UserFactory.methods.getAddress(
-			"FreeMintable",
-			"TSA",
-			"ipfs:/",
-			"ipfs:/",
-			[],
-			3
-		).call()
-
-		expect(calculatedContractAddress.toLowerCase()).toBe(proxy.toLowerCase())
+		expect(address.toLowerCase()).toBe(proxy.toLowerCase())
 	})
 
 })

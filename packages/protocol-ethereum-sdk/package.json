@@ -1,6 +1,6 @@
 {
   "name": "@rarible/protocol-ethereum-sdk",
-  "version": "0.9.4",
+  "version": "0.9.7",
   "keywords": [
     "axios",
     "typescript",
@@ -9,7 +9,8 @@
     "api_documentation"
   ],
   "license": "Apache-2.0",
-  "main": "build/index.js",
+  "main": "umd/rarible-ethereum-sdk.js",
+  "module": "build/index.js",
   "types": "build/index.d.ts",
   "files": [
     "build",
@@ -26,16 +27,16 @@
   },
   "dependencies": {
     "@rarible/action": "^0.3.5",
-    "@rarible/ethereum-api-client": "^0.1.11",
+    "@rarible/ethereum-api-client": "^0.1.13",
     "@rarible/ethereum-provider": "^0.9.0",
     "@rarible/utils": "^0.0.7",
     "exponential-backoff": "3.1.0"
   },
   "devDependencies": {
     "@rarible/ethereum-sdk-test-common": "^0.9.1",
-    "@rarible/ethers-ethereum": "^0.9.1",
+    "@rarible/ethers-ethereum": "^0.9.7",
     "@rarible/test-provider": "0.1.23",
-    "@rarible/web3-ethereum": "^0.9.1",
+    "@rarible/web3-ethereum": "^0.9.7",
     "@types/jest": "26.0.24",
     "@types/node-fetch": "2.5.11",
     "buffer": "6.0.3",

@@ -7,8 +7,7 @@
     "provider"
   ],
   "license": "Apache-2.0",
-  "main": "umd/rarible-web3-ethereum.js",
-  "module": "build/index.js",
+  "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [
     "build",

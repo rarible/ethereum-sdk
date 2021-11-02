@@ -9,8 +9,7 @@
     "api_documentation"
   ],
   "license": "Apache-2.0",
-  "main": "umd/rarible-ethereum-sdk.js",
-  "module": "build/index.js",
+  "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [
     "build",

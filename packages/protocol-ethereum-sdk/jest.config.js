@@ -7,6 +7,5 @@ module.exports = {
 	transformIgnorePatterns: [
 		"<rootDir>/build/",
 		"<rootDir>/node_modules/",
-		"<rootDir>/umd/",
 	],
 }

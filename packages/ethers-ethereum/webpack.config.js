@@ -20,7 +20,7 @@ module.exports = {
 	plugins: [
 		new webpack.ProvidePlugin({
 			process: "process/browser",
-		  }),
+		}),
 	],
 	mode: "production",
 	optimization: {

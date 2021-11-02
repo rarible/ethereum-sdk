@@ -15,11 +15,15 @@ module.exports = {
 		fallback: {
 			"stream": require.resolve("stream-browserify"),
 			"Buffer": require.resolve("buffer"),
+			"process": require.resolve("process/browser"),
 		},
 	},
 	plugins: [
 		new webpack.ProvidePlugin({
 			Buffer: ["buffer", "Buffer"],
+		}),
+		new webpack.ProvidePlugin({
+			process: "process/browser",
 		}),
 	],
 	mode: "production",

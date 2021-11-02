@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.5](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.9.4...v0.9.5) (2021-11-02)
+
+
+### Bug Fixes
+
+* upgrade ethereum-api-client ([1586932](https://github.com/rarible/protocol-ethereum-sdk/commit/158693209ae1cde430b51769519eaa4d4887f7bf))
+
+
+
+
+
 ## [0.9.4](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.9.3...v0.9.4) (2021-11-01)
 
 

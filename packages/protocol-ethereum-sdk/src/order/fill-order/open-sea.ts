@@ -1,4 +1,4 @@
-import { Address, Asset } from "@rarible/ethereum-api-client"
+import { Address, Asset, OrderOpenSeaV1DataV1Side } from "@rarible/ethereum-api-client"
 import { Ethereum, EthereumContract, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 import { backOff } from "exponential-backoff"
@@ -17,7 +17,7 @@ import { waitTx } from "../../common/wait-tx"
 import { SimpleOpenSeaV1Order } from "../types"
 import { Maybe } from "../../common/maybe"
 import { OpenSeaOrderDTO } from "./open-sea-types"
-import { OrderHandler, OpenSeaV1OrderFillRequest } from "./types"
+import { OpenSeaV1OrderFillRequest, OrderHandler } from "./types"
 import { convertOpenSeaOrderToDTO } from "./open-sea-converter"
 
 export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillRequest> {
@@ -38,7 +38,9 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		const data: OrderOpenSeaV1DataV1 = {
 			...order.data,
 			feeRecipient: ZERO_ADDRESS,
-			side: order.data.side === "BUY" ? "SELL" : "BUY",
+			side: order.data.side === OrderOpenSeaV1DataV1Side.BUY
+				? OrderOpenSeaV1DataV1Side.SELL
+				: OrderOpenSeaV1DataV1Side.BUY,
 		}
 		return {
 			...order,

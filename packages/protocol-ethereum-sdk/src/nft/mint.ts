@@ -9,6 +9,7 @@ import type {
 	NftTokenId,
 	Part,
 } from "@rarible/ethereum-api-client"
+import { NftCollectionFeatures } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { SendFunction } from "../common/send-transaction"
 import { Maybe } from "../common/maybe"
@@ -125,13 +126,13 @@ const isERC721Request = (data: MintRequest): data is ERC721RequestV1 | ERC721Req
 	data.collection.type === "ERC721"
 
 export const isErc721v3Collection = (x: NftCollection): x is ERC721CollectionV3 =>
-	x.features.indexOf("MINT_AND_TRANSFER") !== -1 && x.type === "ERC721"
+	x.features.indexOf(NftCollectionFeatures.MINT_AND_TRANSFER) !== -1 && x.type === "ERC721"
 export const isErc721v2Collection = (x: NftCollection): x is ERC721CollectionV2 =>
-	x.features.indexOf("SECONDARY_SALE_FEES") !== -1 && x.type === "ERC721"
+	x.features.indexOf(NftCollectionFeatures.SECONDARY_SALE_FEES) !== -1 && x.type === "ERC721"
 export const isErc721v1Collection = (x: NftCollection): x is ERC721CollectionV1 =>
 	!isErc721v3Collection(x) && !isErc721v2Collection(x) && x.type === "ERC721"
 
 export const isErc1155v2Collection = (x: NftCollection): x is ERC1155CollectionV2 =>
-	x.features.indexOf("MINT_AND_TRANSFER") !== -1 && x.type === "ERC1155"
+	x.features.indexOf(NftCollectionFeatures.MINT_AND_TRANSFER) !== -1 && x.type === "ERC1155"
 export const isErc1155v1Collection = (x: NftCollection): x is ERC1155CollectionV1 =>
 	!isErc1155v2Collection(x) && x.type === "ERC1155"

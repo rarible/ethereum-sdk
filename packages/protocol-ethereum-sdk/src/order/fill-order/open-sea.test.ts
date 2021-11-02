@@ -1,7 +1,7 @@
 import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { Address, Asset } from "@rarible/ethereum-api-client"
+import { Address, Asset, OrderOpenSeaV1DataV1Side } from "@rarible/ethereum-api-client"
 import { Contract } from "web3-eth-contract"
 import { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
@@ -177,7 +177,7 @@ describe("fillOrder: Opensea orders", function () {
 			data: {
 				...OPENSEA_ORDER_TEMPLATE.data,
 				exchange: toAddress(wyvernExchange.options.address),
-				side: "SELL",
+				side: OrderOpenSeaV1DataV1Side.SELL,
 			},
 		}
 
@@ -253,7 +253,7 @@ describe("fillOrder: Opensea orders", function () {
 			data: {
 				...OPENSEA_ORDER_TEMPLATE.data,
 				exchange: toAddress(wyvernExchange.options.address),
-				side: "SELL",
+				side: OrderOpenSeaV1DataV1Side.SELL,
 			},
 		}
 		await mintTestAsset(order.take, sender1Address)
@@ -293,10 +293,10 @@ describe("fillOrder: Opensea orders", function () {
 
 	// Sell-side orders
 	describe.each([
-		getOrderTemplate("ERC721", "ETH", "SELL"),
-		getOrderTemplate("ERC721", "ERC20", "SELL"),
-		getOrderTemplate("ERC1155", "ETH", "SELL"),
-		getOrderTemplate("ERC1155", "ERC20", "SELL"),
+		getOrderTemplate("ERC721", "ETH", OrderOpenSeaV1DataV1Side.SELL),
+		getOrderTemplate("ERC721", "ERC20", OrderOpenSeaV1DataV1Side.SELL),
+		getOrderTemplate("ERC1155", "ETH", OrderOpenSeaV1DataV1Side.SELL),
+		getOrderTemplate("ERC1155", "ERC20", OrderOpenSeaV1DataV1Side.SELL),
 	])(
 		"side: $data.side $make.assetType.assetClass for $take.assetType.assetClass",
 		(testOrder) => {
@@ -341,8 +341,8 @@ describe("fillOrder: Opensea orders", function () {
 
 	// Buy-side orders
 	describe.each([
-		getOrderTemplate("ERC20", "ERC721", "BUY"),
-		getOrderTemplate("ERC20", "ERC1155", "BUY"),
+		getOrderTemplate("ERC20", "ERC721", OrderOpenSeaV1DataV1Side.BUY),
+		getOrderTemplate("ERC20", "ERC1155", OrderOpenSeaV1DataV1Side.BUY),
 	])(
 		"side: $data.side $make.assetType.assetClass for $take.assetType.assetClass",
 		(testOrder) => {
@@ -395,7 +395,7 @@ describe("fillOrder: Opensea orders", function () {
 			data: {
 				...OPENSEA_ORDER_TEMPLATE.data,
 				exchange: toAddress(wyvernExchange.options.address),
-				side: "SELL",
+				side: OrderOpenSeaV1DataV1Side.SELL,
 				feeRecipient,
 			},
 		}

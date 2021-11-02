@@ -1,6 +1,6 @@
 import { Address, LegacyOrderForm, OrderControllerApi } from "@rarible/ethereum-api-client"
 import { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
-import { toBigNumber, ZERO_ADDRESS } from "@rarible/types"
+import { toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils"
 import { approve } from "../approve"
 import { SendFunction } from "../../common/send-transaction"
@@ -112,5 +112,6 @@ function fromSimpleOrderToOrderForm(order: SimpleLegacyOrder): LegacyOrderForm {
 	return {
 		...order,
 		salt: toBigNumber(toBn(order.salt).toString()),
+		signature: order.signature || toBinary("0x"),
 	}
 }

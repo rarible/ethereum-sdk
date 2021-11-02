@@ -1,7 +1,7 @@
 import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { toAddress, toBigNumber } from "@rarible/types"
+import { toAddress, toBigNumber, toBinary } from "@rarible/types"
 import { Configuration, OrderControllerApi, OrderForm } from "@rarible/ethereum-api-client"
 import { E2E_CONFIG } from "../config/e2e"
 import { getApiConfig } from "../config/api-config"
@@ -45,6 +45,7 @@ describe("cancel order", () => {
 				payouts: [],
 				originFees: [],
 			},
+			signature: toBinary("0x"),
 		}
 		await testOrder(form)
 	}, 15000)
@@ -74,6 +75,7 @@ describe("cancel order", () => {
 				dataType: "LEGACY",
 				fee: 0,
 			},
+			signature: toBinary("0x"),
 		}
 		await testOrder(form)
 	})

@@ -44,6 +44,7 @@ import { DeployErc721 } from "./nft/deploy-erc721"
 import { DeployErc1155 } from "./nft/deploy-erc1155"
 import { DeployNft } from "./common/deploy"
 import { Maybe } from "./common/maybe"
+import { BalanceRequestAssetType, Balances } from "./common/balances"
 
 export interface RaribleApis {
 	nftItem: NftItemControllerApi
@@ -125,10 +126,15 @@ export interface RaribleNftSdk {
 	deploy: DeployNft
 }
 
+export interface RaribleBalancesSdk {
+	getBalance(address: Address, assetType: BalanceRequestAssetType): Promise<BigNumber>
+}
+
 export interface RaribleSdk {
 	order: RaribleOrderSdk
 	nft: RaribleNftSdk
 	apis: RaribleApis
+	balances: RaribleBalancesSdk
 }
 
 // noinspection JSUnusedGlobalSymbols
@@ -192,6 +198,8 @@ export function createRaribleSdk(
 	const deployErc721 = new DeployErc721(ethereum, send, config)
 	const deployErc1155 = new DeployErc1155(ethereum, send, config)
 
+	const balances = new Balances(ethereum, nftItemControllerApi)
+
 	return {
 		apis: {
 			nftItem: nftItemControllerApi,
@@ -219,6 +227,9 @@ export function createRaribleSdk(
 				erc721: deployErc721,
 				erc1155: deployErc1155,
 			},
+		},
+		balances: {
+			getBalance: balances.getBalance,
 		},
 	}
 }

@@ -8,7 +8,7 @@ import {
 	EthereumTransaction,
 	signTypedData,
 } from "@rarible/ethereum-provider"
-import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
+import { Address, BigNumber, Binary, toAddress, toBigNumber, toBinary, toWord, Word } from "@rarible/types"
 import { backOff } from "exponential-backoff"
 import type { EthereumTransactionEvent, EthereumTransactionReceipt } from "@rarible/ethereum-provider"
 import { MessageTypes, TypedMessage } from "@rarible/ethereum-provider/src/domain"
@@ -46,6 +46,10 @@ export class Web3Ethereum implements Ethereum {
 
 	encodeParameter(type: any, parameter: any): string {
 		return this.config.web3.eth.abi.encodeParameter(type, parameter)
+	}
+
+	async getBalance(address: Address): Promise<BigNumber> {
+		return toBigNumber(await this.config.web3.eth.getBalance(address))
 	}
 }
 

@@ -11,6 +11,7 @@ import { getErc721Contract } from "../nft/contracts/erc721"
 import { ERC1155VersionEnum, ERC721VersionEnum } from "../nft/contracts/domain"
 import { createErc20Contract } from "../order/contracts/erc20"
 import { getErc1155Contract } from "../nft/contracts/erc1155"
+import { Maybe } from "./maybe"
 
 export type BalanceRequestAssetType =
 	EthAssetType |
@@ -22,13 +23,16 @@ export type BalanceRequestAssetType =
 
 export class Balances {
 	constructor(
-		private ethereum: Ethereum,
+		private ethereum: Maybe<Ethereum>,
 		private nftItemController: NftItemControllerApi
 	) {
 		this.getBalance = this.getBalance.bind(this)
 	}
 
 	async getBalance(address: Address, assetType: BalanceRequestAssetType): Promise<BigNumber> {
+		if (!this.ethereum) {
+			throw new Error("Wallet is undefined")
+		}
 		switch (assetType.assetClass) {
 			case "ETH": {
 				return await this.ethereum.getBalance(address)

@@ -197,7 +197,6 @@ export function createRaribleSdk(
 
 	const deployErc721 = new DeployErc721(ethereum, send, config)
 	const deployErc1155 = new DeployErc1155(ethereum, send, config)
-
 	const balances = new Balances(ethereum, nftItemControllerApi)
 
 	return {

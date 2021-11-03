@@ -9,7 +9,7 @@ import {
 	EthereumTransactionReceipt,
 	signTypedData,
 } from "@rarible/ethereum-provider"
-import { Address, Binary, toAddress, toBinary, toWord, Word } from "@rarible/types"
+import { Address, Binary, toAddress, toBigNumber, BigNumber, toBinary, toWord, Word } from "@rarible/types"
 import { MessageTypes, TypedMessage } from "@rarible/ethereum-provider/src/domain"
 import { TypedDataSigner } from "@ethersproject/abstract-signer"
 import { encodeParameters } from "./abi-coder"
@@ -50,6 +50,11 @@ export class EthersWeb3ProviderEthereum implements Ethereum {
 	encodeParameter(type: any, parameter: any): string {
 		return encodeParameters([type], [parameter])
 	}
+
+	async getBalance(address: Address): Promise<BigNumber> {
+		const balance = await this.web3Provider.getBalance(address)
+		return toBigNumber(balance.toString())
+	}
 }
 
 export class EthersEthereum implements Ethereum {
@@ -79,6 +84,14 @@ export class EthersEthereum implements Ethereum {
 
 	encodeParameter(type: any, parameter: any): string {
 		return encodeParameters([type], [parameter])
+	}
+
+	async getBalance(address: Address): Promise<BigNumber> {
+		if (!this.signer.provider) {
+			throw new Error("EthersEthereum: signer provider does not exist")
+		}
+		const balance = await this.signer.provider.getBalance(address)
+		return toBigNumber(balance.toString())
 	}
 }
 

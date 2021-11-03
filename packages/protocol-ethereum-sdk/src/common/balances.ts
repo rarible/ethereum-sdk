@@ -5,7 +5,7 @@ import {
 	EthAssetType,
 } from "@rarible/ethereum-api-client/build/models/AssetType"
 import { Erc20BalanceControllerApi } from "@rarible/ethereum-api-client"
-import { BigNumberValue, toBn } from "@rarible/utils"
+import { BigNumber, BigNumberValue, toBn } from "@rarible/utils"
 import { Maybe } from "./maybe"
 
 export type BalanceRequestAssetType = EthAssetType | Erc20AssetType
@@ -25,6 +25,7 @@ export class Balances {
 					throw new Error("Wallet is undefined")
 				}
 				return toBn(await this.ethereum.getBalance(address))
+					.div(new BigNumber(10).pow(18))
 			}
 			case "ERC20": {
 				const balance = await this.erc20BalanceController.getErc20Balance({

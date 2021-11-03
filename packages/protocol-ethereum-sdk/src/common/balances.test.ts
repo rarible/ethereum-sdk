@@ -1,4 +1,4 @@
-import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll, createE2eProvider, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
@@ -27,7 +27,7 @@ describe("getBalance test", () => {
 	test("get eth balance", async () => {
 		const senderAddress = toAddress(await ethereum.getFrom())
 		const balance = await balances.getBalance(senderAddress, {assetClass: "ETH"})
-		expect(balance).not.toBe("0")
+		expect(balance.toString()).toBe("0")
 	})
 
 	test("get erc-20 balance", async () => {

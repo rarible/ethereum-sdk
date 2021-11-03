@@ -1,6 +1,6 @@
 {
   "name": "@rarible/web3-ethereum",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "description": "Ethereum interface with web3.js",
   "keywords": [
     "ethereum",
@@ -22,11 +22,11 @@
     "verify": "tsc --noEmit"
   },
   "dependencies": {
-    "@rarible/ethereum-provider": "^0.9.0",
+    "@rarible/ethereum-provider": "^0.9.9",
     "exponential-backoff": "3.1.0"
   },
   "devDependencies": {
-    "@rarible/ethereum-sdk-test-common": "^0.9.1",
+    "@rarible/ethereum-sdk-test-common": "^0.9.9",
     "@types/jest": "26.0.24",
     "buffer": "6.0.3",
     "jest": "27.0.6",

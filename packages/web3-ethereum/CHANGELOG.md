@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.9](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.9.8...v0.9.9) (2021-11-03)
+
+**Note:** Version bump only for package @rarible/web3-ethereum
+
+
+
+
+
 ## [0.9.8](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.9.7...v0.9.8) (2021-11-03)
 
 

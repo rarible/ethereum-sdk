@@ -2,6 +2,7 @@ import {
 	Address,
 	Configuration,
 	ConfigurationParameters,
+	Erc20BalanceControllerApi,
 	GatewayControllerApi,
 	NftCollectionControllerApi,
 	NftItemControllerApi,
@@ -13,6 +14,7 @@ import {
 } from "@rarible/ethereum-api-client"
 import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { BigNumber } from "@rarible/types"
+import { BigNumberValue } from "@rarible/utils/build/bn"
 import { CONFIGS } from "./config"
 import { UpsertOrder, UpsertOrderAction } from "./order/upsert-order"
 import { approve as approveTemplate } from "./order/approve"
@@ -127,7 +129,7 @@ export interface RaribleNftSdk {
 }
 
 export interface RaribleBalancesSdk {
-	getBalance(address: Address, assetType: BalanceRequestAssetType): Promise<BigNumber>
+	getBalance(address: Address, assetType: BalanceRequestAssetType): Promise<BigNumberValue>
 }
 
 export interface RaribleSdk {
@@ -154,6 +156,7 @@ export function createRaribleSdk(
 	const orderControllerApi = new OrderControllerApi(apiConfiguration)
 	const orderActivitiesControllerApi = new OrderActivityControllerApi(apiConfiguration)
 	const gatewayControllerApi = new GatewayControllerApi(apiConfiguration)
+	const erc20BalanceController = new Erc20BalanceControllerApi(apiConfiguration)
 
 	const send = partialCall(sendTemplate, gatewayControllerApi)
 
@@ -197,7 +200,7 @@ export function createRaribleSdk(
 
 	const deployErc721 = new DeployErc721(ethereum, send, config)
 	const deployErc1155 = new DeployErc1155(ethereum, send, config)
-	const balances = new Balances(ethereum, nftItemControllerApi)
+	const balances = new Balances(ethereum, erc20BalanceController)
 
 	return {
 		apis: {

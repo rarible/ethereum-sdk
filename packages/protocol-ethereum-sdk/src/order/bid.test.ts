@@ -1,17 +1,18 @@
 import { toAddress, toBigNumber, toBinary } from "@rarible/types"
+import type { OrderForm } from "@rarible/ethereum-api-client"
 import {
 	Configuration,
 	GatewayControllerApi,
 	NftCollectionControllerApi,
 	NftLazyMintControllerApi,
 	OrderControllerApi,
-	OrderForm,
 } from "@rarible/ethereum-api-client"
 import { createE2eProvider, createE2eWallet } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils"
 import { E2E_CONFIG } from "../config/e2e"
 import { getApiConfig } from "../config/api-config"
-import { ERC721RequestV3, mint as mintTemplate } from "../nft/mint"
+import type { ERC721RequestV3 } from "../nft/mint"
+import { mint as mintTemplate } from "../nft/mint"
 import { createTestProviders } from "../common/create-test-providers"
 import { send as sendTemplate } from "../common/send-transaction"
 import { signNft as signNftTemplate } from "../nft/sign-nft"

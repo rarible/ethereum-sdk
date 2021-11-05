@@ -1,5 +1,5 @@
-import Web3 from "web3"
-import { Ethereum } from "@rarible/ethereum-provider"
+import type Web3 from "web3"
+import type { Ethereum } from "@rarible/ethereum-provider"
 
 export async function testSimpleContract(web3: Web3, ethereum: Ethereum) {
 	const deployed = await deployTestContract(web3)

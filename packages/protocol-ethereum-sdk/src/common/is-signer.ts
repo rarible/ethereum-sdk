@@ -1,5 +1,6 @@
-import { bufferToHex, bufferToInt, ECDSASignature, ecrecover, keccak256, pubToAddress } from "ethereumjs-util"
-import { Ethereum } from "@rarible/ethereum-provider"
+import type { ECDSASignature} from "ethereumjs-util"
+import { bufferToHex, bufferToInt, ecrecover, keccak256, pubToAddress } from "ethereumjs-util"
+import type { Ethereum } from "@rarible/ethereum-provider"
 
 export async function isSigner(ethereum: Ethereum, signer: string, hash: Buffer, signature: string): Promise<boolean> {
 	const sig = Buffer.from(skip0x(signature), "hex")

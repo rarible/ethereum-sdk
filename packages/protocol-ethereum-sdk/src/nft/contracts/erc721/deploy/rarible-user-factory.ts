@@ -1,8 +1,8 @@
-import Web3 from "web3"
-import { Address } from "@rarible/types"
-import { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
-import { Contract } from "web3-eth-contract"
-import { AbiItem } from "../../../../common/abi-item"
+import type Web3 from "web3"
+import type { Address } from "@rarible/types"
+import type { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
+import type { Contract } from "web3-eth-contract"
+import type { AbiItem } from "../../../../common/abi-item"
 
 export function createErc721UserFactoryContract(ethereum: Ethereum, address?: Address): EthereumContract {
 	return ethereum.createContract(erc721UserFactoryABI, address)

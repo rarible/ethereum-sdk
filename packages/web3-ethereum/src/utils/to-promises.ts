@@ -1,4 +1,4 @@
-import { PromiEvent, TransactionReceipt } from "web3-core"
+import type { PromiEvent, TransactionReceipt } from "web3-core"
 
 export function toPromises(promiEvent: PromiEvent<any>) {
 	return {

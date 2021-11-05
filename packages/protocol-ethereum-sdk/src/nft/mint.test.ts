@@ -1,7 +1,7 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import { toAddress } from "@rarible/types"
+import type { Address } from "@rarible/ethereum-api-client"
 import {
-	Address,
 	Configuration,
 	GatewayControllerApi,
 	NftCollectionControllerApi,
@@ -17,7 +17,8 @@ import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { createErc1155V1Collection, createErc1155V2Collection, createErc721V1Collection, createErc721V2Collection, createErc721V3Collection } from "../common/mint"
 import { signNft } from "./sign-nft"
-import { ERC1155RequestV1, ERC1155RequestV2, ERC721RequestV1, ERC721RequestV2, ERC721RequestV3, mint as mintTemplate } from "./mint"
+import type { ERC1155RequestV1, ERC1155RequestV2, ERC721RequestV1, ERC721RequestV2, ERC721RequestV3} from "./mint"
+import { mint as mintTemplate } from "./mint"
 import { deployErc721V1 } from "./contracts/erc721/deploy/v1"
 import { ERC1155VersionEnum, ERC721VersionEnum } from "./contracts/domain"
 import { getErc721Contract } from "./contracts/erc721"

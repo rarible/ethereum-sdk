@@ -1,15 +1,15 @@
+import type { Asset } from "@rarible/ethereum-api-client"
 import {
-	Asset,
 	OrderOpenSeaV1DataV1FeeMethod,
 	OrderOpenSeaV1DataV1HowToCall,
 	OrderOpenSeaV1DataV1SaleKind,
 	OrderOpenSeaV1DataV1Side,
 } from "@rarible/ethereum-api-client"
 import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
-import { Ethereum } from "@rarible/ethereum-provider"
+import type { Ethereum } from "@rarible/ethereum-provider"
 import { ethers } from "ethers"
-import { OpenSeaOrderDTO } from "../fill-order/open-sea-types"
-import { SimpleOpenSeaV1Order } from "../types"
+import type { OpenSeaOrderDTO } from "../fill-order/open-sea-types"
+import type { SimpleOpenSeaV1Order } from "../types"
 import { convertOpenSeaOrderToDTO } from "../fill-order/open-sea-converter"
 
 function getRandomTokenId(): string {

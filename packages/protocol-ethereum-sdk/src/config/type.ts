@@ -1,5 +1,5 @@
-import { Address } from "@rarible/ethereum-api-client"
-import { Word } from "@rarible/types"
+import type { Address } from "@rarible/ethereum-api-client"
+import type { Word } from "@rarible/types"
 
 export type ExchangeFees = {
 	v2: number

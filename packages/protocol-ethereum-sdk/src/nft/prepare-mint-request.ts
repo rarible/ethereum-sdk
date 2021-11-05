@@ -1,4 +1,4 @@
-import { NftCollection } from "@rarible/ethereum-api-client"
+import type { NftCollection } from "@rarible/ethereum-api-client"
 import {
 	isErc1155v2Collection,
 	isErc721v2Collection,

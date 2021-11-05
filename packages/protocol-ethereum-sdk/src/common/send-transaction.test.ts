@@ -2,7 +2,7 @@ import { Configuration, GatewayControllerApi, NftCollectionControllerApi } from 
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { EthereumContract } from "@rarible/ethereum-provider"
+import type { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import { getApiConfig } from "../config/api-config"
 import { getTokenId as getTokenIdTemplate } from "../nft/get-token-id"

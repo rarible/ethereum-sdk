@@ -1,4 +1,4 @@
-import { Asset, AssetType } from "@rarible/ethereum-api-client"
+import type { Asset, AssetType } from "@rarible/ethereum-api-client"
 
 export async function checkLazyAsset(
 	checkLazyAssetType: (assetType: AssetType) => Promise<AssetType>,

@@ -9,7 +9,7 @@ import { simpleSend } from "../../common/send-transaction"
 import { getApiConfig } from "../../config/api-config"
 import { signOrder } from "../sign-order"
 import { deployTestErc721 } from "../contracts/test/test-erc721"
-import { SimpleLegacyOrder, SimpleOrder } from "../types"
+import type { SimpleLegacyOrder, SimpleOrder } from "../types"
 import { RaribleV1OrderHandler } from "./rarible-v1"
 import { OrderFiller } from "./"
 

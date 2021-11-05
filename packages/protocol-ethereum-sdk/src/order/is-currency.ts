@@ -1,4 +1,4 @@
-import { AssetType, Erc20AssetType, EthAssetType } from "@rarible/ethereum-api-client"
+import type { AssetType, Erc20AssetType, EthAssetType } from "@rarible/ethereum-api-client"
 
 export function isCurrency(
 	type: AssetType,

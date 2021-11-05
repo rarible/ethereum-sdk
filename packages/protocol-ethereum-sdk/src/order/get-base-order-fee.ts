@@ -1,5 +1,5 @@
-import { OrderForm } from "@rarible/ethereum-api-client"
-import { Config } from "../config/type"
+import type { OrderForm } from "@rarible/ethereum-api-client"
+import type { Config } from "../config/type"
 import { CURRENT_ORDER_TYPE_VERSION } from "../common/order"
 
 export async function getBaseOrderFee(config: Config, type: OrderForm["type"] = CURRENT_ORDER_TYPE_VERSION) {

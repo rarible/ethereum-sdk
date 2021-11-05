@@ -1,5 +1,6 @@
 import { toAddress, toBigNumber, toBinary } from "@rarible/types"
-import { Configuration, OrderControllerApi, OrderForm } from "@rarible/ethereum-api-client"
+import type { OrderForm } from "@rarible/ethereum-api-client"
+import { Configuration, OrderControllerApi } from "@rarible/ethereum-api-client"
 import { createE2eProvider, awaitAll } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils"
 import { E2E_CONFIG } from "../config/e2e"

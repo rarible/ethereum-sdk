@@ -2,13 +2,13 @@ import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-comm
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
-import { Contract } from "web3-eth-contract"
+import type { Contract } from "web3-eth-contract"
 import {
 	Configuration, GatewayControllerApi,
 } from "@rarible/ethereum-api-client"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
-import { Config } from "../config/type"
+import type { Config } from "../config/type"
 import { E2E_CONFIG } from "../config/e2e"
 import {
 	deployTestErc721RaribleMinimal,

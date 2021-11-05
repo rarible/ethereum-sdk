@@ -1,6 +1,8 @@
-import { Address, toBigNumber, toWord, Word } from "@rarible/types"
-import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
-import { SimpleOrder } from "../types"
+import type { Address, Word } from "@rarible/types"
+import { toBigNumber, toWord } from "@rarible/types"
+import type { BigNumberValue } from "@rarible/utils/build/bn"
+import { toBn } from "@rarible/utils/build/bn"
+import type { SimpleOrder } from "../types"
 import { isNft } from "../is-nft"
 
 const ZERO = toWord("0x0000000000000000000000000000000000000000000000000000000000000000")

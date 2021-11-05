@@ -1,12 +1,13 @@
-import { Address } from "@rarible/types"
-import { Ethereum } from "@rarible/ethereum-provider"
-import {
+import type { Address } from "@rarible/types"
+import type { Ethereum } from "@rarible/ethereum-provider"
+import type {
 	Erc20AssetType,
 	EthAssetType,
 } from "@rarible/ethereum-api-client/build/models/AssetType"
-import { Erc20BalanceControllerApi } from "@rarible/ethereum-api-client"
-import { BigNumber, BigNumberValue, toBn } from "@rarible/utils"
-import { Maybe } from "./maybe"
+import type { Erc20BalanceControllerApi } from "@rarible/ethereum-api-client"
+import type { BigNumberValue } from "@rarible/utils"
+import { BigNumber, toBn } from "@rarible/utils"
+import type { Maybe } from "./maybe"
 
 export type BalanceRequestAssetType = EthAssetType | Erc20AssetType
 

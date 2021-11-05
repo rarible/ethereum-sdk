@@ -1,8 +1,8 @@
 import type { ContractSendMethod, SendOptions } from "web3-eth-contract"
-import { PromiEvent } from "web3-core"
+import type { PromiEvent } from "web3-core"
 import { toBinary, toWord, toAddress } from "@rarible/types"
-import { GatewayControllerApi } from "@rarible/ethereum-api-client"
-import { EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
+import type { GatewayControllerApi } from "@rarible/ethereum-api-client"
+import type { EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 
 export type SendFunction = (
 	functionCall: EthereumFunctionCall, options?: EthereumSendOptions,

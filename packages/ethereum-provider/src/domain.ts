@@ -1,4 +1,4 @@
-import { TypedMessage as EthSigUtilTypedData } from "eth-sig-util"
+import type { TypedMessage as EthSigUtilTypedData } from "eth-sig-util"
 
 export enum SignTypedDataMethodEnum {
 	V4 = "eth_signTypedData_v4",

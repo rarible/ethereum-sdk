@@ -1,16 +1,16 @@
-import { Ethereum } from "@rarible/ethereum-provider"
+import type { Ethereum } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import { Action } from "@rarible/action"
-import { Address } from "@rarible/ethereum-api-client"
-import {
+import type { Address } from "@rarible/ethereum-api-client"
+import type {
 	SimpleCryptoPunkOrder,
 	SimpleLegacyOrder,
 	SimpleOpenSeaV1Order,
 	SimpleOrder,
 	SimpleRaribleV2Order,
 } from "../types"
-import { Maybe } from "../../common/maybe"
-import {
+import type { Maybe } from "../../common/maybe"
+import type {
 	CryptoPunksOrderFillRequest,
 	FillOrderAction,
 	FillOrderRequest,
@@ -18,10 +18,10 @@ import {
 	OpenSeaV1OrderFillRequest,
 	RaribleV2OrderFillRequest,
 } from "./types"
-import { RaribleV1OrderHandler } from "./rarible-v1"
-import { RaribleV2OrderHandler } from "./rarible-v2"
-import { OpenSeaOrderHandler } from "./open-sea"
-import { CryptoPunksOrderHandler } from "./crypto-punks"
+import type { RaribleV1OrderHandler } from "./rarible-v1"
+import type { RaribleV2OrderHandler } from "./rarible-v2"
+import type { OpenSeaOrderHandler } from "./open-sea"
+import type { CryptoPunksOrderHandler } from "./crypto-punks"
 
 export class OrderFiller {
 

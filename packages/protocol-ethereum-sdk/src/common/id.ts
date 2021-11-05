@@ -1,5 +1,6 @@
 import { keccak256 } from "ethereumjs-util"
-import { toWord, Word } from "@rarible/types"
+import type { Word } from "@rarible/types"
+import { toWord } from "@rarible/types"
 
 export function id(value: string): string {
 	return id32(value).substring(0, 10)

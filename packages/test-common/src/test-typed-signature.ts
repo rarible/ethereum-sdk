@@ -1,7 +1,7 @@
-import { Ethereum } from "@rarible/ethereum-provider"
+import type { Ethereum } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import * as sigUtil from "eth-sig-util"
-import { MessageTypes } from "packages/ethereum-provider/build/domain"
+import type { MessageTypes } from "packages/ethereum-provider/build/domain"
 
 export async function testTypedSignature(eth: Ethereum) {
 	const from = await eth.getFrom()

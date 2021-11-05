@@ -1,13 +1,14 @@
-import { Address, BigNumber, toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
-import { AssetType, Binary } from "@rarible/ethereum-api-client"
-import { Ethereum } from "@rarible/ethereum-provider"
+import type { Address, BigNumber } from "@rarible/types"
+import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
+import type { AssetType, Binary } from "@rarible/ethereum-api-client"
+import type { Ethereum } from "@rarible/ethereum-provider"
 import { toBn } from "@rarible/utils"
 import { createErc721Contract } from "../contracts/erc721"
 import { createErc1155Contract } from "../contracts/erc1155"
 import { isNft } from "../is-nft"
-import { SimpleOpenSeaV1Order, SimpleOrder } from "../types"
+import type { SimpleOpenSeaV1Order, SimpleOrder } from "../types"
+import type { OpenSeaOrderDTO } from "./open-sea-types"
 import {
-	OpenSeaOrderDTO,
 	OrderOpenSeaV1DataV1FeeMethod,
 	OrderOpenSeaV1DataV1HowToCall,
 	OrderOpenSeaV1DataV1SaleKind,

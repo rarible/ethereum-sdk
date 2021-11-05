@@ -1,4 +1,4 @@
-import Wallet from "ethereumjs-wallet"
+import type Wallet from "ethereumjs-wallet"
 import Web3 from "web3"
 import { ethers } from "ethers"
 import { Web3Ethereum } from "@rarible/web3-ethereum"

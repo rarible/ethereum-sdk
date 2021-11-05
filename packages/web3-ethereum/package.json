@@ -14,33 +14,35 @@
     "umd"
   ],
   "scripts": {
-    "test": "jest --testTimeout=10000",
     "build": "run-s build:*",
     "build:esm": "tsc --project tsconfig-build.json",
     "build:umd": "webpack",
     "clean": "rimraf ./build",
+    "test": "jest --testTimeout=10000",
     "verify": "tsc --noEmit"
   },
   "dependencies": {
     "@rarible/ethereum-provider": "^0.9.9",
-    "exponential-backoff": "3.1.0"
+    "eth-rpc-errors": "^4.0.3",
+    "exponential-backoff": "^3.1.0"
   },
   "devDependencies": {
     "@rarible/ethereum-sdk-test-common": "^0.9.9",
-    "@types/jest": "26.0.24",
-    "buffer": "6.0.3",
-    "jest": "27.0.6",
+    "@types/jest": "^27.0.2",
+    "buffer": "^6.0.3",
+    "jest": "^27.3.1",
     "process": "^0.11.10",
-    "stream-browserify": "3.0.0",
-    "ts-jest": "27.0.3",
-    "typescript": "4.3.5",
-    "webpack": "5.55.1",
-    "webpack-cli": "4.8.0"
+    "stream-browserify": "^3.0.0",
+    "ts-jest": "^27.0.3",
+    "typescript": "^4.4.4",
+    "webpack": "^5.55.1",
+    "webpack-cli": "^4.8.0"
   },
   "peerDependencies": {
-    "eth-rpc-errors": "^4.0.3",
     "tslib": "^2.3.1",
-    "web3": "1.2.11"
+    "web3": "~1.2.11",
+    "web3-core": "~1.2.11",
+    "web3-eth-contract": "~1.2.11"
   },
   "publishConfig": {
     "access": "public",

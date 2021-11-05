@@ -14,29 +14,30 @@
     "umd"
   ],
   "scripts": {
-    "test": "jest --testTimeout=10000",
     "build": "run-s build:*",
     "build:esm": "tsc --project tsconfig-build.json",
     "build:umd": "webpack",
     "clean": "rimraf ./build",
+    "test": "jest --testTimeout=10000",
     "verify": "tsc --noEmit"
   },
   "dependencies": {
-    "@rarible/ethereum-provider": "^0.9.9"
+    "@rarible/ethereum-provider": "^0.9.9",
+    "ethereumjs-util": "7.1.3",
+    "ethers": "^5.4.4"
   },
   "devDependencies": {
     "@rarible/ethereum-sdk-test-common": "^0.9.9",
-    "@types/jest": "26.0.24",
-    "jest": "27.0.6",
-    "process": "0.11.10",
-    "stream-browserify": "3.0.0",
-    "ts-jest": "27.0.3",
-    "typescript": "4.3.5",
-    "webpack": "5.55.1",
-    "webpack-cli": "4.8.0"
+    "@types/jest": "^27.0.2",
+    "jest": "^27.3.1",
+    "process": "^0.11.10",
+    "stream-browserify": "^3.0.0",
+    "ts-jest": "^27.0.7",
+    "typescript": "^4.4.4",
+    "webpack": "^5.55.1",
+    "webpack-cli": "^4.8.0"
   },
   "peerDependencies": {
-    "ethers": "^5.4.4",
     "tslib": "^2.3.1"
   },
   "publishConfig": {

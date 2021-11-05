@@ -64,5 +64,5 @@ describe("transfer Erc721 lazy", () => {
 		const erc1155Lazy = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V2, contract)
 		const recipientBalance = await erc1155Lazy.functionCall("balanceOf", recipient, minted.tokenId).call()
 		expect(recipientBalance).toEqual("50")
-	}, 10000)
+	})
 })

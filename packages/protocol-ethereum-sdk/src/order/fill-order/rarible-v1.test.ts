@@ -71,14 +71,18 @@ describe("test exchange v1 order", () => {
 		await it.testErc721.methods.setApprovalForAll(CONFIGS.e2e.transferProxies.nft, true).send({ from: seller })
 
 		const signedOrder: SimpleLegacyOrder = { ...order, signature: await sign(order) }
-		const execution = await filler.fill.start({ order: signedOrder, amount: 1, originFee: 100 })
+		const execution = filler.fill.start({ order: signedOrder, amount: 1, originFee: 100 })
 		await execution.runAll()
 
-		await retry(10, async () => {
+		const ownership = await retry(10, 4000, async () => {
 			const ownership = await ownershipApi.getNftOwnershipById({
 				ownershipId: `${it.testErc721.options.address}:${tokenId}:${buyer}`,
 			})
-			expect(ownership.value).toBe("1")
+			if (ownership.value.toString() !== "1") {
+				throw new Error("Ownership value must be '1'")
+			}
+			return ownership
 		})
-	}, 30000)
+		expect(ownership.value).toBe("1")
+	})
 })

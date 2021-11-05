@@ -21,7 +21,7 @@
     "build": "run-s build:*",
     "build:esm": "tsc --project tsconfig-build.json",
     "build:umd": "webpack",
-    "test": "jest --maxWorkers=1 --silent",
+    "test": "jest --runInBand --silent",
     "verify": "tsc --noEmit"
   },
   "dependencies": {

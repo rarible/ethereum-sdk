@@ -17,15 +17,15 @@ import { RaribleV2OrderHandler } from "./fill-order/rarible-v2"
 import { OrderFiller } from "./fill-order"
 import { RaribleV1OrderHandler } from "./fill-order/rarible-v1"
 
-const { provider, wallet } = createE2eProvider()
-const web3 = new Web3(provider)
-const ethereum = new Web3Ethereum({ web3 })
-const approve = () => Promise.resolve(undefined)
-const sign = signOrder.bind(null, ethereum, E2E_CONFIG)
-const configuration = new Configuration(getApiConfig("e2e"))
-const orderApi = new OrderControllerApi(configuration)
-
 describe("cancel order", () => {
+	const { provider, wallet } = createE2eProvider()
+	const web3 = new Web3(provider)
+	const ethereum = new Web3Ethereum({ web3 })
+	const approve = () => Promise.resolve(undefined)
+	const sign = signOrder.bind(null, ethereum, E2E_CONFIG)
+	const configuration = new Configuration(getApiConfig("e2e"))
+	const orderApi = new OrderControllerApi(configuration)
+
 	const v1Handler = new RaribleV1OrderHandler(null as any, orderApi, null as any, E2E_CONFIG)
 	const v2Handler = new RaribleV2OrderHandler(null as any, null as any, E2E_CONFIG)
 	const orderService = new OrderFiller(null as any, v1Handler, v2Handler, null as any, null as any)
@@ -49,7 +49,7 @@ describe("cancel order", () => {
 			signature: toBinary("0x"),
 		}
 		await testOrder(form)
-	}, 15000)
+	})
 
 	test("ExchangeV1 should work", async () => {
 		const form: OrderForm = {
@@ -82,10 +82,10 @@ describe("cancel order", () => {
 	})
 
 	async function testOrder(form: OrderForm) {
-		const checkLazyOrder: any = async (form: any) => Promise.resolve(form)
+		const checkLazyOrder = <T>(form: T) => Promise.resolve(form)
 		const upserter = new UpsertOrder(
 			orderService,
-			checkLazyOrder as any,
+			checkLazyOrder,
 			approve,
 			sign,
 			orderApi,
@@ -97,9 +97,14 @@ describe("cancel order", () => {
 		const tx = await cancel(checkLazyOrder, ethereum, E2E_CONFIG.exchange, order)
 		await tx.wait()
 
-		await retry(15, async () => {
-			const fetched = await orderApi.getOrderByHash({ hash: order.hash })
-			expect(fetched.cancelled).toBe(true)
+		const cancelledOrder = await retry(15, 2000, async () => {
+			const current = await orderApi.getOrderByHash({ hash: order.hash })
+			if (!current.cancelled) {
+				throw new Error("Order is not cancelled")
+			}
+			return current
 		})
+
+		expect(cancelledOrder.cancelled).toEqual(true)
 	}
 })

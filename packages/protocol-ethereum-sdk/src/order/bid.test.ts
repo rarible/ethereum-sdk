@@ -108,12 +108,15 @@ describe.each(providers)("bid", (ethereum) => {
 
 		expect(order.hash).toBeTruthy()
 
-		await delay(500)
+		await delay(1000)
+
+		const nextPrice = "40000000000000000"
 		const updatedOrder = await orderSell.update({
 			orderHash: order.hash,
-			price: toBigNumber("40000000000000000"),
+			price: toBigNumber(nextPrice),
 		})
-		expect(updatedOrder.make.value.toString()).toBe("40000000000000000")
+
+		expect(updatedOrder.make.value.toString()).toBe(nextPrice)
 	})
 
 	test("create and update of v1 works", async () => {
@@ -156,11 +159,14 @@ describe.each(providers)("bid", (ethereum) => {
 		}
 		const order = await upserter.upsert({ order: form })
 
-		await delay(500)
+		await delay(1000)
+
+		const nextPrice = "20000000000000000"
 		const updatedOrder = await orderSell.update({
 			orderHash: order.hash,
-			price: toBigNumber("20000000000000000"),
+			price: toBigNumber(nextPrice),
 		})
-		expect(updatedOrder.make.value.toString()).toBe("20000000000000000")
+
+		expect(updatedOrder.make.value.toString()).toBe(nextPrice)
 	})
 })

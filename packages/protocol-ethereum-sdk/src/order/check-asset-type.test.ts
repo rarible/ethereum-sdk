@@ -21,7 +21,6 @@ const { providers } = createTestProviders(provider, wallet)
 const from = toAddress(wallet.getAddressString())
 
 describe.each(providers)("check-asset-type test", ethereum => {
-
 	const e2eErc721ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
@@ -48,13 +47,17 @@ describe.each(providers)("check-asset-type test", ethereum => {
 			request
 		)
 
-		await retry(10, async () => {
+		const assetClass = await retry(10, 4000, async () => {
 			const assetType = await checkAssetType({
 				contract: e2eErc721ContractAddress,
 				tokenId: toBigNumber(minted.tokenId),
 			})
-			expect(assetType.assetClass).toEqual("ERC721")
+			if (assetType.assetClass !== "ERC721") {
+				throw new Error("Asset type must be ERC721")
+			}
+			return assetType.assetClass
 		})
+		expect(assetClass).toEqual("ERC721")
 	})
 
 	test("should leave as is if assetClass present", async () => {

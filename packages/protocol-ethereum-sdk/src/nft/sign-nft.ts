@@ -3,7 +3,7 @@ import type { Address } from "@rarible/types"
 import { toBinary } from "@rarible/types"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { TypedMessage } from "eth-sig-util"
-import type { Maybe } from "../common/maybe"
+import type { Maybe } from "@rarible/types/build/maybe"
 import {
 	EIP1155_DOMAIN_NFT_TEMPLATE,
 	EIP1155_NFT_TYPE,

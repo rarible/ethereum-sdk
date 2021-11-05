@@ -15,6 +15,7 @@ import {
 } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { BigNumber } from "@rarible/types"
+import type { Maybe } from "@rarible/types/build/maybe"
 import type { BigNumberValue } from "@rarible/utils/build/bn"
 import { CONFIGS } from "./config"
 import type { UpsertOrderAction } from "./order/upsert-order"
@@ -53,7 +54,6 @@ import { getBaseOrderFee as getBaseOrderFeeTemplate } from "./order/get-base-ord
 import { DeployErc721 } from "./nft/deploy-erc721"
 import { DeployErc1155 } from "./nft/deploy-erc1155"
 import type { DeployNft } from "./common/deploy"
-import type { Maybe } from "./common/maybe"
 import type { BalanceRequestAssetType} from "./common/balances"
 import { Balances } from "./common/balances"
 

@@ -1,9 +1,9 @@
 import type { Address, BigNumber } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { BigNumberValue} from "@rarible/utils/build/bn"
+import type { Maybe } from "@rarible/types/build/maybe"
 import { toBn } from "@rarible/utils/build/bn"
 import type { SendFunction } from "../common/send-transaction"
-import type { Maybe } from "../common/maybe"
 import { createErc20Contract } from "./contracts/erc20"
 
 const infiniteBn = toBn(2).pow(256).minus(1)

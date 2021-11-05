@@ -2,6 +2,7 @@ import type { Ethereum } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import { Action } from "@rarible/action"
 import type { Address } from "@rarible/ethereum-api-client"
+import type { Maybe } from "@rarible/types/build/maybe"
 import type {
 	SimpleCryptoPunkOrder,
 	SimpleLegacyOrder,
@@ -9,7 +10,6 @@ import type {
 	SimpleOrder,
 	SimpleRaribleV2Order,
 } from "../types"
-import type { Maybe } from "../../common/maybe"
 import type {
 	CryptoPunksOrderFillRequest,
 	FillOrderAction,

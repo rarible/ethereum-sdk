@@ -10,9 +10,9 @@ import type {
 	Part,
 } from "@rarible/ethereum-api-client"
 import { NftCollectionFeatures } from "@rarible/ethereum-api-client"
+import type { Maybe } from "@rarible/types/build/maybe"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { SendFunction } from "../common/send-transaction"
-import type { Maybe } from "../common/maybe"
 import { mintOffChain } from "./mint-off-chain"
 import { mintErc1155v1, mintErc1155v2, mintErc721v1, mintErc721v2, mintErc721v3 } from "./mint-on-chain"
 import type { SimpleLazyNft } from "./sign-nft"

@@ -1,9 +1,9 @@
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Address, Word } from "@rarible/types"
 import { randomWord } from "@rarible/types"
+import type { Maybe } from "@rarible/types/build/maybe"
 import type { SendFunction } from "../common/send-transaction"
 import type { Config } from "../config/type"
-import type { Maybe } from "../common/maybe"
 import { createErc721FactoryContract } from "./contracts/erc721/deploy/rarible-factory"
 import { createErc721UserFactoryContract } from "./contracts/erc721/deploy/rarible-user-factory"
 

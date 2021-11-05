@@ -7,7 +7,7 @@ import type {
 import type { Erc20BalanceControllerApi } from "@rarible/ethereum-api-client"
 import type { BigNumberValue } from "@rarible/utils"
 import { BigNumber, toBn } from "@rarible/utils"
-import type { Maybe } from "./maybe"
+import type { Maybe } from "@rarible/types/build/maybe"
 
 export type BalanceRequestAssetType = EthAssetType | Erc20AssetType
 

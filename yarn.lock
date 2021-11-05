@@ -2266,10 +2266,10 @@
   dependencies:
     "@octokit/openapi-types" "^10.6.4"
 
-"@rarible/action@~0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.4.0.tgz#7b9ae217f0af9dbef332821615ea4355d36409ef"
-  integrity sha512-Esvp3X/lOmpcBn9mwC7+AmBmim8WQmBUPbZmqggmSUm0Oiqez3R2EfsUl45XvcEyCC+QS/ob4tH7OVn73hmjaA==
+"@rarible/action@~0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@rarible/action/-/action-0.5.0.tgz#3dede3c046eafbdbfb84e18f063745a4adfb890a"
+  integrity sha512-02UgwX1COBacoaoDs1vOkJUFCvSwHRmSYdpVgFdNwLi2DIO0pokn5Yxx6uM52RfRewsnz/IoPHWgz4YlX+TTGw==
   dependencies:
     callable-instance "^2.0.0"
 
@@ -2293,10 +2293,10 @@
   dependencies:
     "@rarible/types" "^0.1.10"
 
-"@rarible/test-provider@~0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@rarible/test-provider/-/test-provider-0.2.0.tgz#e4abefc8f4f5f55550687406574e625754cb515c"
-  integrity sha512-OGckPaJkcrndzznAfARHgfLTQG49HLMg+bZIjMtaBH0bWCHucYxBJ9xj82bhyX9UwLvZPX0ggzl2fSBCL2sUYQ==
+"@rarible/test-provider@~0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@rarible/test-provider/-/test-provider-0.5.0.tgz#c0abda6fd6f92d0eac37a37f307830f88c113264"
+  integrity sha512-d8chlYztOVsd19PUD0TUlJywh1497DtSdbq079Sbkm6nNtjzUuuNZDtAUiH/TMZsYG1yFwN+i/aC+AeWMZLuTw==
   dependencies:
     "@ethereumjs/common" "^2.4.0"
     "@ethereumjs/tx" "^3.3.0"
@@ -2309,15 +2309,15 @@
   resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.1.10.tgz#0e91b5727be6e228e4dc2c4a7f907065ed81858d"
   integrity sha512-/eFNU2AeB7beMN9W0DYYNyfOEJtvppvFBzB7V3++fky2SL5S245/wxpqVjQvtkJcga8dQ81gCUZHooOlVLw7Zw==
 
-"@rarible/types@~0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.2.0.tgz#ac6fa7463db039e8175d066c9c4c40f72b78da56"
-  integrity sha512-aOsZpps2bDQl10D/SThGOzNfojSWfs39eoLhHOP+nN/WuMUOEbfMOOh0t/06JcAdxERQLe8BT+p2t3KC7syQcg==
+"@rarible/types@~0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.5.0.tgz#7922cf982d401b9b77ddb87af662103af3dbf13c"
+  integrity sha512-o58EFUPTy2YRDUZOJlbg3hiKDpLut/qA6ehhPj6TLCHhQr+mg1+UMPAVyiBKyMrm7otECh348cJEPvMf5i+1/g==
 
-"@rarible/utils@~0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@rarible/utils/-/utils-0.1.0.tgz#c79931fbe023b9c1e075c12e82895eda6e41efb6"
-  integrity sha512-5dHieAC4cKt+l/J027mIx5kWhcSkCMSbVLhjcigViHmmGRQYavXKyO8/dDG2k68qmTy7cdvIl54YmMaj6psEJw==
+"@rarible/utils@~0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@rarible/utils/-/utils-0.5.0.tgz#e111e5cad0ba962747bf541eae3515b642b559de"
+  integrity sha512-t1OgC2RJtRFHSqF0DKb6tk2HO3+a+lhbte1Z47AkoHoJ3oK4HjAXssydctP/wR8Y1/lIP2zMruShv297B+h8fw==
   dependencies:
     bignumber.js "^9.0.0"
 

@@ -1,8 +1,8 @@
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Address } from "@rarible/ethereum-api-client"
+import type { Maybe } from "@rarible/types/build/maybe"
 import type { SendFunction } from "../common/send-transaction"
 import { createCryptoPunksMarketContract } from "../nft/contracts/cryptoPunks"
-import type { Maybe } from "../common/maybe"
 
 export async function approveCryptoPunk(
 	ethereum: Maybe<Ethereum>,

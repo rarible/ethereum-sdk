@@ -39,6 +39,6 @@ describe("transfer Erc721", () => {
 
 		const receiverOwnership = await it.testErc721.methods.ownerOf(tokenId).call()
 		expect(toAddress(receiverOwnership) === toAddress(to)).toBeTruthy()
-	}, 20000)
+	})
 
 })

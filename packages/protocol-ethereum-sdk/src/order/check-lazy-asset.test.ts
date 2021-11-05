@@ -17,5 +17,5 @@ describe("checkLazyAsset", () => {
 			value: toBigNumber("100"),
 		})
 		expect(result.assetType.assetClass).toBe("ERC721")
-	}, 10000)
+	})
 })

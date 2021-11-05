@@ -55,7 +55,7 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 		await execution.runAll()
 		const result = await execution.result
 		expect(result.hash).toBeTruthy()
-	}, 10000)
+	})
 
 	test("getPrice should work with ETH", async () => {
 		const request = {

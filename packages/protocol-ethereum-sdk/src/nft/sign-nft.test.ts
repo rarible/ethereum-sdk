@@ -26,5 +26,5 @@ describe("mint-lazy test", () => {
 		expect(signature).toEqual(
 			"0x35ec1f77b70de693408a2a230f63f0fc8f5ed0f73138e244af0d78dc2f69bf757d46d25361668a2ba3730cd282e3649d941de61b118569eac6339ff5db9d31ac1c"
 		)
-	}, 10000)
+	})
 })

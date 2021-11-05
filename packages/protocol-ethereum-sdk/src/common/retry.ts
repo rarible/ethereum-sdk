@@ -1,20 +1,16 @@
-export async function retry<T>(num: number, fn: () => Promise<T>): Promise<T> {
-	try {
-		return await fn()
-	} catch (e) {
-		if (num > 0) {
-			await delay(500)
-			return retry(num - 1, fn)
-		} else {
-			return Promise.reject(e)
+export function retry<T>(
+	num: number,
+	del: number,
+	thunk: () => Promise<T>
+): Promise<T> {
+	return thunk().catch((error) => {
+		if (num === 0) {
+			throw error
 		}
-	}
+		return delay(del).then(() => retry(num - 1, del, thunk))
+	})
 }
 
-export function delay(time: number): Promise<void> {
-	return new Promise(resolve => {
-		setTimeout(() => {
-			resolve()
-		}, time)
-	})
+export function delay(num: number) {
+	return new Promise<void>((r) => setTimeout(r, num))
 }

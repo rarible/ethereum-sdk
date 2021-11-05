@@ -71,7 +71,7 @@ describe.each(providers)("mint test", ethereum => {
 			const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter).call()).toFixed()
 			expect(balanceOfMinter).toBe("1")
 		}
-	}, 20000)
+	})
 
 	test("mint ERC-721 v2", async () => {
 		const mintableTokenE2eAddress = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
@@ -146,7 +146,7 @@ describe.each(providers)("mint test", ethereum => {
 		const contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V2, e2eErc1155V2ContractAddress)
 		const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter, minted.tokenId).call()).toFixed()
 		expect(balanceOfMinter).toEqual("100")
-	}, 10000)
+	})
 
 	test("mint ERC-721 v3 lazy", async () => {
 		const minted = await mint({
@@ -161,7 +161,7 @@ describe.each(providers)("mint test", ethereum => {
 
 		const lazy = await nftItemApi.getNftLazyItemById({ itemId: resultNft.id })
 		expect(lazy.uri).toBe("uri")
-	}, 10000)
+	})
 
 	test("mint ERC-1155 v2 lazy", async () => {
 		const minted = await mint({
@@ -177,5 +177,5 @@ describe.each(providers)("mint test", ethereum => {
 
 		const lazy = await nftItemApi.getNftLazyItemById({ itemId: resultNft.id })
 		expect(lazy.uri).toBe("uri")
-	}, 10000)
+	})
 })

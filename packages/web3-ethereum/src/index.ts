@@ -1,4 +1,5 @@
 import type { Contract, ContractSendMethod } from "web3-eth-contract"
+import type Web3 from "web3"
 import type { PromiEvent, TransactionReceipt } from "web3-core"
 import {
 	Ethereum,
@@ -40,8 +41,7 @@ export class Web3Ethereum implements Ethereum {
 	}
 
 	async getFrom(): Promise<string> {
-		if (this.config.from) return this.config.from
-		return this.config.web3.eth.getAccounts().then(([first]) => first)
+		return getFrom(this.config.web3, this.config.from)
 	}
 
 	encodeParameter(type: any, parameter: any): string {
@@ -54,8 +54,7 @@ export class Web3Ethereum implements Ethereum {
 }
 
 export class Web3Contract implements EthereumContract {
-	constructor(private readonly config: Web3EthereumConfig, private readonly contract: Contract) {
-	}
+	constructor(private readonly config: Web3EthereumConfig, private readonly contract: Contract) {}
 
 	functionCall(name: string, ...args: any): EthereumFunctionCall {
 		return new Web3FunctionCall(
@@ -69,8 +68,7 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 		private readonly config: Web3EthereumConfig,
 		private readonly sendMethod: ContractSendMethod,
 		private readonly contract: Address
-	) {
-	}
+	) {}
 
 	get data(): string {
 		return this.sendMethod.encodeABI()
@@ -125,11 +123,7 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 	}
 
 	async getFrom(): Promise<string> {
-		if (this.config.from) {
-			return this.config.from
-		}
-		const [first] = await this.config.web3.eth.getAccounts()
-		return first
+		return getFrom(this.config.web3, this.config.from)
 	}
 }
 
@@ -157,4 +151,15 @@ export class Web3Transaction implements EthereumTransaction {
 			events,
 		}
 	}
+}
+
+async function getFrom(web3: Web3, from: string | undefined): Promise<string> {
+	if (from) {
+		return from
+	}
+	const [first] = await web3.eth.getAccounts()
+	if (!first) {
+		throw new Error("Wallet is not connected")
+	}
+	return first
 }

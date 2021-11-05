@@ -1,8 +1,8 @@
-import { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
-import Web3 from "web3"
-import { Contract } from "web3-eth-contract"
-import { Address } from "@rarible/types"
-import { AbiItem } from "../../../../common/abi-item"
+import type { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
+import type Web3 from "web3"
+import type { Contract } from "web3-eth-contract"
+import type { Address } from "@rarible/types"
+import type { AbiItem } from "../../../../common/abi-item"
 
 export function createErc721RaribleUserMinimalContract(ethereum: Ethereum, address?: Address): EthereumContract {
 	return ethereum.createContract(erc721RaribleUserMinimalABI, address)

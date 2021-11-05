@@ -7,7 +7,8 @@ import {
 	NftLazyMintControllerApi,
 } from "@rarible/ethereum-api-client"
 import { retry } from "../common/retry"
-import { ERC721RequestV3, mint } from "../nft/mint"
+import type { ERC721RequestV3} from "../nft/mint"
+import { mint } from "../nft/mint"
 import { signNft } from "../nft/sign-nft"
 import { send as sendTemplate } from "../common/send-transaction"
 import { createErc721V3Collection } from "../common/mint"

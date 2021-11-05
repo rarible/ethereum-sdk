@@ -1,5 +1,5 @@
 import type Web3 from "web3"
-import { Contract } from "web3-eth-contract"
+import type { Contract } from "web3-eth-contract"
 import { erc721v1Abi } from "../v1"
 import { erc721v1MintableTokenBytecode } from "./bytecodes"
 

@@ -12,11 +12,11 @@ import type {
 import { NftCollectionFeatures } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { SendFunction } from "../common/send-transaction"
-import { Maybe } from "../common/maybe"
+import type { Maybe } from "../common/maybe"
 import { mintOffChain } from "./mint-off-chain"
 import { mintErc1155v1, mintErc1155v2, mintErc721v1, mintErc721v2, mintErc721v3 } from "./mint-on-chain"
 import type { SimpleLazyNft } from "./sign-nft"
-import { ERC1155VersionEnum, ERC721VersionEnum, NFTContractVersion } from "./contracts/domain"
+import type { ERC1155VersionEnum, ERC721VersionEnum, NFTContractVersion } from "./contracts/domain"
 
 type Collection<V extends NFTContractVersion> = NftCollection & { version: V }
 type ERC721CollectionV1 = Collection<ERC721VersionEnum.ERC721V1>

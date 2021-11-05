@@ -1,15 +1,15 @@
-import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
-import { Address, CryptoPunksAssetType } from "@rarible/ethereum-api-client"
-import { ExchangeAddresses } from "../config/type"
+import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
+import type { Address, CryptoPunksAssetType } from "@rarible/ethereum-api-client"
+import type { ExchangeAddresses } from "../config/type"
 import { toVrs } from "../common/to-vrs"
 import { createCryptoPunksMarketContract } from "../nft/contracts/cryptoPunks"
-import { Maybe } from "../common/maybe"
+import type { Maybe } from "../common/maybe"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
 import { toStructLegacyOrderKey } from "./fill-order/rarible-v1"
 import { getAtomicMatchArgAddresses, getAtomicMatchArgUints } from "./fill-order/open-sea"
-import {
+import type {
 	SimpleCryptoPunkOrder,
 	SimpleLegacyOrder,
 	SimpleOpenSeaV1Order,
@@ -18,7 +18,7 @@ import {
 } from "./types"
 import { orderToStruct } from "./sign-order"
 import { convertOpenSeaOrderToDTO } from "./fill-order/open-sea-converter"
-import { CheckLazyOrderPart } from "./check-lazy-order"
+import type { CheckLazyOrderPart } from "./check-lazy-order"
 
 export async function cancel(
 	checkLazyOrder: <T extends CheckLazyOrderPart>(form: T) => Promise<T>,

@@ -1,6 +1,6 @@
 // noinspection JSCommentMatchesSignature
 
-import {
+import type {
 	Binary,
 	Erc20AssetType,
 	EthAssetType,
@@ -11,12 +11,14 @@ import {
 	RaribleV2OrderForm,
 } from "@rarible/ethereum-api-client"
 import { Action } from "@rarible/action"
-import { Address, randomWord, toAddress, toBigNumber, toBinary, Word } from "@rarible/types"
-import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
-import { Ethereum } from "@rarible/ethereum-provider"
-import { Maybe } from "../common/maybe"
+import type { Address, Word } from "@rarible/types"
+import { randomWord, toAddress, toBigNumber, toBinary } from "@rarible/types"
+import type { BigNumberValue} from "@rarible/utils/build/bn"
+import { toBn } from "@rarible/utils/build/bn"
+import type { Ethereum } from "@rarible/ethereum-provider"
+import type { Maybe } from "../common/maybe"
 import type { SimpleOrder } from "./types"
-import { UpsertSimpleOrder } from "./types"
+import type { UpsertSimpleOrder } from "./types"
 import { addFee } from "./add-fee"
 import type { ApproveFunction } from "./approve"
 import type { OrderFiller } from "./fill-order"

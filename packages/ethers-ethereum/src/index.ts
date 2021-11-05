@@ -1,17 +1,20 @@
-import { Contract, ethers } from "ethers"
+import type { Contract} from "ethers"
+import { ethers } from "ethers"
 import type { TransactionResponse } from "@ethersproject/abstract-provider"
-import {
+import type {
 	Ethereum,
 	EthereumContract,
 	EthereumFunctionCall,
 	EthereumSendOptions,
 	EthereumTransaction,
-	EthereumTransactionReceipt,
+	EthereumTransactionReceipt} from "@rarible/ethereum-provider"
+import {
 	signTypedData,
 } from "@rarible/ethereum-provider"
-import { Address, Binary, toAddress, toBigNumber, BigNumber, toBinary, toWord, Word } from "@rarible/types"
-import { MessageTypes, TypedMessage } from "@rarible/ethereum-provider/src/domain"
-import { TypedDataSigner } from "@ethersproject/abstract-signer"
+import type { Address, Binary, BigNumber, Word } from "@rarible/types"
+import { toAddress, toBigNumber, toBinary, toWord } from "@rarible/types"
+import type { MessageTypes, TypedMessage } from "@rarible/ethereum-provider/src/domain"
+import type { TypedDataSigner } from "@ethersproject/abstract-signer"
 import { encodeParameters } from "./abi-coder"
 
 export class EthersWeb3ProviderEthereum implements Ethereum {

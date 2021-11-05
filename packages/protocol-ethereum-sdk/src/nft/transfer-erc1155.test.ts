@@ -5,6 +5,7 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
 import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
 import { getApiConfig } from "../config/api-config"
+import { isError } from "../common/is-error"
 import { send as sendTemplate } from "../common/send-transaction"
 import { transferErc1155 } from "./transfer-erc1155"
 
@@ -120,7 +121,11 @@ describe("transfer Erc1155", () => {
 					[token2Id, token3Id],
 					["50", "50", "10"])
 			} catch (e) {
-				expect(e.message).toEqual("Length of token amounts and token id's isn't equal")
+				if (isError(e)) {
+					expect(e.message).toEqual("Length of token amounts and token id's isn't equal")
+				} else {
+					throw new Error("Never happen")
+				}
 			}
 		})
 })

@@ -1,13 +1,14 @@
 import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { Address, Asset, OrderOpenSeaV1DataV1Side } from "@rarible/ethereum-api-client"
-import { Contract } from "web3-eth-contract"
-import { EthereumContract } from "@rarible/ethereum-provider"
+import type { Address, Asset } from "@rarible/ethereum-api-client"
+import { OrderOpenSeaV1DataV1Side } from "@rarible/ethereum-api-client"
+import type { Contract } from "web3-eth-contract"
+import type { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
 import { sentTx, simpleSend } from "../../common/send-transaction"
-import { Config } from "../../config/type"
+import type { Config } from "../../config/type"
 import { E2E_CONFIG } from "../../config/e2e"
 import { id32 } from "../../common/id"
 import {
@@ -27,7 +28,7 @@ import { deployOpenSeaExchangeV1 } from "../contracts/test/opensea/test-exchange
 import { createOpenseaProxyRegistryEthContract } from "../contracts/proxy-registry-opensea"
 import { createOpenseaContract } from "../contracts/exchange-opensea-v1"
 import { cancel } from "../cancel"
-import { SimpleOpenSeaV1Order } from "../types"
+import type { SimpleOpenSeaV1Order } from "../types"
 import {
 	getAtomicMatchArgAddresses,
 	getAtomicMatchArgCommonData,

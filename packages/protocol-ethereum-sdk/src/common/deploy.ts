@@ -1,5 +1,5 @@
-import { Address } from "@rarible/types"
-import { EthereumTransaction } from "@rarible/ethereum-provider"
+import type { Address } from "@rarible/types"
+import type { EthereumTransaction } from "@rarible/ethereum-provider"
 
 export type DeployContractRequest = (
 	name: string, symbol: string, baseURI: string, contractURI: string

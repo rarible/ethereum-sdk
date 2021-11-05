@@ -1,4 +1,5 @@
-import { ethereumProviderErrors, ethereumRpcErrors, ProviderRequestError } from "./domain"
+import type { ProviderRequestError } from "./domain"
+import { ethereumProviderErrors, ethereumRpcErrors } from "./domain"
 
 export function parseRequestError(error: any): ProviderRequestError | undefined {
 	if (typeof error === "object" && "code" in error) {

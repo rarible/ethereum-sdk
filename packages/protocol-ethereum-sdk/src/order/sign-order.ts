@@ -1,14 +1,15 @@
-import { Asset, Binary, EIP712Domain } from "@rarible/ethereum-api-client"
-import { Address, toBinary, ZERO_ADDRESS } from "@rarible/types"
-import { Ethereum } from "@rarible/ethereum-provider"
+import type { Asset, Binary, EIP712Domain } from "@rarible/ethereum-api-client"
+import type { Address } from "@rarible/types"
+import { toBinary, ZERO_ADDRESS } from "@rarible/types"
+import type { Ethereum } from "@rarible/ethereum-provider"
 import { TypedDataUtils } from "eth-sig-util"
-import { Config } from "../config/type"
-import { Maybe } from "../common/maybe"
+import type { Config } from "../config/type"
+import type { Maybe } from "../common/maybe"
 import { hashLegacyOrder } from "./hash-legacy-order"
 import { assetTypeToStruct } from "./asset-type-to-struct"
 import { EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES } from "./eip712"
 import { encodeData } from "./encode-data"
-import { SimpleOrder, SimpleRaribleV2Order } from "./types"
+import type { SimpleOrder, SimpleRaribleV2Order } from "./types"
 
 export async function signOrder(
 	ethereum: Maybe<Ethereum>,

@@ -1,6 +1,6 @@
-import Web3 from "web3"
-import { Address } from "@rarible/types"
-import { AbiItem } from "../../../../common/abi-item"
+import type Web3 from "web3"
+import type { Address } from "@rarible/types"
+import type { AbiItem } from "../../../../common/abi-item"
 
 export function createErc1155LazyMintTransferProxyContract(web3: Web3, address?: Address) {
 	return new web3.eth.Contract(erc1155LazyMintTransferProxyABI, address)

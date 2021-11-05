@@ -1,8 +1,8 @@
-import { Address } from "@rarible/types"
-import { Part } from "@rarible/ethereum-api-client"
-import { Action } from "@rarible/action"
-import { EthereumTransaction } from "@rarible/ethereum-provider"
-import { SimpleCryptoPunkOrder, SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleRaribleV2Order } from "../types"
+import type { Address } from "@rarible/types"
+import type { Part } from "@rarible/ethereum-api-client"
+import type { Action } from "@rarible/action"
+import type { EthereumTransaction } from "@rarible/ethereum-provider"
+import type { SimpleCryptoPunkOrder, SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleRaribleV2Order } from "../types"
 
 type CommonFillRequest<T> = { order: T, amount: number, infinite?: boolean }
 

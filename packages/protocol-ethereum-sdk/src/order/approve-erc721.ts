@@ -1,7 +1,7 @@
-import { Address } from "@rarible/ethereum-api-client"
-import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
-import { SendFunction } from "../common/send-transaction"
-import { Maybe } from "../common/maybe"
+import type { Address } from "@rarible/ethereum-api-client"
+import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
+import type { SendFunction } from "../common/send-transaction"
+import type { Maybe } from "../common/maybe"
 import { createErc721Contract } from "./contracts/erc721"
 
 export async function approveErc721(

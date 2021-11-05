@@ -6,7 +6,7 @@ import {
 } from "@rarible/ethereum-sdk-test-common"
 import { ethers } from "ethers"
 import Web3 from "web3"
-import { Ethereum } from "@rarible/ethereum-provider"
+import type { Ethereum } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import { EthersEthereum, EthersWeb3ProviderEthereum } from "./index"
 
@@ -17,11 +17,11 @@ const web3 = new Web3(provider as any)
 const web3Provider = new ethers.providers.Web3Provider(provider as any)
 const ethereum = new EthersWeb3ProviderEthereum(web3Provider)
 const wallet = new ethers.Wallet(testPK, web3Provider)
-const newEthereum = new EthersEthereum(wallet)
+const etheresEthereum = new EthersEthereum(wallet)
 
 const data = [
 	ethereum,
-	newEthereum,
+	etheresEthereum,
 ]
 
 describe.each(data)("ethers.js Ethereum", (eth: Ethereum) => {

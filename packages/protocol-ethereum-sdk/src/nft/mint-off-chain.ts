@@ -5,11 +5,12 @@ import type {
 	NftLazyMintControllerApi,
 } from "@rarible/ethereum-api-client"
 import { toBigNumber } from "@rarible/types"
-import { Ethereum } from "@rarible/ethereum-provider"
-import { Part } from "@rarible/ethereum-api-client"
+import type { Ethereum } from "@rarible/ethereum-provider"
+import type { Part } from "@rarible/ethereum-api-client"
 import type { SimpleLazyNft } from "./sign-nft"
 import { getTokenId } from "./get-token-id"
-import { ERC1155RequestV2, ERC721RequestV3, MintOffChainResponse, MintResponseTypeEnum } from "./mint"
+import type { ERC1155RequestV2, ERC721RequestV3, MintOffChainResponse} from "./mint"
+import { MintResponseTypeEnum } from "./mint"
 import { getCreators } from "./mint-on-chain"
 
 export async function mintOffChain(

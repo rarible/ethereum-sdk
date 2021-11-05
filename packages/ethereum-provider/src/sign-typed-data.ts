@@ -1,5 +1,6 @@
 import { TypedDataUtils } from "eth-sig-util"
-import { MessageTypes, SignTypedDataMethodEnum, TypedMessage } from "./domain"
+import type { MessageTypes, TypedMessage } from "./domain"
+import { SignTypedDataMethodEnum } from "./domain"
 
 export type SendFunction = (method: string, params: any) => Promise<any>
 
@@ -10,7 +11,7 @@ export async function signTypedData<T extends MessageTypes>(
 		return await send(SignTypedDataMethodEnum.V4, [signer, JSON.stringify(data)])
 	} catch (error) {
 		console.error("got error white executing sign typed data v4", error)
-		if ("message" in error && error.message === "MetaMask Message Signature: Error: Not supported on this device") {
+		if (isError(error) && error.message === "MetaMask Message Signature: Error: Not supported on this device") {
 			return signWithHardwareWallets(send, signer, data)
 		} else {
 			filterErrors(error)
@@ -23,6 +24,10 @@ export async function signTypedData<T extends MessageTypes>(
 			}
 		}
 	}
+}
+
+function isError(x: unknown): x is Error {
+	return typeof x === "object" && x !== null && "message" in x
 }
 
 async function signWithHardwareWallets<T extends MessageTypes>(

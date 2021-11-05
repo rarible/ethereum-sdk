@@ -1,4 +1,4 @@
-import {
+import type {
 	AssetType,
 	Erc1155AssetType,
 	Erc1155LazyAssetType,

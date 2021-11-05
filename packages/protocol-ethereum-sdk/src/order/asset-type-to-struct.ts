@@ -1,5 +1,5 @@
-import { AssetType } from "@rarible/ethereum-api-client"
-import { Ethereum } from "@rarible/ethereum-provider"
+import type { AssetType } from "@rarible/ethereum-api-client"
+import type { Ethereum } from "@rarible/ethereum-provider"
 import { id } from "../common/id"
 
 export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {

@@ -1,6 +1,6 @@
-import { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
-import { Address } from "@rarible/types"
-import { AbiItem } from "../../../common/abi-item"
+import type { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
+import type { Address } from "@rarible/types"
+import type { AbiItem } from "../../../common/abi-item"
 
 export function createCryptoPunksMarketContract(ethereum: Ethereum, address?: Address): EthereumContract {
 	return ethereum.createContract(cryptoPunksAbi, address)

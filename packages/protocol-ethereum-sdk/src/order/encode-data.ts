@@ -1,5 +1,5 @@
-import { OrderData } from "@rarible/ethereum-api-client"
-import { Ethereum } from "@rarible/ethereum-provider"
+import type { OrderData } from "@rarible/ethereum-api-client"
+import type { Ethereum } from "@rarible/ethereum-provider"
 
 //todo wrongEncode когда применять?
 export function encodeData(ethereum: Ethereum, data: OrderData, wrongEncode: Boolean = false): [string, string] {

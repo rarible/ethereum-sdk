@@ -1,7 +1,9 @@
-import {
+import type {
 	Address,
-	Configuration,
 	ConfigurationParameters,
+	OrderForm} from "@rarible/ethereum-api-client"
+import {
+	Configuration,
 	Erc20BalanceControllerApi,
 	GatewayControllerApi,
 	NftCollectionControllerApi,
@@ -10,32 +12,38 @@ import {
 	NftOwnershipControllerApi,
 	OrderActivityControllerApi,
 	OrderControllerApi,
-	OrderForm,
 } from "@rarible/ethereum-api-client"
-import { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
-import { BigNumber } from "@rarible/types"
-import { BigNumberValue } from "@rarible/utils/build/bn"
+import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
+import type { BigNumber } from "@rarible/types"
+import type { BigNumberValue } from "@rarible/utils/build/bn"
 import { CONFIGS } from "./config"
-import { UpsertOrder, UpsertOrderAction } from "./order/upsert-order"
+import type { UpsertOrderAction } from "./order/upsert-order"
+import { UpsertOrder } from "./order/upsert-order"
 import { approve as approveTemplate } from "./order/approve"
-import { OrderSell, SellOrderAction, SellOrderUpdateAction } from "./order/sell"
+import type { SellOrderAction, SellOrderUpdateAction } from "./order/sell"
+import { OrderSell } from "./order/sell"
 import { signOrder as signOrderTemplate } from "./order/sign-order"
-import { BidOrderAction, BidUpdateOrderAction, OrderBid } from "./order/bid"
+import type { BidOrderAction, BidUpdateOrderAction} from "./order/bid"
+import { OrderBid } from "./order/bid"
+import type {
+	CheckLazyOrderPart} from "./order"
 import {
 	checkLazyAsset as checkLazyAssetTemplate,
 	checkLazyAssetType as checkLazyAssetTypeTemplate,
 	checkLazyOrder as checkLazyOrderTemplate,
-	CheckLazyOrderPart,
 } from "./order"
 import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
-import { mint as mintTemplate, MintOffChainResponse, MintOnChainResponse, MintRequest } from "./nft/mint"
-import { transfer as transferTemplate, TransferAsset } from "./nft/transfer"
+import type { MintOffChainResponse, MintOnChainResponse, MintRequest } from "./nft/mint"
+import { mint as mintTemplate } from "./nft/mint"
+import type { TransferAsset } from "./nft/transfer"
+import { transfer as transferTemplate } from "./nft/transfer"
 import { signNft as signNftTemplate } from "./nft/sign-nft"
-import { burn as burnTemplate, BurnAsset } from "./nft/burn"
+import type { BurnAsset } from "./nft/burn"
+import { burn as burnTemplate } from "./nft/burn"
 import { send as sendTemplate } from "./common/send-transaction"
 import { cancel as cancelTemplate } from "./order/cancel"
-import { FillOrderAction } from "./order/fill-order/types"
-import { SimpleOrder } from "./order/types"
+import type { FillOrderAction } from "./order/fill-order/types"
+import type { SimpleOrder } from "./order/types"
 import { RaribleV1OrderHandler } from "./order/fill-order/rarible-v1"
 import { OrderFiller } from "./order/fill-order"
 import { RaribleV2OrderHandler } from "./order/fill-order/rarible-v2"
@@ -44,9 +52,10 @@ import { CryptoPunksOrderHandler } from "./order/fill-order/crypto-punks"
 import { getBaseOrderFee as getBaseOrderFeeTemplate } from "./order/get-base-order-fee"
 import { DeployErc721 } from "./nft/deploy-erc721"
 import { DeployErc1155 } from "./nft/deploy-erc1155"
-import { DeployNft } from "./common/deploy"
-import { Maybe } from "./common/maybe"
-import { BalanceRequestAssetType, Balances } from "./common/balances"
+import type { DeployNft } from "./common/deploy"
+import type { Maybe } from "./common/maybe"
+import type { BalanceRequestAssetType} from "./common/balances"
+import { Balances } from "./common/balances"
 
 export interface RaribleApis {
 	nftItem: NftItemControllerApi

@@ -6,11 +6,12 @@ import type {
 	RaribleV2OrderForm,
 } from "@rarible/ethereum-api-client"
 import { toBigNumber } from "@rarible/types"
-import { BigNumberValue, toBn } from "@rarible/utils/build/bn"
+import type { BigNumberValue} from "@rarible/utils/build/bn"
+import { toBn } from "@rarible/utils/build/bn"
 import { Action } from "@rarible/action"
 import type { HasOrder, HasPrice, OrderRequest, UpsertOrder } from "./upsert-order"
-import { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type"
-import { SimpleOrder } from "./types"
+import type { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type"
+import type { SimpleOrder } from "./types"
 import { isCurrency } from "./is-currency"
 
 export type SellRequest = {

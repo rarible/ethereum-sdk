@@ -1,4 +1,4 @@
-import { Address, AssetType, BigNumber } from "@rarible/ethereum-api-client"
+import type { Address, AssetType, BigNumber } from "@rarible/ethereum-api-client"
 import { toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 
 type LegacyAssetType = {

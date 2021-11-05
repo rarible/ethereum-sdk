@@ -1,9 +1,9 @@
-import Web3 from "web3"
-import { Address } from "@rarible/ethereum-api-client"
-import { Contract } from "web3-eth-contract"
-import { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
+import type Web3 from "web3"
+import type { Address } from "@rarible/ethereum-api-client"
+import type { Contract } from "web3-eth-contract"
+import type { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
 import { ZERO_ADDRESS } from "@rarible/types"
-import { AbiItem } from "../../../../common/abi-item"
+import type { AbiItem } from "../../../../common/abi-item"
 
 export function createErc721FactoryContract(ethereum: Ethereum, address?: Address): EthereumContract {
 	return ethereum.createContract(erc721RaribleFactoryABI, address)

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.10](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.9.9...v0.9.10) (2021-11-05)
+
+
+### Bug Fixes
+
+* getFrom function in Web3Ethereum ([74dd21f](https://github.com/rarible/protocol-ethereum-sdk/commit/74dd21fc91ade21d73d7ac0621c8916165d6c5b7))
+
+
+
+
+
 ## [0.9.9](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.9.8...v0.9.9) (2021-11-03)
 
 **Note:** Version bump only for package root

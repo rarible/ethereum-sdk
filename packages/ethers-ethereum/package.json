@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@rarible/ethereum-provider": "^0.9.9",
-    "ethereumjs-util": "7.1.3",
+    "ethereumjs-util": "^7.1.0",
     "ethers": "~5.4.4"
   },
   "devDependencies": {

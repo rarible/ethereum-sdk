@@ -5,7 +5,7 @@ import { toBn } from "@rarible/utils"
 import type { Maybe } from "@rarible/types/build/maybe"
 import { approve } from "../approve"
 import type { SendFunction } from "../../common/send-transaction"
-import type { Config } from "../../config/type"
+import type { EthereumConfig } from "../../config/type"
 import type { SimpleLegacyOrder } from "../types"
 import { getAssetWithFee } from "../get-asset-with-fee"
 import { createExchangeV1Contract } from "../contracts/exchange-v1"
@@ -21,9 +21,8 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly orderApi: OrderControllerApi,
 		private readonly send: SendFunction,
-		private readonly config: Config,
-	) {
-	}
+		private readonly config: EthereumConfig,
+	) {}
 
 	invert(request: LegacyOrderFillRequest, maker: Address): SimpleLegacyOrder {
 		const inverted = invertOrder(request.order, request.amount, maker)

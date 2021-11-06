@@ -3,23 +3,16 @@ import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
 import type { Contract } from "web3-eth-contract"
-import {
-	Configuration, GatewayControllerApi,
-} from "@rarible/ethereum-api-client"
+import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
-import type { Config } from "../config/type"
-import { E2E_CONFIG } from "../config/e2e"
-import {
-	deployTestErc721RaribleMinimal,
-} from "./contracts/erc721/deploy/rarible-minimal"
+import { getEthereumConfig } from "../config"
+import { deployTestErc721RaribleMinimal } from "./contracts/erc721/deploy/rarible-minimal"
 import { deployTestUpgradableBeacon } from "./contracts/upgradable-beacon"
 import { deployTestErc721RaribleFactory } from "./contracts/erc721/deploy/rarible-factory"
 import { DeployErc721 } from "./deploy-erc721"
 import { deployTestErc721RaribleUserFactory } from "./contracts/erc721/deploy/rarible-user-factory"
-import {
-	deployTestErc721RaribleUserMinimal,
-} from "./contracts/erc721/deploy/rarible-user-minimal"
+import { deployTestErc721RaribleUserMinimal } from "./contracts/erc721/deploy/rarible-user-minimal"
 
 describe("deploy token test", () => {
 	const { addresses, provider } = createGanacheProvider()
@@ -27,10 +20,7 @@ describe("deploy token test", () => {
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 
-	const config: Config = {
-		...E2E_CONFIG,
-		chainId: 17,
-	}
+	const config = getEthereumConfig("e2e")
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const send = sendTemplate.bind(null, gatewayApi)

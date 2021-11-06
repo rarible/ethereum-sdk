@@ -32,7 +32,7 @@ export type FactoriesAddresses = {
 	erc1155User: Address
 }
 
-export type Config = {
+export type EthereumConfig = {
 	basePath: string
 	chainId: number
 	exchange: ExchangeAddresses

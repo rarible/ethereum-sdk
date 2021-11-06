@@ -1,8 +1,8 @@
 import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 import { id32 } from "../common/id"
-import type { Config } from "./type"
+import type { EthereumConfig } from "./type"
 
-export const ROPSTEN_CONFIG: Config = {
+export const ropstenConfig: EthereumConfig = {
 	basePath: "https://ethereum-api-dev.rarible.org",
 	chainId: 3,
 	exchange: {
@@ -15,7 +15,7 @@ export const ROPSTEN_CONFIG: Config = {
 		erc20: toAddress("0xa5a51d7b4933185da9c932e5375187f661cb0c69"),
 		erc721Lazy: toAddress("0x6c49c170c82C40709a32Fb4E827ad3011CD86227"),
 		erc1155Lazy: toAddress("0x9F7fBc52A53f85e57a5DAde35dFa14797A4dA412"),
-		openseaV1: toAddress(ZERO_ADDRESS),
+		openseaV1: ZERO_ADDRESS,
 		cryptoPunks: toAddress("0x6B8ABca06F4D08310dc09540B8E27E5A0D9572E9"),
 	},
 	fees: {

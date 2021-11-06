@@ -36,7 +36,7 @@ export class OrderSell {
 			id: "approve" as const,
 			run: async (request: SellRequest) => {
 				const form = await this.getSellForm(request)
-				const checked = await this.upserter.checkLazyOrder(form)
+				const checked = await this.upserter.checkLazyOrder(form) as OrderForm
 				await this.upserter.approve(checked, false)
 				return checked
 			},
@@ -72,7 +72,7 @@ export class OrderSell {
 				}
 				const price = await this.upserter.getPrice(request, order.take.assetType)
 				const form = await this.prepareOrderUpdateForm(order, price)
-				const checked = await this.upserter.checkLazyOrder(form)
+				const checked = await this.upserter.checkLazyOrder(form) as OrderForm
 				await this.upserter.approve(checked, false)
 				return checked
 			},

@@ -4,7 +4,7 @@ import { toBinary, ZERO_ADDRESS } from "@rarible/types"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { Maybe } from "@rarible/types/build/maybe"
 import { TypedDataUtils } from "eth-sig-util"
-import type { Config } from "../config/type"
+import type { EthereumConfig } from "../config/type"
 import { hashLegacyOrder } from "./hash-legacy-order"
 import { assetTypeToStruct } from "./asset-type-to-struct"
 import { EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES } from "./eip712"
@@ -13,7 +13,7 @@ import type { SimpleOrder, SimpleRaribleV2Order } from "./types"
 
 export async function signOrder(
 	ethereum: Maybe<Ethereum>,
-	config: Pick<Config, "exchange" | "chainId">,
+	config: Pick<EthereumConfig, "exchange" | "chainId">,
 	order: SimpleOrder
 ): Promise<Binary> {
 	if (!ethereum) {
@@ -40,7 +40,7 @@ export async function signOrder(
 	}
 }
 
-export function hashToSign(config: Pick<Config, "exchange" | "chainId">, ethereum: Ethereum, order: SimpleRaribleV2Order) {
+export function hashToSign(config: Pick<EthereumConfig, "exchange" | "chainId">, ethereum: Ethereum, order: SimpleRaribleV2Order) {
 	const domain = createEIP712Domain(config.chainId, config.exchange.v2)
 	return TypedDataUtils.sign({
 		primaryType: EIP712_ORDER_TYPE,

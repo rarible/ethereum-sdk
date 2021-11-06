@@ -1,11 +1,14 @@
 import type { ConfigurationParameters } from "@rarible/ethereum-api-client"
-import { CONFIGS } from "./index"
+import type { EthereumNetwork } from "../types"
+import { getEthereumConfig } from "./index"
 
 export function getApiConfig(
-	env: keyof typeof CONFIGS, additional: ConfigurationParameters = {}
+	env: EthereumNetwork,
+	additional: ConfigurationParameters = {}
 ): ConfigurationParameters {
+	const config = getEthereumConfig(env)
 	return {
-		basePath: CONFIGS[env].basePath,
+		basePath: config.basePath,
 		...additional,
 	}
 }

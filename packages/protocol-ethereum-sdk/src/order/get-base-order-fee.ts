@@ -1,8 +1,8 @@
 import type { OrderForm } from "@rarible/ethereum-api-client"
-import type { Config } from "../config/type"
+import type { EthereumConfig } from "../config/type"
 import { CURRENT_ORDER_TYPE_VERSION } from "../common/order"
 
-export async function getBaseOrderFee(config: Config, type: OrderForm["type"] = CURRENT_ORDER_TYPE_VERSION) {
+export async function getBaseOrderFee(config: EthereumConfig, type: OrderForm["type"] = CURRENT_ORDER_TYPE_VERSION) {
 	switch (type) {
 		case "RARIBLE_V1":
 			return 0

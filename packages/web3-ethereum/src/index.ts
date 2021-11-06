@@ -1,29 +1,22 @@
 import type { Contract, ContractSendMethod } from "web3-eth-contract"
 import type Web3 from "web3"
 import type { PromiEvent, TransactionReceipt } from "web3-core"
-import {
-	signTypedData,
-} from "@rarible/ethereum-provider"
+import { signTypedData } from "@rarible/ethereum-provider"
 import type { Address, BigNumber, Binary, Word } from "@rarible/types"
 import { toAddress, toBigNumber, toBinary, toWord } from "@rarible/types"
 import { backOff } from "exponential-backoff"
-import type { EthereumTransactionEvent, EthereumTransactionReceipt,
-	Ethereum,
-	EthereumContract,
-	EthereumFunctionCall,
-	EthereumSendOptions,
-	EthereumTransaction} from "@rarible/ethereum-provider"
+import type * as EthereumProvider from "@rarible/ethereum-provider"
 import type { MessageTypes, TypedMessage } from "@rarible/ethereum-provider/src/domain"
 import type { Web3EthereumConfig } from "./domain"
 import { providerRequest } from "./utils/provider-request"
 import { toPromises } from "./utils/to-promises"
 
-export class Web3Ethereum implements Ethereum {
+export class Web3Ethereum implements EthereumProvider.Ethereum {
 	constructor(private readonly config: Web3EthereumConfig) {
 		this.send = this.send.bind(this)
 	}
 
-	createContract(abi: any, address?: string): EthereumContract {
+	createContract(abi: any, address?: string): EthereumProvider.EthereumContract {
 		return new Web3Contract(this.config, new this.config.web3.eth.Contract(abi, address))
 	}
 
@@ -54,17 +47,17 @@ export class Web3Ethereum implements Ethereum {
 	}
 }
 
-export class Web3Contract implements EthereumContract {
+export class Web3Contract implements EthereumProvider.EthereumContract {
 	constructor(private readonly config: Web3EthereumConfig, private readonly contract: Contract) {}
 
-	functionCall(name: string, ...args: any): EthereumFunctionCall {
+	functionCall(name: string, ...args: any): EthereumProvider.EthereumFunctionCall {
 		return new Web3FunctionCall(
 			this.config, this.contract.methods[name](...args), toAddress(this.contract.options.address)
 		)
 	}
 }
 
-export class Web3FunctionCall implements EthereumFunctionCall {
+export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 	constructor(
 		private readonly config: Web3EthereumConfig,
 		private readonly sendMethod: ContractSendMethod,
@@ -79,7 +72,7 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 		return this.sendMethod.estimateGas()
 	}
 
-	call(options: EthereumSendOptions = {}): Promise<any> {
+	call(options: EthereumProvider.EthereumSendOptions = {}): Promise<any> {
 		return this.sendMethod.call({
 			from: this.config.from,
 			gas: options.gas,
@@ -87,7 +80,7 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 		})
 	}
 
-	async send(options: EthereumSendOptions = {}): Promise<EthereumTransaction> {
+	async send(options: EthereumProvider.EthereumSendOptions = {}): Promise<EthereumProvider.EthereumTransaction> {
 		const from = toAddress(await this.getFrom())
 		const promiEvent: PromiEvent<Contract> = this.sendMethod.send({
 			from,
@@ -128,7 +121,7 @@ export class Web3FunctionCall implements EthereumFunctionCall {
 	}
 }
 
-export class Web3Transaction implements EthereumTransaction {
+export class Web3Transaction implements EthereumProvider.EthereumTransaction {
 	constructor(
 		private readonly receipt: Promise<TransactionReceipt>,
 		public readonly hash: Word,
@@ -139,9 +132,9 @@ export class Web3Transaction implements EthereumTransaction {
 	) {
 	}
 
-	async wait(): Promise<EthereumTransactionReceipt> {
+	async wait(): Promise<EthereumProvider.EthereumTransactionReceipt> {
 		const receipt = await this.receipt
-		const events: EthereumTransactionEvent[] = Object.keys(receipt.events!)
+		const events: EthereumProvider.EthereumTransactionEvent[] = Object.keys(receipt.events!)
 			.map(ev => receipt.events![ev])
 			.map(ev => ({
 				...ev,

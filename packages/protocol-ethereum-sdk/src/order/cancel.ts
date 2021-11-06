@@ -21,27 +21,27 @@ import { convertOpenSeaOrderToDTO } from "./fill-order/open-sea-converter"
 import type { CheckLazyOrderPart } from "./check-lazy-order"
 
 export async function cancel(
-	checkLazyOrder: <T extends CheckLazyOrderPart>(form: T) => Promise<T>,
+	checkLazyOrder: (form: CheckLazyOrderPart) => Promise<CheckLazyOrderPart>,
 	ethereum: Maybe<Ethereum>,
 	config: ExchangeAddresses,
 	orderToCheck: SimpleOrder,
 ): Promise<EthereumTransaction> {
-	if (!ethereum) {
-		throw new Error("Wallet undefined")
+	if (ethereum) {
+		const order = await checkLazyOrder(orderToCheck) as SimpleOrder
+		switch (order.type) {
+			case "RARIBLE_V1":
+				return cancelLegacyOrder(ethereum, config.v1, order)
+			case "RARIBLE_V2":
+				return cancelV2Order(ethereum, config.v2, order)
+			case "OPEN_SEA_V1":
+				return cancelOpenseaOrderV1(ethereum, config.openseaV1, order)
+			case "CRYPTO_PUNK":
+				return cancelCryptoPunksOrder(ethereum, order)
+			default:
+				throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
+		}
 	}
-	const order = await checkLazyOrder(orderToCheck)
-	switch (order.type) {
-		case "RARIBLE_V1":
-			return cancelLegacyOrder(ethereum, config.v1, order)
-		case "RARIBLE_V2":
-			return cancelV2Order(ethereum, config.v2, order)
-		case "OPEN_SEA_V1":
-			return cancelOpenseaOrderV1(ethereum, config.openseaV1, order)
-		case "CRYPTO_PUNK":
-			return cancelCryptoPunksOrder(ethereum, order)
-		default:
-			throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
-	}
+	throw new Error("Wallet undefined")
 }
 
 async function cancelLegacyOrder(ethereum: Ethereum, contract: Address, order: SimpleLegacyOrder) {

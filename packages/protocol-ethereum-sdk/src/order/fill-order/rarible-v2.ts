@@ -4,7 +4,7 @@ import { ZERO_WORD } from "@rarible/types"
 import type { Maybe } from "@rarible/types/build/maybe"
 import { hashToSign, orderToStruct } from "../sign-order"
 import { getAssetWithFee } from "../get-asset-with-fee"
-import type { Config } from "../../config/type"
+import type { EthereumConfig } from "../../config/type"
 import { approve } from "../approve"
 import type { SendFunction } from "../../common/send-transaction"
 import { createExchangeV2Contract } from "../contracts/exchange-v2"
@@ -20,9 +20,8 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 	constructor(
 		readonly ethereum: Maybe<Ethereum>,
 		readonly send: SendFunction,
-		readonly config: Config,
-	) {
-	}
+		readonly config: EthereumConfig,
+	) {}
 
 	invert(request: RaribleV2OrderFillRequest, maker: Address): SimpleRaribleV2Order {
 		const inverted = invertOrder(request.order, request.amount, maker)

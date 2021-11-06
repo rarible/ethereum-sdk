@@ -4,7 +4,7 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber, toBinary } from "@rarible/types"
 import type { OrderForm } from "@rarible/ethereum-api-client"
 import { Configuration, OrderControllerApi } from "@rarible/ethereum-api-client"
-import { E2E_CONFIG } from "../config/e2e"
+import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
 import { retry } from "../common/retry"
 import { cancel } from "./cancel"
@@ -22,12 +22,13 @@ describe("cancel order", () => {
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
 	const approve = () => Promise.resolve(undefined)
-	const sign = signOrder.bind(null, ethereum, E2E_CONFIG)
+	const config = getEthereumConfig("e2e")
+	const sign = signOrder.bind(null, ethereum, config)
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const orderApi = new OrderControllerApi(configuration)
 
-	const v1Handler = new RaribleV1OrderHandler(null as any, orderApi, null as any, E2E_CONFIG)
-	const v2Handler = new RaribleV2OrderHandler(null as any, null as any, E2E_CONFIG)
+	const v1Handler = new RaribleV1OrderHandler(null as any, orderApi, null as any, config)
+	const v2Handler = new RaribleV2OrderHandler(null as any, null as any, config)
 	const orderService = new OrderFiller(null as any, v1Handler, v2Handler, null as any, null as any)
 
 	const it = awaitAll({
@@ -93,8 +94,7 @@ describe("cancel order", () => {
 		)
 
 		const order = await upserter.upsert.start({ order: form }).runAll()
-
-		const tx = await cancel(checkLazyOrder, ethereum, E2E_CONFIG.exchange, order)
+		const tx = await cancel(checkLazyOrder, ethereum, config.exchange, order)
 		await tx.wait()
 
 		const cancelledOrder = await retry(15, 2000, async () => {

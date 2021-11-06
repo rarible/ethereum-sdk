@@ -1,28 +1,20 @@
 import type { Contract} from "ethers"
 import { ethers } from "ethers"
 import type { TransactionResponse } from "@ethersproject/abstract-provider"
-import type {
-	Ethereum,
-	EthereumContract,
-	EthereumFunctionCall,
-	EthereumSendOptions,
-	EthereumTransaction,
-	EthereumTransactionReceipt} from "@rarible/ethereum-provider"
-import {
-	signTypedData,
-} from "@rarible/ethereum-provider"
+import type * as EthereumProvider from "@rarible/ethereum-provider"
+import { signTypedData } from "@rarible/ethereum-provider"
 import type { Address, Binary, BigNumber, Word } from "@rarible/types"
 import { toAddress, toBigNumber, toBinary, toWord } from "@rarible/types"
 import type { MessageTypes, TypedMessage } from "@rarible/ethereum-provider/src/domain"
 import type { TypedDataSigner } from "@ethersproject/abstract-signer"
 import { encodeParameters } from "./abi-coder"
 
-export class EthersWeb3ProviderEthereum implements Ethereum {
+export class EthersWeb3ProviderEthereum implements EthereumProvider.Ethereum {
 	constructor(readonly web3Provider: ethers.providers.Web3Provider, readonly from?: string) {
 		this.send = this.send.bind(this)
 	}
 
-	createContract(abi: any, address?: string): EthereumContract {
+	createContract(abi: any, address?: string): EthereumProvider.EthereumContract {
 		if (!address) {
 			throw new Error("No Contract address provided, it's required for EthersEthereum")
 		}
@@ -60,11 +52,10 @@ export class EthersWeb3ProviderEthereum implements Ethereum {
 	}
 }
 
-export class EthersEthereum implements Ethereum {
-	constructor(readonly signer: TypedDataSigner & ethers.Signer) {
-	}
+export class EthersEthereum implements EthereumProvider.Ethereum {
+	constructor(readonly signer: TypedDataSigner & ethers.Signer) {}
 
-	createContract(abi: any, address?: string): EthereumContract {
+	createContract(abi: any, address?: string): EthereumProvider.EthereumContract {
 		if (!address) {
 			throw new Error("No Contract address provided, it's required for EthersEthereum")
 		}
@@ -98,22 +89,21 @@ export class EthersEthereum implements Ethereum {
 	}
 }
 
-export class EthersContract implements EthereumContract {
+export class EthersContract implements EthereumProvider.EthereumContract {
 	constructor(private readonly contract: Contract) {
 	}
 
-	functionCall(name: string, ...args: any): EthereumFunctionCall {
+	functionCall(name: string, ...args: any): EthereumProvider.EthereumFunctionCall {
 		return new EthersFunctionCall(this.contract, name, args)
 	}
 }
 
-export class EthersFunctionCall implements EthereumFunctionCall {
+export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall {
 	constructor(
 		private readonly contract: Contract,
 		private readonly name: string,
 		private readonly args: any[],
-	) {
-	}
+	) {}
 
 	get data(): string {
 		return (this.contract.populateTransaction[this.name](...this.args) as any).data
@@ -125,7 +115,7 @@ export class EthersFunctionCall implements EthereumFunctionCall {
 		return value.toNumber()
 	}
 
-	call(options?: EthereumSendOptions): Promise<any> {
+	call(options?: EthereumProvider.EthereumSendOptions): Promise<any> {
 		const func = this.contract[this.name].bind(null, ...this.args)
 		if (options) {
 			return func(options)
@@ -134,7 +124,7 @@ export class EthersFunctionCall implements EthereumFunctionCall {
 		}
 	}
 
-	async send(options?: EthereumSendOptions): Promise<EthereumTransaction> {
+	async send(options?: EthereumProvider.EthereumSendOptions): Promise<EthereumProvider.EthereumTransaction> {
 		const func = this.contract[this.name].bind(null, ...this.args)
 		if (options) {
 			return new EthersTransaction(await func(options))
@@ -144,15 +134,14 @@ export class EthersFunctionCall implements EthereumFunctionCall {
 	}
 }
 
-export class EthersTransaction implements EthereumTransaction {
-	constructor(private readonly tx: TransactionResponse) {
-	}
+export class EthersTransaction implements EthereumProvider.EthereumTransaction {
+	constructor(private readonly tx: TransactionResponse) {}
 
 	get hash(): Word {
 		return toWord(this.tx.hash)
 	}
 
-	async wait(): Promise<EthereumTransactionReceipt> {
+	async wait(): Promise<EthereumProvider.EthereumTransactionReceipt> {
 		const receipt = await this.tx.wait()
 		return {
 			...receipt,

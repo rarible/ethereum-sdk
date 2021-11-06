@@ -3,7 +3,7 @@ import type { Ethereum, EthereumFunctionCall, EthereumSendOptions, EthereumTrans
 import { ZERO_WORD } from "@rarible/types"
 import type { Maybe } from "@rarible/types/build/maybe"
 import { getAssetWithFee } from "../get-asset-with-fee"
-import type { Config } from "../../config/type"
+import type { EthereumConfig } from "../../config/type"
 import { approve } from "../approve"
 import type { SendFunction } from "../../common/send-transaction"
 import { waitTx } from "../../common/wait-tx"
@@ -13,13 +13,11 @@ import { invertOrder } from "./invert-order"
 import type { CryptoPunksOrderFillRequest, OrderHandler } from "./types"
 
 export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFillRequest> {
-
 	constructor(
 		readonly ethereum: Maybe<Ethereum>,
 		readonly send: SendFunction,
-		readonly config: Config,
-	) {
-	}
+		readonly config: EthereumConfig,
+	) {}
 
 	invert(request: CryptoPunksOrderFillRequest, maker: Address): SimpleCryptoPunkOrder {
 		const inverted = invertOrder(request.order, request.amount, maker)

@@ -5,8 +5,7 @@ import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-comm
 import { toBn } from "@rarible/utils/build/bn"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
 import { send as sendTemplate, sentTx, simpleSend } from "../../common/send-transaction"
-import { E2E_CONFIG } from "../../config/e2e"
-import type { Config } from "../../config/type"
+import { getEthereumConfig } from "../../config"
 import { deployTestErc20 } from "../contracts/test/test-erc20"
 import { deployTestErc721 } from "../contracts/test/test-erc721"
 import { deployTransferProxy } from "../contracts/test/test-transfer-proxy"
@@ -32,7 +31,7 @@ describe("fillOrder", () => {
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
-	const config: Config = E2E_CONFIG
+	const config = getEthereumConfig("e2e")
 	const v2Handler = new RaribleV2OrderHandler(ethereum1, simpleSend, config)
 	const filler = new OrderFiller(ethereum1, null as any, v2Handler, null as any, null as any)
 	const configuration = new Configuration(getApiConfig("e2e"))

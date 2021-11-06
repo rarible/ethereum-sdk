@@ -1,11 +1,17 @@
-import { E2E_CONFIG } from "./e2e"
-import { ROPSTEN_CONFIG } from "./ropsten"
-import { RINKEBY_CONFIG } from "./rinkeby"
-import { MAINNET_CONFIG } from "./mainnet"
+import type { EthereumNetwork } from "../types"
+import { e2eConfig } from "./e2e"
+import { ropstenConfig } from "./ropsten"
+import { rinkebyConfig } from "./rinkeby"
+import { mainnetConfig } from "./mainnet"
+import type { EthereumConfig } from "./type"
 
-export const CONFIGS = {
-	e2e: E2E_CONFIG,
-	ropsten: ROPSTEN_CONFIG,
-	rinkeby: RINKEBY_CONFIG,
-	mainnet: MAINNET_CONFIG,
+const configDictionary: Record<EthereumNetwork, EthereumConfig> = {
+	e2e: e2eConfig,
+	ropsten: ropstenConfig,
+	rinkeby: rinkebyConfig,
+	mainnet: mainnetConfig,
+}
+
+export function getEthereumConfig(env: EthereumNetwork): EthereumConfig {
+	return configDictionary[env]
 }

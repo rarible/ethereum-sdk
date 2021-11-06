@@ -9,7 +9,7 @@ import {
 } from "@rarible/ethereum-api-client"
 import { createE2eProvider, createE2eWallet } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils"
-import { E2E_CONFIG } from "../config/e2e"
+import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
 import type { ERC721RequestV3 } from "../nft/mint"
 import { mint as mintTemplate } from "../nft/mint"
@@ -40,20 +40,16 @@ describe.each(providers)("sell", (ethereum) => {
 	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 	const orderApi = new OrderControllerApi(configuration)
 	const send = sendTemplate.bind(null, gatewayApi)
-	const v2Handler = new RaribleV2OrderHandler(ethereum, send, E2E_CONFIG)
-	const signOrder = signOrderTemplate.bind(null, ethereum, E2E_CONFIG)
+	const config = getEthereumConfig("e2e")
+	const v2Handler = new RaribleV2OrderHandler(ethereum, send, config)
+	const signOrder = signOrderTemplate.bind(null, ethereum, config)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
-	const signNft = signNftTemplate.bind(null, ethereum, E2E_CONFIG.chainId)
+	const signNft = signNftTemplate.bind(null, ethereum, config.chainId)
 	const mint = mintTemplate
 		.bind(null, ethereum, send, signNft, nftCollectionApi)
 		.bind(null, nftLazyMintApi)
-	const v1Handler = new RaribleV1OrderHandler(
-		ethereum,
-		orderApi,
-		send,
-		E2E_CONFIG
-	)
-	const openSeaHandler = new OpenSeaOrderHandler(ethereum, send, E2E_CONFIG)
+	const v1Handler = new RaribleV1OrderHandler(ethereum, orderApi, send, config)
+	const openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config)
 	const orderService = new OrderFiller(
 		ethereum,
 		v1Handler,

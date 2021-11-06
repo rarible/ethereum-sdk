@@ -3,7 +3,7 @@ import { toAddress, toBigNumber, toWord } from "@rarible/types"
 import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { CONFIGS } from "../../config"
+import { getEthereumConfig } from "../../config"
 import { retry } from "../../common/retry"
 import { simpleSend } from "../../common/send-transaction"
 import { getApiConfig } from "../../config/api-config"
@@ -23,12 +23,11 @@ describe("test exchange v1 order", () => {
 	const ethereum1 = new Web3Ethereum({ web3: web31 })
 	const ethereum2 = new Web3Ethereum({ web3: web32 })
 
+	const e2eConfig = getEthereumConfig("e2e")
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const orderApi = new OrderControllerApi(configuration)
 	const ownershipApi = new NftOwnershipControllerApi(configuration)
-	const v1Handler = new RaribleV1OrderHandler(
-		ethereum2, orderApi, simpleSend, CONFIGS.e2e
-	)
+	const v1Handler = new RaribleV1OrderHandler(ethereum2, orderApi, simpleSend, e2eConfig)
 	const filler = new OrderFiller(ethereum2, v1Handler, null as any, null as any, null as any)
 
 	const seller = toAddress(wallet1.getAddressString())
@@ -38,7 +37,10 @@ describe("test exchange v1 order", () => {
 		testErc721: deployTestErc721(web31, "Test", "TST"),
 	})
 
-	const sign = signOrder.bind(null, ethereum1, { chainId: 17, exchange: CONFIGS.e2e.exchange })
+	const sign = signOrder.bind(null, ethereum1, {
+		chainId: 17,
+		exchange: e2eConfig.exchange,
+	})
 
 	test("simple test v1", async () => {
 		const tokenId = toBigNumber("1")
@@ -68,7 +70,9 @@ describe("test exchange v1 order", () => {
 			},
 		}
 
-		await it.testErc721.methods.setApprovalForAll(CONFIGS.e2e.transferProxies.nft, true).send({ from: seller })
+		await it.testErc721.methods
+			.setApprovalForAll(e2eConfig.transferProxies.nft, true)
+			.send({from: seller })
 
 		const signedOrder: SimpleLegacyOrder = { ...order, signature: await sign(order) }
 		const execution = filler.fill.start({ order: signedOrder, amount: 1, originFee: 100 })

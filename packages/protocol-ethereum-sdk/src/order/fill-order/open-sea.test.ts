@@ -8,8 +8,8 @@ import type { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
 import { sentTx, simpleSend } from "../../common/send-transaction"
-import type { Config } from "../../config/type"
-import { E2E_CONFIG } from "../../config/e2e"
+import type { EthereumConfig } from "../../config/type"
+import { getEthereumConfig } from "../../config"
 import { id32 } from "../../common/id"
 import {
 	getAssetTypeBlank,
@@ -45,8 +45,8 @@ describe("fillOrder: Opensea orders", function () {
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
-	const config: Config = {
-		...E2E_CONFIG,
+	const config: EthereumConfig = {
+		...getEthereumConfig("e2e"),
 		chainId: 1,
 		openSea: {
 			metadata: id32("RARIBLE"),

@@ -3,13 +3,10 @@ import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
 import type { Contract } from "web3-eth-contract"
-import {
-	Configuration, GatewayControllerApi,
-} from "@rarible/ethereum-api-client"
+import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
 import { send as sendTemplate, sentTx } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
-import type { Config } from "../config/type"
-import { E2E_CONFIG } from "../config/e2e"
+import { getEthereumConfig } from "../config"
 import { deployTestErc1155RaribleFactory } from "./contracts/erc1155/deploy/rarible-factory"
 import { deployTestErc1155UserRaribleFactory } from "./contracts/erc1155/deploy/rarible-user-factory"
 import { DeployErc1155 } from "./deploy-erc1155"
@@ -25,10 +22,7 @@ describe("deploy token test", () => {
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 
-	const config: Config = {
-		...E2E_CONFIG,
-		chainId: 17,
-	}
+	const config = getEthereumConfig("e2e")
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const send = sendTemplate.bind(null, gatewayApi)

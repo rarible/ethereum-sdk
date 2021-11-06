@@ -44,7 +44,7 @@ export type OrderRequest = {
 export class UpsertOrder {
 	constructor(
 		private readonly orderFiller: OrderFiller,
-		public readonly checkLazyOrder: <T extends CheckLazyOrderPart>(form: T) => Promise<T>,
+		public readonly checkLazyOrder: (form: CheckLazyOrderPart) => Promise<CheckLazyOrderPart>,
 		private readonly approveFn: ApproveFunction,
 		private readonly signOrder: (order: SimpleOrder) => Promise<Binary>,
 		private readonly orderApi: OrderControllerApi,
@@ -55,7 +55,7 @@ export class UpsertOrder {
 		.create({
 			id: "approve" as const,
 			run: async ({ order, infinite }: UpsertOrderActionArg) => {
-				const checkedOrder = await this.checkLazyOrder(order)
+				const checkedOrder = await this.checkLazyOrder(order) as OrderForm
 				await this.approve(checkedOrder, infinite)
 				return checkedOrder
 			},

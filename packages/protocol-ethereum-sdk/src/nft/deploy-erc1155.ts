@@ -3,7 +3,7 @@ import type { Address, Word } from "@rarible/types"
 import { randomWord } from "@rarible/types"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { SendFunction } from "../common/send-transaction"
-import type { Config } from "../config/type"
+import type { EthereumConfig } from "../config/type"
 import { createErc1155FactoryContract } from "./contracts/erc1155/deploy/rarible-factory"
 import { createErc1155UserFactoryContract } from "./contracts/erc1155/deploy/rarible-user-factory"
 
@@ -11,7 +11,7 @@ export class DeployErc1155 {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
-		private readonly config: Config
+		private readonly config: EthereumConfig
 	) {
 		this.deployToken = this.deployToken.bind(this)
 		this.deployUserToken = this.deployUserToken.bind(this)

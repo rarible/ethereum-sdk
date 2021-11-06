@@ -3,8 +3,7 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import { sentTx, simpleSend } from "../../common/send-transaction"
-import { E2E_CONFIG } from "../../config/e2e"
-import type { Config } from "../../config/type"
+import { getEthereumConfig } from "../../config"
 import { deployTestErc20 } from "../contracts/test/test-erc20"
 import { deployTestErc721 } from "../contracts/test/test-erc721"
 import { deployTransferProxy } from "../contracts/test/test-transfer-proxy"
@@ -26,7 +25,7 @@ describe("fillOrder", () => {
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 
-	const config: Config = E2E_CONFIG
+	const config = getEthereumConfig("e2e")
 	const punkHandler = new CryptoPunksOrderHandler(ethereum1, simpleSend, config)
 	const filler = new OrderFiller(ethereum1, null as any, null as any, null as any, punkHandler)
 

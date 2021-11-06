@@ -7,7 +7,7 @@ import { BigNumber, toBn } from "@rarible/utils"
 import type { OrderOpenSeaV1DataV1 } from "@rarible/ethereum-api-client/build/models/OrderData"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { SendFunction } from "../../common/send-transaction"
-import type { Config } from "../../config/type"
+import type { EthereumConfig } from "../../config/type"
 import { createOpenseaProxyRegistryEthContract } from "../contracts/proxy-registry-opensea"
 import { approveErc20 } from "../approve-erc20"
 import { approveErc721 } from "../approve-erc721"
@@ -25,9 +25,8 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
-		private readonly config: Config,
-	) {
-	}
+		private readonly config: EthereumConfig,
+	) {}
 
 	invert({ order }: OpenSeaV1OrderFillRequest, maker: Address): SimpleOpenSeaV1Order {
 		if (order.data.side === "BUY" && order.make.assetType.assetClass === "ETH") {

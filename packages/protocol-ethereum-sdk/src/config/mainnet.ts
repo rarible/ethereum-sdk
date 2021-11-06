@@ -1,8 +1,8 @@
 import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 import { id32 } from "../common/id"
-import type { Config } from "./type"
+import type { EthereumConfig } from "./type"
 
-export const MAINNET_CONFIG: Config = {
+export const mainnetConfig: EthereumConfig = {
 	basePath: "https://ethereum-api.rarible.org",
 	chainId: 1,
 	exchange: {

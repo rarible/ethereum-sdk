@@ -2,10 +2,10 @@ import type { Address, Asset, AssetType, Erc1155LazyAssetType, Erc721LazyAssetTy
 
 export type CheckLazyOrderPart = Pick<OrderForm, "make" | "take" | "maker">
 
-export async function checkLazyOrder<T extends CheckLazyOrderPart>(
+export async function checkLazyOrder(
 	checkLazyAsset: (asset: Asset) => Promise<Asset>,
-	form: T,
-): Promise<T> {
+	form: CheckLazyOrderPart,
+): Promise<CheckLazyOrderPart> {
 	const make = await checkLazyMakeAsset(checkLazyAsset, form.make, form.maker)
 	const take = await checkLazyAsset(form.take)
 	return {

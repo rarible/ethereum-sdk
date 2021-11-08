@@ -2286,12 +2286,12 @@
     eslint-plugin-jest "^25.2.3"
     eslint-plugin-unicorn "^38.0.0"
 
-"@rarible/ethereum-api-client@^0.1.13":
-  version "0.1.13"
-  resolved "https://registry.yarnpkg.com/@rarible/ethereum-api-client/-/ethereum-api-client-0.1.13.tgz#b85237b2472bc4ca9ed9830ebceb07c686591923"
-  integrity sha512-QhWIwZPnRVC+hoUwZgvBigyDbHm5ssY2ySrAgjaFE3BgQ8YrIGdt+0a96iYybx7rakwxKh5kM3uIyvaIfFsugQ==
+"@rarible/ethereum-api-client@^0.1.14":
+  version "0.1.14"
+  resolved "https://registry.yarnpkg.com/@rarible/ethereum-api-client/-/ethereum-api-client-0.1.14.tgz#2c8d4997f2cf6c75ad19e978c86e04580e6d7395"
+  integrity sha512-FCCeE2o36RTCFacT096VeDkk3iGGbhrw9orss6DOKYNSkqKtOUmjeq4ST5sjODbQB3ju6xtgGoNwBAovqBnZeg==
   dependencies:
-    "@rarible/types" "^0.1.10"
+    "@rarible/types" "~0.5.0"
 
 "@rarible/test-provider@~0.5.0":
   version "0.5.0"
@@ -2303,11 +2303,6 @@
     eth-sig-util "^3.0.1"
     ethereumjs-util "^7.1.0"
     ethereumjs-wallet "^1.0.1"
-
-"@rarible/types@^0.1.10":
-  version "0.1.10"
-  resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.1.10.tgz#0e91b5727be6e228e4dc2c4a7f907065ed81858d"
-  integrity sha512-/eFNU2AeB7beMN9W0DYYNyfOEJtvppvFBzB7V3++fky2SL5S245/wxpqVjQvtkJcga8dQ81gCUZHooOlVLw7Zw==
 
 "@rarible/types@~0.5.0":
   version "0.5.0"

@@ -26,9 +26,9 @@ export const rinkebyConfig: EthereumConfig = {
 		proxyRegistry: toAddress("0xf57b2c51ded3a29e6891aba85459d600256cf317"),
 	},
 	factories: {
-		erc721: ZERO_ADDRESS,
-		erc721User: ZERO_ADDRESS,
-		erc1155: ZERO_ADDRESS,
-		erc1155User: ZERO_ADDRESS,
+		erc721: toAddress("0x31575E4426d195f6082aDdcD44e97cB4CEa1291C"),
+		erc721User: toAddress("0xe5bF86F2FC1e0C704A8b2C095aD92C59100C63Ac"),
+		erc1155: toAddress("0x3Df4035EC62B97b5e3B5f160Cb84dCe4A9CB545D"),
+		erc1155User: toAddress("0x5a5773ac6b87f15dF215A78BEfdce478C33D8418"),
 	},
 }

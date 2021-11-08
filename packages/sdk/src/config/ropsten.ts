@@ -26,9 +26,9 @@ export const ropstenConfig: EthereumConfig = {
 		proxyRegistry: ZERO_ADDRESS,
 	},
 	factories: {
-		erc721: ZERO_ADDRESS,
-		erc721User: ZERO_ADDRESS,
-		erc1155: ZERO_ADDRESS,
-		erc1155User: ZERO_ADDRESS,
+		erc721: toAddress("0x2e6fAFAD2Af251Add7400cBD98C4620772692c49"),
+		erc721User: toAddress("0xCc228ecb71B3456AeCb35D2dE66E228DAFd7Ae2d"),
+		erc1155: toAddress("0xbF90b7F8d59BE6D08dBd47fF984a22877996E91F"),
+		erc1155User: toAddress("0x71Cf04F4f75eEb3262B1AB7D8438432EC4a30ee4"),
 	},
 }

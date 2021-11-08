@@ -8,6 +8,13 @@ Rarible Protocol Ethereum SDK enables applications to easily interact with Rarib
 npm install -D @rarible/protocol-ethereum-sdk
 ```
 
+or inject package into your web page with web3 instance
+```angular2html
+<script src="https://unpkg.com/@rarible/web3-ethereum@0.10.0/umd/rarible-web3-ethereum.js" type="text/javascript"></script>
+<script src="https://unpkg.com/@rarible/protocol-ethereum-sdk@0.10.0/umd/rarible-ethereum-sdk.js" type="text/javascript"></script>
+<script src="https://unpkg.com/web3@1.6.0/dist/web3.min.js" type="text/javascript"></script>
+```
+
 ### With protocol-ethereum-sdk, you can:
 
 - Create sell orders
@@ -37,6 +44,19 @@ const sdk = createRaribleSdk(web3, env, { fetchApi: fetch })
 - web3 - configured with your provider [web3js](https://github.com/ChainSafe/web3.js/tree/v1.4.0) client
 - env - environment configuration name, it should accept one of these values
   ``` 'ropsten' | 'rinkeby' | 'mainnet' | 'e2e'```
+
+#### Configure web script in browser
+```angular2html
+const web = new Web3(ethereum)
+const web3Ethereum = new window.raribleWeb3Ethereum.Web3Ethereum({ web3: web })
+const env = "mainnet" // "e2e" | "ropsten" | "rinkeby" | "mainnet"
+const raribleSdk = new window.raribleEthereumSdk.createRaribleSdk(web3Ethereum, env)
+```
+- ethereum - metamask browser instance (window.ethereum)
+- Web3 - web3 dependency
+- Web3Ethereum - wallet wrapper of web3 instance
+
+Сheck our [**DEMO PAGE**](/packages/sdk/example/index.html)
 
 #### Create sell order
 

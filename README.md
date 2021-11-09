@@ -45,7 +45,7 @@ const sdk = createRaribleSdk(web3, env, { fetchApi: fetch })
 - env - environment configuration name, it should accept one of these values
   ``` 'ropsten' | 'rinkeby' | 'mainnet' | 'e2e'```
 
-#### Configure web script in browser
+#### Configure Rarible SDK in browser
 ```angular2html
 const web = new Web3(ethereum)
 const web3Ethereum = new window.raribleWeb3Ethereum.Web3Ethereum({ web3: web })
@@ -56,7 +56,7 @@ const raribleSdk = new window.raribleEthereumSdk.createRaribleSdk(web3Ethereum, 
 - Web3 - web3 dependency
 - Web3Ethereum - wallet wrapper of web3 instance
 
-Сheck our [**DEMO PAGE**](/packages/sdk/example/index.html)
+Сheck out our [**DEMO PAGE**](/packages/sdk/example/index.html)
 
 #### Create sell order
 

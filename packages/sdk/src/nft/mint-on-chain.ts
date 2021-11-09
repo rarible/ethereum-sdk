@@ -1,8 +1,8 @@
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { NftCollectionControllerApi, Part } from "@rarible/ethereum-api-client"
-import type { Address, BigNumber} from "@rarible/types"
 import { toAddress } from "@rarible/types"
 import type { SendFunction } from "../common/send-transaction"
+import { createItemId } from "../common/create-item-id"
 import type { ERC1155RequestV1, ERC1155RequestV2, ERC721RequestV1, ERC721RequestV2, ERC721RequestV3, MintOnChainResponse} from "./mint"
 import { MintResponseTypeEnum } from "./mint"
 import { getTokenId } from "./get-token-id"
@@ -149,8 +149,4 @@ function createMintOnChainResponse(props: Omit<MintOnChainResponse, "type">): Mi
 		type: MintResponseTypeEnum.ON_CHAIN,
 		...props,
 	}
-}
-
-function createItemId(contract: Address, tokenId: BigNumber): string {
-	return `${contract}:${tokenId}`
 }

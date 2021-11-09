@@ -1,37 +1,48 @@
 import type { BigNumber} from "@rarible/types"
-import { toAddress } from "@rarible/types"
+import { toAddress, toBinary } from "@rarible/types"
 import { toBn } from "@rarible/utils"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Maybe } from "@rarible/types/build/maybe"
-import type { Erc1155AssetType, Erc721AssetType, NftOwnershipControllerApi } from "@rarible/ethereum-api-client"
+import type { Erc1155AssetType, Erc721AssetType } from "@rarible/ethereum-api-client"
+import type { Erc1155LazyAssetType, Erc721LazyAssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
 import type { CheckAssetTypeFunction, NftAssetType } from "../order/check-asset-type"
 import type { SendFunction } from "../common/send-transaction"
 import { getOwnershipId } from "../common/get-ownership-id"
+import type { RaribleEthereumApis } from "../common/apis"
+import { createItemId } from "../common/create-item-id"
 import { getErc721Contract } from "./contracts/erc721"
 import { ERC1155VersionEnum, ERC721VersionEnum } from "./contracts/domain"
 import { getErc1155Contract } from "./contracts/erc1155"
 
-export type BurnAsset = Erc721AssetType | Erc1155AssetType | NftAssetType
+export type BurnAsset = Erc721AssetType | Erc1155AssetType | NftAssetType | Erc721LazyAssetType | Erc1155LazyAssetType
 
 export async function burn(
 	ethereum: Maybe<Ethereum>,
 	send: SendFunction,
 	checkAssetType: CheckAssetTypeFunction,
-	nftOwnershipApi: NftOwnershipControllerApi,
+	apis: RaribleEthereumApis,
 	asset: BurnAsset,
 	amount?: BigNumber
-): Promise<EthereumTransaction> {
+): Promise<EthereumTransaction | void> {
 	if (!ethereum) {
 		throw new Error("Wallet undefined")
 	}
 	const checked = await checkAssetType(asset)
 	const from = toAddress(await ethereum.getFrom())
-	const ownership = await nftOwnershipApi.getNftOwnershipByIdRaw({
+	const ownership = await apis.nftOwnership.getNftOwnershipByIdRaw({
 		ownershipId: getOwnershipId(asset.contract, asset.tokenId, from),
 	})
 	if (ownership.status === 200) {
 		if (toBn(ownership.value.lazyValue).gt(0)) {
-			return Promise.reject(new Error("Burn is not supported yet for lazy minted items"))
+			return apis.nftItem.deleteLazyMintNftAsset({
+				itemId: createItemId(asset.contract, asset.tokenId),
+				burnLazyNftForm: {
+					creators: ownership.value.creators.map(c => toAddress(c.account)),
+					signatures: [
+						toBinary(await ethereum.personalSign(`I would like to burn my ${asset.tokenId} item.`)),
+					],
+				},
+			})
 		}
 		switch (checked.assetClass) {
 			case "ERC721": {

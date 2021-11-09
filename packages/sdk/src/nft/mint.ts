@@ -2,7 +2,6 @@ import type {
 	Address,
 	BigNumber,
 	Binary,
-	NftCollection,
 	NftCollectionControllerApi,
 	NftItem,
 	NftLazyMintControllerApi,
@@ -13,12 +12,13 @@ import { NftCollectionFeatures } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { SendFunction } from "../common/send-transaction"
+import type { CommonNftCollection } from "../common/mint"
 import { mintOffChain } from "./mint-off-chain"
 import { mintErc1155v1, mintErc1155v2, mintErc721v1, mintErc721v2, mintErc721v3 } from "./mint-on-chain"
 import type { SimpleLazyNft } from "./sign-nft"
 import type { ERC1155VersionEnum, ERC721VersionEnum, NFTContractVersion } from "./contracts/domain"
 
-type Collection<V extends NFTContractVersion> = NftCollection & { version: V }
+type Collection<V extends NFTContractVersion> = CommonNftCollection & { version: V }
 type ERC721CollectionV1 = Collection<ERC721VersionEnum.ERC721V1>
 type ERC721CollectionV2 = Collection<ERC721VersionEnum.ERC721V2>
 type ERC721CollectionV3 = Collection<ERC721VersionEnum.ERC721V3>
@@ -125,14 +125,14 @@ const isERC1155Request = (data: MintRequest): data is ERC1155RequestV1 | ERC1155
 const isERC721Request = (data: MintRequest): data is ERC721RequestV1 | ERC721RequestV2 | ERC721RequestV3 =>
 	data.collection.type === "ERC721"
 
-export const isErc721v3Collection = (x: NftCollection): x is ERC721CollectionV3 =>
+export const isErc721v3Collection = (x: CommonNftCollection): x is ERC721CollectionV3 =>
 	x.features.indexOf(NftCollectionFeatures.MINT_AND_TRANSFER) !== -1 && x.type === "ERC721"
-export const isErc721v2Collection = (x: NftCollection): x is ERC721CollectionV2 =>
+export const isErc721v2Collection = (x: CommonNftCollection): x is ERC721CollectionV2 =>
 	x.features.indexOf(NftCollectionFeatures.SECONDARY_SALE_FEES) !== -1 && x.type === "ERC721"
-export const isErc721v1Collection = (x: NftCollection): x is ERC721CollectionV1 =>
+export const isErc721v1Collection = (x: CommonNftCollection): x is ERC721CollectionV1 =>
 	!isErc721v3Collection(x) && !isErc721v2Collection(x) && x.type === "ERC721"
 
-export const isErc1155v2Collection = (x: NftCollection): x is ERC1155CollectionV2 =>
+export const isErc1155v2Collection = (x: CommonNftCollection): x is ERC1155CollectionV2 =>
 	x.features.indexOf(NftCollectionFeatures.MINT_AND_TRANSFER) !== -1 && x.type === "ERC1155"
-export const isErc1155v1Collection = (x: NftCollection): x is ERC1155CollectionV1 =>
+export const isErc1155v1Collection = (x: CommonNftCollection): x is ERC1155CollectionV1 =>
 	!isErc1155v2Collection(x) && x.type === "ERC1155"

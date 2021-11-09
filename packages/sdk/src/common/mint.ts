@@ -2,7 +2,11 @@ import type { Address, NftCollection } from "@rarible/ethereum-api-client"
 import { NftCollectionFeatures, NftCollectionType } from "@rarible/ethereum-api-client"
 import { ERC1155VersionEnum, ERC721VersionEnum } from "../nft/contracts/domain"
 
-export function createErc721V2Collection(address: Address): NftCollection & { version: ERC721VersionEnum.ERC721V2 } {
+export type CommonNftCollection = Omit<NftCollection, "supportsLazyMint"> & Partial<Pick<NftCollection, "supportsLazyMint">>
+
+export function createErc721V2Collection(
+	address: Address
+): CommonNftCollection & { version: ERC721VersionEnum.ERC721V2 } {
 	return {
 		features: [NftCollectionFeatures.SECONDARY_SALE_FEES],
 		id: address,
@@ -12,7 +16,9 @@ export function createErc721V2Collection(address: Address): NftCollection & { ve
 	}
 }
 
-export function createErc721V3Collection(address: Address): NftCollection & { version: ERC721VersionEnum.ERC721V3 } {
+export function createErc721V3Collection(
+	address: Address
+): CommonNftCollection & { version: ERC721VersionEnum.ERC721V3 } {
 	return {
 		features: [NftCollectionFeatures.SECONDARY_SALE_FEES, NftCollectionFeatures.MINT_AND_TRANSFER],
 		id: address,
@@ -22,7 +28,9 @@ export function createErc721V3Collection(address: Address): NftCollection & { ve
 	}
 }
 
-export function createErc721V1Collection(address: Address): NftCollection & { version: ERC721VersionEnum.ERC721V1 } {
+export function createErc721V1Collection(
+	address: Address
+): CommonNftCollection & { version: ERC721VersionEnum.ERC721V1 } {
 	return {
 		features: [],
 		id: address,
@@ -32,7 +40,9 @@ export function createErc721V1Collection(address: Address): NftCollection & { ve
 	}
 }
 
-export function createErc1155V1Collection(address: Address): NftCollection & { version: ERC1155VersionEnum.ERC1155V1 } {
+export function createErc1155V1Collection(
+	address: Address
+): CommonNftCollection & { version: ERC1155VersionEnum.ERC1155V1 } {
 	return {
 		features: [NftCollectionFeatures.SECONDARY_SALE_FEES],
 		id: address,
@@ -42,7 +52,9 @@ export function createErc1155V1Collection(address: Address): NftCollection & { v
 	}
 }
 
-export function createErc1155V2Collection(address: Address): NftCollection & { version: ERC1155VersionEnum.ERC1155V2 } {
+export function createErc1155V2Collection(
+	address: Address
+): CommonNftCollection & { version: ERC1155VersionEnum.ERC1155V2 } {
 	return {
 		features: [NftCollectionFeatures.MINT_AND_TRANSFER],
 		id: address,

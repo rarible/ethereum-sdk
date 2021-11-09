@@ -53,8 +53,6 @@ const env = "mainnet" // "e2e" | "ropsten" | "rinkeby" | "mainnet"
 const raribleSdk = new window.raribleEthereumSdk.createRaribleSdk(web3Ethereum, env)
 ```
 - ethereum - metamask browser instance (window.ethereum)
-- Web3 - web3 dependency
-- Web3Ethereum - wallet wrapper of web3 instance
 
 Сheck out our [**DEMO PAGE**](/packages/sdk/example/index.html)
 

@@ -105,9 +105,9 @@ export interface RaribleNftSdk {
 
 	/**
 	 * @param asset asset to burn
-	 * @param amount amount to burn for Erc1155 token
+	 * @param amount amount to burn
 	 */
-	burn(asset: BurnAsset, amount?: BigNumber): Promise<EthereumTransaction>
+	burn(asset: BurnAsset, amount?: BigNumber): Promise<EthereumTransaction | void>
 
 	deploy: DeployNft
 }
@@ -192,7 +192,7 @@ export function createRaribleSdk(
 				apis.nftItem,
 				apis.nftOwnership
 			),
-			burn: partialCall(burnTemplate, ethereum, send, checkAssetType, apis.nftOwnership),
+			burn: partialCall(burnTemplate, ethereum, send, checkAssetType, apis),
 			deploy: {
 				erc721: new DeployErc721(ethereum, send, config),
 				erc1155: new DeployErc1155(ethereum, send, config),

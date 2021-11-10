@@ -33,7 +33,13 @@ export async function burn(
 		ownershipId: getOwnershipId(asset.contract, asset.tokenId, from),
 	})
 	if (ownership.status === 200) {
-		if (toBn(ownership.value.lazyValue).gt(0)) {
+		const lazyValueBn = toBn(ownership.value.lazyValue)
+
+		if (lazyValueBn.gt(0)) {
+
+			if (!lazyValueBn.isEqualTo(ownership.value.value)) {
+				throw new Error("Unable to burn lazy minted item")
+			}
 			return apis.nftItem.deleteLazyMintNftAsset({
 				itemId: createItemId(asset.contract, asset.tokenId),
 				burnLazyNftForm: {
@@ -44,6 +50,7 @@ export async function burn(
 				},
 			})
 		}
+
 		switch (checked.assetClass) {
 			case "ERC721": {
 				const erc721Contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, checked.contract)

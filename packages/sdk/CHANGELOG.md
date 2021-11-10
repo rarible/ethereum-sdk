@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.10.2...v0.11.0) (2021-11-10)
+
+
+### Features
+
+* example page dependencies + readme ([ca5f2e9](https://github.com/rarible/protocol-ethereum-sdk/commit/ca5f2e9d6ab2059ae4935e39f64c4510869f2d46))
+
+
+
+
+
 ## [0.10.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.10.1...v0.10.2) (2021-11-08)
 
 **Note:** Version bump only for package @rarible/protocol-ethereum-sdk

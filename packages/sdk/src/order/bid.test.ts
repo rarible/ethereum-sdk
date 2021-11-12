@@ -79,7 +79,7 @@ describe.each(providers)("bid", (ethereum) => {
 		const makerAddress = toAddress(wallet.getAddressString())
 		const minted = await mint({
 			collection: createErc721V3Collection(e2eErc721V3ContractAddress),
-			uri: "uri",
+			uri: "ipfs://ipfs/hash",
 			creators: [{
 				account: makerAddress,
 				value: 10000,
@@ -124,7 +124,7 @@ describe.each(providers)("bid", (ethereum) => {
 		const makerAddress = toAddress(wallet.getAddressString())
 		const minted = await mint({
 			collection: createErc721V3Collection(e2eErc721V3ContractAddress),
-			uri: "uri",
+			uri: "ipfs://ipfs/hash",
 			creators: [{
 				account: makerAddress,
 				value: 10000,

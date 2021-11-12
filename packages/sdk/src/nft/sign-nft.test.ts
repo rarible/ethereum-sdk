@@ -18,7 +18,7 @@ describe("mint-lazy test", () => {
 			"@type": "ERC721",
 			contract: toAddress("0x2547760120aED692EB19d22A5d9CCfE0f7872fcE"),
 			tokenId: toBigNumber("1"),
-			uri: "//uri",
+			uri: "ipfs://ipfs/hash",
 			creators: [{ account: address, value: 10000 }],
 			royalties: [],
 		}

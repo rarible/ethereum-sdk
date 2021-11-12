@@ -32,7 +32,7 @@ describe.each(providers)("check-asset-type test", ethereum => {
 
 	test("should set assetClass if type not present", async () => {
 		const request: ERC721RequestV3 = {
-			uri: "uri",
+			uri: "ipfs://ipfs/hash",
 			lazy: false,
 			creators: [{ account: from, value: 10000 }],
 			royalties: [],
@@ -62,7 +62,7 @@ describe.each(providers)("check-asset-type test", ethereum => {
 
 	test("should leave as is if assetClass present", async () => {
 		const request: ERC721RequestV3 = {
-			uri: "uri",
+			uri: "ipfs://ipfs/hash",
 			creators: [{ account: from, value: 10000 }],
 			royalties: [],
 			lazy: false,

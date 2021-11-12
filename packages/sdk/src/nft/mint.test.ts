@@ -63,20 +63,31 @@ describe.each(providers)("mint test", ethereum => {
 		if (ethereum instanceof Web3Ethereum) { //todo enable for other providers
 			const erc721v1 = await deployErc721V1(web3, "Test", "ERC721V1")
 			const address = toAddress(erc721v1.options.address)
+<<<<<<< HEAD
+			const contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V1, address)
+			await contract.functionCall("setTokenURIPrefix", "ipfs:/").send()
+			const result = await mint({
+=======
 			await mint({
-				uri: "uri",
+>>>>>>> 2405f8a (fix: tests)
+				uri: "ipfs://ipfs/hash",
 				collection: createErc721V1Collection(address),
 			} as ERC721RequestV1)
-			const contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V1, address)
 			const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter).call()).toFixed()
+			const uri = await contract.functionCall("tokenURI", result.tokenId).call()
+			expect(uri).toBe("ipfs://ipfs/hash")
 			expect(balanceOfMinter).toBe("1")
 		}
 	})
 
 	test("mint ERC-721 v2", async () => {
 		const mintableTokenE2eAddress = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
+<<<<<<< HEAD
+		const result = await mint({
+=======
 		await mint({
-			uri: "uri",
+>>>>>>> 2405f8a (fix: tests)
+			uri: "ipfs://ipfs/hash",
 			royalties: [{
 				account: minter,
 				value: 250,
@@ -85,6 +96,8 @@ describe.each(providers)("mint test", ethereum => {
 		} as ERC721RequestV2)
 		const contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, mintableTokenE2eAddress)
 		const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter).call()).toFixed()
+		const uri = await contract.functionCall("tokenURI", result.tokenId).call()
+		expect(uri).toBe("ipfs://ipfs/hash")
 		expect(balanceOfMinter).toBe("1")
 	})
 
@@ -92,7 +105,7 @@ describe.each(providers)("mint test", ethereum => {
 		const collection = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
 		const nftTokenId = await nftCollectionApi.generateNftTokenId({ collection, minter })
 		const result = await mint({
-			uri: "uri",
+			uri: "ipfs://ipfs/hash",
 			royalties: [{
 				account: minter,
 				value: 250,
@@ -105,9 +118,9 @@ describe.each(providers)("mint test", ethereum => {
 
 	test("mint ERC-1155 v1", async () => {
 		const raribleTokenE2eAddress = toAddress("0x8812cFb55853da0968a02AaaEA84CD93EC4b42A1")
-		const uri = "test1155"
+		const uri = "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5"
 		const supply = 101
-		const minted = await mint({
+		const result = await mint({
 			collection: createErc1155V1Collection(raribleTokenE2eAddress),
 			uri,
 			supply,
@@ -117,27 +130,31 @@ describe.each(providers)("mint test", ethereum => {
 			}],
 		} as ERC1155RequestV1)
 		const contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V1, raribleTokenE2eAddress)
-		const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter, minted.tokenId).call()).toFixed()
+		const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter, result.tokenId).call()).toFixed()
+		const readUri = await contract.functionCall("tokenURI", result.tokenId).call()
+		expect(readUri).toBe(uri)
 		expect(balanceOfMinter).toBe(supply.toString())
 	})
 
 	test("mint ERC-721 v3", async () => {
-		await mint({
+		const result = await mint({
 			collection: createErc721V3Collection(e2eErc721V3ContractAddress),
-			uri: "uri",
+			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
 			creators: [{ account: toAddress(minter), value: 10000 }],
 			royalties: [],
 			lazy: false,
 		} as ERC721RequestV3)
 		const contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, e2eErc721V3ContractAddress)
 		const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter).call()).toFixed()
+		const uri = await contract.functionCall("tokenURI", result.tokenId).call()
+		expect(uri).toBe("ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5")
 		expect(balanceOfMinter).toEqual("1")
 	})
 
 	test("mint ERC-1155 v2", async () => {
 		const minted = await mint({
 			collection: createErc1155V2Collection(e2eErc1155V2ContractAddress),
-			uri: "uri",
+			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
 			supply: 100,
 			creators: [{ account: toAddress(minter), value: 10000 }],
 			royalties: [],
@@ -145,13 +162,15 @@ describe.each(providers)("mint test", ethereum => {
 		} as ERC1155RequestV2)
 		const contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V2, e2eErc1155V2ContractAddress)
 		const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter, minted.tokenId).call()).toFixed()
+		const uri = await contract.functionCall("uri", minted.tokenId).call()
+		expect(uri).toBe("ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5")
 		expect(balanceOfMinter).toEqual("100")
 	})
 
 	test("mint ERC-721 v3 lazy", async () => {
 		const minted = await mint({
 			collection: createErc721V3Collection(e2eErc721V3ContractAddress),
-			uri: "uri",
+			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
 			creators: [{ account: toAddress(minter), value: 10000 }],
 			royalties: [],
 			lazy: true,
@@ -160,13 +179,13 @@ describe.each(providers)("mint test", ethereum => {
 		expect(resultNft.lazySupply).toEqual("1")
 
 		const lazy = await nftItemApi.getNftLazyItemById({ itemId: resultNft.id })
-		expect(lazy.uri).toBe("uri")
+		expect(lazy.uri).toBe("/ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5")
 	})
 
 	test("mint ERC-1155 v2 lazy", async () => {
 		const minted = await mint({
 			collection: createErc1155V2Collection(e2eErc1155V2ContractAddress),
-			uri: "uri",
+			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
 			supply: 100,
 			creators: [{ account: toAddress(minter), value: 10000 }],
 			royalties: [],
@@ -176,6 +195,6 @@ describe.each(providers)("mint test", ethereum => {
 		expect(resultNft.lazySupply).toEqual("100")
 
 		const lazy = await nftItemApi.getNftLazyItemById({ itemId: resultNft.id })
-		expect(lazy.uri).toBe("uri")
+		expect(lazy.uri).toBe("/ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5")
 	})
 })

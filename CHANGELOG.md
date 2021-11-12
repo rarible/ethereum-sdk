@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.11.0...v0.12.0) (2021-11-12)
+
+
+### Features
+
+* cryptopunk transfer proxy ([67ee992](https://github.com/rarible/protocol-ethereum-sdk/commit/67ee99256d8621dfd423a38bf222bd37ff9e8744))
+
+
+
+
+
 # [0.11.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.10.2...v0.11.0) (2021-11-10)
 
 

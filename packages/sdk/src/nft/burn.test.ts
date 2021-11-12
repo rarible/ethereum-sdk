@@ -52,7 +52,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 		const testErc721 = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, contractErc721)
 		const minted = await mint(mintLazyApi, {
 			collection: createErc721V2Collection(contractErc721),
-			uri: "//test",
+			uri: "ipfs://ipfs/hash",
 			royalties: [],
 		} as ERC721RequestV2)
 		const testBalance = await testErc721.functionCall("balanceOf", testAddress).call()
@@ -70,7 +70,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 		const testErc1155 = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V1, contractErc1155)
 		const minted = await mint(mintLazyApi, {
 			collection: createErc1155V1Collection(contractErc1155),
-			uri: "//test",
+			uri: "ipfs://ipfs/hash",
 			royalties: [],
 			supply: 100,
 		} as ERC1155RequestV1)
@@ -86,7 +86,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 	test("should burn ERC-721 v3 lazy", async () => {
 		const minted = await mint(mintLazyApi, {
 			collection: createErc721V3Collection(e2eErc721V3ContractAddress),
-			uri: "//test",
+			uri: "ipfs://ipfs/hash",
 			creators: [{ account: toAddress(testAddress), value: 10000 }],
 			royalties: [],
 			lazy: true,
@@ -100,7 +100,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 	test("should burn ERC-1155 v2 lazy", async () => {
 		const minted = await mint(mintLazyApi, {
 			collection: createErc1155V2Collection(e2eErc1155V2ContractAddress),
-			uri: "//test",
+			uri: "ipfs://ipfs/hash",
 			supply: 100,
 			creators: [{ account: toAddress(testAddress), value: 10000 }],
 			royalties: [],

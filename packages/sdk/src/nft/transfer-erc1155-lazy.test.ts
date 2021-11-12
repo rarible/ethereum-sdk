@@ -35,7 +35,7 @@ describe("transfer Erc721 lazy", () => {
 		const contract = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
 
 		const request: ERC1155RequestV2 = {
-			uri: "//uri",
+			uri: "ipfs://ipfs/hash",
 			creators: [{ account: toAddress(wallet.getAddressString()), value: 10000 }],
 			collection: createErc1155V2Collection(contract),
 			royalties: [],

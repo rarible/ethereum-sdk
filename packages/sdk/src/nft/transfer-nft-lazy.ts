@@ -21,7 +21,7 @@ export async function transferNftLazy(
 	})
 	const params = {
 		tokenId: lazyNft.tokenId,
-		uri: lazyNft.uri,
+		tokenURI: lazyNft.uri,
 		creators: lazyNft.creators,
 		royalties: lazyNft.royalties,
 		signatures: lazyNft.signatures,

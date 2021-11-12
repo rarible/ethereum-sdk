@@ -63,13 +63,9 @@ describe.each(providers)("mint test", ethereum => {
 		if (ethereum instanceof Web3Ethereum) { //todo enable for other providers
 			const erc721v1 = await deployErc721V1(web3, "Test", "ERC721V1")
 			const address = toAddress(erc721v1.options.address)
-<<<<<<< HEAD
 			const contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V1, address)
 			await contract.functionCall("setTokenURIPrefix", "ipfs:/").send()
 			const result = await mint({
-=======
-			await mint({
->>>>>>> 2405f8a (fix: tests)
 				uri: "ipfs://ipfs/hash",
 				collection: createErc721V1Collection(address),
 			} as ERC721RequestV1)
@@ -82,11 +78,7 @@ describe.each(providers)("mint test", ethereum => {
 
 	test("mint ERC-721 v2", async () => {
 		const mintableTokenE2eAddress = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
-<<<<<<< HEAD
 		const result = await mint({
-=======
-		await mint({
->>>>>>> 2405f8a (fix: tests)
 			uri: "ipfs://ipfs/hash",
 			royalties: [{
 				account: minter,

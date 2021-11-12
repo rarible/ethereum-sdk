@@ -17,7 +17,7 @@ import { createTestProviders } from "../common/create-test-providers"
 import { send as sendTemplate } from "../common/send-transaction"
 import { signNft as signNftTemplate } from "../nft/sign-nft"
 import { createErc721V3Collection } from "../common/mint"
-import { delay } from "../common/retry"
+import { retry } from "../common/retry"
 import { OrderBid } from "./bid"
 import { signOrder as signOrderTemplate } from "./sign-order"
 import { RaribleV2OrderHandler } from "./fill-order/rarible-v2"
@@ -109,15 +109,16 @@ describe.each(providers)("bid", (ethereum) => {
 
 		expect(order.hash).toBeTruthy()
 
-		await delay(1000)
+		await retry(5, 500, async () => {
+			const nextPrice = "40000000000000000"
+			const updatedOrder = await orderSell.update({
+				orderHash: order.hash,
+				price: toBigNumber(nextPrice),
+			})
 
-		const nextPrice = "40000000000000000"
-		const updatedOrder = await orderSell.update({
-			orderHash: order.hash,
-			price: toBigNumber(nextPrice),
+			expect(updatedOrder.make.value.toString()).toBe(nextPrice)
 		})
 
-		expect(updatedOrder.make.value.toString()).toBe(nextPrice)
 	})
 
 	test("create and update of v1 works", async () => {
@@ -160,14 +161,14 @@ describe.each(providers)("bid", (ethereum) => {
 		}
 		const order = await upserter.upsert({ order: form })
 
-		await delay(1000)
+		await retry(5, 500, async () => {
+			const nextPrice = "20000000000000000"
+			const updatedOrder = await orderSell.update({
+				orderHash: order.hash,
+				price: toBigNumber(nextPrice),
+			})
 
-		const nextPrice = "20000000000000000"
-		const updatedOrder = await orderSell.update({
-			orderHash: order.hash,
-			price: toBigNumber(nextPrice),
+			expect(updatedOrder.make.value.toString()).toBe(nextPrice)
 		})
-
-		expect(updatedOrder.make.value.toString()).toBe(nextPrice)
 	})
 })

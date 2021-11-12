@@ -123,7 +123,7 @@ describe.each(providers)("mint test", ethereum => {
 		} as ERC1155RequestV1)
 		const contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V1, raribleTokenE2eAddress)
 		const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter, result.tokenId).call()).toFixed()
-		const readUri = await contract.functionCall("tokenURI", result.tokenId).call()
+		const readUri = await contract.functionCall("uri", result.tokenId).call()
 		expect(readUri).toBe(uri)
 		expect(balanceOfMinter).toBe(supply.toString())
 	})

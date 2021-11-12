@@ -24,7 +24,7 @@ describe("mint-lazy test", () => {
 		}
 		const signature = await signNft(new Web3Ethereum({ web3 }), await web3.eth.getChainId(), nftTemplate)
 		expect(signature).toEqual(
-			"0x35ec1f77b70de693408a2a230f63f0fc8f5ed0f73138e244af0d78dc2f69bf757d46d25361668a2ba3730cd282e3649d941de61b118569eac6339ff5db9d31ac1c"
+			"0xf00568d7564b30239642ba5c81ee7be71e0ca79a64d39dafa2f640e69a3cab2e2ac9ea7df77c23f12af3791d94ce64802c35c79d9553e70f76adda4ca69fd6601c"
 		)
 	})
 })

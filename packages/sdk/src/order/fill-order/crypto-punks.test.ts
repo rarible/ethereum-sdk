@@ -103,7 +103,7 @@ describe("fillOrder", () => {
 				assetType: {
 					assetClass: "CRYPTO_PUNKS",
 					contract: toAddress(it.punksMarket.options.address),
-					punkId: punkId,
+					tokenId: punkId,
 				},
 				value: toBigNumber("1"),
 			},
@@ -122,8 +122,7 @@ describe("fillOrder", () => {
 		}
 
 		const finalOrder = { ...left, signature: toBinary("0x") }
-		const execution = await filler.fill.start({ order: finalOrder, amount: 1 })
-		const tx = await execution.runAll()
+		const tx = await filler.fill({ order: finalOrder, amount: 1 })
 		await tx.wait()
 
 		const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()
@@ -151,7 +150,7 @@ describe("fillOrder", () => {
 				assetType: {
 					assetClass: "CRYPTO_PUNKS",
 					contract: toAddress(it.punksMarket.options.address),
-					punkId: punkId,
+					tokenId: punkId,
 				},
 				value: toBigNumber("1"),
 			},
@@ -163,8 +162,7 @@ describe("fillOrder", () => {
 		}
 
 		const finalOrder = { ...left, signature: toBinary("0x") }
-		const execution = await filler.fill.start({ order: finalOrder, amount: 1 })
-		const tx = await execution.runAll()
+		const tx = await filler.fill({ order: finalOrder, amount: 1 })
 		await tx.wait()
 
 		const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()

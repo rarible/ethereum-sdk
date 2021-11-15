@@ -52,9 +52,7 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 			ethereum
 		)
 
-		const execution = upserter.upsert.start({ order })
-		await execution.runAll()
-		const result = await execution.result
+		const result = await upserter.upsert({ order })
 		expect(result.hash).toBeTruthy()
 	})
 

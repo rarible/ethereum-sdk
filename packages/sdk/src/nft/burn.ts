@@ -1,5 +1,5 @@
 import type { BigNumber} from "@rarible/types"
-import { toAddress, toBinary } from "@rarible/types"
+import { toAddress, toBigNumber, toBinary } from "@rarible/types"
 import { toBn } from "@rarible/utils"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Maybe } from "@rarible/types/build/maybe"
@@ -30,7 +30,7 @@ export async function burn(
 	const checked = await checkAssetType(asset)
 	const from = toAddress(await ethereum.getFrom())
 	const ownership = await apis.nftOwnership.getNftOwnershipByIdRaw({
-		ownershipId: getOwnershipId(asset.contract, asset.tokenId, from),
+		ownershipId: getOwnershipId(asset.contract, toBigNumber(`${asset.tokenId}`), from),
 	})
 	if (ownership.status === 200) {
 		const lazyValueBn = toBn(ownership.value.lazyValue)
@@ -41,7 +41,7 @@ export async function burn(
 				throw new Error("Unable to burn lazy minted item")
 			}
 			return apis.nftItem.deleteLazyMintNftAsset({
-				itemId: createItemId(asset.contract, asset.tokenId),
+				itemId: createItemId(asset.contract, toBigNumber(`${asset.tokenId}`)),
 				burnLazyNftForm: {
 					creators: ownership.value.creators.map(c => toAddress(c.account)),
 					signatures: [

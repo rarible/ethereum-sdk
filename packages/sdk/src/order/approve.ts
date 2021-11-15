@@ -47,7 +47,7 @@ export async function approve(
 		case "CRYPTO_PUNKS": {
 			const contract = asset.assetType.contract
 			const operator = config.cryptoPunks
-			return approveCryptoPunk(ethereum, send, contract, owner, operator, asset.assetType.punkId)
+			return approveCryptoPunk(ethereum, send, contract, owner, operator, asset.assetType.tokenId)
 		}
 		default: return undefined
 	}

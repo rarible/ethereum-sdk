@@ -24,7 +24,7 @@ export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 				assetClass: id("CRYPTO_PUNKS"),
 				data: ethereum.encodeParameter(
 					{ root: CONTRACT_TOKEN_ID },
-					{ contract: assetType.contract, tokenId: assetType.punkId }
+					{ contract: assetType.contract, tokenId: assetType.tokenId }
 				),
 			}
 		case "ERC721":

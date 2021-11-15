@@ -75,8 +75,7 @@ describe("test exchange v1 order", () => {
 			.send({from: seller })
 
 		const signedOrder: SimpleLegacyOrder = { ...order, signature: await sign(order) }
-		const execution = filler.fill.start({ order: signedOrder, amount: 1, originFee: 100 })
-		await execution.runAll()
+		await filler.fill({ order: signedOrder, amount: 1, originFee: 100 })
 
 		const ownership = await retry(10, 4000, async () => {
 			const ownership = await ownershipApi.getNftOwnershipById({

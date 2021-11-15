@@ -93,7 +93,7 @@ describe("cancel order", () => {
 			ethereum
 		)
 
-		const order = await upserter.upsert.start({ order: form }).runAll()
+		const order = await upserter.upsert({ order: form })
 		const tx = await cancel(checkLazyOrder, ethereum, config.exchange, order)
 		await tx.wait()
 

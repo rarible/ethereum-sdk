@@ -1,4 +1,4 @@
-import type { BigNumber } from "@rarible/types"
+import { toBigNumber } from "@rarible/types"
 import type {
 	Address,
 	CryptoPunksAssetType,
@@ -9,7 +9,7 @@ import type {
 
 export type NftAssetType = {
 	contract: Address
-	tokenId: BigNumber
+	tokenId: string | number
 }
 
 export type AssetTypeRequest = Erc721AssetType | Erc1155AssetType | NftAssetType | CryptoPunksAssetType
@@ -29,18 +29,19 @@ export async function checkAssetType(
 				case "ERC1155": {
 					return {
 						...asset,
+						tokenId: toBigNumber(`${asset.tokenId}`),
 						assetClass: collectionResponse.value.type,
 					}
 				}
 				case "CRYPTO_PUNKS": {
 					return {
-						assetClass: collectionResponse.value.type,
+						assetClass: "CRYPTO_PUNKS",
 						contract: asset.contract,
-						punkId: parseInt(asset.tokenId),
+						tokenId: parseInt(`${asset.tokenId}`),
 					}
 				}
 				default: {
-					throw new Error("Unrecognized collection asset class")
+					throw new Error(`Unrecognized collection asset class ${collectionResponse.value.type}`)
 				}
 			}
 		} else {

@@ -330,8 +330,7 @@ describe("fillOrder: Opensea orders", function () {
 
 				const nftSellerInitBalance = await getBalance(order.make, nftOwner)
 
-				const filledOrderExecution = await orderFiller1.fill.start({ order })
-				await filledOrderExecution.runAll()
+				await orderFiller1.fill({ order })
 
 				const nftSellerFinalBalance = await getBalance(order.make, nftOwner)
 
@@ -377,8 +376,7 @@ describe("fillOrder: Opensea orders", function () {
 			test("should match order", async () => {
 				const nftSellerInitBalance = await getBalance(order.take, nftOwner)
 
-				const filledOrderExecution = await orderFiller2.fill.start({ order })
-				await filledOrderExecution.runAll()
+				await orderFiller2.fill({ order })
 
 				const nftSellerFinalBalance = await getBalance(order.take, nftOwner)
 				expect(nftSellerFinalBalance).not.toBe(nftSellerInitBalance)

@@ -49,11 +49,11 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 		if (initial.make.assetType.assetClass === "CRYPTO_PUNKS") {
 			// Call "buyPunk" if makeAsset=cryptoPunk
 			const contract = createCryptoPunksMarketContract(this.ethereum, initial.make.assetType.contract)
-			return contract.functionCall("buyPunk", initial.make.assetType.punkId)
+			return contract.functionCall("buyPunk", initial.make.assetType.tokenId)
 		} else if (initial.take.assetType.assetClass === "CRYPTO_PUNKS") {
 			// Call "acceptBid" if takeAsset=cryptoPunk
 			const contract = createCryptoPunksMarketContract(this.ethereum, initial.take.assetType.contract)
-			return contract.functionCall("acceptBidForPunk", initial.take.assetType.punkId, initial.make.value)
+			return contract.functionCall("acceptBidForPunk", initial.take.assetType.tokenId, initial.make.value)
 		} else {
 			throw new Error("Unsupported punk asset type")
 		}

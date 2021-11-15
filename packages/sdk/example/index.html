@@ -21,7 +21,7 @@
       }
       const nftCollection = await raribleSdk.apis.nftCollection.getNftCollectionById({ collection: mintFormInitial.id })
       const tx = await raribleSdk.nft.mint({
-        uri: "uri",
+        uri: "ipfs://ipfs/hash",
         royalties: [],
         collection: nftCollection,
       })

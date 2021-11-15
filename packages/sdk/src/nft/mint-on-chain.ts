@@ -3,6 +3,7 @@ import type { NftCollectionControllerApi, Part } from "@rarible/ethereum-api-cli
 import { toAddress } from "@rarible/types"
 import type { SendFunction } from "../common/send-transaction"
 import { createItemId } from "../common/create-item-id"
+import { sanitizeUri } from "../common/sanitize-uri"
 import type { ERC1155RequestV1, ERC1155RequestV2, ERC721RequestV1, ERC721RequestV2, ERC721RequestV3, MintOnChainResponse} from "./mint"
 import { MintResponseTypeEnum } from "./mint"
 import { getTokenId } from "./get-token-id"
@@ -20,7 +21,10 @@ export async function mintErc721v1(
 	const erc721Contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V1, data.collection.id)
 	const nftTokenId = await getTokenId(nftCollectionApi, data.collection.id, owner, data.nftTokenId)
 	const { tokenId, signature: { v, r, s } } = nftTokenId
-	const transaction = await send(erc721Contract.functionCall("mint", tokenId, v, r, s, data.uri))
+
+	const uriPrefix = await erc721Contract.functionCall("tokenURIPrefix").call()
+	const uri = sanitizeUri(uriPrefix, data.uri)
+	const transaction = await send(erc721Contract.functionCall("mint", tokenId, v, r, s, uri))
 
 	return createMintOnChainResponse({
 		transaction,
@@ -42,7 +46,10 @@ export async function mintErc721v2(
 	const nftTokenId = await getTokenId(nftCollectionApi, data.collection.id, owner, data.nftTokenId)
 	const { tokenId, signature: { v, r, s } } = nftTokenId
 	const royalties = (data.royalties || []).map((x) => ({ recipient: x.account, value: x.value }))
-	const transaction = await send(erc721Contract.functionCall("mint", tokenId, v, r, s, royalties, data.uri))
+
+	const uriPrefix = await erc721Contract.functionCall("tokenURIPrefix").call()
+	const uri = sanitizeUri(uriPrefix, data.uri)
+	const transaction = await send(erc721Contract.functionCall("mint", tokenId, v, r, s, royalties, uri))
 
 	return createMintOnChainResponse({
 		transaction,
@@ -62,14 +69,16 @@ export async function mintErc721v3(
 	const creators = await getCreators(data, ethereum)
 	const owner = creators[0].account
 	const erc721Contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, data.collection.id)
+	const uriPrefix = await erc721Contract.functionCall("baseURI").call()
+	const uri = sanitizeUri(uriPrefix, data.uri)
 	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, owner, data.nftTokenId)
 
 	const args = {
 		tokenId,
+		tokenURI: uri,
 		creators,
-		royalties: (data.royalties || []),
+		royalties: data.royalties || [],
 		signatures: ["0x"],
-		uri: data.uri,
 	}
 
 	const transaction = await send(erc721Contract.functionCall("mintAndTransfer", args, owner))
@@ -93,7 +102,10 @@ export async function mintErc1155v1(
 	const nftTokenId = await getTokenId(nftCollectionApi, data.collection.id, owner, data.nftTokenId)
 	const { tokenId, signature: { v, r, s } } = nftTokenId
 	const royalties = (data.royalties || []).map((x) => ({ recipient: x.account, value: x.value }))
-	const transaction = await send(erc155Contract.functionCall("mint", tokenId, v, r, s, royalties, data.supply, data.uri))
+
+	const uriPrefix = await erc155Contract.functionCall("tokenURIPrefix").call()
+	const uri = sanitizeUri(uriPrefix, data.uri)
+	const transaction = await send(erc155Contract.functionCall("mint", tokenId, v, r, s, royalties, data.supply, uri))
 
 	return createMintOnChainResponse({
 		transaction,
@@ -114,13 +126,15 @@ export async function mintErc1155v2(
 	const owner = creators[0].account
 	const erc1155Contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V2, data.collection.id)
 	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, owner, data.nftTokenId)
+	const uriPrefix = await erc1155Contract.functionCall("baseURI").call()
+	const uri = sanitizeUri(uriPrefix, data.uri)
 
 	const args = {
 		tokenId,
-		uri: data.uri,
+		tokenURI: uri,
 		supply: data.supply,
 		creators: creators,
-		royalties: (data.royalties || []),
+		royalties: data.royalties || [],
 		signatures: ["0x"],
 	}
 	const transaction = await send(erc1155Contract.functionCall("mintAndTransfer", args, owner, data.supply))

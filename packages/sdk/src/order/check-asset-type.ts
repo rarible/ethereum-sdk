@@ -40,7 +40,7 @@ export async function checkAssetType(
 					}
 				}
 				default: {
-					throw new Error("Unrecognized collection asset class")
+					throw new Error(`Unrecognized collection asset class ${collectionResponse.value.type}`)
 				}
 			}
 		} else {

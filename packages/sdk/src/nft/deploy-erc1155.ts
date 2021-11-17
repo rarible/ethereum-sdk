@@ -49,7 +49,7 @@ export class DeployErc1155 {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
-		const contract = createErc1155UserFactoryContract(this.ethereum,  this.config.factories.erc1155User)
+		const contract = createErc1155UserFactoryContract(this.ethereum,  this.config.factories.erc1155)
 		const salt = randomWord()
 		return {
 			tx: await this.send(
@@ -65,7 +65,7 @@ export class DeployErc1155 {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
-		const contract = createErc1155UserFactoryContract(this.ethereum, this.config.factories.erc1155User)
+		const contract = createErc1155UserFactoryContract(this.ethereum, this.config.factories.erc1155)
 		return contract.functionCall("getAddress", name, symbol, baseURI, contractURI, operators, salt)
 			.call()
 	}

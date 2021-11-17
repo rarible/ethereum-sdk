@@ -27,9 +27,7 @@ export type OpenSeaConfig = {
 
 export type FactoriesAddresses = {
 	erc721: Address
-	erc721User: Address
 	erc1155: Address
-	erc1155User: Address
 }
 
 export type EthereumConfig = {

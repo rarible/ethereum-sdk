@@ -27,8 +27,6 @@ export const mainnetConfig: EthereumConfig = {
 	},
 	factories: {
 		erc721: ZERO_ADDRESS,
-		erc721User: ZERO_ADDRESS,
 		erc1155: ZERO_ADDRESS,
-		erc1155User: ZERO_ADDRESS,
 	},
 }

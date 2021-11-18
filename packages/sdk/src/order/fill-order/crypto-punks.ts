@@ -62,7 +62,7 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 	getMatchV2Options(
 		left: SimpleCryptoPunkOrder, right: SimpleCryptoPunkOrder,
 	): EthereumSendOptions {
-		if (right.make.assetType.assetClass === "ETH" && right.salt === ZERO_WORD) {
+		if (right.make.assetType.assetClass === "ETH") {
 			const asset = this.getMakeAssetWithFee(right)
 			return { value: asset.value }
 		} else {

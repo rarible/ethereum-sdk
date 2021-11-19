@@ -16,6 +16,7 @@ import { deployCryptoPunks } from "../../nft/contracts/cryptoPunks/deploy"
 import { deployCryptoPunkTransferProxy } from "../contracts/test/test-crypto-punks-transfer-proxy"
 import { id } from "../../common/id"
 import { deployCryptoPunkAssetMatcher } from "../contracts/test/test-crypto-punks-asset-matcher"
+import { retry } from "../../common/retry"
 import { CryptoPunksOrderHandler } from "./crypto-punks"
 import { OrderFiller } from "./index"
 
@@ -103,7 +104,7 @@ describe("fillOrder", () => {
 				assetType: {
 					assetClass: "CRYPTO_PUNKS",
 					contract: toAddress(it.punksMarket.options.address),
-					punkId: punkId,
+					tokenId: punkId,
 				},
 				value: toBigNumber("1"),
 			},
@@ -122,13 +123,14 @@ describe("fillOrder", () => {
 		}
 
 		const finalOrder = { ...left, signature: toBinary("0x") }
-		const execution = await filler.fill.start({ order: finalOrder, amount: 1 })
-		const tx = await execution.runAll()
+		const tx = await filler.fill({ order: finalOrder, amount: 1 })
 		await tx.wait()
 
-		const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()
+		await retry(5, 500, async () => {
+			const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()
 
-		expect(ownerAddress.toLowerCase()).toBe(sender1Address.toLowerCase())
+			expect(ownerAddress.toLowerCase()).toBe(sender1Address.toLowerCase())
+		})
 	})
 
 	test("should fill bid with crypto punks asset", async () => {
@@ -151,7 +153,7 @@ describe("fillOrder", () => {
 				assetType: {
 					assetClass: "CRYPTO_PUNKS",
 					contract: toAddress(it.punksMarket.options.address),
-					punkId: punkId,
+					tokenId: punkId,
 				},
 				value: toBigNumber("1"),
 			},
@@ -163,13 +165,14 @@ describe("fillOrder", () => {
 		}
 
 		const finalOrder = { ...left, signature: toBinary("0x") }
-		const execution = await filler.fill.start({ order: finalOrder, amount: 1 })
-		const tx = await execution.runAll()
+		const tx = await filler.fill({ order: finalOrder, amount: 1 })
 		await tx.wait()
 
-		const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()
+		await retry(5, 500, async () => {
+			const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()
 
-		expect(ownerAddress.toLowerCase()).toBe(sender2Address.toLowerCase())
+			expect(ownerAddress.toLowerCase()).toBe(sender2Address.toLowerCase())
+		})
 	})
 
 })

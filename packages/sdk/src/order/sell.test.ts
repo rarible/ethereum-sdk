@@ -17,7 +17,7 @@ import { createTestProviders } from "../common/create-test-providers"
 import { send as sendTemplate } from "../common/send-transaction"
 import { signNft as signNftTemplate } from "../nft/sign-nft"
 import { createErc721V3Collection } from "../common/mint"
-import { delay } from "../common/retry"
+import { delay, retry } from "../common/retry"
 import { OrderSell } from "./sell"
 import { signOrder as signOrderTemplate } from "./sign-order"
 import { RaribleV2OrderHandler } from "./fill-order/rarible-v2"
@@ -107,12 +107,14 @@ describe.each(providers)("sell", (ethereum) => {
 		await delay(1000)
 
 		const nextPrice = toBigNumber("1")
-		const updatedOrder = await orderSell.update({
-			orderHash: order.hash,
-			price: nextPrice,
-		})
 
-		expect(updatedOrder.take.value.toString()).toBe(nextPrice.toString())
+		await retry(5, 500, async () => {
+			const updatedOrder = await orderSell.update({
+				orderHash: order.hash,
+				price: nextPrice,
+			})
+			expect(updatedOrder.take.value.toString()).toBe(nextPrice.toString())
+		})
 	})
 
 	test("create and update of v1 works", async () => {
@@ -158,10 +160,13 @@ describe.each(providers)("sell", (ethereum) => {
 		await delay(1000)
 
 		const nextPrice = toBigNumber("1")
-		const updatedOrder = await orderSell.update({
-			orderHash: order.hash,
-			price: nextPrice,
+
+		await retry(5, 500, async () => {
+			const updatedOrder = await orderSell.update({
+				orderHash: order.hash,
+				price: nextPrice,
+			})
+			expect(updatedOrder.take.value.toString()).toBe(nextPrice.toString())
 		})
-		expect(updatedOrder.take.value.toString()).toBe(nextPrice.toString())
 	})
 })

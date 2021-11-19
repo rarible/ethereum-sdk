@@ -5,7 +5,7 @@ import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-clien
 import { toAddress } from "@rarible/types"
 import { send as sendTemplate, sentTx } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
-import { deployCryptoPunks } from "../nft/contracts/cryptoPunks/deploy"
+import { deployCryptoPunks } from "./contracts/cryptoPunks/deploy"
 import { transferCryptoPunk } from "./transfer-crypto-punk"
 
 describe("transfer crypto punks", () => {

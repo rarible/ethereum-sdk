@@ -144,8 +144,7 @@ describe("fillOrder", () => {
 		const signature = await signOrder(ethereum2, config, left)
 
 		const finalOrder = { ...left, signature }
-		const execution = await filler.fill.start({ order: finalOrder, amount: 2, payouts: [], originFees: [] })
-		await execution.runAll()
+		await filler.fill({ order: finalOrder, amount: 2, payouts: [], originFees: [] })
 
 		expect(toBn(await it.testErc20.methods.balanceOf(sender2Address).call()).toString()).toBe("4")
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString()).toBe("2")
@@ -195,8 +194,7 @@ describe("fillOrder", () => {
 			account: randomAddress(),
 			value: 100,
 		}]
-		const execution = await filler.fill.start({ order: finalOrder, amount: 2, originFees })
-		await execution.runAll()
+		await filler.fill({ order: finalOrder, amount: 2, originFees })
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString()).toBe(
 			before2.minus(2).toFixed()
@@ -217,7 +215,7 @@ describe("fillOrder", () => {
 				assetType: {
 					assetClass: "CRYPTO_PUNKS",
 					contract: toAddress(it.punksMarket.options.address),
-					punkId: punkId,
+					tokenId: punkId,
 				},
 				value: toBigNumber("1"),
 			},
@@ -249,8 +247,7 @@ describe("fillOrder", () => {
 
 
 		const finalOrder = { ...left, signature }
-		const execution = await filler.fill.start({ order: finalOrder, amount: 1, originFees: []})
-		await execution.runAll()
+		await filler.fill({ order: finalOrder, amount: 1, originFees: []})
 
 		const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()
 
@@ -286,7 +283,7 @@ describe("fillOrder", () => {
 				assetType: {
 					assetClass: "CRYPTO_PUNKS",
 					contract: toAddress(it.punksMarket.options.address),
-					punkId: punkId,
+					tokenId: punkId,
 				},
 				value: toBigNumber("1"),
 			},
@@ -306,8 +303,7 @@ describe("fillOrder", () => {
 		const v2Handler = new RaribleV2OrderHandler(ethereum2, simpleSend, config)
 		const filler = new OrderFiller(ethereum2, null as any, v2Handler, null as any, null as any)
 
-		const execution = await filler.fill.start({ order: finalOrder, amount: 1, originFees: []})
-		await execution.runAll()
+		await filler.fill({ order: finalOrder, amount: 1, originFees: []})
 
 		const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()
 

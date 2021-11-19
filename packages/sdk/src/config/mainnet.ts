@@ -26,9 +26,7 @@ export const mainnetConfig: EthereumConfig = {
 		proxyRegistry: toAddress("0xa5409ec958c83c3f309868babaca7c86dcb077c1"),
 	},
 	factories: {
-		erc721: ZERO_ADDRESS,
-		erc721User: ZERO_ADDRESS,
+		erc721: toAddress("0x6E42262978de5233C8d5B05B128C121fBa110DA4"),
 		erc1155: ZERO_ADDRESS,
-		erc1155User: ZERO_ADDRESS,
 	},
 }

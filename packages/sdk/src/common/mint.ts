@@ -2,7 +2,7 @@ import type { Address, NftCollection } from "@rarible/ethereum-api-client"
 import { NftCollectionFeatures, NftCollectionType } from "@rarible/ethereum-api-client"
 import { ERC1155VersionEnum, ERC721VersionEnum } from "../nft/contracts/domain"
 
-export type CommonNftCollection = Omit<NftCollection, "supportsLazyMint"> & Partial<Pick<NftCollection, "supportsLazyMint">>
+export type CommonNftCollection = Omit<NftCollection, "supportsLazyMint"> & Partial<NftCollection>
 
 export function createErc721V2Collection(
 	address: Address

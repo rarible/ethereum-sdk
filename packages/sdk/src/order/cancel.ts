@@ -90,5 +90,5 @@ export function cancelCryptoPunksOrder(ethereum: Ethereum, order: SimpleCryptoPu
 
 export function cancelCryptoPunkOrderByAsset(ethereum: Ethereum, assetType: CryptoPunksAssetType) {
 	const ethContract = createCryptoPunksMarketContract(ethereum, assetType.contract)
-	return ethContract.functionCall("punkNoLongerForSale", assetType.punkId).send()
+	return ethContract.functionCall("punkNoLongerForSale", assetType.tokenId).send()
 }

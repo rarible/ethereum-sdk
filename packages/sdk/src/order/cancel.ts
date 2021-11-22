@@ -80,15 +80,15 @@ export function cancelOpenseaOrderV1(ethereum: Ethereum, contract: Address, orde
 
 export function cancelCryptoPunksOrder(ethereum: Ethereum, order: SimpleCryptoPunkOrder) {
 	if (order.make.assetType.assetClass === "CRYPTO_PUNKS") {
-		return cancelCryptoPunkOrderByAsset(ethereum, order.make.assetType)
+		return cancelCryptoPunkOrderByAsset(ethereum, "punkNoLongerForSale", order.make.assetType)
 	} else if (order.take.assetType.assetClass === "CRYPTO_PUNKS") {
-		return cancelCryptoPunkOrderByAsset(ethereum, order.take.assetType)
+		return cancelCryptoPunkOrderByAsset(ethereum, "withdrawBidForPunk", order.take.assetType)
 	} else {
 		throw new Error("Crypto punks asset has not been found")
 	}
 }
 
-export function cancelCryptoPunkOrderByAsset(ethereum: Ethereum, assetType: CryptoPunksAssetType) {
+export function cancelCryptoPunkOrderByAsset(ethereum: Ethereum, methodName: string, assetType: CryptoPunksAssetType) {
 	const ethContract = createCryptoPunksMarketContract(ethereum, assetType.contract)
-	return ethContract.functionCall("punkNoLongerForSale", assetType.tokenId).send()
+	return ethContract.functionCall(methodName, assetType.tokenId).send()
 }

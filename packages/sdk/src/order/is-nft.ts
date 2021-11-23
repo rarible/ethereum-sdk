@@ -4,11 +4,12 @@ import type {
 	Erc1155LazyAssetType,
 	Erc721AssetType,
 	Erc721LazyAssetType,
+	GenerativeArtAssetType,
 } from "@rarible/ethereum-api-client"
 
 export function isNft(
 	type: AssetType,
-): type is (Erc721AssetType | Erc1155AssetType | Erc721LazyAssetType | Erc1155LazyAssetType) {
+): type is (Erc721AssetType | Erc1155AssetType | Erc721LazyAssetType | Erc1155LazyAssetType | GenerativeArtAssetType) {
 	switch (type.assetClass) {
 		case "ERC721":
 			return true
@@ -17,6 +18,8 @@ export function isNft(
 		case "ERC721_LAZY":
 			return true
 		case "ERC1155_LAZY":
+			return true
+		case "GEN_ART":
 			return true
 		default:
 			return false

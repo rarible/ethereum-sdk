@@ -7,6 +7,7 @@ import type { HasOrder, HasPrice, OrderRequest, UpsertOrder } from "./upsert-ord
 import type { AssetTypeRequest, AssetTypeResponse } from "./check-asset-type"
 import type { SimpleOrder } from "./types"
 import { isCurrency } from "./is-currency"
+import type { SellUpdateRequest } from "./sell"
 
 export type BidRequest = {
 	makeAssetType: EthAssetType | Erc20AssetType
@@ -50,16 +51,25 @@ export class OrderBid {
 				if (!isCurrency(order.make.assetType)) {
 					throw new Error(`Not a bid order: ${JSON.stringify(order)}`)
 				}
-				const price = await this.upserter.getPrice(request, order.make.assetType)
-				const form = await this.prepareOrderUpdateForm(order, price)
-				const checked = await this.upserter.checkLazyOrder(form) as OrderForm
-				await this.upserter.approve(checked, true)
-				return checked
+				if (order.type === "CRYPTO_PUNK") {
+					return request
+				} else {
+					const price = await this.upserter.getPrice(request, order.make.assetType)
+					const form = await this.prepareOrderUpdateForm(order, price)
+					const checked = await this.upserter.checkLazyOrder(form) as OrderForm
+					await this.upserter.approve(checked, true)
+					return checked
+				}
 			},
 		})
 		.thenStep({
 			id: "sign" as const,
-			run: (form: OrderForm) => this.upserter.upsertRequest(form),
+			run: (form: OrderForm | SellUpdateRequest) => {
+				if ("type" in form && (form.type === "RARIBLE_V1" || form.type === "RARIBLE_V2")) {
+					return this.upserter.upsertRequest(form)
+				}
+				return this.upserter.updateCryptoPunkOrder(form)
+			},
 		})
 
 	private async getBidForm(request: BidRequest): Promise<RaribleV2OrderForm> {

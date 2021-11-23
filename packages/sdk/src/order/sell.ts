@@ -70,16 +70,25 @@ export class OrderSell {
 				if (!isCurrency(order.take.assetType)) {
 					throw new Error(`Not a sell order: ${JSON.stringify(order)}`)
 				}
-				const price = await this.upserter.getPrice(request, order.take.assetType)
-				const form = await this.prepareOrderUpdateForm(order, price)
-				const checked = await this.upserter.checkLazyOrder(form) as OrderForm
-				await this.upserter.approve(checked, false)
-				return checked
+				if (order.type === "CRYPTO_PUNK") {
+					return request
+				} else {
+					const price = await this.upserter.getPrice(request, order.take.assetType)
+					const form = await this.prepareOrderUpdateForm(order, price)
+					const checked = await this.upserter.checkLazyOrder(form) as OrderForm
+					await this.upserter.approve(checked, false)
+					return checked
+				}
 			},
 		})
 		.thenStep({
 			id: "sign" as const,
-			run: (form: OrderForm) => this.upserter.upsertRequest(form),
+			run: (form: OrderForm | SellUpdateRequest) => {
+				if ("type" in form && (form.type === "RARIBLE_V1" || form.type === "RARIBLE_V2")) {
+					return this.upserter.upsertRequest(form)
+				}
+				return this.upserter.updateCryptoPunkOrder(form)
+			},
 		})
 
 	async prepareOrderUpdateForm(order: SimpleOrder, price: BigNumberValue): Promise<OrderForm> {

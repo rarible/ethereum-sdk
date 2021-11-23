@@ -12,18 +12,23 @@ import type {
 } from "@rarible/ethereum-api-client"
 import { Action } from "@rarible/action"
 import type { Address, Word } from "@rarible/types"
-import { randomWord, toAddress, toBigNumber, toBinary } from "@rarible/types"
+import { randomWord, toAddress, toBigNumber, toBinary, toWord } from "@rarible/types"
 import type { BigNumberValue} from "@rarible/utils/build/bn"
 import { toBn } from "@rarible/utils/build/bn"
-import type { Ethereum } from "@rarible/ethereum-provider"
+import type { Ethereum, EthereumSendOptions } from "@rarible/ethereum-provider"
 import type { Maybe } from "@rarible/types/build/maybe"
-import type { SimpleOrder } from "./types"
+import type { CryptoPunkOrder } from "@rarible/ethereum-api-client"
+import { createCryptoPunksMarketContract } from "../nft/contracts/cryptoPunks"
+import type { SimpleCryptoPunkOrder, SimpleOrder } from "./types"
 import type { UpsertSimpleOrder } from "./types"
 import { addFee } from "./add-fee"
 import type { ApproveFunction } from "./approve"
 import type { OrderFiller } from "./fill-order"
 import type { CheckLazyOrderPart } from "./check-lazy-order"
 import { createErc20Contract } from "./contracts/erc20"
+import type { SellUpdateRequest } from "./sell"
+
+const ZERO = toWord("0x0000000000000000000000000000000000000000000000000000000000000000")
 
 export type UpsertOrderStageId = "approve" | "sign"
 export type UpsertOrderActionArg = {
@@ -151,6 +156,56 @@ export class UpsertOrder {
 			take,
 			salt: toBigNumber(toBn(order.salt, 16).toString(10)),
 			signature: order.signature || toBinary("0x"),
+		}
+	}
+
+	async updateCryptoPunkOrder(request: SellUpdateRequest): Promise<Order> {
+		const order = await this.getOrder(request)
+		if (order.type !== "CRYPTO_PUNK") {
+			throw new Error(`can't update punk order with type: ${order.type}`)
+		}
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
+		await this.updateCryptoPunkOrderByContract(this.ethereum, order, request)
+		return UpsertOrder.simpleToCryptoPunkOrder(order)
+	}
+
+	private async updateCryptoPunkOrderByContract(
+		ethereum: Ethereum, order: SimpleCryptoPunkOrder, request: SellUpdateRequest
+	) {
+		const price = await this.getPrice(request, <EthAssetType>{})
+		if (order.make.assetType.assetClass === "CRYPTO_PUNKS") {
+			const ethContract = createCryptoPunksMarketContract(ethereum, order.make.assetType.contract)
+			await ethContract.functionCall("offerPunkForSale", order.make.assetType.tokenId, price).send()
+		} else if (order.take.assetType.assetClass === "CRYPTO_PUNKS") {
+			const ethContract = createCryptoPunksMarketContract(ethereum, order.take.assetType.contract)
+			await ethContract.functionCall("enterBidForPunk", order.take.assetType.tokenId).send(<EthereumSendOptions>{ value: price })
+		} else {
+			throw new Error("Crypto punks asset has not been found")
+		}
+	}
+
+	private static simpleToCryptoPunkOrder(order: SimpleCryptoPunkOrder): CryptoPunkOrder {
+		return {
+			cancelled: false,
+			createdAt: "",
+			fill: toBigNumber("0"),
+			hash: ZERO,
+			lastUpdateAt: "",
+			makeStock: toBigNumber("1"),
+			type: "CRYPTO_PUNK",
+			maker: order.maker,
+			taker: order.taker,
+			make: order.make,
+			take: order.take,
+			start: order.start,
+			end: order.end,
+			salt: order.salt,
+			signature: order.signature,
+			data: {
+				dataType: "CRYPTO_PUNKS_DATA",
+			},
 		}
 	}
 }

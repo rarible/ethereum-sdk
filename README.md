@@ -9,6 +9,7 @@ npm install -D @rarible/protocol-ethereum-sdk
 ```
 
 or inject package into your web page with web3 instance
+
 ```angular2html
 <script src="https://unpkg.com/@rarible/web3-ethereum@0.10.0/umd/rarible-web3-ethereum.js" type="text/javascript"></script>
 <script src="https://unpkg.com/@rarible/protocol-ethereum-sdk@0.10.0/umd/rarible-ethereum-sdk.js" type="text/javascript"></script>
@@ -46,6 +47,7 @@ const sdk = createRaribleSdk(web3, env, { fetchApi: fetch })
   ``` 'ropsten' | 'rinkeby' | 'mainnet' | 'e2e'```
 
 #### Configure Rarible SDK in browser
+
 ```angular2html
 const web = new Web3(ethereum)
 const web3Ethereum = new window.raribleWeb3Ethereum.Web3Ethereum({ web3: web })
@@ -181,7 +183,7 @@ For more information, see [mint.md](https://github.com/rarible/protocol-ethereum
 
 #### Transfer
 
-```
+```typescript
 transfer(asset, to[, amount])
 
 Transfer request params:
@@ -221,8 +223,8 @@ const hash = await sdk.nft.burn({
 
 ### Suggestions
 
-You are welcome to suggest features and report bugs found! You can do it here: https://github.com/rarible/protocol-issues/issues
+You are welcome to [suggest features](https://github.com/rarible/protocol/discussions) and [report bugs found](https://github.com/rarible/protocol/issues)!
 
 ### License
 
-Rarible Protocol Ethereum SDK is available under the [MIT license](https://github.com/rarible/protocol-ethereum-sdk/blob/master/LICENSE).
+Rarible Protocol Ethereum SDK is available under the [MIT License](https://github.com/rarible/protocol-ethereum-sdk/blob/master/LICENSE).

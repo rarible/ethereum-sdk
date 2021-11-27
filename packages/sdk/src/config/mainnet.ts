@@ -16,7 +16,7 @@ export const mainnetConfig: EthereumConfig = {
 		erc721Lazy: toAddress("0xbb7829BFdD4b557EB944349b2E2c965446052497"),
 		erc1155Lazy: toAddress("0x75a8B7c0B22D973E0B46CfBD3e2f6566905AA79f"),
 		openseaV1: toAddress("0xe5c783ee536cf5e63e792988335c4255169be4e1"),
-		cryptoPunks: ZERO_ADDRESS,
+		cryptoPunks: toAddress("0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb"),
 	},
 	fees: {
 		v2: 0,

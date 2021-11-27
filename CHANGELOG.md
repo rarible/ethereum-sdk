@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.8](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.6...v0.12.8) (2021-11-27)
+
+
+### Features
+
+* add mumbai (polygon testnet) support ([527b41f](https://github.com/rarible/protocol-ethereum-sdk/commit/527b41f84488abb208b716accc7a815c3847bfac))
+
+
+
+
+
 # [0.12.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.11.0...v0.12.0) (2021-11-12)
 
 

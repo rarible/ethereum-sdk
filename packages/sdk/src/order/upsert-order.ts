@@ -2,6 +2,7 @@
 
 import type {
 	Binary,
+	CryptoPunkOrder,
 	Erc20AssetType,
 	EthAssetType,
 	Order,
@@ -13,14 +14,12 @@ import type {
 import { Action } from "@rarible/action"
 import type { Address, Word } from "@rarible/types"
 import { randomWord, toAddress, toBigNumber, toBinary, toWord } from "@rarible/types"
-import type { BigNumberValue} from "@rarible/utils/build/bn"
+import type { BigNumberValue } from "@rarible/utils/build/bn"
 import { toBn } from "@rarible/utils/build/bn"
-import type { Ethereum, EthereumSendOptions } from "@rarible/ethereum-provider"
+import type { Ethereum } from "@rarible/ethereum-provider"
 import type { Maybe } from "@rarible/types/build/maybe"
-import type { CryptoPunkOrder } from "@rarible/ethereum-api-client"
 import { createCryptoPunksMarketContract } from "../nft/contracts/cryptoPunks"
-import type { SimpleCryptoPunkOrder, SimpleOrder } from "./types"
-import type { UpsertSimpleOrder } from "./types"
+import type { SimpleCryptoPunkOrder, SimpleOrder, UpsertSimpleOrder } from "./types"
 import { addFee } from "./add-fee"
 import type { ApproveFunction } from "./approve"
 import type { OrderFiller } from "./fill-order"
@@ -168,7 +167,7 @@ export class UpsertOrder {
 			throw new Error("Wallet undefined")
 		}
 		await this.updateCryptoPunkOrderByContract(this.ethereum, order, request)
-		return UpsertOrder.simpleToCryptoPunkOrder(order)
+		return simpleToCryptoPunkOrder(order)
 	}
 
 	private async updateCryptoPunkOrderByContract(
@@ -180,32 +179,21 @@ export class UpsertOrder {
 			await ethContract.functionCall("offerPunkForSale", order.make.assetType.tokenId, price).send()
 		} else if (order.take.assetType.assetClass === "CRYPTO_PUNKS") {
 			const ethContract = createCryptoPunksMarketContract(ethereum, order.take.assetType.contract)
-			await ethContract.functionCall("enterBidForPunk", order.take.assetType.tokenId).send(<EthereumSendOptions>{ value: price })
+			await ethContract.functionCall("enterBidForPunk", order.take.assetType.tokenId).send({ value: price.toString() })
 		} else {
 			throw new Error("Crypto punks asset has not been found")
 		}
 	}
+}
 
-	private static simpleToCryptoPunkOrder(order: SimpleCryptoPunkOrder): CryptoPunkOrder {
-		return {
-			cancelled: false,
-			createdAt: "",
-			fill: toBigNumber("0"),
-			hash: ZERO,
-			lastUpdateAt: "",
-			makeStock: toBigNumber("1"),
-			type: "CRYPTO_PUNK",
-			maker: order.maker,
-			taker: order.taker,
-			make: order.make,
-			take: order.take,
-			start: order.start,
-			end: order.end,
-			salt: order.salt,
-			signature: order.signature,
-			data: {
-				dataType: "CRYPTO_PUNKS_DATA",
-			},
-		}
+function simpleToCryptoPunkOrder(order: SimpleCryptoPunkOrder): CryptoPunkOrder {
+	return {
+		...order,
+		cancelled: false,
+		createdAt: "",
+		fill: toBigNumber("0"),
+		hash: ZERO,
+		lastUpdateAt: "",
+		makeStock: order.make.value,
 	}
 }

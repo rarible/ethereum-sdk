@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.9](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.8...v0.12.9) (2021-11-29)
+
+
+### Bug Fixes
+
+* simplify update crypto punk order ([ad95891](https://github.com/rarible/protocol-ethereum-sdk/commit/ad958916b83c0c279f933d2e138fd2d87e647dba))
+* update crypto punks order/bid support ([32515f6](https://github.com/rarible/protocol-ethereum-sdk/commit/32515f60c53eed1f7b51b269cf9bb6978cc2fd00))
+
+
+
+
+
 ## [0.12.8](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.6...v0.12.8) (2021-11-27)
 
 

@@ -227,4 +227,4 @@ You are welcome to [suggest features](https://github.com/rarible/protocol/discus
 
 ### License
 
-Rarible Protocol Ethereum SDK is available under the [MIT License](https://github.com/rarible/protocol-ethereum-sdk/blob/master/LICENSE).
+Rarible Protocol Ethereum SDK is available under the [MIT License](LICENSE).

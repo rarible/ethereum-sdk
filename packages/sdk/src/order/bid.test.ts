@@ -27,6 +27,7 @@ import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
 import { OpenSeaOrderHandler } from "./fill-order/open-sea"
 import { RaribleV1OrderHandler } from "./fill-order/rarible-v1"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
+import { createErc20Contract } from "./contracts/erc20"
 
 const { provider, wallet } = createE2eProvider(
 	"d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469"
@@ -75,6 +76,14 @@ describe.each(providers)("bid", (ethereum) => {
 	const treasury = createE2eWallet()
 	const treasuryAddress = toAddress(treasury.getAddressString())
 
+	const erc20Contract = toAddress("0xfB771AEc4740e4b9B6b4C33959Bf6183E00812d7")
+	beforeAll(async () => {
+		await send(
+			createErc20Contract(ethereum, erc20Contract)
+				.functionCall("mint", await ethereum.getFrom(), 1000)
+		)
+	})
+
 	test("create and update of v2 works", async () => {
 		const makerAddress = toAddress(wallet.getAddressString())
 		const minted = await mint({
@@ -95,9 +104,10 @@ describe.each(providers)("bid", (ethereum) => {
 				contract: minted.contract,
 				tokenId: minted.tokenId,
 			},
-			price: toBn("20000000000000000"),
+			price: toBn("100"),
 			makeAssetType: {
-				assetClass: "ETH",
+				assetClass: "ERC20",
+				contract: erc20Contract,
 			},
 			amount: 1,
 			payouts: [],
@@ -147,7 +157,8 @@ describe.each(providers)("bid", (ethereum) => {
 			},
 			make: {
 				assetType: {
-					assetClass: "ETH",
+					assetClass: "ERC20",
+					contract: erc20Contract,
 				},
 				value: toBigNumber("10000000000000000"),
 			},

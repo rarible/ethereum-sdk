@@ -10,7 +10,7 @@ import { isCurrency } from "./is-currency"
 import type { SellUpdateRequest } from "./sell"
 
 export type BidRequest = {
-	makeAssetType: EthAssetType | Erc20AssetType
+	makeAssetType: Erc20AssetType
 	amount: number
 	takeAssetType: AssetTypeRequest
 } & HasPrice & OrderRequest
@@ -32,6 +32,9 @@ export class OrderBid {
 		.create({
 			id: "approve" as const,
 			run: async (request: BidRequest) => {
+				if (request.makeAssetType.assetClass !== "ERC20") {
+					throw new Error(`Make asset type should be ERC-20, received=${request.makeAssetType.assetClass}`)
+				}
 				const form = await this.getBidForm(request)
 				const checked = await this.upserter.checkLazyOrder(form) as OrderForm
 				await this.upserter.approve(checked, true)
@@ -48,8 +51,8 @@ export class OrderBid {
 			id: "approve" as const,
 			run: async (request: BidUpdateRequest) => {
 				const order = await this.upserter.getOrder(request)
-				if (!isCurrency(order.make.assetType)) {
-					throw new Error(`Not a bid order: ${JSON.stringify(order)}`)
+				if (order.make.assetType.assetClass !== "ERC20") {
+					throw new Error(`Make asset type should be ERC-20, received=${order.make.assetType.assetClass}`)
 				}
 				if (order.type === "CRYPTO_PUNK") {
 					return request

@@ -102,6 +102,7 @@ describe.each(providers)("sell", (ethereum) => {
 			}],
 		})
 
+		console.log("hash", order.hash)
 		expect(order.hash).toBeTruthy()
 
 		await delay(1000)
@@ -114,6 +115,7 @@ describe.each(providers)("sell", (ethereum) => {
 				price: nextPrice,
 			})
 			expect(updatedOrder.take.value.toString()).toBe(nextPrice.toString())
+			console.log("updatedOrder", updatedOrder)
 		})
 	})
 

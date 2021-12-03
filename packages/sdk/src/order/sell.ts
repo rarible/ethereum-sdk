@@ -68,7 +68,7 @@ export class OrderSell {
 			run: async (request: SellUpdateRequest) => {
 				const order = await this.upserter.getOrder(request)
 				if (!isCurrency(order.take.assetType)) {
-					throw new Error(`Not a sell order: ${JSON.stringify(order)}`)
+					throw new Error(`Make asset type should be either ETH or ERC-20 asset, received=${order.make.assetType.assetClass}`)
 				}
 				if (order.type === "CRYPTO_PUNK") {
 					return request

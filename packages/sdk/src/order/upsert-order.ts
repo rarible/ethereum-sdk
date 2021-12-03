@@ -94,7 +94,7 @@ export class UpsertOrder {
 						.call()
 					return toBn(hasPrice.priceDecimal).multipliedBy(toBn(10).pow(Number(decimals)))
 				default:
-					throw new Error(`Not a currency: ${JSON.stringify(assetType)}`)
+					throw new Error(`Asset type should be either ETH or ERC-20, received=${JSON.stringify(assetType)}`)
 			}
 		}
 	}

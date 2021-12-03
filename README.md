@@ -30,7 +30,19 @@ or inject package into your web page with web3 instance
 
 You can view the reference for the [latest version of the API](https://ethereum-api.rarible.org/v0.1/doc) or choose API on [different Ethereum networks](https://docs.rarible.org/#api-reference).
 
-### Usage
+### Libraries support
+
+[web3.js](https://github.com/ChainSafe/web3.js/tree/v1.4.0) and [ethers.js](https://github.com/ethers-io/ethers.js) libraries are supported.
+
+You can use the following types of providers:
+
+- `web3` - [web3.js](https://web3js.readthedocs.io/en/v1.5.2/web3.html#providers) provider
+- `ethersEtherium` - [ethers.js](https://docs.ethers.io/v5/api/providers/#providers) default provider
+- `Web3Ethereum` - moving from a web3.js based application [to ethers](https://docs.ethers.io/v5/api/providers/other/#Web3Provider) by wrapping an existing Web3-compatible and exposing it as an ethers.js provider
+
+[Signer](https://docs.ethers.io/v5/api/signer/#signers) from ethers.js is also supported.
+
+### Usage with web3.js
 
 Below examples show how you can implement supported functions in you app.
 

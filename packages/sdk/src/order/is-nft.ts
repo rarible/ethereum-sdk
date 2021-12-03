@@ -12,6 +12,8 @@ export function isNft(
 	switch (type.assetClass) {
 		case "ERC721":
 			return true
+		case "CRYPTO_PUNKS":
+			return true
 		case "ERC1155":
 			return true
 		case "ERC721_LAZY":

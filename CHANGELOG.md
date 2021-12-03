@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.10](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.9...v0.12.10) (2021-12-03)
+
+
+### Bug Fixes
+
+* CRYPTO_PUNKS is nft ([7d76187](https://github.com/rarible/protocol-ethereum-sdk/commit/7d761875566b3b8ede8bc1a5e29af937c49dba05))
+
+
+
+
+
 ## [0.12.9](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.8...v0.12.9) (2021-11-29)
 
 

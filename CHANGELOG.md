@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.11](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.10...v0.12.11) (2021-12-06)
+
+
+### Bug Fixes
+
+* use better dependencies for web3 ([4b0493f](https://github.com/rarible/protocol-ethereum-sdk/commit/4b0493f4684c95bb39ec4063b2bd588f03e1a0f7))
+* workaround for old contracts base uri ([ef06a7d](https://github.com/rarible/protocol-ethereum-sdk/commit/ef06a7db3af2135a1676bc4b2de1b6d176f314e2))
+
+
+
+
+
 ## [0.12.10](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.9...v0.12.10) (2021-12-03)
 
 

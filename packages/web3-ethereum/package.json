@@ -1,6 +1,6 @@
 {
   "name": "@rarible/web3-ethereum",
-  "version": "0.12.1",
+  "version": "0.12.11",
   "description": "Ethereum interface with web3.js",
   "keywords": [
     "ethereum",

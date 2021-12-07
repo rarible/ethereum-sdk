@@ -22,8 +22,10 @@
     "@types/web3-provider-engine": "^14.0.1",
     "eth-sig-util": "^3.0.1",
     "ethereumjs-wallet": "^1.0.1",
-    "ganache-core": "^2.13.2",
     "web3-provider-engine": "^16.0.1"
+  },
+  "optionalDependencies": {
+    "ganache-core": "^2.13.2"
   },
   "devDependencies": {
     "typescript": "^4.4.4"

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.14](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.12...v0.12.14) (2021-12-07)
+
+
+### Bug Fixes
+
+* moved ganache-core to dev dependencies ([c937a2e](https://github.com/rarible/protocol-ethereum-sdk/commit/c937a2e773d45165d15103f4513115d4bb3a93fb))
+
+
+
+
+
 ## [0.12.12](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.11...v0.12.12) (2021-12-07)
 
 

@@ -204,6 +204,61 @@ describe("fillOrder", () => {
 		)
 	})
 
+	test("should match order(buy erc1155 for eth) with dataType=V2", async () => {
+		//sender1 has ETH, sender2 has ERC1155
+
+		await sentTx(it.testErc1155.methods.mint(sender2Address, 1, 10, "0x"), { from: sender1Address })
+
+		const left: SimpleOrder = {
+			make: {
+				assetType: {
+					assetClass: "ERC1155",
+					contract: toAddress(it.testErc1155.options.address),
+					tokenId: toBigNumber("1"),
+				},
+				value: toBigNumber("5"),
+			},
+			maker: sender2Address,
+			take: {
+				assetType: {
+					assetClass: "ETH",
+				},
+				value: toBigNumber("1000000"),
+			},
+			salt: randomWord(),
+			type: "RARIBLE_V2",
+			data: {
+				dataType: "RARIBLE_V2_DATA_V2",
+				payouts: [],
+				originFees: [],
+				isMakeFill: true,
+			},
+		}
+
+		await sentTx(it.testErc1155.methods.setApprovalForAll(it.transferProxy.options.address, true), {
+			from: sender2Address,
+		})
+
+		const signature = await signOrder(ethereum2, config, left)
+
+		const before1 = toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call())
+		const before2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call())
+
+		const finalOrder = { ...left, signature }
+		const originFees = [{
+			account: randomAddress(),
+			value: 100,
+		}]
+		await filler.fill({ order: finalOrder, amount: 2, originFees })
+
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString()).toBe(
+			before2.minus(2).toFixed()
+		)
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString()).toBe(
+			before1.plus(2).toFixed()
+		)
+	})
+
 	test("should fill order with crypto punks asset", async () => {
 		const punkId = 43
 		//Mint punks

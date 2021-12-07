@@ -25,10 +25,25 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 
 	invert(request: RaribleV2OrderFillRequest, maker: Address): SimpleRaribleV2Order {
 		const inverted = invertOrder(request.order, request.amount, maker)
-		inverted.data = {
-			dataType: "RARIBLE_V2_DATA_V1",
-			originFees: request.originFees || [],
-			payouts: request.payouts || [],
+		switch (request.order.data.dataType) {
+			case "RARIBLE_V2_DATA_V1": {
+				inverted.data = {
+					dataType: "RARIBLE_V2_DATA_V1",
+					originFees: request.originFees || [],
+					payouts: request.payouts || [],
+				}
+				break
+			}
+			case "RARIBLE_V2_DATA_V2": {
+				inverted.data = {
+					dataType: "RARIBLE_V2_DATA_V2",
+					originFees: request.originFees || [],
+					payouts: request.payouts || [],
+					isMakeFill: !request.order.data.isMakeFill,
+				}
+				break
+			}
+			default: throw new Error("Unsupported order dataType")
 		}
 		return inverted
 	}

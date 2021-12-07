@@ -1,4 +1,4 @@
-import type { Erc20AssetType, Order, OrderForm, RaribleV2OrderForm } from "@rarible/ethereum-api-client"
+import type { Erc20AssetType, EthAssetType, Order, OrderForm, RaribleV2OrderForm } from "@rarible/ethereum-api-client"
 import type { BigNumberValue } from "@rarible/utils/build/bn"
 import { toBn } from "@rarible/utils/build/bn"
 import { Action } from "@rarible/action"
@@ -9,7 +9,7 @@ import type { SimpleOrder } from "./types"
 import type { SellUpdateRequest } from "./sell"
 
 export type BidRequest = {
-	makeAssetType: Erc20AssetType
+	makeAssetType: EthAssetType | Erc20AssetType
 	amount: number
 	takeAssetType: AssetTypeRequest
 } & HasPrice & OrderRequest

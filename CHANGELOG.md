@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.15](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.14...v0.12.15) (2021-12-07)
+
+
+### Bug Fixes
+
+* eth asset type to bid request was added ([89afbfc](https://github.com/rarible/protocol-ethereum-sdk/commit/89afbfc6a07226249644586dbefbe4610258b537))
+
+
+
+
+
 ## [0.12.14](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.12...v0.12.14) (2021-12-07)
 
 

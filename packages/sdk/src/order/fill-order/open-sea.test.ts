@@ -1,4 +1,5 @@
-import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll } from "@rarible/ethereum-sdk-test-common"
+import { createGanacheProvider} from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import type { Address, Asset } from "@rarible/ethereum-api-client"

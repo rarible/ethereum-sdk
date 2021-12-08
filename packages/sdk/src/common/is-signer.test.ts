@@ -3,7 +3,7 @@ import Wallet from "ethereumjs-wallet"
 import { fromRpcSig, bufferToHex, toBuffer, setLengthLeft } from "ethereumjs-util"
 import { randomWord } from "@rarible/types"
 import type Web3 from "web3"
-import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
+import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { isSigner } from "./is-signer"
 import { createTestProviders } from "./create-test-providers"
 

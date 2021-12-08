@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.16](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.15...v0.12.16) (2021-12-08)
+
+**Note:** Version bump only for package @rarible/ethers-ethereum
+
+
+
+
+
 ## [0.12.14](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.12...v0.12.14) (2021-12-07)
 
 **Note:** Version bump only for package @rarible/ethers-ethereum

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.17](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.16...v0.12.17) (2021-12-09)
+
+
+### Bug Fixes
+
+* allow to update CryptoPunk orders with ETH. ([c25f855](https://github.com/rarible/protocol-ethereum-sdk/commit/c25f85515c5058392e5bfba0dc71a79c73c33f7a))
+
+
+
+
+
 ## [0.12.16](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.15...v0.12.16) (2021-12-08)
 
 **Note:** Version bump only for package @rarible/protocol-ethereum-sdk

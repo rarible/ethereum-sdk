@@ -64,9 +64,24 @@ export interface RaribleOrderSdk {
 	/**
 	 * Fill order (buy or accept bid - depending on the order type)
 	 *
+	 * @deprecated Use {@link buy} or {@link acceptBid} instead
 	 * @param request order and parameters (amount to fill, fees etc)
 	 */
 	fill: FillOrderAction
+
+	/**
+	 * Buy order
+	 *
+	 * @param request order and parameters (amount to fill, fees etc)
+	 */
+	buy: FillOrderAction
+
+	/**
+	 * Accept bid order
+	 *
+	 * @param request order and parameters (amount to fill, fees etc)
+	 */
+	acceptBid: FillOrderAction
 
 	/**
 	 * Sell or create bid. Low-level method
@@ -168,6 +183,8 @@ export function createRaribleSdk(
 			sell: sellService.sell,
 			sellUpdate: sellService.update,
 			fill: filler.fill,
+			buy: filler.buy,
+			acceptBid: filler.acceptBid,
 			bid: bidService.bid,
 			bidUpdate: bidService.update,
 			upsert: upsertService.upsert,

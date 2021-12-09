@@ -1,6 +1,6 @@
 import type { Address, LegacyOrderForm, OrderControllerApi } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
-import { toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
+import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils"
 import type { Maybe } from "@rarible/types/build/maybe"
 import { approve } from "../approve"
@@ -14,6 +14,7 @@ import { toVrs } from "../../common/to-vrs"
 import { waitTx } from "../../common/wait-tx"
 import { invertOrder } from "./invert-order"
 import type { LegacyOrderFillRequest, OrderHandler } from "./types"
+import type { OrderFillTransactionData } from "./types"
 
 export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillRequest> {
 
@@ -49,9 +50,18 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 		return order.data.fee
 	}
 
-	async sendTransaction(
+	async getTransactionFromRequest(request: LegacyOrderFillRequest) {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
+		const from = toAddress(await this.ethereum.getFrom())
+		const inverted = await this.invert(request, from)
+		return this.getTransactionData(request.order, inverted, request)
+	}
+
+	async getTransactionData(
 		initial: SimpleLegacyOrder, inverted: SimpleLegacyOrder, request: LegacyOrderFillRequest
-	): Promise<EthereumTransaction> {
+	): Promise<OrderFillTransactionData> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
@@ -60,7 +70,7 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 			{ fee: inverted.data.fee, orderForm: fromSimpleOrderToOrderForm(initial) },
 		)
 		const exchangeContract = createExchangeV1Contract(this.ethereum, this.config.exchange.v1)
-		const call = exchangeContract.functionCall(
+		const functionCall = exchangeContract.functionCall(
 			"exchange",
 			toStructLegacyOrder(initial),
 			toVrs(initial.signature!),
@@ -69,7 +79,18 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 			inverted.take.value,
 			request.payout ?? ZERO_ADDRESS,
 		)
-		return this.send(call, getMatchV1Options(inverted))
+
+		return {
+			functionCall,
+			options: getMatchV1Options(inverted),
+		}
+	}
+
+	async sendTransaction(
+		initial: SimpleLegacyOrder, inverted: SimpleLegacyOrder, request: LegacyOrderFillRequest
+	): Promise<EthereumTransaction> {
+		const {functionCall, options} = await this.getTransactionData(initial, inverted, request)
+		return this.send(functionCall, options)
 	}
 }
 

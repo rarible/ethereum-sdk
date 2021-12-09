@@ -291,6 +291,34 @@ describe("fillOrder: Opensea orders", function () {
 
 	})
 
+	test("get transaction data", async () => {
+		const order: SimpleOpenSeaV1Order = {
+			...OPENSEA_ORDER_TEMPLATE,
+			make: getAssetTypeBlank("ERC721"),
+			maker: toAddress(sender1Address),
+			take: getAssetTypeBlank("ETH"),
+			data: {
+				...OPENSEA_ORDER_TEMPLATE.data,
+				exchange: toAddress(wyvernExchange.options.address),
+				side: OrderOpenSeaV1DataV1Side.SELL,
+				feeRecipient: toAddress(sender2Address),
+			},
+		}
+		await mintTestAsset(order.take, sender1Address)
+		await mintTestAsset(order.make, sender2Address)
+		order.make = setTestContract(order.make)
+		order.take = setTestContract(order.take)
+		await openSeaFillHandler2.approveSingle(sender2Address, order.make)
+
+		const signature = toBinary(await getOrderSignature(ethereum1, order))
+
+		await openSeaFillHandler1.getTransactionFromRequest({
+			order: {
+				...order,
+				signature,
+			},
+		})
+	})
 
 	// Sell-side orders
 	describe.each([

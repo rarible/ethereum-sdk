@@ -168,6 +168,7 @@ export function createRaribleSdk(
 			sell: sellService.sell,
 			sellUpdate: sellService.update,
 			fill: filler.fill,
+			getFillTxData: filler.getTransactionData,
 			bid: bidService.bid,
 			bidUpdate: bidService.update,
 			upsert: upsertService.upsert,

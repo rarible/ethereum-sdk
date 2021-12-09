@@ -90,6 +90,35 @@ describe("fillOrder", () => {
 		await sentTx(it.punksMarket.methods.allInitialOwnersAssigned(), {from: sender1Address})
 
 	})
+
+	test("get transaction data", async () => {
+		const left: SimpleOrder = {
+			make: {
+				assetType: {
+					assetClass: "CRYPTO_PUNKS",
+					contract: toAddress(it.punksMarket.options.address),
+					tokenId: 0,
+				},
+				value: toBigNumber("1"),
+			},
+			maker: sender2Address,
+			take: {
+				assetType: {
+					assetClass: "ETH",
+				},
+				value: toBigNumber("10"),
+			},
+			salt: randomWord(),
+			type: "CRYPTO_PUNK",
+			data: {
+				dataType: "CRYPTO_PUNKS_DATA",
+			},
+		}
+
+		const finalOrder = { ...left, signature: toBinary("0x") }
+		await filler.getTransactionData({ order: finalOrder, amount: 1 })
+	})
+
 	test("should fill order with crypto punks asset", async () => {
 		//Mint crypto punks
 		const punkId = 43

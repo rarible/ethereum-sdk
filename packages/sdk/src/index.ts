@@ -39,6 +39,7 @@ import type { DeployNft } from "./common/deploy"
 import type { BalanceRequestAssetType} from "./common/balances"
 import { Balances } from "./common/balances"
 import type { EthereumNetwork } from "./types"
+import type { GetOrderFillTxData } from "./order/fill-order/types"
 
 export interface RaribleOrderSdk {
 	/**
@@ -67,6 +68,13 @@ export interface RaribleOrderSdk {
 	 * @param request order and parameters (amount to fill, fees etc)
 	 */
 	fill: FillOrderAction
+
+	/**
+   * Get fill transaction data (for external sending)
+   *
+   * @param request order and parameters (amount to fill, fees etc)
+   */
+	getFillTxData: GetOrderFillTxData
 
 	/**
 	 * Sell or create bid. Low-level method

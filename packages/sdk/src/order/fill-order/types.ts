@@ -35,7 +35,14 @@ export interface OrderHandler<T extends FillOrderRequest> {
 	getOrderFee(order: T["order"]): number
 }
 
+export type GetOrderFillTxData = (request: FillOrderRequest) => Promise<OrderFillTransactionData>
+
 export type OrderFillTransactionData = {
+	data: string
+	options: EthereumSendOptions
+}
+
+export type OrderFillSendData = {
 	functionCall: EthereumFunctionCall
 	options: EthereumSendOptions
 }

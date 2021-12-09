@@ -13,7 +13,7 @@ import { toLegacyAssetType } from "../to-legacy-asset-type"
 import { toVrs } from "../../common/to-vrs"
 import { waitTx } from "../../common/wait-tx"
 import { invertOrder } from "./invert-order"
-import type { LegacyOrderFillRequest, OrderHandler } from "./types"
+import type { LegacyOrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
 import type { OrderFillTransactionData } from "./types"
 
 export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillRequest> {
@@ -50,18 +50,22 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 		return order.data.fee
 	}
 
-	async getTransactionFromRequest(request: LegacyOrderFillRequest) {
+	async getTransactionFromRequest(request: LegacyOrderFillRequest): Promise<OrderFillTransactionData> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
 		const from = toAddress(await this.ethereum.getFrom())
 		const inverted = await this.invert(request, from)
-		return this.getTransactionData(request.order, inverted, request)
+		const {options, functionCall} = await this.getTransactionData(request.order, inverted, request)
+		return {
+			data: functionCall.data,
+			options,
+		}
 	}
 
 	async getTransactionData(
 		initial: SimpleLegacyOrder, inverted: SimpleLegacyOrder, request: LegacyOrderFillRequest
-	): Promise<OrderFillTransactionData> {
+	): Promise<OrderFillSendData> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}

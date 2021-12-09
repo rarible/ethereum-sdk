@@ -10,7 +10,7 @@ import { waitTx } from "../../common/wait-tx"
 import type { SimpleCryptoPunkOrder } from "../types"
 import { createCryptoPunksMarketContract } from "../../nft/contracts/cryptoPunks"
 import { invertOrder } from "./invert-order"
-import type { CryptoPunksOrderFillRequest, OrderHandler } from "./types"
+import type { CryptoPunksOrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
 import type { OrderFillTransactionData } from "./types"
 
 export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFillRequest> {
@@ -42,12 +42,16 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 		}
 		const from = toAddress(await this.ethereum.getFrom())
 		const inverted = await this.invert(request, from)
-		return this.getTransactionData(request.order, inverted)
+		const {options, functionCall} = await this.getTransactionData(request.order, inverted)
+		return {
+			data: functionCall.data,
+			options,
+		}
 	}
 
 	async getTransactionData(
 		initial: SimpleCryptoPunkOrder, inverted: SimpleCryptoPunkOrder,
-	): Promise<OrderFillTransactionData> {
+	): Promise<OrderFillSendData> {
 		return {
 			functionCall: this.getPunkOrderCallMethod(initial),
 			options: this.getMatchV2Options(initial, inverted),

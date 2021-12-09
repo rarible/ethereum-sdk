@@ -21,6 +21,7 @@ import type { OpenSeaOrderDTO } from "./open-sea-types"
 import type { OpenSeaV1OrderFillRequest, OrderHandler } from "./types"
 import { convertOpenSeaOrderToDTO } from "./open-sea-converter"
 import type { OrderFillTransactionData } from "./types"
+import type { OrderFillSendData } from "./types"
 
 export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillRequest> {
 	constructor(
@@ -90,18 +91,22 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		}
 	}
 
-	async getTransactionFromRequest(request: OpenSeaV1OrderFillRequest) {
+	async getTransactionFromRequest(request: OpenSeaV1OrderFillRequest): Promise<OrderFillTransactionData> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
 		const from = toAddress(await this.ethereum.getFrom())
 		const inverted = await this.invert(request, from)
-		return this.getTransactionData(request.order, inverted)
+		const {functionCall, options} = await this.getTransactionData(request.order, inverted)
+		return {
+			data: functionCall.data,
+			options,
+		}
 	}
 
 	private async getTransactionData(
 		initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order
-	): Promise<OrderFillTransactionData> {
+	): Promise<OrderFillSendData> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}

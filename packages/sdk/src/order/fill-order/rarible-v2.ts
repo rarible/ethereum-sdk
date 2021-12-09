@@ -15,6 +15,7 @@ import { fixSignature } from "../../common/fix-signature"
 import { invertOrder } from "./invert-order"
 import type { OrderHandler, RaribleV2OrderFillRequest } from "./types"
 import type { OrderFillTransactionData } from "./types"
+import type { OrderFillSendData } from "./types"
 
 export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillRequest> {
 
@@ -42,18 +43,22 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		await waitTx(approve(this.ethereum, this.send, this.config.transferProxies, order.maker, withFee, infinite))
 	}
 
-	async getTransactionFromRequest(request: RaribleV2OrderFillRequest) {
+	async getTransactionFromRequest(request: RaribleV2OrderFillRequest): Promise<OrderFillTransactionData> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
 		const from = toAddress(await this.ethereum.getFrom())
 		const inverted = await this.invert(request, from)
-		return this.getTransactionData(request.order, inverted)
+		const {options, functionCall} = await this.getTransactionData(request.order, inverted)
+		return {
+			data: functionCall.data,
+			options,
+		}
 	}
 
 	async getTransactionData(
 		initial: SimpleRaribleV2Order, inverted: SimpleRaribleV2Order
-	): Promise<OrderFillTransactionData> {
+	): Promise<OrderFillSendData> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}

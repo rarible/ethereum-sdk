@@ -91,7 +91,6 @@ describe("test exchange v1 order", () => {
 
 	test("get transaction data", async () => {
 		const tokenId = toBigNumber("1")
-		await it.testErc721.methods.mint(seller, tokenId, "url").send({ from: seller })
 
 		let order: SimpleOrder = {
 			make: {

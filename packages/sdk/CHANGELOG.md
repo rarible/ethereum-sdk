@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.19](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.18...v0.12.19) (2021-12-10)
+
+
+### Bug Fixes
+
+* update CryptoPunks transfer proxy on Rinkeby. ([f7cc59f](https://github.com/rarible/protocol-ethereum-sdk/commit/f7cc59f42f765feb8aa389bd3dd76430971bb53a))
+
+
+
+
+
 ## [0.12.18](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.17...v0.12.18) (2021-12-10)
 
 

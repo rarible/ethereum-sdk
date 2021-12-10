@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.18](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.17...v0.12.18) (2021-12-10)
+
+
+### Features
+
+* replace fill order with buy & acceptBid orders ([062a142](https://github.com/rarible/protocol-ethereum-sdk/commit/062a1425339889efa3ab933b333c47f39275a344))
+
+
+
+
+
 ## [0.12.17](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.16...v0.12.17) (2021-12-09)
 
 

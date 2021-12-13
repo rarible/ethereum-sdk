@@ -88,4 +88,35 @@ describe("test exchange v1 order", () => {
 		})
 		expect(ownership.value).toBe("1")
 	})
+
+	test("get transaction data", async () => {
+		const tokenId = toBigNumber("1")
+
+		let order: SimpleOrder = {
+			make: {
+				assetType: {
+					assetClass: "ERC721",
+					contract: toAddress(it.testErc721.options.address),
+					tokenId: toBigNumber(tokenId),
+				},
+				value: toBigNumber("1"),
+			},
+			maker: seller,
+			take: {
+				assetType: {
+					assetClass: "ETH",
+				},
+				value: toBigNumber("100000"),
+			},
+			salt: toWord("0x000000000000000000000000000000000000000000000000000000000000000a"),
+			type: "RARIBLE_V1",
+			data: {
+				dataType: "LEGACY",
+				fee: 3,
+			},
+		}
+
+		const signedOrder: SimpleLegacyOrder = { ...order, signature: await sign(order) }
+		await filler.getTransactionData({ order: signedOrder, amount: 1, originFee: 100 })
+	})
 })

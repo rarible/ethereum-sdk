@@ -2,7 +2,7 @@ import { randomAddress, randomWord, toAddress, toBigNumber } from "@rarible/type
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { awaitAll } from "@rarible/ethereum-sdk-test-common"
-import { createGanacheProvider} from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
+import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { toBn } from "@rarible/utils/build/bn"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
 import { send as sendTemplate, sentTx, simpleSend } from "../../common/send-transaction"
@@ -149,6 +149,42 @@ describe("buy & acceptBid orders", () => {
 
 		expect(toBn(await it.testErc20.methods.balanceOf(sender2Address).call()).toString()).toBe("4")
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString()).toBe("2")
+	})
+
+	test("get transaction data", async () => {
+		const left: SimpleOrder = {
+			make: {
+				assetType: {
+					assetClass: "ERC1155",
+					contract: toAddress(it.testErc1155.options.address),
+					tokenId: toBigNumber("1"),
+				},
+				value: toBigNumber("5"),
+			},
+			maker: sender2Address,
+			take: {
+				assetType: {
+					assetClass: "ETH",
+				},
+				value: toBigNumber("1000000"),
+			},
+			salt: randomWord(),
+			type: "RARIBLE_V2",
+			data: {
+				dataType: "RARIBLE_V2_DATA_V1",
+				payouts: [],
+				originFees: [],
+			},
+		}
+
+		const signature = await signOrder(ethereum2, config, left)
+
+		const finalOrder = { ...left, signature }
+		const originFees = [{
+			account: randomAddress(),
+			value: 100,
+		}]
+		await filler.getTransactionData({ order: finalOrder, amount: 2, originFees })
 	})
 
 	test("should match order(buy erc1155 for eth)", async () => {

@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.20](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.19...v0.12.20) (2021-12-13)
+
+
+### Bug Fixes
+
+* import ganache fix ([771d507](https://github.com/rarible/protocol-ethereum-sdk/commit/771d50700fa6fd765e72c34efebc1339cb23b018))
+* test fixes ([634745c](https://github.com/rarible/protocol-ethereum-sdk/commit/634745c26fae7544ad01500b7d0f85f85848859b))
+
+
+### Features
+
+* get order fill tx data returns data string ([ea43907](https://github.com/rarible/protocol-ethereum-sdk/commit/ea43907a893333ea1a48b3d7df7eb59d1283147e))
+* get tx data for fill method ([f230661](https://github.com/rarible/protocol-ethereum-sdk/commit/f230661268241a0c8c63aa38c56ce90bd88cbce1))
+
+
+
+
+
 ## [0.12.19](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.18...v0.12.19) (2021-12-10)
 
 

@@ -116,14 +116,15 @@ export class UpsertOrder {
 		})
 	}
 
-	async prepareOrderForm(request: OrderRequest): Promise<Omit<RaribleV2OrderForm, "take" | "make">> {
+	async prepareOrderForm(request: OrderRequest, isMakeFill: boolean): Promise<Omit<RaribleV2OrderForm, "take" | "make">> {
 		return {
 			maker: await this.getOrderMaker(request),
 			type: "RARIBLE_V2",
 			data: {
-				dataType: "RARIBLE_V2_DATA_V1",
+				dataType: "RARIBLE_V2_DATA_V2",
 				payouts: request.payouts,
 				originFees: request.originFees,
+				isMakeFill,
 			},
 			salt: toBigNumber(toBn(randomWord(), 16).toString(10)),
 			signature: toBinary("0x"),

@@ -2,7 +2,7 @@ import { randomAddress, randomWord, toAddress, toBigNumber } from "@rarible/type
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { awaitAll } from "@rarible/ethereum-sdk-test-common"
-import { createGanacheProvider} from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
+import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { toBn } from "@rarible/utils/build/bn"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
 import { send as sendTemplate, sentTx, simpleSend } from "../../common/send-transaction"

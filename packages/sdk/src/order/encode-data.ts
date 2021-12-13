@@ -10,9 +10,6 @@ export function encodeData(ethereum: Ethereum, data: OrderData, wrongEncode: Boo
 				originFees: data.originFees,
 				isMakeFill: data.isMakeFill,
 			})
-			if (wrongEncode) {
-				return ["0x23d235ef", `0x${encoded.substring(66)}`]
-			}
 			return ["0x23d235ef", encoded]
 		}
 		case "RARIBLE_V2_DATA_V1": {

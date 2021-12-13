@@ -1,4 +1,4 @@
-import type { Erc20AssetType, Order, OrderForm, RaribleV2OrderForm } from "@rarible/ethereum-api-client"
+import type { Erc20AssetType, EthAssetType, Order, OrderForm, RaribleV2OrderForm } from "@rarible/ethereum-api-client"
 import type { BigNumberValue } from "@rarible/utils/build/bn"
 import { toBn } from "@rarible/utils/build/bn"
 import { Action } from "@rarible/action"
@@ -9,7 +9,7 @@ import type { SimpleOrder } from "./types"
 import type { SellUpdateRequest } from "./sell"
 
 export type BidRequest = {
-	makeAssetType: Erc20AssetType
+	makeAssetType: EthAssetType | Erc20AssetType
 	amount: number
 	takeAssetType: AssetTypeRequest
 } & HasPrice & OrderRequest
@@ -50,18 +50,17 @@ export class OrderBid {
 			id: "approve" as const,
 			run: async (request: BidUpdateRequest) => {
 				const order = await this.upserter.getOrder(request)
+				if (order.type === "CRYPTO_PUNK") {
+					return request
+				}
 				if (order.make.assetType.assetClass !== "ERC20") {
 					throw new Error(`Make asset type should be ERC-20, received=${order.make.assetType.assetClass}`)
 				}
-				if (order.type === "CRYPTO_PUNK") {
-					return request
-				} else {
-					const price = await this.upserter.getPrice(request, order.make.assetType)
-					const form = await this.prepareOrderUpdateForm(order, price)
-					const checked = await this.upserter.checkLazyOrder(form) as OrderForm
-					await this.upserter.approve(checked, true)
-					return checked
-				}
+				const price = await this.upserter.getPrice(request, order.make.assetType)
+				const form = await this.prepareOrderUpdateForm(order, price)
+				const checked = await this.upserter.checkLazyOrder(form) as OrderForm
+				await this.upserter.approve(checked, true)
+				return checked
 			},
 		})
 		.thenStep({

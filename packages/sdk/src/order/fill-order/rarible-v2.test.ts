@@ -24,7 +24,7 @@ import { getApiConfig } from "../../config/api-config"
 import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OrderFiller } from "./index"
 
-describe("fillOrder", () => {
+describe("buy & acceptBid orders", () => {
 	const { addresses, provider } = createGanacheProvider()
 	const [sender1Address, sender2Address] = addresses
 	const web3 = new Web3(provider as any)
@@ -144,7 +144,7 @@ describe("fillOrder", () => {
 		const signature = await signOrder(ethereum2, config, left)
 
 		const finalOrder = { ...left, signature }
-		await filler.fill({ order: finalOrder, amount: 2, payouts: [], originFees: [] })
+		await filler.buy({ order: finalOrder, amount: 2, payouts: [], originFees: [] })
 
 		expect(toBn(await it.testErc20.methods.balanceOf(sender2Address).call()).toString()).toBe("4")
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString()).toBe("2")
@@ -194,7 +194,7 @@ describe("fillOrder", () => {
 			account: randomAddress(),
 			value: 100,
 		}]
-		await filler.fill({ order: finalOrder, amount: 2, originFees })
+		await filler.buy({ order: finalOrder, amount: 2, originFees })
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString()).toBe(
 			before2.minus(2).toFixed()
@@ -205,8 +205,6 @@ describe("fillOrder", () => {
 	})
 
 	test("should match order(buy erc1155 for eth) with dataType=V2", async () => {
-		//sender1 has ETH, sender2 has ERC1155
-
 		await sentTx(it.testErc1155.methods.mint(sender2Address, 1, 10, "0x"), { from: sender1Address })
 
 		const left: SimpleOrder = {
@@ -249,7 +247,7 @@ describe("fillOrder", () => {
 			account: randomAddress(),
 			value: 100,
 		}]
-		await filler.fill({ order: finalOrder, amount: 2, originFees })
+		await filler.buy({ order: finalOrder, amount: 2, originFees })
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString()).toBe(
 			before2.minus(2).toFixed()
@@ -259,7 +257,7 @@ describe("fillOrder", () => {
 		)
 	})
 
-	test("should fill order with crypto punks asset", async () => {
+	test("should fill order (buy) with crypto punks asset", async () => {
 		const punkId = 43
 		//Mint punks
 		await sentTx(it.punksMarket.methods.getPunk(punkId), {from: sender2Address})
@@ -302,14 +300,14 @@ describe("fillOrder", () => {
 
 
 		const finalOrder = { ...left, signature }
-		await filler.fill({ order: finalOrder, amount: 1, originFees: []})
+		await filler.buy({ order: finalOrder, amount: 1, originFees: []})
 
 		const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()
 
 		expect(ownerAddress.toLowerCase()).toBe(sender1Address.toLowerCase())
 	})
 
-	test("should fill bid with crypto punks asset", async () => {
+	test("should accept bid with crypto punks asset", async () => {
 		const punkId = 50
 		//Mint crypto punks
 		await sentTx(it.punksMarket.methods.getPunk(punkId), {from: sender2Address})
@@ -358,7 +356,7 @@ describe("fillOrder", () => {
 		const v2Handler = new RaribleV2OrderHandler(ethereum2, simpleSend, config)
 		const filler = new OrderFiller(ethereum2, null as any, v2Handler, null as any, null as any)
 
-		await filler.fill({ order: finalOrder, amount: 1, originFees: []})
+		await filler.acceptBid({ order: finalOrder, amount: 1, originFees: []})
 
 		const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()
 

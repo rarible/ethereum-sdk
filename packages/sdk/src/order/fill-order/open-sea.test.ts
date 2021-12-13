@@ -1,4 +1,5 @@
-import { awaitAll, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll } from "@rarible/ethereum-sdk-test-common"
+import { createGanacheProvider} from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import type { Address, Asset } from "@rarible/ethereum-api-client"
@@ -330,7 +331,7 @@ describe("fillOrder: Opensea orders", function () {
 
 				const nftSellerInitBalance = await getBalance(order.make, nftOwner)
 
-				await orderFiller1.fill({ order })
+				await orderFiller1.buy({ order })
 
 				const nftSellerFinalBalance = await getBalance(order.make, nftOwner)
 
@@ -376,7 +377,7 @@ describe("fillOrder: Opensea orders", function () {
 			test("should match order", async () => {
 				const nftSellerInitBalance = await getBalance(order.take, nftOwner)
 
-				await orderFiller2.fill({ order })
+				await orderFiller2.acceptBid({ order })
 
 				const nftSellerFinalBalance = await getBalance(order.take, nftOwner)
 				expect(nftSellerFinalBalance).not.toBe(nftSellerInitBalance)

@@ -106,7 +106,6 @@ Returns an object of created order.
 #### Create bid
 
 ```typescript
-
 const order: Order = await sdk.order.bid(request)
 
 // Bid request example:
@@ -141,17 +140,18 @@ Returns an object of created bid order.
 
 [Bid e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/create-bid.test.ts)
 
-#### Purchase order or accept bid (fill order)
+#### Purchase order or accept bid
 
 ```typescript
-
 const order: SimpleOrder
 
-sdk.order.fill({ order, payouts: [], originFees: [], amount: 1, infinite: true })
+sdk.order.buy({ order, payouts: [], originFees: [], amount: 1, infinite: true })
+// or
+sdk.order.acceptBid({ order, payouts: [], originFees: [], amount: 1, infinite: true })
 ```
 
 For example, you can get the `order` object using our sdk api methods `sdk.apis.order.getSellOrders({})` and pass it
-to `fill` function. You can get more information in the test
+to `buy` function. You can get more information in the test
 repository [sell e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/erc721-sale.test.ts)
 
 #### Mint NFT Tokens
@@ -232,6 +232,12 @@ const hash = await sdk.nft.burn({
 	tokenId: toBigNumber(tokenId),
 })
 ```
+
+### Note
+
+*This is a pre-release version. Backward compatibility is not fully supported before 1.0 release. Backward compatibility is only guaranteed in minor releases.*
+
+*For example, 0.2.x version may not be compatible with 0.1.x. So, it's advised to include dependencies using package versions (ex. rarible/sdk@0.2.x).*
 
 ### Suggestions
 

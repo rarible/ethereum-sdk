@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.16](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.15...v0.12.16) (2021-12-08)
+
+**Note:** Version bump only for package @rarible/web3-ethereum
+
+
+
+
+
+## [0.12.14](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.12...v0.12.14) (2021-12-07)
+
+**Note:** Version bump only for package @rarible/web3-ethereum
+
+
+
+
+
+## [0.12.12](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.11...v0.12.12) (2021-12-07)
+
+**Note:** Version bump only for package @rarible/web3-ethereum
+
+
+
+
+
+## [0.12.11](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.10...v0.12.11) (2021-12-06)
+
+
+### Bug Fixes
+
+* use better dependencies for web3 ([4b0493f](https://github.com/rarible/protocol-ethereum-sdk/commit/4b0493f4684c95bb39ec4063b2bd588f03e1a0f7))
+
+
+
+
+
 # [0.12.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.11.0...v0.12.0) (2021-11-12)
 
 **Note:** Version bump only for package @rarible/web3-ethereum

@@ -22,7 +22,7 @@ import type { RaribleV1OrderHandler } from "./rarible-v1"
 import type { RaribleV2OrderHandler } from "./rarible-v2"
 import type { OpenSeaOrderHandler } from "./open-sea"
 import type { CryptoPunksOrderHandler } from "./crypto-punks"
-import type { FillOrderStageId } from "./types"
+import type { OrderFillTransactionData, FillOrderStageId } from "./types"
 
 export class OrderFiller {
 
@@ -34,6 +34,7 @@ export class OrderFiller {
 		private readonly punkHandler: CryptoPunksOrderHandler
 	) {
 		this.getBaseOrderFillFee = this.getBaseOrderFillFee.bind(this)
+		this.getTransactionData = this.getTransactionData.bind(this)
 	}
 
 	private getFillAction<Request extends FillOrderRequest>(): Action<FillOrderStageId, Request, EthereumTransaction> {
@@ -119,6 +120,31 @@ export class OrderFiller {
 				return this.punkHandler.sendTransaction(<SimpleCryptoPunkOrder>request.order, inverted)
 			default:
 				throw new Error(`Unsupported order: ${JSON.stringify(inverted)}`)
+		}
+	}
+
+	async getTransactionData(
+		request: FillOrderRequest
+	): Promise<OrderFillTransactionData> {
+		switch (request.order.type) {
+			case "RARIBLE_V1":
+				return this.v1Handler.getTransactionFromRequest(
+          <LegacyOrderFillRequest>request,
+				)
+			case "RARIBLE_V2":
+				return this.v2Handler.getTransactionFromRequest(
+          <RaribleV2OrderFillRequest>request,
+				)
+			case "OPEN_SEA_V1":
+				return this.openSeaHandler.getTransactionFromRequest(
+          <OpenSeaV1OrderFillRequest>request,
+				)
+			case "CRYPTO_PUNK":
+				return this.punkHandler.getTransactionFromRequest(
+          <CryptoPunksOrderFillRequest>request
+				)
+			default:
+				throw new Error(`Unsupported request: ${JSON.stringify(request)}`)
 		}
 	}
 

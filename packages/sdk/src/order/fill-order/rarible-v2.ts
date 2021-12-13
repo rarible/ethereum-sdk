@@ -1,6 +1,6 @@
 import type { Address } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
-import { ZERO_WORD } from "@rarible/types"
+import { toAddress, ZERO_WORD } from "@rarible/types"
 import type { Maybe } from "@rarible/types/build/maybe"
 import { hashToSign, orderToStruct } from "../sign-order"
 import { getAssetWithFee } from "../get-asset-with-fee"
@@ -14,6 +14,8 @@ import { isSigner } from "../../common/is-signer"
 import { fixSignature } from "../../common/fix-signature"
 import { invertOrder } from "./invert-order"
 import type { OrderHandler, RaribleV2OrderFillRequest } from "./types"
+import type { OrderFillTransactionData } from "./types"
+import type { OrderFillSendData } from "./types"
 
 export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillRequest> {
 
@@ -56,21 +58,45 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		await waitTx(approve(this.ethereum, this.send, this.config.transferProxies, order.maker, withFee, infinite))
 	}
 
-	async sendTransaction(
-		initial: SimpleRaribleV2Order, inverted: SimpleRaribleV2Order,
-	): Promise<EthereumTransaction> {
+	async getTransactionFromRequest(request: RaribleV2OrderFillRequest): Promise<OrderFillTransactionData> {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
+		const from = toAddress(await this.ethereum.getFrom())
+		const inverted = await this.invert(request, from)
+		const {options, functionCall} = await this.getTransactionData(request.order, inverted)
+		return {
+			data: functionCall.data,
+			options,
+		}
+	}
+
+	async getTransactionData(
+		initial: SimpleRaribleV2Order, inverted: SimpleRaribleV2Order
+	): Promise<OrderFillSendData> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
 		const exchangeContract = createExchangeV2Contract(this.ethereum, this.config.exchange.v2)
-		const method = exchangeContract.functionCall(
+		const functionCall = exchangeContract.functionCall(
 			"matchOrders",
 			await this.fixForTx(initial),
 			fixSignature(initial.signature) || "0x",
 			orderToStruct(this.ethereum, inverted),
 			fixSignature(inverted.signature) || "0x",
 		)
-		return this.send(method, this.getMatchV2Options(initial, inverted))
+
+		return {
+			functionCall,
+			options: this.getMatchV2Options(initial, inverted),
+		}
+	}
+
+	async sendTransaction(
+		initial: SimpleRaribleV2Order, inverted: SimpleRaribleV2Order,
+	): Promise<EthereumTransaction> {
+		const {functionCall, options} = await this.getTransactionData(initial, inverted)
+		return this.send(functionCall, options)
 	}
 
 	async fixForTx(order: SimpleRaribleV2Order): Promise<any> {

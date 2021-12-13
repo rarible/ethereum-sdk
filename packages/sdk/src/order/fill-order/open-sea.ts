@@ -20,6 +20,8 @@ import type { SimpleOpenSeaV1Order } from "../types"
 import type { OpenSeaOrderDTO } from "./open-sea-types"
 import type { OpenSeaV1OrderFillRequest, OrderHandler } from "./types"
 import { convertOpenSeaOrderToDTO } from "./open-sea-converter"
+import type { OrderFillTransactionData } from "./types"
+import type { OrderFillSendData } from "./types"
 
 export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillRequest> {
 	constructor(
@@ -89,7 +91,22 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		}
 	}
 
-	async sendTransaction(initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order): Promise<EthereumTransaction> {
+	async getTransactionFromRequest(request: OpenSeaV1OrderFillRequest): Promise<OrderFillTransactionData> {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
+		const from = toAddress(await this.ethereum.getFrom())
+		const inverted = await this.invert(request, from)
+		const {functionCall, options} = await this.getTransactionData(request.order, inverted)
+		return {
+			data: functionCall.data,
+			options,
+		}
+	}
+
+	private async getTransactionData(
+		initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order
+	): Promise<OrderFillSendData> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
@@ -102,7 +119,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		const buyVRS = toVrs(buy.signature || "")
 		const sellVRS = toVrs(sell.signature || "")
 
-		const method = exchangeContract.functionCall(
+		const functionCall = exchangeContract.functionCall(
 			"atomicMatch_",
 			[
 				...getAtomicMatchArgAddresses(buyOrderToSignDTO),
@@ -120,7 +137,15 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, this.config.openSea.metadata],
 		)
 
-		return this.send(method, await getMatchOpenseaOptions(buy))
+		return {
+			functionCall,
+			options: await getMatchOpenseaOptions(buy),
+		}
+	}
+
+	async sendTransaction(initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order): Promise<EthereumTransaction> {
+		const {functionCall, options} = await this.getTransactionData(initial, inverted)
+		return this.send(functionCall, options)
 	}
 
 	async approveSingle(

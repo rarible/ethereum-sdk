@@ -16,7 +16,7 @@ export const rinkebyConfig: EthereumConfig = {
 		erc721Lazy: toAddress("0x75fDbe19C2dc673384dDc14C9F453dB86F5f32E8"),
 		erc1155Lazy: toAddress("0x0cF0AAb68432a3710ECbf2f1b112a11cEe31a83C"),
 		openseaV1: toAddress("0x82d102457854c985221249f86659c9d6cf12aa72"),
-		cryptoPunks: toAddress("0x8B278D35388EF6Bda06da69292C5B1A5A8C59c4f"),
+		cryptoPunks: toAddress("0xfc2aa1b3365b8e0cac7a7d22fd7655e643792d17"),
 	},
 	fees: {
 		v2: 0,

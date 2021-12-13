@@ -1,5 +1,6 @@
 import Web3 from "web3"
 import * as common from "@rarible/ethereum-sdk-test-common"
+import { createGanacheProvider} from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { parseRequestError } from "./utils/parse-request-error"
 import { Web3Ethereum } from "./index"
 
@@ -7,7 +8,7 @@ describe("Web3Ethereum", () => {
 	const { provider } = common.createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
 	const e2eEthereum = new Web3Ethereum({ web3: new Web3(provider as any) })
 
-	const { provider: ganache } = common.createGanacheProvider()
+	const { provider: ganache } = createGanacheProvider()
 	const web3 = new Web3(ganache as any)
 	const ganacheEthereum = new Web3Ethereum({ web3 })
 

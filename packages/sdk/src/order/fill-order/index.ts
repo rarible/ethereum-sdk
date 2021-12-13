@@ -1,4 +1,4 @@
-import type { Ethereum } from "@rarible/ethereum-provider"
+import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import { Action } from "@rarible/action"
 import type { Address } from "@rarible/ethereum-api-client"
@@ -22,7 +22,7 @@ import type { RaribleV1OrderHandler } from "./rarible-v1"
 import type { RaribleV2OrderHandler } from "./rarible-v2"
 import type { OpenSeaOrderHandler } from "./open-sea"
 import type { CryptoPunksOrderHandler } from "./crypto-punks"
-import type { OrderFillTransactionData } from "./types"
+import type { OrderFillTransactionData, FillOrderStageId } from "./types"
 
 export class OrderFiller {
 
@@ -37,25 +37,42 @@ export class OrderFiller {
 		this.getTransactionData = this.getTransactionData.bind(this)
 	}
 
-	fill: FillOrderAction = Action
-		.create({
-			id: "approve" as const,
-			run: async (request: FillOrderRequest) => {
-				if (!this.ethereum) {
-					throw new Error("Wallet undefined")
-				}
-				const from = toAddress(await this.ethereum.getFrom())
-				const inverted = await this.invertOrder(request, from)
-				await this.approveOrder(inverted, Boolean(request.infinite))
-				return { request, inverted }
-			},
-		})
-		.thenStep({
-			id: "send-tx" as const,
-			run: async ({ inverted, request }: { inverted: SimpleOrder, request: FillOrderRequest }) => {
-				return this.sendTransaction(request, inverted)
-			},
-		})
+	private getFillAction<Request extends FillOrderRequest>(): Action<FillOrderStageId, Request, EthereumTransaction> {
+		return Action
+			.create({
+				id: "approve" as const,
+				run: async (request: Request) => {
+					if (!this.ethereum) {
+						throw new Error("Wallet undefined")
+					}
+					const from = toAddress(await this.ethereum.getFrom())
+					const inverted = await this.invertOrder(request, from)
+					await this.approveOrder(inverted, Boolean(request.infinite))
+					return { request, inverted }
+				},
+			})
+			.thenStep({
+				id: "send-tx" as const,
+				run: async ({ inverted, request }: { inverted: SimpleOrder, request: Request }) => {
+					return this.sendTransaction(request, inverted)
+				},
+			})
+	}
+
+	/**
+	 * @deprecated Use {@link buy} or {@link acceptBid} instead
+	 */
+	fill: FillOrderAction = this.getFillAction()
+
+	/**
+	 * Buy order
+	 */
+	buy: FillOrderAction = this.getFillAction()
+
+	/**
+	 * Accept bid order
+	 */
+	acceptBid: FillOrderAction = this.getFillAction()
 
 	private async invertOrder(request: FillOrderRequest, from: Address) {
 		switch (request.order.type) {

@@ -3,6 +3,47 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.19](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.18...v0.12.19) (2021-12-10)
+
+
+### Bug Fixes
+
+* update CryptoPunks transfer proxy on Rinkeby. ([f7cc59f](https://github.com/rarible/protocol-ethereum-sdk/commit/f7cc59f42f765feb8aa389bd3dd76430971bb53a))
+
+
+
+
+
+## [0.12.18](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.17...v0.12.18) (2021-12-10)
+
+
+### Features
+
+* replace fill order with buy & acceptBid orders ([062a142](https://github.com/rarible/protocol-ethereum-sdk/commit/062a1425339889efa3ab933b333c47f39275a344))
+
+
+
+
+
+## [0.12.17](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.16...v0.12.17) (2021-12-09)
+
+
+### Bug Fixes
+
+* allow to update CryptoPunk orders with ETH. ([c25f855](https://github.com/rarible/protocol-ethereum-sdk/commit/c25f85515c5058392e5bfba0dc71a79c73c33f7a))
+
+
+
+
+
+## [0.12.16](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.15...v0.12.16) (2021-12-08)
+
+**Note:** Version bump only for package @rarible/protocol-ethereum-sdk
+
+
+
+
+
 ## [0.12.15](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.14...v0.12.15) (2021-12-07)
 
 

@@ -119,7 +119,7 @@ describe("fillOrder", () => {
 		await filler.getTransactionData({ order: finalOrder, amount: 1 })
 	})
 
-	test("should fill order with crypto punks asset", async () => {
+	test("should fill order (buy) with crypto punks asset", async () => {
 		//Mint crypto punks
 		const punkId = 43
 		const punkPrice = 10
@@ -152,7 +152,7 @@ describe("fillOrder", () => {
 		}
 
 		const finalOrder = { ...left, signature: toBinary("0x") }
-		const tx = await filler.fill({ order: finalOrder, amount: 1 })
+		const tx = await filler.buy({ order: finalOrder, amount: 1 })
 		await tx.wait()
 
 		await retry(5, 500, async () => {
@@ -162,7 +162,7 @@ describe("fillOrder", () => {
 		})
 	})
 
-	test("should fill bid with crypto punks asset", async () => {
+	test("should accept bid with crypto punks asset", async () => {
 		const punkId = 50
 		const punkPrice = 10
 		//Mint punks
@@ -194,7 +194,7 @@ describe("fillOrder", () => {
 		}
 
 		const finalOrder = { ...left, signature: toBinary("0x") }
-		const tx = await filler.fill({ order: finalOrder, amount: 1 })
+		const tx = await filler.acceptBid({ order: finalOrder, amount: 1 })
 		await tx.wait()
 
 		await retry(5, 500, async () => {

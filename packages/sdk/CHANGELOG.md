@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.21](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.20...v0.12.21) (2021-12-15)
+
+
+### Features
+
+* cryptoPunks + factory 1155 addresses ([#86](https://github.com/rarible/protocol-ethereum-sdk/issues/86)) ([9aa74d1](https://github.com/rarible/protocol-ethereum-sdk/commit/9aa74d10498acb2046c170b61cc323b633d5eb6a))
+
+
+
+
+
 ## [0.12.20](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.19...v0.12.20) (2021-12-13)
 
 

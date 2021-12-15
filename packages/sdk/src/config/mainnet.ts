@@ -1,4 +1,4 @@
-import { toAddress, ZERO_ADDRESS } from "@rarible/types"
+import { toAddress } from "@rarible/types"
 import { id32 } from "../common/id"
 import type { EthereumConfig } from "./type"
 
@@ -16,7 +16,7 @@ export const mainnetConfig: EthereumConfig = {
 		erc721Lazy: toAddress("0xbb7829BFdD4b557EB944349b2E2c965446052497"),
 		erc1155Lazy: toAddress("0x75a8B7c0B22D973E0B46CfBD3e2f6566905AA79f"),
 		openseaV1: toAddress("0xe5c783ee536cf5e63e792988335c4255169be4e1"),
-		cryptoPunks: toAddress("0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb"),
+		cryptoPunks: toAddress("0xdf907c1b541b1843b511d115e2fef78a6a830772"),
 	},
 	fees: {
 		v2: 0,
@@ -27,6 +27,6 @@ export const mainnetConfig: EthereumConfig = {
 	},
 	factories: {
 		erc721: toAddress("0x6E42262978de5233C8d5B05B128C121fBa110DA4"),
-		erc1155: ZERO_ADDRESS,
+		erc1155: toAddress("0xda5bfe0bd4443d63833c8f4e3284357299eae6bc"),
 	},
 }

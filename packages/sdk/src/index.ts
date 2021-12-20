@@ -40,6 +40,7 @@ import type { BalanceRequestAssetType} from "./common/balances"
 import { Balances } from "./common/balances"
 import type { EthereumNetwork } from "./types"
 import type { GetOrderFillTxData } from "./order/fill-order/types"
+import { ConvertWeth } from "./order/convert-to-weth"
 
 export interface RaribleOrderSdk {
 	/**
@@ -142,6 +143,18 @@ export interface RaribleBalancesSdk {
 	 * @param assetType type of asset. Supports ERC20 and ETH
 	 */
 	getBalance(address: Address, assetType: BalanceRequestAssetType): Promise<BigNumberValue>
+
+	/**
+	 * Convert ETH balance to the Wrapped Ether (ERC-20) token
+	 * @param value Value to convert
+	 */
+	convertEthToWeth(value: BigNumberValue): Promise<EthereumTransaction>
+
+	/**
+	 * Convert Wrapped Ether (ERC-20) token to the ETH balance
+	 * @param value Value to convert
+	 */
+	convertWethToEth(value: BigNumberValue): Promise<EthereumTransaction>
 }
 
 export interface RaribleSdk {
@@ -184,6 +197,7 @@ export function createRaribleSdk(
 
 	const sellService = new OrderSell(upsertService, checkAssetType)
 	const bidService = new OrderBid(upsertService, checkAssetType)
+	const wethConverter = new ConvertWeth(ethereum, send, config)
 
 	return {
 		apis,
@@ -224,7 +238,11 @@ export function createRaribleSdk(
 				erc1155: new DeployErc1155(ethereum, send, config),
 			},
 		},
-		balances: new Balances(ethereum, apis.erc20Balance),
+		balances: {
+			getBalance: new Balances(ethereum, apis.erc20Balance).getBalance,
+			convertEthToWeth: wethConverter.convertEthToWeth,
+			convertWethToEth: wethConverter.convertWethToEth,
+		},
 	}
 }
 

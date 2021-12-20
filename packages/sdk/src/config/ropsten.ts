@@ -29,4 +29,5 @@ export const ropstenConfig: EthereumConfig = {
 		erc721: toAddress("0x939d0308CE4274C287E7305D381B336B77dBfcd3"),
 		erc1155: toAddress("0xccf0cB91Fe5cCb697781427C141ed0662aE4FE2e"),
 	},
+	weth: ZERO_ADDRESS,
 }

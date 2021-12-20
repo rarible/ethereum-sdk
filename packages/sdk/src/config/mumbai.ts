@@ -29,4 +29,5 @@ export const mumbaiConfig: EthereumConfig = {
 		erc721: toAddress("0xa85180a21786bA65b0778bE1cb5CBA5E5c6cD21d"),
 		erc1155: ZERO_ADDRESS,
 	},
+	weth: ZERO_ADDRESS,
 }

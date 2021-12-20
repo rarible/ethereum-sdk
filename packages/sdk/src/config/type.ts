@@ -38,4 +38,5 @@ export type EthereumConfig = {
 	fees: ExchangeFees
 	openSea: OpenSeaConfig
 	factories: FactoriesAddresses
+	weth: Address
 }

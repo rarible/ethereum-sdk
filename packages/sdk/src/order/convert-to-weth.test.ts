@@ -50,18 +50,14 @@ describe("convert weth test", () => {
 		const tx = await converter.convertEthToWeth(new BigNumber("0.2"))
 		await tx.wait()
 
-		const initEthBalance = await web3.eth.getBalance(sender1Address)
 		const initWethBalance = await contract.functionCall("balanceOf", sender1Address).call()
 		const tx1 = await converter.convertWethToEth(new BigNumber("0.1"))
 		await tx1.wait()
 
-		const finishEthBalance = await web3.eth.getBalance(sender1Address)
 		const finishWethBalance = await contract.functionCall("balanceOf", sender1Address).call()
 
 		const diff = new BigNumber(initWethBalance).minus(finishWethBalance)
-		const diffInEth = new BigNumber(initEthBalance).minus(finishEthBalance)
 
 		expect(diff.toString()).toBe("100000000000000000")
-		expect(diffInEth.gte("100000000000000000")).toBeTruthy()
 	})
 })

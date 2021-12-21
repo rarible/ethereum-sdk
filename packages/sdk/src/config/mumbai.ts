@@ -27,7 +27,7 @@ export const mumbaiConfig: EthereumConfig = {
 	},
 	factories: {
 		erc721: toAddress("0xa85180a21786bA65b0778bE1cb5CBA5E5c6cD21d"),
-		erc1155: ZERO_ADDRESS,
+		erc1155: toAddress("0xAa9CD5834E0009902EeAA3FEfAc6A160e9A096b4"),
 	},
 	weth: ZERO_ADDRESS,
 }

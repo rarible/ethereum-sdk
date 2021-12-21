@@ -152,6 +152,11 @@ export interface RaribleBalancesSdk {
 	 * @param value Value to convert
 	 */
 	convert(from: AssetType, to: AssetType, value: BigNumberValue): Promise<EthereumTransaction>
+
+	/**
+	 * Return address of Wrapped Ether contract (ERC-20)
+	 */
+	getWethContractAddress(): Address
 }
 
 export interface RaribleSdk {
@@ -238,6 +243,7 @@ export function createRaribleSdk(
 		balances: {
 			getBalance: new Balances(ethereum, apis.erc20Balance).getBalance,
 			convert: wethConverter.convert,
+			getWethContractAddress: wethConverter.getWethContractAddress,
 		},
 	}
 }

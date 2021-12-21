@@ -29,5 +29,5 @@ export const e2eConfig: EthereumConfig = {
 		erc721: toAddress("0x74B4721599213fdC7eD0bb67D3B25a6fb3c74B61"),
 		erc1155: toAddress("0xF35BC450544C7d8c2559B4DAeb51E9617F39e7C6"),
 	},
-	weth: toAddress("0xCEDdA303D3b9d52FAE8eDee8F7c1D00e2971122c"),
+	weth: toAddress("0xc6f33b62a94939e52e1b074c4ac1a801b869fdb2"),
 }

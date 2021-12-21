@@ -17,6 +17,8 @@ export class ConvertWeth {
 	) {
 		this.convertEthToWeth = this.convertEthToWeth.bind(this)
 		this.convertWethToEth = this.convertWethToEth.bind(this)
+		this.convert = this.convert.bind(this)
+		this.getWethContractAddress = this.getWethContractAddress.bind(this)
 	}
 
 	private async convertEthToWeth(value: BigNumberValue): Promise<EthereumTransaction> {

@@ -29,5 +29,5 @@ export const rinkebyConfig: EthereumConfig = {
 		erc721: toAddress("0x62e0BDC23435321adFf249d6f41e11AEee6486Cf"),
 		erc1155: toAddress("0xB1Bcf905495AFf06e854904d7b2d6647ab00Cd1d"),
 	},
-	weth: toAddress("0xdf032bc4b9dc2782bb09352007d4c57b75160b15"),
+	weth: toAddress("0xc778417e063141139fce010982780140aa0cd5ab"),
 }

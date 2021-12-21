@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.23](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.22...v0.12.23) (2021-12-21)
+
+
+### Features
+
+* change convert weth schema ([#88](https://github.com/rarible/protocol-ethereum-sdk/issues/88)) ([018b066](https://github.com/rarible/protocol-ethereum-sdk/commit/018b06651dcc9c886389352ccbf25d4a6083e027))
+
+
+
+
+
 ## [0.12.22](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.21...v0.12.22) (2021-12-20)
 
 

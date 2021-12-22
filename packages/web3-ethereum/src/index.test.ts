@@ -35,4 +35,9 @@ describe("Web3Ethereum", () => {
 	test("allows to send transactions and call functions", async () => {
 		await common.testSimpleContract(web3, ganacheEthereum)
 	})
+
+	test("getNetwork", async () => {
+		const network = await e2eEthereum.getChainId()
+		expect(network).toBe(17)
+	})
 })

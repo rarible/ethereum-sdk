@@ -21,9 +21,11 @@ export async function burn(
 	send: SendFunction,
 	checkAssetType: CheckAssetTypeFunction,
 	apis: RaribleEthereumApis,
+	checkWalletChainId: () => Promise<boolean>,
 	asset: BurnAsset,
 	amount?: BigNumber
 ): Promise<EthereumTransaction | void> {
+	await checkWalletChainId()
 	if (!ethereum) {
 		throw new Error("Wallet undefined")
 	}

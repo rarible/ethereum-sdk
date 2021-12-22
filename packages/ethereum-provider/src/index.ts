@@ -56,6 +56,7 @@ export interface Ethereum {
 	signTypedData<T extends MessageTypes>(data: TypedMessage<T>): Promise<string>
 	encodeParameter(type: any, parameter: any): string
 	getBalance(address: Address): Promise<BigNumber>
+	getChainId(): Promise<number>
 }
 
 export { signTypedData } from "./sign-typed-data"

@@ -7,6 +7,8 @@ import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-t
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { createErc1155V2Collection } from "../common/mint"
+import { checkChainId } from "../order/check-chain-id"
+import { getEthereumConfig } from "../config"
 import { signNft } from "./sign-nft"
 import type { ERC1155RequestV2 } from "./mint"
 import { mint } from "./mint"
@@ -29,6 +31,8 @@ describe("transfer Erc721 lazy", () => {
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
 	const sign = signNft.bind(null, ethereum, 17)
 	const send = sendTemplate.bind(null, gatewayApi)
+	const config = getEthereumConfig("e2e")
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
 	test("should transfer erc1155 lazy token", async () => {
 		const recipient = randomAddress()
@@ -43,7 +47,15 @@ describe("transfer Erc721 lazy", () => {
 			lazy: true,
 		}
 
-		const minted = await mint(ethereum, send, sign, nftCollectionApi, nftLazyMintControllerApi, request)
+		const minted = await mint(
+			ethereum,
+			send,
+			sign,
+			nftCollectionApi,
+			nftLazyMintControllerApi,
+			checkWalletChainId,
+			request
+		)
 
 		const asset: TransferAsset = {
 			tokenId: minted.tokenId,
@@ -56,6 +68,7 @@ describe("transfer Erc721 lazy", () => {
 			checkAssetType,
 			nftItemApi,
 			nftOwnershipApi,
+			checkWalletChainId,
 			asset,
 			recipient,
 			toBigNumber("50")

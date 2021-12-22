@@ -20,10 +20,12 @@ export async function transfer(
 	checkAssetType: CheckAssetTypeFunction,
 	nftItemApi: NftItemControllerApi,
 	nftOwnershipApi: NftOwnershipControllerApi,
+	checkWalletChainId: () => Promise<boolean>,
 	initialAsset: TransferAsset,
 	to: Address,
 	amount?: BigNumber
 ): Promise<EthereumTransaction> {
+	await checkWalletChainId()
 	if (!ethereum) {
 		throw new Error("Wallet undefined")
 	}

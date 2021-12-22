@@ -1,1 +1,1 @@
-export type EthereumNetwork = "e2e" | "ropsten" | "rinkeby" | "mainnet" | "mumbai"
+export type EthereumNetwork = "e2e" | "ropsten" | "rinkeby" | "mainnet" | "mumbai" | "polygon"

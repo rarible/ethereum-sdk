@@ -50,6 +50,11 @@ export class EthersWeb3ProviderEthereum implements EthereumProvider.Ethereum {
 		const balance = await this.web3Provider.getBalance(address)
 		return toBigNumber(balance.toString())
 	}
+
+	async getChainId(): Promise<number> {
+		const { chainId } = await this.web3Provider.getNetwork()
+		return chainId
+	}
 }
 
 export class EthersEthereum implements EthereumProvider.Ethereum {
@@ -86,6 +91,10 @@ export class EthersEthereum implements EthereumProvider.Ethereum {
 		}
 		const balance = await this.signer.provider.getBalance(address)
 		return toBigNumber(balance.toString())
+	}
+
+	async getChainId(): Promise<number> {
+		return this.signer.getChainId()
 	}
 }
 

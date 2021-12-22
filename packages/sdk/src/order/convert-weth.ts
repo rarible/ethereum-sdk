@@ -8,6 +8,7 @@ import type { Address } from "@rarible/types"
 import type { EthereumConfig } from "../config/type"
 import type { SendFunction } from "../common/send-transaction"
 import { createWethContract } from "./contracts/weth"
+import { checkChainId } from "./check-chain-id"
 
 export class ConvertWeth {
 	constructor(
@@ -51,6 +52,7 @@ export class ConvertWeth {
 	}
 
 	async convert(from: AssetType, to: AssetType, value: BigNumberValue): Promise<EthereumTransaction> {
+		await checkChainId(this.ethereum, this.config)
 		if (from.assetClass === "ETH" && to.assetClass === "ERC20") {
 			if (to.contract !== this.config.weth) {
 				throw new Error(`Unsupported WETH contract address ${to.contract}, expected ${this.config.weth}`)

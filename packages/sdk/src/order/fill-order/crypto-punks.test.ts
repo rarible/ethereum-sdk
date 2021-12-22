@@ -18,7 +18,7 @@ import { deployCryptoPunkTransferProxy } from "../contracts/test/test-crypto-pun
 import { id } from "../../common/id"
 import { deployCryptoPunkAssetMatcher } from "../contracts/test/test-crypto-punks-asset-matcher"
 import { retry } from "../../common/retry"
-import { CryptoPunksOrderHandler } from "./crypto-punks"
+import { createEthereumApis } from "../../common/apis"
 import { OrderFiller } from "./index"
 
 describe("fillOrder", () => {
@@ -27,9 +27,9 @@ describe("fillOrder", () => {
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 
+	const apis = createEthereumApis("e2e")
 	const config = getEthereumConfig("e2e")
-	const punkHandler = new CryptoPunksOrderHandler(ethereum1, simpleSend, config)
-	const filler = new OrderFiller(ethereum1, null as any, null as any, null as any, punkHandler)
+	const filler = new OrderFiller(ethereum1, simpleSend, config, apis)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -64,7 +64,7 @@ describe("fillOrder", () => {
 		config.exchange.v1 = toAddress(it.exchangeV2.options.address)
 		config.exchange.v2 = toAddress(it.exchangeV2.options.address)
 		config.transferProxies.cryptoPunks = toAddress(it.punksTransferProxy.options.address)
-		config.chainId = 1
+		config.chainId = 17
 		config.fees.v2 = 100
 
 		await sentTx(it.erc20TransferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {

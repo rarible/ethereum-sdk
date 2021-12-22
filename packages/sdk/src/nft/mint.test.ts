@@ -16,6 +16,8 @@ import Web3 from "web3"
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { createErc1155V1Collection, createErc1155V2Collection, createErc721V1Collection, createErc721V2Collection, createErc721V3Collection } from "../common/mint"
+import { checkChainId } from "../order/check-chain-id"
+import { getEthereumConfig } from "../config"
 import { signNft } from "./sign-nft"
 import type { ERC1155RequestV1, ERC1155RequestV2, ERC721RequestV1, ERC721RequestV2, ERC721RequestV3} from "./mint"
 import { mint as mintTemplate } from "./mint"
@@ -48,6 +50,8 @@ const e2eErc1155V2ContractAddress = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752
 
 describe.each(providers)("mint test", ethereum => {
 	let minter: Address
+	const config = getEthereumConfig("e2e")
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
 	beforeAll(async () => {
 		minter = toAddress(await ethereum.getFrom())
@@ -57,7 +61,7 @@ describe.each(providers)("mint test", ethereum => {
 
 	const mint = mintTemplate
 		.bind(null, ethereum, send, sign, nftCollectionApi)
-		.bind(null, nftLazyMintApi)
+		.bind(null, nftLazyMintApi, checkWalletChainId)
 
 	test("mint ERC-721 v1", async () => {
 		if (ethereum instanceof Web3Ethereum) { //todo enable for other providers

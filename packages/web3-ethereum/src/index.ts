@@ -45,6 +45,10 @@ export class Web3Ethereum implements EthereumProvider.Ethereum {
 	async getBalance(address: Address): Promise<BigNumber> {
 		return toBigNumber(await this.config.web3.eth.getBalance(address))
 	}
+
+	async getChainId(): Promise<number> {
+		return this.config.web3.eth.getChainId()
+	}
 }
 
 export class Web3Contract implements EthereumProvider.EthereumContract {

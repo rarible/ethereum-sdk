@@ -7,15 +7,16 @@ import { Configuration, OrderControllerApi } from "@rarible/ethereum-api-client"
 import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
 import { retry } from "../common/retry"
+import { simpleSend } from "../common/send-transaction"
+import { createEthereumApis } from "../common/apis"
 import { cancel } from "./cancel"
 import { signOrder } from "./sign-order"
 import { UpsertOrder } from "./upsert-order"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
-import { RaribleV2OrderHandler } from "./fill-order/rarible-v2"
 import { OrderFiller } from "./fill-order"
-import { RaribleV1OrderHandler } from "./fill-order/rarible-v1"
+import { checkChainId } from "./check-chain-id"
 
 describe("cancel order", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -26,10 +27,10 @@ describe("cancel order", () => {
 	const sign = signOrder.bind(null, ethereum, config)
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const orderApi = new OrderControllerApi(configuration)
+	const apis = createEthereumApis("e2e")
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
-	const v1Handler = new RaribleV1OrderHandler(null as any, orderApi, null as any, config)
-	const v2Handler = new RaribleV2OrderHandler(null as any, null as any, config)
-	const orderService = new OrderFiller(null as any, v1Handler, v2Handler, null as any, null as any)
+	const orderService = new OrderFiller(ethereum, simpleSend, config, apis)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -90,11 +91,12 @@ describe("cancel order", () => {
 			approve,
 			sign,
 			orderApi,
-			ethereum
+			ethereum,
+			checkWalletChainId
 		)
 
 		const order = await upserter.upsert({ order: form })
-		const tx = await cancel(checkLazyOrder, ethereum, config.exchange, order)
+		const tx = await cancel(checkLazyOrder, ethereum, config.exchange, checkWalletChainId, order)
 		await tx.wait()
 
 		const cancelledOrder = await retry(15, 2000, async () => {

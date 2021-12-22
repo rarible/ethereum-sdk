@@ -14,7 +14,9 @@ import { send as sendTemplate } from "../common/send-transaction"
 import { createErc721V3Collection } from "../common/mint"
 import { getApiConfig } from "../config/api-config"
 import { createTestProviders } from "../common/create-test-providers"
+import { getEthereumConfig } from "../config"
 import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
+import { checkChainId } from "./check-chain-id"
 
 const { provider, wallet } = createE2eProvider()
 const { providers } = createTestProviders(provider, wallet)
@@ -29,6 +31,8 @@ describe.each(providers)("check-asset-type test", ethereum => {
 	const sign = signNft.bind(null, ethereum, 17)
 	const send = sendTemplate.bind(null, gatewayApi)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
+	const config = getEthereumConfig("e2e")
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
 	test("should set assetClass if type not present", async () => {
 		const request: ERC721RequestV3 = {
@@ -44,6 +48,7 @@ describe.each(providers)("check-asset-type test", ethereum => {
 			sign,
 			nftCollectionApi,
 			nftLazyMintApi,
+			checkWalletChainId,
 			request
 		)
 
@@ -74,6 +79,7 @@ describe.each(providers)("check-asset-type test", ethereum => {
 			sign,
 			nftCollectionApi,
 			nftLazyMintApi,
+			checkWalletChainId,
 			request
 		)
 

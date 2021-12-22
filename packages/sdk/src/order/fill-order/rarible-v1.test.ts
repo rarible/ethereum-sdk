@@ -1,4 +1,4 @@
-import { Configuration, NftOwnershipControllerApi, OrderControllerApi } from "@rarible/ethereum-api-client"
+import { Configuration, NftOwnershipControllerApi } from "@rarible/ethereum-api-client"
 import { toAddress, toBigNumber, toWord } from "@rarible/types"
 import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
@@ -10,7 +10,7 @@ import { getApiConfig } from "../../config/api-config"
 import { signOrder } from "../sign-order"
 import { deployTestErc721 } from "../contracts/test/test-erc721"
 import type { SimpleLegacyOrder, SimpleOrder } from "../types"
-import { RaribleV1OrderHandler } from "./rarible-v1"
+import { createEthereumApis } from "../../common/apis"
 import { OrderFiller } from "./"
 
 describe("test exchange v1 order", () => {
@@ -25,10 +25,11 @@ describe("test exchange v1 order", () => {
 
 	const e2eConfig = getEthereumConfig("e2e")
 	const configuration = new Configuration(getApiConfig("e2e"))
-	const orderApi = new OrderControllerApi(configuration)
 	const ownershipApi = new NftOwnershipControllerApi(configuration)
-	const v1Handler = new RaribleV1OrderHandler(ethereum2, orderApi, simpleSend, e2eConfig)
-	const filler = new OrderFiller(ethereum2, v1Handler, null as any, null as any, null as any)
+
+	const apis = createEthereumApis("e2e")
+
+	const filler = new OrderFiller(ethereum2, simpleSend, e2eConfig, apis)
 
 	const seller = toAddress(wallet1.getAddressString())
 	const buyer = toAddress(wallet2.getAddressString())

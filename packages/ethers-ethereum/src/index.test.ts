@@ -38,4 +38,9 @@ describe.each(data)("ethers.js Ethereum", (eth: Ethereum) => {
 		const sender = toAddress(await eth.getFrom())
 		expect(await eth.getBalance(sender)).toBeTruthy()
 	})
+
+	test(`${eth.constructor.name} getNetworkId`, async () => {
+		const networkId = await eth.getChainId()
+		expect(networkId).toBe(17)
+	})
 })

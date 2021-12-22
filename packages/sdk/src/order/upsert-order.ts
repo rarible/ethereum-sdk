@@ -52,7 +52,8 @@ export class UpsertOrder {
 		private readonly approveFn: ApproveFunction,
 		private readonly signOrder: (order: SimpleOrder) => Promise<Binary>,
 		private readonly orderApi: OrderControllerApi,
-		private readonly ethereum: Maybe<Ethereum>
+		private readonly ethereum: Maybe<Ethereum>,
+		private readonly checkWalletChainId: () => Promise<boolean>,
 	) {}
 
 	readonly upsert = Action
@@ -67,6 +68,10 @@ export class UpsertOrder {
 		.thenStep({
 			id: "sign" as const,
 			run: (checked: OrderForm) => this.upsertRequest(checked),
+		})
+		.before(async (input: UpsertOrderActionArg) => {
+			await this.checkWalletChainId()
+			return input
 		})
 
 	async getOrder(hasOrder: HasOrder): Promise<SimpleOrder> {

@@ -28,11 +28,7 @@ import { send as sendTemplate } from "./common/send-transaction"
 import { cancel as cancelTemplate } from "./order/cancel"
 import type { FillOrderAction } from "./order/fill-order/types"
 import type { SimpleOrder } from "./order/types"
-import { RaribleV1OrderHandler } from "./order/fill-order/rarible-v1"
 import { OrderFiller } from "./order/fill-order"
-import { RaribleV2OrderHandler } from "./order/fill-order/rarible-v2"
-import { OpenSeaOrderHandler } from "./order/fill-order/open-sea"
-import { CryptoPunksOrderHandler } from "./order/fill-order/crypto-punks"
 import { getBaseOrderFee as getBaseOrderFeeTemplate } from "./order/get-base-order-fee"
 import { DeployErc721 } from "./nft/deploy-erc721"
 import { DeployErc1155 } from "./nft/deploy-erc1155"
@@ -42,6 +38,7 @@ import { Balances } from "./common/balances"
 import type { EthereumNetwork } from "./types"
 import type { GetOrderFillTxData } from "./order/fill-order/types"
 import { ConvertWeth } from "./order/convert-weth"
+import { checkChainId } from "./order/check-chain-id"
 
 export interface RaribleOrderSdk {
 	/**
@@ -179,14 +176,9 @@ export function createRaribleSdk(
 	const checkLazyAsset = partialCall(order.checkLazyAsset, checkLazyAssetType)
 	const checkLazyOrder = order.checkLazyOrder.bind(null, checkLazyAsset)
 	const checkAssetType = partialCall(checkAssetTypeTemplate, apis.nftCollection)
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
-	const filler = new OrderFiller(
-		ethereum,
-		new RaribleV1OrderHandler(ethereum, apis.order, send, config),
-		new RaribleV2OrderHandler(ethereum, send, config),
-		new OpenSeaOrderHandler(ethereum, send, config),
-		new CryptoPunksOrderHandler(ethereum, send, config)
-	)
+	const filler = new OrderFiller(ethereum, send, config, apis)
 
 	const upsertService = new UpsertOrder(
 		filler,
@@ -194,11 +186,12 @@ export function createRaribleSdk(
 		partialCall(approveTemplate, ethereum, send, config.transferProxies),
 		partialCall(signOrderTemplate, ethereum, config),
 		apis.order,
-		ethereum
+		ethereum,
+		checkWalletChainId
 	)
 
-	const sellService = new OrderSell(upsertService, checkAssetType)
-	const bidService = new OrderBid(upsertService, checkAssetType)
+	const sellService = new OrderSell(upsertService, checkAssetType, checkWalletChainId)
+	const bidService = new OrderBid(upsertService, checkAssetType, checkWalletChainId)
 	const wethConverter = new ConvertWeth(ethereum, send, config)
 
 	return {
@@ -213,7 +206,7 @@ export function createRaribleSdk(
 			bid: bidService.bid,
 			bidUpdate: bidService.update,
 			upsert: upsertService.upsert,
-			cancel: partialCall(cancelTemplate, checkLazyOrder, ethereum, config.exchange),
+			cancel: partialCall(cancelTemplate, checkLazyOrder, ethereum, config.exchange, checkWalletChainId),
 			getBaseOrderFee: getBaseOrderFeeTemplate.bind(null, config),
 			getBaseOrderFillFee: filler.getBaseOrderFillFee,
 		},
@@ -224,7 +217,8 @@ export function createRaribleSdk(
 				send,
 				partialCall(signNftTemplate, ethereum, config.chainId),
 				apis.nftCollection,
-				apis.nftLazyMint
+				apis.nftLazyMint,
+				checkWalletChainId
 			),
 			transfer: partialCall(
 				transferTemplate,
@@ -232,9 +226,10 @@ export function createRaribleSdk(
 				send,
 				checkAssetType,
 				apis.nftItem,
-				apis.nftOwnership
+				apis.nftOwnership,
+				checkWalletChainId,
 			),
-			burn: partialCall(burnTemplate, ethereum, send, checkAssetType, apis),
+			burn: partialCall(burnTemplate, ethereum, send, checkAssetType, apis, checkWalletChainId),
 			deploy: {
 				erc721: new DeployErc721(ethereum, send, config),
 				erc1155: new DeployErc1155(ethereum, send, config),

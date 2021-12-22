@@ -14,19 +14,18 @@ import { getApiConfig } from "../config/api-config"
 import type { ERC721RequestV3 } from "../nft/mint"
 import { mint as mintTemplate } from "../nft/mint"
 import { createTestProviders } from "../common/create-test-providers"
-import { send as sendTemplate } from "../common/send-transaction"
+import { send as sendTemplate, simpleSend } from "../common/send-transaction"
 import { signNft as signNftTemplate } from "../nft/sign-nft"
 import { createErc721V3Collection } from "../common/mint"
 import { delay, retry } from "../common/retry"
+import { createEthereumApis } from "../common/apis"
 import { OrderSell } from "./sell"
 import { signOrder as signOrderTemplate } from "./sign-order"
-import { RaribleV2OrderHandler } from "./fill-order/rarible-v2"
 import { OrderFiller } from "./fill-order"
 import { UpsertOrder } from "./upsert-order"
 import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
-import { OpenSeaOrderHandler } from "./fill-order/open-sea"
-import { RaribleV1OrderHandler } from "./fill-order/rarible-v1"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
+import { checkChainId } from "./check-chain-id"
 
 const { provider, wallet } = createE2eProvider(
 	"d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469"
@@ -41,31 +40,26 @@ describe.each(providers)("sell", (ethereum) => {
 	const orderApi = new OrderControllerApi(configuration)
 	const send = sendTemplate.bind(null, gatewayApi)
 	const config = getEthereumConfig("e2e")
-	const v2Handler = new RaribleV2OrderHandler(ethereum, send, config)
 	const signOrder = signOrderTemplate.bind(null, ethereum, config)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
 	const signNft = signNftTemplate.bind(null, ethereum, config.chainId)
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const mint = mintTemplate
 		.bind(null, ethereum, send, signNft, nftCollectionApi)
-		.bind(null, nftLazyMintApi)
-	const v1Handler = new RaribleV1OrderHandler(ethereum, orderApi, send, config)
-	const openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config)
-	const orderService = new OrderFiller(
-		ethereum,
-		v1Handler,
-		v2Handler,
-		openSeaHandler,
-		null as any,
-	)
+		.bind(null, nftLazyMintApi, checkWalletChainId)
+	const apis = createEthereumApis("e2e")
+
+	const orderService = new OrderFiller(ethereum, simpleSend, config, apis)
 	const upserter = new UpsertOrder(
 		orderService,
 		(x) => Promise.resolve(x),
 		() => Promise.resolve(undefined),
 		signOrder,
 		orderApi,
-		ethereum
+		ethereum,
+		checkWalletChainId
 	)
-	const orderSell = new OrderSell(upserter, checkAssetType)
+	const orderSell = new OrderSell(upserter, checkAssetType, checkWalletChainId)
 	const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 	const treasury = createE2eWallet()
 	const treasuryAddress = toAddress(treasury.getAddressString())

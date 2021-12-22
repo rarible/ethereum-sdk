@@ -86,14 +86,16 @@ export type MintOnChainResponse = MintResponseCommon & {
 	transaction: EthereumTransaction
 }
 
-export function mint(
+export async function mint(
 	ethereum: Maybe<Ethereum>,
 	send: SendFunction,
 	signNft: (nft: SimpleLazyNft<"signatures">) => Promise<Binary>,
 	nftCollectionApi: NftCollectionControllerApi,
 	nftLazyMintApi: NftLazyMintControllerApi,
+	checkWalletChainId: () => Promise<boolean>,
 	data: MintRequest
 ): Promise<MintOffChainResponse | MintOnChainResponse> {
+	await checkWalletChainId()
 	if (!ethereum) {
 		throw new Error("Wallet undefined")
 	}

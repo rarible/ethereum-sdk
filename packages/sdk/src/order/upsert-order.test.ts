@@ -6,12 +6,14 @@ import { toBn } from "@rarible/utils"
 import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
 import { createTestProviders } from "../common/create-test-providers"
+import { createEthereumApis } from "../common/apis"
+import { simpleSend } from "../common/send-transaction"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { UpsertOrder } from "./upsert-order"
 import { signOrder } from "./sign-order"
-import { RaribleV2OrderHandler } from "./fill-order/rarible-v2"
 import { OrderFiller } from "./fill-order"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
+import { checkChainId } from "./check-chain-id"
 
 const { provider, wallet } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
 const { providers, web3 } = createTestProviders(provider, wallet)
@@ -22,12 +24,14 @@ const it = awaitAll({
 describe.each(providers)("upsertOrder", (ethereum) => {
 	const config = getEthereumConfig("e2e")
 	const sign = signOrder.bind(null, ethereum, config)
-	const v2Handler = new RaribleV2OrderHandler(null as any, null as any, config)
-	const orderService = new OrderFiller(null as any, null as any, v2Handler, null as any, null as any)
+	const apis = createEthereumApis("e2e")
+
+	const orderService = new OrderFiller(ethereum, simpleSend, config, apis)
 	const approve = () => Promise.resolve(undefined)
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const orderApi = new OrderControllerApi(configuration)
 	const checkLazyOrder: any = async (form: any) => Promise.resolve(form)
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
 	test("sign and upsert works", async () => {
 
@@ -49,7 +53,8 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 			approve,
 			sign,
 			orderApi,
-			ethereum
+			ethereum,
+			checkWalletChainId
 		)
 
 		const result = await upserter.upsert({ order })
@@ -78,7 +83,8 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 			approve,
 			sign,
 			orderApi,
-			ethereum
+			ethereum,
+			checkWalletChainId
 		)
 
 		const price = await upserter.getPrice(request, request.takeAssetType)
@@ -108,7 +114,8 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 			approve,
 			sign,
 			orderApi,
-			ethereum
+			ethereum,
+			checkWalletChainId
 		)
 
 		const price = await upserter.getPrice(request, request.takeAssetType)

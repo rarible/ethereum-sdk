@@ -25,6 +25,7 @@ export class OrderBid {
 	constructor(
 		private readonly upserter: UpsertOrder,
 		private readonly checkAssetType: (asset: AssetTypeRequest) => Promise<AssetTypeResponse>,
+		private readonly checkWalletChainId: () => Promise<boolean>,
 	) {}
 
 	readonly bid: BidOrderAction = Action
@@ -43,6 +44,10 @@ export class OrderBid {
 		.thenStep({
 			id: "sign" as const,
 			run: (checked: OrderForm) => this.upserter.upsertRequest(checked),
+		})
+		.before(async (input: BidRequest) => {
+			await this.checkWalletChainId()
+			return input
 		})
 
 	readonly update: BidUpdateOrderAction = Action
@@ -71,6 +76,10 @@ export class OrderBid {
 				}
 				return this.upserter.updateCryptoPunkOrder(form)
 			},
+		})
+		.before(async (input: BidUpdateRequest) => {
+			await this.checkWalletChainId()
+			return input
 		})
 
 	private async getBidForm(request: BidRequest): Promise<RaribleV2OrderForm> {

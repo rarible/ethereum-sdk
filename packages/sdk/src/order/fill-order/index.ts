@@ -10,6 +10,10 @@ import type {
 	SimpleOrder,
 	SimpleRaribleV2Order,
 } from "../types"
+import type { SendFunction } from "../../common/send-transaction"
+import type { EthereumConfig } from "../../config/type"
+import type { RaribleEthereumApis } from "../../common/apis"
+import { checkChainId } from "../check-chain-id"
 import type {
 	CryptoPunksOrderFillRequest,
 	FillOrderAction,
@@ -18,23 +22,30 @@ import type {
 	OpenSeaV1OrderFillRequest,
 	RaribleV2OrderFillRequest,
 } from "./types"
-import type { RaribleV1OrderHandler } from "./rarible-v1"
-import type { RaribleV2OrderHandler } from "./rarible-v2"
-import type { OpenSeaOrderHandler } from "./open-sea"
-import type { CryptoPunksOrderHandler } from "./crypto-punks"
+import { RaribleV1OrderHandler } from "./rarible-v1"
+import { RaribleV2OrderHandler } from "./rarible-v2"
+import { OpenSeaOrderHandler } from "./open-sea"
+import { CryptoPunksOrderHandler } from "./crypto-punks"
 import type { OrderFillTransactionData, FillOrderStageId } from "./types"
 
 export class OrderFiller {
+	v1Handler: RaribleV1OrderHandler
+	v2Handler: RaribleV2OrderHandler
+	openSeaHandler: OpenSeaOrderHandler
+	punkHandler: CryptoPunksOrderHandler
 
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
-		private readonly v1Handler: RaribleV1OrderHandler,
-		private readonly v2Handler: RaribleV2OrderHandler,
-		private readonly openSeaHandler: OpenSeaOrderHandler,
-		private readonly punkHandler: CryptoPunksOrderHandler
+		private readonly send: SendFunction,
+		private readonly config: EthereumConfig,
+		private readonly apis: RaribleEthereumApis,
 	) {
 		this.getBaseOrderFillFee = this.getBaseOrderFillFee.bind(this)
 		this.getTransactionData = this.getTransactionData.bind(this)
+		this.v1Handler = new RaribleV1OrderHandler(ethereum, apis.order, send, config)
+		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config)
+		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config)
+		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config)
 	}
 
 	private getFillAction<Request extends FillOrderRequest>(): Action<FillOrderStageId, Request, EthereumTransaction> {
@@ -56,6 +67,10 @@ export class OrderFiller {
 				run: async ({ inverted, request }: { inverted: SimpleOrder, request: Request }) => {
 					return this.sendTransaction(request, inverted)
 				},
+			})
+			.before(async (input: Request) => {
+				await checkChainId(this.ethereum, this.config)
+				return input
 			})
 	}
 
@@ -126,6 +141,7 @@ export class OrderFiller {
 	async getTransactionData(
 		request: FillOrderRequest
 	): Promise<OrderFillTransactionData> {
+		await checkChainId(this.ethereum, this.config)
 		switch (request.order.type) {
 			case "RARIBLE_V1":
 				return this.v1Handler.getTransactionFromRequest(

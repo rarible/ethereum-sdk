@@ -30,6 +30,8 @@ import { createOpenseaProxyRegistryEthContract } from "../contracts/proxy-regist
 import { createOpenseaContract } from "../contracts/exchange-opensea-v1"
 import { cancel } from "../cancel"
 import type { SimpleOpenSeaV1Order } from "../types"
+import { createEthereumApis } from "../../common/apis"
+import { checkChainId } from "../check-chain-id"
 import {
 	getAtomicMatchArgAddresses,
 	getAtomicMatchArgCommonData,
@@ -48,17 +50,17 @@ describe("fillOrder: Opensea orders", function () {
 
 	const config: EthereumConfig = {
 		...getEthereumConfig("e2e"),
-		chainId: 1,
 		openSea: {
 			metadata: id32("RARIBLE"),
 			proxyRegistry: ZERO_ADDRESS,
 		},
 	}
+	const apis = createEthereumApis("e2e")
 
 	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, simpleSend, config)
 	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, simpleSend, config)
-	const orderFiller1 = new OrderFiller(ethereum1, null as any, null as any, openSeaFillHandler1, null as any)
-	const orderFiller2 = new OrderFiller(ethereum2, null as any, null as any, openSeaFillHandler2, null as any)
+	const orderFiller1 = new OrderFiller(ethereum1, simpleSend, config, apis)
+	const orderFiller2 = new OrderFiller(ethereum2, simpleSend, config, apis)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -278,6 +280,7 @@ describe("fillOrder: Opensea orders", function () {
 				v1: ZERO_ADDRESS,
 				v2: ZERO_ADDRESS,
 			},
+			checkChainId.bind(null, ethereum1, config),
 			{
 				...order,
 				signature,

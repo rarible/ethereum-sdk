@@ -24,8 +24,10 @@ export async function cancel(
 	checkLazyOrder: (form: CheckLazyOrderPart) => Promise<CheckLazyOrderPart>,
 	ethereum: Maybe<Ethereum>,
 	config: ExchangeAddresses,
+	checkWalletChainId: () => Promise<boolean>,
 	orderToCheck: SimpleOrder,
 ): Promise<EthereumTransaction> {
+	await checkWalletChainId()
 	if (ethereum) {
 		const order = await checkLazyOrder(orderToCheck) as SimpleOrder
 		switch (order.type) {

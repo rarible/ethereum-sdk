@@ -7,6 +7,8 @@ import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-t
 import { send as sendTemplate } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { createErc721V3Collection } from "../common/mint"
+import { checkChainId } from "../order/check-chain-id"
+import { getEthereumConfig } from "../config"
 import { signNft } from "./sign-nft"
 import type { ERC721RequestV3 } from "./mint"
 import { mint } from "./mint"
@@ -29,6 +31,9 @@ describe("transfer Erc721 lazy", () => {
 	const send = sendTemplate.bind(null, gatewayApi)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
 	const sign = signNft.bind(null, ethereum, 17)
+	const config = getEthereumConfig("e2e")
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+
 
 	test("should transfer erc721 lazy token", async () => {
 		const from = toAddress(wallet.getAddressString())
@@ -49,6 +54,7 @@ describe("transfer Erc721 lazy", () => {
 			sign,
 			nftCollectionApi,
 			nftLazyMintControllerApi,
+			checkWalletChainId,
 			request
 		)
 
@@ -63,6 +69,7 @@ describe("transfer Erc721 lazy", () => {
 			checkAssetType,
 			nftItemApi,
 			nftOwnershipApi,
+			checkWalletChainId,
 			asset,
 			recipient
 		)

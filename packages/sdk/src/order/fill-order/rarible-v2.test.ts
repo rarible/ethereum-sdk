@@ -1,4 +1,4 @@
-import { randomAddress, randomWord, toAddress, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
+import { randomAddress, randomWord, toAddress, toBigNumber } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { awaitAll } from "@rarible/ethereum-sdk-test-common"
@@ -103,7 +103,7 @@ describe("buy & acceptBid orders", () => {
 
 	})
 
-	test.skip("should match order(buy erc1155 for erc20)", async () => {
+	test("should match order(buy erc1155 for erc20)", async () => {
 		//sender1 has ERC20, sender2 has ERC1155
 
 		await sentTx(it.testErc20.methods.mint(sender1Address, 100), { from: sender1Address })
@@ -152,7 +152,7 @@ describe("buy & acceptBid orders", () => {
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString()).toBe("2")
 	})
 
-	test.skip("get transaction data", async () => {
+	test("get transaction data", async () => {
 		const left: SimpleOrder = {
 			make: {
 				assetType: {
@@ -188,7 +188,7 @@ describe("buy & acceptBid orders", () => {
 		await filler.getTransactionData({ order: finalOrder, amount: 2, originFees })
 	})
 
-	test.skip("should match order(buy erc1155 for eth)", async () => {
+	test("should match order(buy erc1155 for eth)", async () => {
 		//sender1 has ETH, sender2 has ERC1155
 
 		await sentTx(it.testErc1155.methods.mint(sender2Address, 1, 10, "0x"), { from: sender1Address })
@@ -242,7 +242,7 @@ describe("buy & acceptBid orders", () => {
 		)
 	})
 
-	test.skip("should match order(buy erc1155 for eth) with dataType=V2", async () => {
+	test("should match order(buy erc1155 for eth) with dataType=V2", async () => {
 		await sentTx(it.testErc1155.methods.mint(sender2Address, 1, 10, "0x"), { from: sender1Address })
 
 		const left: SimpleOrder = {
@@ -295,7 +295,7 @@ describe("buy & acceptBid orders", () => {
 		)
 	})
 
-	test.skip("should fill order (buy) with crypto punks asset", async () => {
+	test("should fill order (buy) with crypto punks asset", async () => {
 		const punkId = 43
 		//Mint punks
 		await sentTx(it.punksMarket.methods.getPunk(punkId), {from: sender2Address})
@@ -345,7 +345,7 @@ describe("buy & acceptBid orders", () => {
 		expect(ownerAddress.toLowerCase()).toBe(sender1Address.toLowerCase())
 	})
 
-	test.skip("should accept bid with crypto punks asset", async () => {
+	test("should accept bid with crypto punks asset", async () => {
 		const punkId = 50
 		//Mint crypto punks
 		await sentTx(it.punksMarket.methods.getPunk(punkId), {from: sender2Address})

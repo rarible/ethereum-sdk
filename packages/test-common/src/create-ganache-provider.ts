@@ -17,6 +17,7 @@ export function createGanacheProvider(...pk: string[]) {
 	const provider = Ganache.provider({
 		accounts,
 		// @ts-ignore
+		_chainId: 17,
 		_chainIdRpc: 17,
 	})
 

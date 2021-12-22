@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.26](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.25...v0.12.26) (2021-12-22)
+
+
+### Features
+
+* polygon support ([#91](https://github.com/rarible/protocol-ethereum-sdk/issues/91)) ([23e8b39](https://github.com/rarible/protocol-ethereum-sdk/commit/23e8b3919bb9ade5442fd8393f9a287f42835988))
+
+
+
+
+
 ## [0.12.16](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.15...v0.12.16) (2021-12-08)
 
 **Note:** Version bump only for package @rarible/web3-ethereum

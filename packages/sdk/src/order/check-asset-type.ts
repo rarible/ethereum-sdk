@@ -1,6 +1,6 @@
 import { toBigNumber } from "@rarible/types"
 import type {
-	Address,
+	Address, CollectionAssetType,
 	CryptoPunksAssetType,
 	Erc1155AssetType,
 	Erc721AssetType,
@@ -12,8 +12,9 @@ export type NftAssetType = {
 	tokenId: string | number
 }
 
-export type AssetTypeRequest = Erc721AssetType | Erc1155AssetType | NftAssetType | CryptoPunksAssetType
-export type AssetTypeResponse = Erc721AssetType | Erc1155AssetType | CryptoPunksAssetType
+export type AssetTypeRequest =
+  Erc721AssetType | Erc1155AssetType | NftAssetType | CryptoPunksAssetType | CollectionAssetType
+export type AssetTypeResponse = Erc721AssetType | Erc1155AssetType | CryptoPunksAssetType | CollectionAssetType
 export type CheckAssetTypeFunction = (asset: AssetTypeRequest) => Promise<AssetTypeResponse>
 
 export async function checkAssetType(

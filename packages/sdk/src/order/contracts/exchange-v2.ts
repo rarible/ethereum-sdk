@@ -379,6 +379,7 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 		],
 		"stateMutability": "view",
 		"type": "function",
+		"constant": true,
 	},
 	{
 		"inputs": [
@@ -398,6 +399,7 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 		],
 		"stateMutability": "view",
 		"type": "function",
+		"constant": true,
 	},
 	{
 		"inputs": [
@@ -417,6 +419,7 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 		],
 		"stateMutability": "view",
 		"type": "function",
+		"constant": true,
 	},
 	{
 		"inputs": [
@@ -635,6 +638,7 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 		"outputs": [],
 		"stateMutability": "payable",
 		"type": "function",
+		"payable": true,
 	},
 	{
 		"inputs": [],
@@ -648,6 +652,7 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 		],
 		"stateMutability": "view",
 		"type": "function",
+		"constant": true,
 	},
 	{
 		"inputs": [],
@@ -661,6 +666,7 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 		],
 		"stateMutability": "view",
 		"type": "function",
+		"constant": true,
 	},
 	{
 		"inputs": [],
@@ -681,6 +687,7 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 		],
 		"stateMutability": "view",
 		"type": "function",
+		"constant": true,
 	},
 	{
 		"inputs": [

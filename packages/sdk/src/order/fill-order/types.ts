@@ -3,9 +3,23 @@ import type { Part } from "@rarible/ethereum-api-client"
 import type { Action } from "@rarible/action"
 import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import type { EthereumFunctionCall, EthereumSendOptions } from "@rarible/ethereum-provider"
+import type {
+	CollectionAssetType,
+	CryptoPunksAssetType,
+	Erc1155AssetType,
+	Erc721AssetType,
+} from "@rarible/ethereum-api-client"
+import type { Erc1155LazyAssetType, Erc721LazyAssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
 import type { SimpleCryptoPunkOrder, SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleRaribleV2Order } from "../types"
+import type { AssetTypeRequest } from "../check-asset-type"
+import { NftAssetType } from "../check-asset-type"
 
-type CommonFillRequest<T> = { order: T, amount: number, infinite?: boolean }
+type CommonFillRequest<T> = {
+	order: T,
+	amount: number,
+	infinite?: boolean,
+	assetType?: Erc721AssetType | Erc721LazyAssetType | Erc1155AssetType | Erc1155LazyAssetType | CryptoPunksAssetType
+}
 
 export type LegacyOrderFillRequest =
   CommonFillRequest<SimpleLegacyOrder> & { payout?: Address, originFee: number }

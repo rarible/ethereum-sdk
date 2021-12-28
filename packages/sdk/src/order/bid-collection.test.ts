@@ -1,4 +1,5 @@
 import { toAddress } from "@rarible/types"
+import type { Erc721AssetType} from "@rarible/ethereum-api-client"
 import {
 	Configuration, Erc20BalanceControllerApi,
 	NftCollectionControllerApi,
@@ -8,6 +9,7 @@ import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
+import { toBigNumber } from "@rarible/types"
 import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
 import { sentTx, simpleSend } from "../common/send-transaction"
@@ -113,7 +115,16 @@ describe("bid", () => {
 
 		const data = await filler1.getTransactionData({order: order as SimpleRaribleV2Order, amount: 1, originFees: []})
 		console.log("data", data)
-		const acceptBidTx = await filler1.acceptBid({ order: order as SimpleRaribleV2Order, amount: 1, originFees: []})
+		const acceptBidTx = await filler1.acceptBid({
+			order: order as SimpleRaribleV2Order,
+			amount: 1,
+			originFees: [],
+			assetType: {
+				assetClass: "ERC721",
+				contract: toAddress(it.testErc721.options.address),
+				tokenId: toBigNumber("0"),
+			} as Erc721AssetType,
+		})
 		console.log("tx", acceptBidTx)
 		await acceptBidTx.wait()
 		console.log("acceptBidTx", acceptBidTx)

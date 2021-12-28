@@ -58,7 +58,11 @@ export class OrderFiller {
 					}
 					const from = toAddress(await this.ethereum.getFrom())
 					const inverted = await this.invertOrder(request, from)
+					if (request.assetType && inverted.make.assetType.assetClass === "COLLECTION") {
+						inverted.make.assetType = { ...request.assetType }
+					}
 					await this.approveOrder(inverted, Boolean(request.infinite))
+					console.log("inverted", inverted, "request order", request.order)
 					return { request, inverted }
 				},
 			})

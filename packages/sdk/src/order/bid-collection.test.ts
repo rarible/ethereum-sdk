@@ -1,5 +1,4 @@
 import { toAddress } from "@rarible/types"
-import type { Erc721AssetType} from "@rarible/ethereum-api-client"
 import {
 	Configuration, Erc20BalanceControllerApi,
 	NftCollectionControllerApi,
@@ -25,6 +24,7 @@ import { checkChainId } from "./check-chain-id"
 import type { SimpleRaribleV2Order } from "./types"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
+import {approve as approveTemplate} from "./approve"
 
 
 describe("bid", () => {
@@ -47,10 +47,11 @@ describe("bid", () => {
 
 	const orderService = new OrderFiller(ethereum2, simpleSend, config, apis)
 
+	const approve2 = approveTemplate.bind(null, ethereum2, simpleSend, config.transferProxies)
 	const upserter = new UpsertOrder(
 		orderService,
 		(x) => Promise.resolve(x),
-		() => Promise.resolve(undefined),
+		approve2,
 		signOrder,
 		orderApi,
 		ethereum2,
@@ -109,25 +110,24 @@ describe("bid", () => {
 			amount: 1,
 			payouts: [],
 			originFees: [],
-		})
+		}) as SimpleRaribleV2Order
 
 		console.log("order", order)
+		console.log("contract", it.testErc721.options.address)
 
-		const data = await filler1.getTransactionData({order: order as SimpleRaribleV2Order, amount: 1, originFees: []})
-		console.log("data", data)
 		const acceptBidTx = await filler1.acceptBid({
-			order: order as SimpleRaribleV2Order,
+			order,
 			amount: 1,
 			originFees: [],
 			assetType: {
 				assetClass: "ERC721",
 				contract: toAddress(it.testErc721.options.address),
-				tokenId: toBigNumber("0"),
-			} as Erc721AssetType,
+				tokenId: toBigNumber("1"),
+			},
 		})
-		console.log("tx", acceptBidTx)
 		await acceptBidTx.wait()
 		console.log("acceptBidTx", acceptBidTx)
+
 	})
 
 })

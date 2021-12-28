@@ -17,9 +17,11 @@ export type NftAssetType = {
 export type AssetTypeRequest =
   Erc721AssetType | Erc721LazyAssetType | Erc1155AssetType | Erc1155LazyAssetType
   | NftAssetType | CryptoPunksAssetType | CollectionAssetType
+
 export type AssetTypeResponse =
   Erc721AssetType | Erc721LazyAssetType | Erc1155AssetType | Erc1155LazyAssetType
   | CryptoPunksAssetType | CollectionAssetType
+
 export type CheckAssetTypeFunction = (asset: AssetTypeRequest) => Promise<AssetTypeResponse>
 
 export async function checkAssetType(

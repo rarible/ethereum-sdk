@@ -12,11 +12,11 @@ import type { Erc1155LazyAssetType, Erc721LazyAssetType } from "@rarible/ethereu
 import type { SimpleCryptoPunkOrder, SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleRaribleV2Order } from "../types"
 import type { NftAssetType } from "../check-asset-type"
 
-type CommonFillRequestAssetType =
+export type CommonFillRequestAssetType =
 	Erc721AssetType | Erc721LazyAssetType | Erc1155AssetType |
 	Erc1155LazyAssetType | CryptoPunksAssetType | NftAssetType
 
-type CommonFillRequest<T> = {
+export type CommonFillRequest<T> = {
 	order: T,
 	amount: number,
 	infinite?: boolean,

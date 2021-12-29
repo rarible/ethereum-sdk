@@ -92,7 +92,7 @@ describe("bid", () => {
 				assetClass: "COLLECTION",
 				contract: toAddress(it.testErc721.options.address),
 			},
-			price: toBn("1"),
+			price: toBn("12"),
 			amount: 1,
 			payouts: [],
 			originFees: [],

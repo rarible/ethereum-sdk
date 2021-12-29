@@ -1,6 +1,6 @@
 import { toAddress } from "@rarible/types"
 import {
-	Configuration, Erc20BalanceControllerApi,
+	Configuration,
 	NftCollectionControllerApi,
 	OrderControllerApi,
 } from "@rarible/ethereum-api-client"
@@ -14,7 +14,6 @@ import { getApiConfig } from "../config/api-config"
 import { sentTx, simpleSend } from "../common/send-transaction"
 import { delay } from "../common/retry"
 import { createEthereumApis } from "../common/apis"
-import { Balances } from "../common/balances"
 import { OrderBid } from "./bid"
 import { signOrder as signOrderTemplate } from "./sign-order"
 import { OrderFiller } from "./fill-order"
@@ -24,8 +23,7 @@ import { checkChainId } from "./check-chain-id"
 import type { SimpleRaribleV2Order } from "./types"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
-import {approve as approveTemplate} from "./approve"
-
+import { approve as approveTemplate } from "./approve"
 
 describe("bid", () => {
 	const { provider: provider1 } = createE2eProvider()
@@ -46,8 +44,8 @@ describe("bid", () => {
 	const checkWalletChainId = checkChainId.bind(null, ethereum2, config)
 
 	const orderService = new OrderFiller(ethereum2, simpleSend, config, apis)
-
 	const approve2 = approveTemplate.bind(null, ethereum2, simpleSend, config.transferProxies)
+
 	const upserter = new UpsertOrder(
 		orderService,
 		(x) => Promise.resolve(x),
@@ -63,18 +61,13 @@ describe("bid", () => {
 		testErc20: deployTestErc20(web32, "Test1", "TST1"),
 		testErc721: deployTestErc721(web31, "Test", "TST"),
 	})
-	// const erc20Contract = toAddress("0xfB771AEc4740e4b9B6b4C33959Bf6183E00812d7")
 
 	const filler1 = new OrderFiller(ethereum1, simpleSend, config, apis)
-
-	const erc20BalanceController = new Erc20BalanceControllerApi(configuration)
-	const balances = new Balances(ethereum1, erc20BalanceController)
 
 	test("create bid for collection", async () => {
 		const ownerCollectionAddress = toAddress(await ethereum1.getFrom())
 		const bidderAddress = toAddress(await ethereum2.getFrom())
 
-		console.log("ownerCollectionAddress", ownerCollectionAddress, "bidderAddress", bidderAddress)
 		await sentTx(
 			it.testErc20.methods.mint(bidderAddress, "100000000000000"), {
 			  from: bidderAddress,
@@ -89,13 +82,6 @@ describe("bid", () => {
 
 		const erc20Contract = toAddress(it.testErc20.options.address)
 
-		const balance = await balances.getBalance(bidderAddress, {
-			assetClass: "ERC20",
-			contract: erc20Contract,
-		})
-		console.log("erc20 balance of bidder", balance.toString())
-
-		console.log("before bid")
 		const order = await orderBid.bid({
 			maker: bidderAddress,
 			makeAssetType: {
@@ -112,9 +98,6 @@ describe("bid", () => {
 			originFees: [],
 		}) as SimpleRaribleV2Order
 
-		console.log("order", order)
-		console.log("contract", it.testErc721.options.address)
-
 		const acceptBidTx = await filler1.acceptBid({
 			order,
 			amount: 1,
@@ -126,8 +109,6 @@ describe("bid", () => {
 			},
 		})
 		await acceptBidTx.wait()
-		console.log("acceptBidTx", acceptBidTx)
-
 	})
 
 })

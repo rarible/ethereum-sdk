@@ -14,6 +14,8 @@ import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
 import type { RaribleEthereumApis } from "../../common/apis"
 import { checkChainId } from "../check-chain-id"
+import type { CheckAssetTypeFunction } from "../check-asset-type"
+import { checkAssetType } from "../check-asset-type"
 import type {
 	CryptoPunksOrderFillRequest,
 	FillOrderAction,
@@ -27,12 +29,14 @@ import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OpenSeaOrderHandler } from "./open-sea"
 import { CryptoPunksOrderHandler } from "./crypto-punks"
 import type { OrderFillTransactionData, FillOrderStageId } from "./types"
+import type { OrderFillSendData } from "./types"
 
 export class OrderFiller {
 	v1Handler: RaribleV1OrderHandler
 	v2Handler: RaribleV2OrderHandler
 	openSeaHandler: OpenSeaOrderHandler
 	punkHandler: CryptoPunksOrderHandler
+	private checkAssetType: CheckAssetTypeFunction
 
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
@@ -46,6 +50,7 @@ export class OrderFiller {
 		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config)
 		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config)
 		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config)
+		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 	}
 
 	private getFillAction<Request extends FillOrderRequest>(): Action<FillOrderStageId, Request, EthereumTransaction> {
@@ -59,10 +64,9 @@ export class OrderFiller {
 					const from = toAddress(await this.ethereum.getFrom())
 					const inverted = await this.invertOrder(request, from)
 					if (request.assetType && inverted.make.assetType.assetClass === "COLLECTION") {
-						inverted.make.assetType = { ...request.assetType }
+						inverted.make.assetType = await this.checkAssetType(request.assetType)
 					}
 					await this.approveOrder(inverted, Boolean(request.infinite))
-					console.log("inverted", inverted, "request order", request.order)
 					return { request, inverted }
 				},
 			})
@@ -142,29 +146,52 @@ export class OrderFiller {
 		}
 	}
 
-	async getTransactionData(
-		request: FillOrderRequest
-	): Promise<OrderFillTransactionData> {
-		await checkChainId(this.ethereum, this.config)
+	private async getTransactionRequestData(
+		request: FillOrderRequest, inverted: SimpleOrder
+	): Promise<OrderFillSendData> {
 		switch (request.order.type) {
 			case "RARIBLE_V1":
-				return this.v1Handler.getTransactionFromRequest(
-          <LegacyOrderFillRequest>request,
+				return this.v1Handler.getTransactionData(
+          <SimpleLegacyOrder>request.order,
+          <SimpleLegacyOrder>inverted,
+          <LegacyOrderFillRequest>request
 				)
 			case "RARIBLE_V2":
-				return this.v2Handler.getTransactionFromRequest(
-          <RaribleV2OrderFillRequest>request,
+				return this.v2Handler.getTransactionData(
+          <SimpleRaribleV2Order>request.order,
+          <SimpleRaribleV2Order>inverted,
 				)
 			case "OPEN_SEA_V1":
-				return this.openSeaHandler.getTransactionFromRequest(
-          <OpenSeaV1OrderFillRequest>request,
+				return this.openSeaHandler.getTransactionData(
+          <SimpleOpenSeaV1Order>request.order,
+          <SimpleOpenSeaV1Order>inverted,
 				)
 			case "CRYPTO_PUNK":
-				return this.punkHandler.getTransactionFromRequest(
-          <CryptoPunksOrderFillRequest>request
+				return this.punkHandler.getTransactionData(
+          <SimpleCryptoPunkOrder>request.order,
+          <SimpleCryptoPunkOrder>inverted,
 				)
 			default:
 				throw new Error(`Unsupported request: ${JSON.stringify(request)}`)
+		}
+	}
+
+	async getTransactionData(
+		request: FillOrderRequest
+	): Promise<OrderFillTransactionData> {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
+		await checkChainId(this.ethereum, this.config)
+		const from = toAddress(await this.ethereum.getFrom())
+		const inverted = await this.invertOrder(request, from)
+		if (request.assetType && inverted.make.assetType.assetClass === "COLLECTION") {
+			inverted.make.assetType = await this.checkAssetType(request.assetType)
+		}
+		const {functionCall, options} = await this.getTransactionRequestData(request, inverted)
+		return {
+			data: functionCall.data,
+			options,
 		}
 	}
 

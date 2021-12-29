@@ -312,15 +312,6 @@ describe("fillOrder: Opensea orders", function () {
 		await mintTestAsset(order.make, sender2Address)
 		order.make = setTestContract(order.make)
 		order.take = setTestContract(order.take)
-
-		const signature = toBinary(await getOrderSignature(ethereum1, order))
-
-		await openSeaFillHandler1.getTransactionFromRequest({
-			order: {
-				...order,
-				signature,
-			},
-		})
 	})
 
 	// Sell-side orders

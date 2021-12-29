@@ -1,6 +1,6 @@
 import type { Address } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
-import { toAddress, ZERO_WORD } from "@rarible/types"
+import { ZERO_WORD } from "@rarible/types"
 import type { Maybe } from "@rarible/types/build/maybe"
 import { hashToSign, orderToStruct } from "../sign-order"
 import { getAssetWithFee } from "../get-asset-with-fee"
@@ -14,7 +14,6 @@ import { isSigner } from "../../common/is-signer"
 import { fixSignature } from "../../common/fix-signature"
 import { invertOrder } from "./invert-order"
 import type { OrderHandler, RaribleV2OrderFillRequest } from "./types"
-import type { OrderFillTransactionData } from "./types"
 import type { OrderFillSendData } from "./types"
 
 export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillRequest> {
@@ -56,19 +55,6 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		}
 		const withFee = this.getMakeAssetWithFee(order)
 		await waitTx(approve(this.ethereum, this.send, this.config.transferProxies, order.maker, withFee, infinite))
-	}
-
-	async getTransactionFromRequest(request: RaribleV2OrderFillRequest): Promise<OrderFillTransactionData> {
-		if (!this.ethereum) {
-			throw new Error("Wallet undefined")
-		}
-		const from = toAddress(await this.ethereum.getFrom())
-		const inverted = await this.invert(request, from)
-		const {options, functionCall} = await this.getTransactionData(request.order, inverted)
-		return {
-			data: functionCall.data,
-			options,
-		}
 	}
 
 	async getTransactionData(

@@ -106,7 +106,6 @@ describe.each(providers)("bid", (ethereum) => {
 				value: 100,
 			}],
 		})
-
 		expect(order.hash).toBeTruthy()
 
 		await retry(5, 500, async () => {

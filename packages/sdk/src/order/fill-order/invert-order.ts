@@ -16,7 +16,7 @@ export function invertOrder<T extends SimpleOrder>(
 		toBn(order.make.value),
 		toBn(order.take.value),
 		amount,
-		isNft(order.take.assetType)
+		isNft(order.take.assetType) || order.take.assetType.assetClass === "COLLECTION"
 	)
 	return {
 		...order,

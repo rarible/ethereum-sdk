@@ -1,4 +1,10 @@
-import type { Address, Erc1155AssetType, Erc721AssetType, NftItemControllerApi, NftOwnershipControllerApi } from "@rarible/ethereum-api-client"
+import type {
+	Address,
+	Erc1155AssetType,
+	Erc721AssetType,
+	NftItemControllerApi,
+	NftOwnershipControllerApi,
+} from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { BigNumber } from "@rarible/types"
 import { toAddress, toBigNumber } from "@rarible/types"
@@ -38,6 +44,9 @@ export async function transfer(
 		if (toBn(ownership.value.lazyValue).gt(0)) {
 			if (asset.assetClass === "CRYPTO_PUNKS") {
 				throw new Error("CRYPTO_PUNKS can't be lazy")
+			}
+			if (asset.assetClass === "COLLECTION") {
+				throw new Error("Transfer asset class cannot be as collection")
 			}
 			return transferNftLazy(
 				ethereum,

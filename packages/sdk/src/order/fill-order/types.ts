@@ -3,9 +3,25 @@ import type { Part } from "@rarible/ethereum-api-client"
 import type { Action } from "@rarible/action"
 import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import type { EthereumFunctionCall, EthereumSendOptions } from "@rarible/ethereum-provider"
+import type {
+	CryptoPunksAssetType,
+	Erc1155AssetType,
+	Erc721AssetType,
+} from "@rarible/ethereum-api-client"
+import type { Erc1155LazyAssetType, Erc721LazyAssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
 import type { SimpleCryptoPunkOrder, SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleRaribleV2Order } from "../types"
+import type { NftAssetType } from "../check-asset-type"
 
-type CommonFillRequest<T> = { order: T, amount: number, infinite?: boolean }
+type CommonFillRequestAssetType =
+	Erc721AssetType | Erc721LazyAssetType | Erc1155AssetType |
+	Erc1155LazyAssetType | CryptoPunksAssetType | NftAssetType
+
+type CommonFillRequest<T> = {
+	order: T,
+	amount: number,
+	infinite?: boolean,
+	assetType?: CommonFillRequestAssetType
+}
 
 export type LegacyOrderFillRequest =
   CommonFillRequest<SimpleLegacyOrder> & { payout?: Address, originFee: number }
@@ -28,7 +44,7 @@ export interface OrderHandler<T extends FillOrderRequest> {
 	invert: (request: T, maker: Address) => T["order"]
 	approve: (order: T["order"], infinite: boolean) => Promise<void>
 	sendTransaction: (initial: T["order"], inverted: T["order"], request: T) => Promise<EthereumTransaction>
-	getTransactionFromRequest: (request: T) => Promise<OrderFillTransactionData>
+	getTransactionData: (order: T["order"], inverted: T["order"], request: T) => Promise<OrderFillSendData>
 
 	getBaseOrderFee(order: T["order"]): number
 

@@ -1,7 +1,6 @@
 import type { Address } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Maybe } from "@rarible/types/build/maybe"
-import { toAddress } from "@rarible/types"
 import { getAssetWithFee } from "../get-asset-with-fee"
 import type { EthereumConfig } from "../../config/type"
 import { approve } from "../approve"
@@ -11,7 +10,6 @@ import type { SimpleCryptoPunkOrder } from "../types"
 import { createCryptoPunksMarketContract } from "../../nft/contracts/cryptoPunks"
 import { invertOrder } from "./invert-order"
 import type { CryptoPunksOrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
-import type { OrderFillTransactionData } from "./types"
 
 export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFillRequest> {
 	constructor(
@@ -34,19 +32,6 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 		}
 		const withFee = this.getMakeAssetWithFee(order)
 		await waitTx(approve(this.ethereum, this.send, this.config.transferProxies, order.maker, withFee, infinite))
-	}
-
-	async getTransactionFromRequest(request: CryptoPunksOrderFillRequest): Promise<OrderFillTransactionData> {
-		if (!this.ethereum) {
-			throw new Error("Wallet undefined")
-		}
-		const from = toAddress(await this.ethereum.getFrom())
-		const inverted = await this.invert(request, from)
-		const {options, functionCall} = await this.getTransactionData(request.order, inverted)
-		return {
-			data: functionCall.data,
-			options,
-		}
 	}
 
 	async getTransactionData(

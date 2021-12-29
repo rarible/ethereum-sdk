@@ -9,4 +9,7 @@ module.exports = {
 		"<rootDir>/build/",
 		"<rootDir>/node_modules/",
 	],
+	moduleNameMapper: {
+		"source-map-support/register": "identity-obj-proxy",
+	},
 }

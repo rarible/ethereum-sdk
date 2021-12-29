@@ -1,19 +1,27 @@
 import { toBigNumber } from "@rarible/types"
 import type {
-	Address,
+	Address, CollectionAssetType,
 	CryptoPunksAssetType,
 	Erc1155AssetType,
 	Erc721AssetType,
 	NftCollectionControllerApi,
 } from "@rarible/ethereum-api-client"
+import type { Erc721LazyAssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
+import type { Erc1155LazyAssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
 
 export type NftAssetType = {
 	contract: Address
 	tokenId: string | number
 }
 
-export type AssetTypeRequest = Erc721AssetType | Erc1155AssetType | NftAssetType | CryptoPunksAssetType
-export type AssetTypeResponse = Erc721AssetType | Erc1155AssetType | CryptoPunksAssetType
+export type AssetTypeRequest =
+  Erc721AssetType | Erc721LazyAssetType | Erc1155AssetType | Erc1155LazyAssetType
+  | NftAssetType | CryptoPunksAssetType | CollectionAssetType
+
+export type AssetTypeResponse =
+  Erc721AssetType | Erc721LazyAssetType | Erc1155AssetType | Erc1155LazyAssetType
+  | CryptoPunksAssetType | CollectionAssetType
+
 export type CheckAssetTypeFunction = (asset: AssetTypeRequest) => Promise<AssetTypeResponse>
 
 export async function checkAssetType(

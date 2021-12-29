@@ -19,6 +19,11 @@ export function assetTypeToStruct(ethereum: Ethereum, assetType: AssetType) {
 				assetClass: id("GEN_ART"),
 				data: ethereum.encodeParameter("address", assetType.contract),
 			}
+		case "COLLECTION":
+			return {
+				assetClass: id("COLLECTION"),
+				data: ethereum.encodeParameter("address", assetType.contract),
+			}
 		case "CRYPTO_PUNKS":
 			return {
 				assetClass: id("CRYPTO_PUNKS"),

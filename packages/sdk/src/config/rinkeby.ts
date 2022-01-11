@@ -30,4 +30,9 @@ export const rinkebyConfig: EthereumConfig = {
 		erc1155: toAddress("0xB1Bcf905495AFf06e854904d7b2d6647ab00Cd1d"),
 	},
 	weth: toAddress("0xc778417e063141139fce010982780140aa0cd5ab"),
+	metaTransactions: {  // todo: make it off before merge to master
+		providerOptions: {
+			apiKey: "4TK-09Miv.4974091f-31e6-4657-a5e0-61615102a41d",
+		},
+	},
 }

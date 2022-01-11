@@ -39,4 +39,7 @@ export type EthereumConfig = {
 	openSea: OpenSeaConfig
 	factories: FactoriesAddresses
 	weth: Address
+	metaTransactions?: {
+		providerOptions: { apiKey: string, debugMode?: boolean }
+	}
 }

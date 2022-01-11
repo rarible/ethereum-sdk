@@ -1,19 +1,50 @@
-import type { Contract, ContractSendMethod } from "web3-eth-contract"
-import type Web3 from "web3"
-import type { PromiEvent, TransactionReceipt } from "web3-core"
 import { signTypedData } from "@rarible/ethereum-provider"
-import type { Address, BigNumber, Binary, Word } from "@rarible/types"
-import { toAddress, toBigNumber, toBinary, toWord } from "@rarible/types"
-import { backOff } from "exponential-backoff"
+import Web3 from "web3"
+import type { Address, BigNumber } from "@rarible/types"
+import { toBigNumber } from "@rarible/types"
 import type * as EthereumProvider from "@rarible/ethereum-provider"
 import type { MessageTypes, TypedMessage } from "@rarible/ethereum-provider/src/domain"
-import type { Web3EthereumConfig } from "./domain"
+import type { Web3EthereumConfig, Web3ContractConfig, Web3ContractData } from "./domain"
 import { providerRequest } from "./utils/provider-request"
-import { toPromises } from "./utils/to-promises"
+import { Web3Contract } from "./web3-contract"
+import { getFrom } from "./utils/get-from"
 
 export class Web3Ethereum implements EthereumProvider.Ethereum {
 	constructor(private readonly config: Web3EthereumConfig) {
 		this.send = this.send.bind(this)
+	}
+
+	async createContractAsync(contactData: Web3ContractData): Promise<EthereumProvider.EthereumContract> {
+		//check if meta-tx supported
+		const metaSupports = this.config.metaTxProvider &&
+			this.config.metaTxProvider?.apiKey && // api key for meta-tx provider
+			contactData.name !== undefined && // required field for meta-tx
+			contactData.version !== undefined && // required field for meta-tx
+			contactData.abi.findIndex((method: any) => method.name === "executeMetaTransaction") >= 0 // required method for meta-tx
+
+		const contractConfig: Web3ContractConfig = {
+			...this.config,
+			contractData: contactData,
+		}
+
+		if (metaSupports) {
+			const {Biconomy} = await import("@biconomy/mexa")
+			const provider = getBiconomySupportedProvider(contractConfig.web3.currentProvider)
+			const biconomy = new Biconomy(provider, {
+				apiKey: this.config.metaTxProvider?.apiKey,
+				debug: this.config.metaTxProvider?.debugMode,
+			})
+
+			await new Promise(((resolve, reject) => {
+				biconomy.onEvent(biconomy.READY, resolve)
+				biconomy.onEvent(biconomy.ERROR, (error: any, message: any) => reject(new Error(error.toString() + "\n" + message)))
+			}))
+
+			contractConfig.walletWeb3 = contractConfig.web3
+			contractConfig.web3 = new Web3(biconomy)
+		}
+
+		return new Web3Contract(contractConfig, new contractConfig.web3.eth.Contract(contactData.abi, contactData.address))
 	}
 
 	createContract(abi: any, address?: string): EthereumProvider.EthereumContract {
@@ -51,113 +82,19 @@ export class Web3Ethereum implements EthereumProvider.Ethereum {
 	}
 }
 
-export class Web3Contract implements EthereumProvider.EthereumContract {
-	constructor(private readonly config: Web3EthereumConfig, private readonly contract: Contract) {}
-
-	functionCall(name: string, ...args: any): EthereumProvider.EthereumFunctionCall {
-		return new Web3FunctionCall(
-			this.config, this.contract.methods[name](...args), toAddress(this.contract.options.address)
-		)
-	}
-}
-
-export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
-	constructor(
-		private readonly config: Web3EthereumConfig,
-		private readonly sendMethod: ContractSendMethod,
-		private readonly contract: Address
-	) {}
-
-	get data(): string {
-		return this.sendMethod.encodeABI()
-	}
-
-	estimateGas() {
-		return this.sendMethod.estimateGas()
-	}
-
-	call(options: EthereumProvider.EthereumSendOptions = {}): Promise<any> {
-		return this.sendMethod.call({
-			from: this.config.from,
-			gas: options.gas,
-			gasPrice: options.gasPrice?.toString(),
-		})
-	}
-
-	async send(options: EthereumProvider.EthereumSendOptions = {}): Promise<EthereumProvider.EthereumTransaction> {
-		const from = toAddress(await this.getFrom())
-		const promiEvent: PromiEvent<Contract> = this.sendMethod.send({
-			from,
-			gas: this.config.gas || options.gas,
-			value: options.value,
-			gasPrice: options.gasPrice?.toString(),
-		})
-		const { hash, receipt } = toPromises(promiEvent)
-		const hashValue = await hash
-		const tx = await this.getTransaction(hashValue)
-		return new Web3Transaction(
-			receipt,
-			toWord(hashValue),
-			toBinary(this.data),
-			tx.nonce,
-			from,
-			this.contract
-		)
-	}
-
-	private getTransaction(hash: string) {
-		return backOff(async () => {
-			const value = await this.config.web3.eth.getTransaction(hash)
-			if (!value) {
-				throw new Error("No transaction found")
-			}
-			return value
-		}, {
-			maxDelay: 5000,
-			numOfAttempts: 10,
-			delayFirstAttempt: true,
-			startingDelay: 300,
-		})
-	}
-
-	async getFrom(): Promise<string> {
-		return getFrom(this.config.web3, this.config.from)
-	}
-}
-
-export class Web3Transaction implements EthereumProvider.EthereumTransaction {
-	constructor(
-		private readonly receipt: Promise<TransactionReceipt>,
-		public readonly hash: Word,
-		public readonly data: Binary,
-		public readonly nonce: number,
-		public readonly from: Address,
-		public readonly to?: Address
-	) {
-	}
-
-	async wait(): Promise<EthereumProvider.EthereumTransactionReceipt> {
-		const receipt = await this.receipt
-		const events: EthereumProvider.EthereumTransactionEvent[] = Object.keys(receipt.events!)
-			.map(ev => receipt.events![ev])
-			.map(ev => ({
-				...ev,
-				args: ev.returnValues,
-			}))
-		return {
-			...receipt,
-			events,
+function getBiconomySupportedProvider(provider: any) {
+	try {
+		if (provider.send) {
+			// @eslint-ignore
+			const probe = provider.send()
+		} else {
+			provider.send = provider.sendAsync
+		}
+	} catch (e: any) {
+		if (e.toString().includes("does not support synchronous requests")) {
+			provider.send = provider.sendAsync
 		}
 	}
-}
 
-async function getFrom(web3: Web3, from: string | undefined): Promise<string> {
-	if (from) {
-		return from
-	}
-	const [first] = await web3.eth.getAccounts()
-	if (!first) {
-		throw new Error("Wallet is not connected")
-	}
-	return first
+	return provider
 }

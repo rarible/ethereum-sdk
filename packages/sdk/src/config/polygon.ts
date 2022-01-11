@@ -31,4 +31,9 @@ export const polygonConfig: EthereumConfig = {
 		erc1155: toAddress("0xF46e8e6fA0F048DdD76F8c6982eBD059796298B8"),
 	},
 	weth: toAddress("0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"),
+	metaTransactions: {
+		providerOptions: {
+			apiKey: "4TK-09Miv.4974091f-31e6-4657-a5e0-61615102a41d",
+		},
+	},
 }

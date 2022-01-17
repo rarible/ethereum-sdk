@@ -30,4 +30,5 @@ export const ropstenConfig: EthereumConfig = {
 		erc1155: toAddress("0xccf0cB91Fe5cCb697781427C141ed0662aE4FE2e"),
 	},
 	weth: toAddress("0xc778417e063141139fce010982780140aa0cd5ab"),
+	auction: ZERO_ADDRESS,
 }

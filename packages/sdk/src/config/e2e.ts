@@ -30,4 +30,5 @@ export const e2eConfig: EthereumConfig = {
 		erc1155: toAddress("0xF35BC450544C7d8c2559B4DAeb51E9617F39e7C6"),
 	},
 	weth: toAddress("0xc6f33b62a94939e52e1b074c4ac1a801b869fdb2"),
+	auction: toAddress("0xA8B4ab8aE8C40cD6b11a3A6BFCb00B2B8106150f"),
 }

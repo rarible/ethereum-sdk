@@ -39,10 +39,18 @@ import type { EthereumNetwork } from "./types"
 import type { GetOrderFillTxData } from "./order/fill-order/types"
 import { ConvertWeth } from "./order/convert-weth"
 import { checkChainId } from "./order/check-chain-id"
+import type { CreateAuctionRequest} from "./auction/start"
+import { startAuction } from "./auction/start"
+import { cancelAuction } from "./auction/cancel"
+import { finishAuction } from "./auction/finish"
+import type { PutBidRequest } from "./auction/put-bid"
+import { putBid } from "./auction/put-bid"
+import type { BuyOutRequest } from "./auction/buy-out"
+import { buyOut } from "./auction/buy-out"
 
 export interface RaribleOrderSdk {
 	/**
-	 * Sell asset (create off-chain order and check if approval is needed)
+	 * Sell asset (start off-chain order and check if approval is needed)
 	 */
 	sell: SellOrderAction
 
@@ -52,7 +60,7 @@ export interface RaribleOrderSdk {
 	sellUpdate: SellOrderUpdateAction
 
 	/**
-	 * Create bid (create off-chain order and check if approval is needed)
+	 * Create bid (start off-chain order and check if approval is needed)
 	 */
 	bid: BidOrderAction
 
@@ -91,7 +99,7 @@ export interface RaribleOrderSdk {
 	getFillTxData: GetOrderFillTxData
 
 	/**
-	 * Sell or create bid. Low-level method
+	 * Sell or start bid. Low-level method
 	 */
 	upsert: UpsertOrderAction
 
@@ -156,9 +164,44 @@ export interface RaribleBalancesSdk {
 	getWethContractAddress(): Address
 }
 
+export interface RaribleAuctionSdk {
+	/**
+   * Start new auction
+   * @param request start auction request
+   */
+	start(request: CreateAuctionRequest): Promise<EthereumTransaction>
+
+	/**
+   * Cancel started auction
+   * @param auctionId Auction ID
+   */
+	cancel(auctionId: BigNumber): Promise<EthereumTransaction>
+
+	/**
+   * Finish auction with at least one bid
+   * @param auctionId Auction ID
+   */
+	finish(auctionId: BigNumber): Promise<EthereumTransaction>
+
+	/**
+   * Put bid
+   * @param auctionId Auction ID
+   * @param request Put bid request
+   */
+	putBid(auctionId: BigNumber, request: PutBidRequest): Promise<EthereumTransaction>
+
+	/**
+   * Buy out auction if it possible
+   * @param auctionId Auction ID
+   * @param request Buy out request
+   */
+	buyOut(auctionId: BigNumber, request: BuyOutRequest): Promise<EthereumTransaction>
+}
+
 export interface RaribleSdk {
 	order: RaribleOrderSdk
 	nft: RaribleNftSdk
+	auction: RaribleAuctionSdk
 	apis: RaribleEthereumApis
 	balances: RaribleBalancesSdk
 }
@@ -179,6 +222,8 @@ export function createRaribleSdk(
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
 	const filler = new OrderFiller(ethereum, send, config, apis)
+
+	const approveFn = partialCall(approveTemplate, ethereum, send, config.transferProxies)
 
 	const upsertService = new UpsertOrder(
 		filler,
@@ -209,6 +254,13 @@ export function createRaribleSdk(
 			cancel: partialCall(cancelTemplate, checkLazyOrder, ethereum, config.exchange, checkWalletChainId),
 			getBaseOrderFee: getBaseOrderFeeTemplate.bind(null, config),
 			getBaseOrderFillFee: filler.getBaseOrderFillFee,
+		},
+		auction: {
+			start: startAuction.bind(null, ethereum, config, approveFn),
+			cancel: cancelAuction.bind(null, ethereum, config),
+			finish: finishAuction.bind(null, ethereum, config),
+			putBid: putBid.bind(null, ethereum, config, approveFn, apis.auction),
+			buyOut: buyOut.bind(null, ethereum, config, approveFn, apis.auction),
 		},
 		nft: {
 			mint: partialCall(

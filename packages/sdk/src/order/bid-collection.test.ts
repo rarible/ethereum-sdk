@@ -64,7 +64,7 @@ describe("bid", () => {
 
 	const filler1 = new OrderFiller(ethereum1, simpleSend, config, apis)
 
-	test("start bid for collection", async () => {
+	test("create bid for collection", async () => {
 		const ownerCollectionAddress = toAddress(await ethereum1.getFrom())
 		const bidderAddress = toAddress(await ethereum2.getFrom())
 

@@ -46,7 +46,7 @@ You can use the following types of providers:
 
 Below examples show how you can implement supported functions in you app.
 
-#### Configure and start Rarible SDK object
+#### Configure and create Rarible SDK object
 
 ```typescript
 import { createRaribleSdk } from "@rarible/protocol-ethereum-sdk"
@@ -161,7 +161,7 @@ You can mint ERC721 and ERC1155 tokens in two ways:
 1. Regular "on chain" minting using contract.
 2. Off chain minting (the transaction itself and payment for gas occurs at the time of purchase or transfer).
 
-You can use mint to start a token in different collections. Depending on the collection type, different mint requests should be sent to the function (isErc1155v1Collection, isErc1155v2Collection etc).
+You can use mint to create a token in different collections. Depending on the collection type, different mint requests should be sent to the function (isErc1155v1Collection, isErc1155v2Collection etc).
 
 Mint function checks:
 

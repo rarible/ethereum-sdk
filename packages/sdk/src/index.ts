@@ -50,7 +50,7 @@ import { buyOut } from "./auction/buy-out"
 
 export interface RaribleOrderSdk {
 	/**
-	 * Sell asset (start off-chain order and check if approval is needed)
+	 * Sell asset (create off-chain order and check if approval is needed)
 	 */
 	sell: SellOrderAction
 
@@ -60,7 +60,7 @@ export interface RaribleOrderSdk {
 	sellUpdate: SellOrderUpdateAction
 
 	/**
-	 * Create bid (start off-chain order and check if approval is needed)
+	 * Create bid (create off-chain order and check if approval is needed)
 	 */
 	bid: BidOrderAction
 
@@ -99,7 +99,7 @@ export interface RaribleOrderSdk {
 	getFillTxData: GetOrderFillTxData
 
 	/**
-	 * Sell or start bid. Low-level method
+	 * Sell or create bid. Low-level method
 	 */
 	upsert: UpsertOrderAction
 

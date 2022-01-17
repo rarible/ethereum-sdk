@@ -26,7 +26,7 @@ describe("sendTransaction", () => {
 		testErc721 = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, collectionId)
 	})
 
-	test("should send transaction and start pending logs", async () => {
+	test("should send transaction and create pending logs", async () => {
 		const minter = toAddress(wallet.getAddressString())
 		const { tokenId, signature: { v, r, s } } = await getTokenId(collectionId, minter)
 		const functionCall = testErc721.functionCall("mint", tokenId, v, r, s, [], "uri")

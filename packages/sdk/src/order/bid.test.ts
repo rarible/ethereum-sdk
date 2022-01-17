@@ -74,7 +74,7 @@ describe.each(providers)("bid", (ethereum) => {
 		)
 	})
 
-	test("start and update of v2 works", async () => {
+	test("create and update of v2 works", async () => {
 		const makerAddress = toAddress(wallet.getAddressString())
 		const minted = await mint({
 			collection: createErc721V3Collection(e2eErc721V3ContractAddress),
@@ -120,7 +120,7 @@ describe.each(providers)("bid", (ethereum) => {
 
 	})
 
-	test("start and update of v1 works", async () => {
+	test("create and update of v1 works", async () => {
 		const makerAddress = toAddress(wallet.getAddressString())
 		const minted = await mint({
 			collection: createErc721V3Collection(e2eErc721V3ContractAddress),

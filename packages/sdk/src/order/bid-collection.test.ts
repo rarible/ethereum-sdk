@@ -11,7 +11,7 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toBigNumber } from "@rarible/types"
 import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
-import { sentTx, simpleSend } from "../common/send-transaction"
+import { sentTx, getSimpleSendWithInjects } from "../common/send-transaction"
 import { delay } from "../common/retry"
 import { createEthereumApis } from "../common/apis"
 import { OrderBid } from "./bid"
@@ -43,8 +43,8 @@ describe("bid", () => {
 	const apis = createEthereumApis("e2e")
 	const checkWalletChainId = checkChainId.bind(null, ethereum2, config)
 
-	const orderService = new OrderFiller(ethereum2, simpleSend, config, apis)
-	const approve2 = approveTemplate.bind(null, ethereum2, simpleSend, config.transferProxies)
+	const orderService = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis)
+	const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
 
 	const upserter = new UpsertOrder(
 		orderService,
@@ -62,7 +62,7 @@ describe("bid", () => {
 		testErc721: deployTestErc721(web31, "Test", "TST"),
 	})
 
-	const filler1 = new OrderFiller(ethereum1, simpleSend, config, apis)
+	const filler1 = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis)
 
 	test("create bid for collection", async () => {
 		const ownerCollectionAddress = toAddress(await ethereum1.getFrom())

@@ -13,7 +13,7 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { ethers } from "ethers"
 import { EthersEthereum, EthersWeb3ProviderEthereum } from "@rarible/ethers-ethereum"
 import Web3 from "web3"
-import { send as sendTemplate } from "../common/send-transaction"
+import { getSendWithInjects } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { createErc1155V1Collection, createErc1155V2Collection, createErc721V1Collection, createErc721V2Collection, createErc721V3Collection } from "../common/mint"
 import { checkChainId } from "../order/check-chain-id"
@@ -44,7 +44,7 @@ const nftCollectionApi = new NftCollectionControllerApi(configuration)
 const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 const nftItemApi = new NftItemControllerApi(configuration)
 const gatewayApi = new GatewayControllerApi(configuration)
-const send = sendTemplate.bind(null, gatewayApi)
+const send = getSendWithInjects().bind(null, gatewayApi)
 const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 const e2eErc1155V2ContractAddress = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
 

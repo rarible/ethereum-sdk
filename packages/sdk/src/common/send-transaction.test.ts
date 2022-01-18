@@ -8,7 +8,9 @@ import { getApiConfig } from "../config/api-config"
 import { getTokenId as getTokenIdTemplate } from "../nft/get-token-id"
 import { getErc721Contract } from "../nft/contracts/erc721"
 import { ERC721VersionEnum } from "../nft/contracts/domain"
-import { createPendingLogs, send as sendTemplate } from "./send-transaction"
+import { LogsLevel } from "../types"
+import { createPendingLogs, getSendWithInjects } from "./send-transaction"
+import { createRemoteLogger } from "./logger/logger"
 
 describe("sendTransaction", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -17,7 +19,12 @@ describe("sendTransaction", () => {
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const collectionApi = new NftCollectionControllerApi(configuration)
-	const send = sendTemplate.bind(null, gatewayApi)
+	const send = getSendWithInjects({
+		logger: {
+			instance: createRemoteLogger({ethereum, env: "e2e"}),
+			level: LogsLevel.TRACE,
+		},
+	}).bind(null, gatewayApi)
 	const getTokenId = getTokenIdTemplate.bind(null, collectionApi)
 
 	let testErc721: EthereumContract

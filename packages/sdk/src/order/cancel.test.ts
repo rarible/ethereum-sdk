@@ -7,7 +7,7 @@ import { Configuration, OrderControllerApi } from "@rarible/ethereum-api-client"
 import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
 import { retry } from "../common/retry"
-import { simpleSend } from "../common/send-transaction"
+import { getSimpleSendWithInjects } from "../common/send-transaction"
 import { createEthereumApis } from "../common/apis"
 import { cancel } from "./cancel"
 import { signOrder } from "./sign-order"
@@ -30,7 +30,7 @@ describe("cancel order", () => {
 	const apis = createEthereumApis("e2e")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
-	const orderService = new OrderFiller(ethereum, simpleSend, config, apis)
+	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

@@ -170,7 +170,7 @@ describe("buy out auction", () => {
 				makeAssetType: {
 					assetClass: "ERC1155",
 					contract: toAddress(it.testErc1155.options.address),
-					tokenId: toBigNumber("1"),
+					tokenId: toBigNumber("2"),
 				},
 				amount: toBigNumber("1"),
 				takeAssetType: {
@@ -188,7 +188,7 @@ describe("buy out auction", () => {
 
 		await auction.wait()
 
-		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc1155.options.address, "1").call()
+		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc1155.options.address, "2").call()
 
 		const hash = getAuctionHash(ethereum1, config, auctionId)
 		await awaitForAuction(auctionApi, hash)
@@ -205,6 +205,6 @@ describe("buy out auction", () => {
 			}
 		)
 		await buyoutTx.wait()
-		expect(await it.testErc1155.methods.balanceOf(sender2Address, "1").call()).toBe("1")
+		expect(await it.testErc1155.methods.balanceOf(sender2Address, "2").call()).toBe("1")
 	})
 })

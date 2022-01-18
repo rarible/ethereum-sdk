@@ -7,8 +7,8 @@ import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
 import { getEthereumConfig } from "../config"
 import { approve as approveTemplate } from "../order/approve"
 import { deployTestErc20 } from "../order/contracts/test/test-erc20"
-import { deployTestErc721 } from "../order/contracts/test/test-erc721"
 import { startAuction } from "./start"
+import { deployTestErc721ForAuction } from "./contracts/test/test-erc721"
 
 describe("start auction", () => {
 	const { provider, wallet } = createE2eProvider("0xa0d2baba419896add0b6e638ba4e50190f331db18e3271760b12ce87fa853dcb")
@@ -20,7 +20,7 @@ describe("start auction", () => {
 	const ethereum1 = new Web3Ethereum({web3, from: sender1Address, gas: 1000000})
 
 	const it = awaitAll({
-		testErc721: deployTestErc721(web3, "TST", "TST"),
+		testErc721: deployTestErc721ForAuction(web3, "TST", "TST"),
 		testErc1155: deployTestErc1155(web3, "TST"),
 		testErc20: deployTestErc20(web3, "TST", "TST"),
 	})
@@ -28,7 +28,7 @@ describe("start auction", () => {
 	test("start erc-721 <-> eth auction", async () => {
 		const approve1 = approveTemplate.bind(null, ethereum1, simpleSend, config.transferProxies)
 
-		await sentTx(it.testErc721.methods.mint(sender1Address, 1, "0x"), { from: sender1Address })
+		await sentTx(it.testErc721.methods.mint(sender1Address, 1), { from: sender1Address })
 
 		const auction = await startAuction(
 			ethereum1,

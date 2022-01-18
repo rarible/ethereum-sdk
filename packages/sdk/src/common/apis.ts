@@ -11,6 +11,7 @@ export type RaribleEthereumApis = {
 	erc20Balance: EthereumApiClient.Erc20BalanceControllerApi;
 	gateway: EthereumApiClient.GatewayControllerApi;
 	nftLazyMint: EthereumApiClient.NftLazyMintControllerApi;
+	auction: EthereumApiClient.AuctionControllerApi;
 }
 
 export function createEthereumApis(
@@ -28,5 +29,6 @@ export function createEthereumApis(
 		erc20Balance: new EthereumApiClient.Erc20BalanceControllerApi(configuration),
 		gateway: new EthereumApiClient.GatewayControllerApi(configuration),
 		nftLazyMint: new EthereumApiClient.NftLazyMintControllerApi(configuration),
+		auction: new EthereumApiClient.AuctionControllerApi(configuration),
 	}
 }

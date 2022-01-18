@@ -43,6 +43,8 @@ export type OrderRequest = {
 	maker?: Address
 	payouts: Part[]
 	originFees: Part[]
+	start?: number
+	end?: number
 }
 
 export class UpsertOrder {
@@ -133,6 +135,8 @@ export class UpsertOrder {
 			},
 			salt: toBigNumber(toBn(randomWord(), 16).toString(10)),
 			signature: toBinary("0x"),
+			start: request.start,
+			end: request.end,
 		}
 	}
 

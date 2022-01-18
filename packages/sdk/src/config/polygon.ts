@@ -31,4 +31,5 @@ export const polygonConfig: EthereumConfig = {
 		erc1155: toAddress("0xF46e8e6fA0F048DdD76F8c6982eBD059796298B8"),
 	},
 	weth: toAddress("0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"),
+	auction: ZERO_ADDRESS,
 }

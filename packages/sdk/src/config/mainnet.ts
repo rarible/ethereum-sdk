@@ -1,4 +1,4 @@
-import { toAddress } from "@rarible/types"
+import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 import { id32 } from "../common/id"
 import type { EthereumConfig } from "./type"
 
@@ -30,4 +30,5 @@ export const mainnetConfig: EthereumConfig = {
 		erc1155: toAddress("0xda5bfe0bd4443d63833c8f4e3284357299eae6bc"),
 	},
 	weth: toAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
+	auction: ZERO_ADDRESS,
 }

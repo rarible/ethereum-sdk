@@ -39,4 +39,5 @@ export type EthereumConfig = {
 	openSea: OpenSeaConfig
 	factories: FactoriesAddresses
 	weth: Address
+	auction: Address
 }

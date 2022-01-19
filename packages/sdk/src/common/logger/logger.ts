@@ -39,8 +39,8 @@ export function createRemoteLogger(context: {
 		return {
 			service: loggerConfig.service,
 			environment: context.env,
-			"wallet.address": (await context.ethereum?.getFrom()) ?? "unknown",
-			"wallet.chainId": (await context.ethereum?.getChainId())?.toString() ?? "unknown",
+			"web3Address": (await context.ethereum?.getFrom()) ?? "unknown",
+			"ethNetwork": (await context.ethereum?.getChainId())?.toString() ?? "unknown",
 		}
 	}
 

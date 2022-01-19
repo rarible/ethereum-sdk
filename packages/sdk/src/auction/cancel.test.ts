@@ -7,7 +7,7 @@ import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
 import { getEthereumConfig } from "../config"
 import { approve as approveTemplate } from "../order/approve"
 import { createAuctionContract } from "./contracts/test/auction"
-import { startAuction } from "./start"
+import { StartAuction } from "./start"
 import { cancelAuction } from "./cancel"
 
 describe("cancel auction", () => {
@@ -16,38 +16,35 @@ describe("cancel auction", () => {
 	const web3 = new Web3(provider as any)
 	const config = getEthereumConfig("e2e")
 	const ethereum1 = new Web3Ethereum({web3, from: sender1Address, gas: 1000000})
+	const approve1 = approveTemplate.bind(null, ethereum1, simpleSend, config.transferProxies)
+	const auctionService = new StartAuction(ethereum1, config, approve1)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3, "TST"),
 	})
 
 	test("cancel auction", async () => {
-		const approve1 = approveTemplate.bind(null, ethereum1, simpleSend, config.transferProxies)
 
 		await sentTx(it.testErc1155.methods.mint(sender1Address, 1, 10, "0x"), { from: sender1Address })
 
-		const auction = await startAuction(
-			ethereum1,
-			config,
-			approve1,
-			{
-				makeAssetType: {
-					assetClass: "ERC1155",
-					contract: toAddress(it.testErc1155.options.address),
-					tokenId: toBigNumber("1"),
-				},
-				amount: toBigNumber("1"),
-				takeAssetType: {
-					assetClass: "ETH",
-				},
-				minimalStepDecimal: toBigNumber("0.00000000000000001"),
-				minimalPriceDecimal: toBigNumber("0.00000000000000005"),
-				duration: 1000,
-				startTime: 0,
-				buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
-				originFees: [],
-				payouts: [],
-			}
+		const auction = await auctionService.start({
+			makeAssetType: {
+				assetClass: "ERC1155",
+				contract: toAddress(it.testErc1155.options.address),
+				tokenId: toBigNumber("1"),
+			},
+			amount: toBigNumber("1"),
+			takeAssetType: {
+				assetClass: "ETH",
+			},
+			minimalStepDecimal: toBigNumber("0.00000000000000001"),
+			minimalPriceDecimal: toBigNumber("0.00000000000000005"),
+			duration: 1000,
+			startTime: 0,
+			buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
+			originFees: [],
+			payouts: [],
+		}
 		)
 
 		await auction.wait()

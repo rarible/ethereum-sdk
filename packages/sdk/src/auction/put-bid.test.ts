@@ -10,8 +10,8 @@ import { approve as approveTemplate } from "../order/approve"
 import { getApiConfig } from "../config/api-config"
 import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { createAuctionContract } from "./contracts/test/auction"
-import { startAuction } from "./start"
-import { putBid } from "./put-bid"
+import { StartAuction } from "./start"
+import { PutAuctionBid } from "./put-bid"
 import { getAuctionHash } from "./common"
 import { awaitForAuction } from "./test"
 
@@ -35,6 +35,10 @@ describe("put auction bid", () => {
 	const approve1 = approveTemplate.bind(null, ethereum1, simpleSend, config.transferProxies)
 	const approve2 = approveTemplate.bind(null, ethereum2, simpleSend, config.transferProxies)
 
+	const bidService = new PutAuctionBid(ethereum2, config, approve2, auctionApi)
+
+	const auctionStartService1 = new StartAuction(ethereum1, config, approve1)
+
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3, "TST"),
 		testErc20: deployTestErc20(web3, "TST", "TST"),
@@ -44,10 +48,7 @@ describe("put auction bid", () => {
 		await sentTx(it.testErc1155.methods.mint(sender1Address, 1, 10, "0x"), { from: sender1Address })
 		await sentTx(it.testErc20.methods.mint(sender2Address, 300000), { from: sender1Address })
 
-		const auction = await startAuction(
-			ethereum1,
-			config,
-			approve1,
+		const auction = await auctionStartService1.start(
 			{
 				makeAssetType: {
 					assetClass: "ERC1155",
@@ -77,28 +78,19 @@ describe("put auction bid", () => {
 		const hash = getAuctionHash(ethereum1, config, auctionId)
 		await awaitForAuction(auctionApi, hash)
 
-		const putBidTx = await putBid(
-			ethereum2,
-			config,
-			approve2,
-			auctionApi,
+		const putBidTx = await bidService.putBid({
 			auctionId,
-			{
-				priceDecimal: toBigNumber("0.00000000000000005"),
-				payouts: [],
-				originFees: [],
-			}
-		)
+			priceDecimal: toBigNumber("0.00000000000000005"),
+			payouts: [],
+			originFees: [],
+		})
 
 		await putBidTx.wait()
 	})
 	test("put erc-1155 <-> eth bid", async () => {
 		await sentTx(it.testErc1155.methods.mint(sender1Address, 1, 10, "0x"), { from: sender1Address })
 
-		const auction = await startAuction(
-			ethereum1,
-			config,
-			approve1,
+		const auction = await auctionStartService1.start(
 			{
 				makeAssetType: {
 					assetClass: "ERC1155",
@@ -118,7 +110,6 @@ describe("put auction bid", () => {
 				payouts: [],
 			}
 		)
-
 		await auction.wait()
 
 		const auctionContract = createAuctionContract(web3, config.auction)
@@ -128,18 +119,12 @@ describe("put auction bid", () => {
 		const hash = getAuctionHash(ethereum1, config, auctionId)
 		await awaitForAuction(auctionApi, hash)
 
-		const putBidTx = await putBid(
-			ethereum2,
-			config,
-			approve2,
-			auctionApi,
+		const putBidTx = await bidService.putBid({
 			auctionId,
-			{
-				priceDecimal: toBigNumber("0.00000000000000005"),
-				payouts: [],
-				originFees: [],
-			}
-		)
+			priceDecimal: toBigNumber("0.00000000000000005"),
+			payouts: [],
+			originFees: [],
+		})
 		await putBidTx.wait()
 	})
 })

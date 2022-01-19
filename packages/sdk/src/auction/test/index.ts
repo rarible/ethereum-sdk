@@ -1,6 +1,5 @@
 import type { AuctionControllerApi } from "@rarible/ethereum-api-client"
 import type { Ethereum } from "@rarible/ethereum-provider"
-import type { BigNumber} from "@rarible/types"
 import { toAddress, toBigNumber } from "@rarible/types"
 import type { AssetType } from "@rarible/ethereum-api-client"
 import { retry } from "../../common/retry"
@@ -21,7 +20,6 @@ export async function testPutBid(
 	ethereum: Ethereum,
 	config: EthereumConfig,
 	approve: ApproveFunction,
-	auctionId: BigNumber,
 	assetType: AssetType,
 	request: PutBidRequest
 ) {
@@ -51,7 +49,7 @@ export async function testPutBid(
 	const options = getAuctionOperationOptions(assetType, price)
 
 	return createEthereumAuctionContract(ethereum, config.auction)
-		.functionCall("putBid", auctionId, bid)
+		.functionCall("putBid", request.auctionId, bid)
 		.send(options)
 }
 

@@ -12,7 +12,7 @@ import { deployTransferProxy } from "../order/contracts/test/test-transfer-proxy
 import { deployErc20TransferProxy } from "../order/contracts/test/test-erc20-transfer-proxy"
 import { deployTestRoyaltiesProvider } from "../order/contracts/test/test-royalties-provider"
 import { createAuctionContract, deployAuctionContract } from "./contracts/test/auction"
-import { startAuction } from "./start"
+import { StartAuction } from "./start"
 import { finishAuction } from "./finish"
 import { increaseTime, testPutBid } from "./test"
 
@@ -28,6 +28,8 @@ describe("finish auction auction", () => {
 
 	const approve1 = approveTemplate.bind(null, ethereum1, simpleSend, config.transferProxies)
 	const approve2 = approveTemplate.bind(null, ethereum2, simpleSend, config.transferProxies)
+
+	const auctionService = new StartAuction(ethereum1, config, approve1)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3, "TST"),
@@ -69,10 +71,7 @@ describe("finish auction auction", () => {
 		await sentTx(it.testErc1155.methods.mint(sender1Address, 1, 10, "0x"), { from: sender1Address, gas: 1000000 })
 		await sentTx(it.testErc20.methods.mint(sender2Address, 300000), { from: sender1Address, gas: 1000000 })
 
-		const auction = await startAuction(
-			ethereum1,
-			config,
-			approve1,
+		const auction = await auctionService.start(
 			{
 				makeAssetType: {
 					assetClass: "ERC1155",
@@ -103,12 +102,12 @@ describe("finish auction auction", () => {
 			ethereum2,
 			config,
 			approve2,
-			auctionId,
 			{
 				assetClass: "ERC20",
 				contract: toAddress(it.testErc20.options.address),
 			},
 			{
+				auctionId,
 				priceDecimal: toBigNumber("0.00000000000000005"),
 				payouts: [],
 				originFees: [],

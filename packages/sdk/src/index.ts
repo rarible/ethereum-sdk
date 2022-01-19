@@ -39,14 +39,14 @@ import type { EthereumNetwork } from "./types"
 import type { GetOrderFillTxData } from "./order/fill-order/types"
 import { ConvertWeth } from "./order/convert-weth"
 import { checkChainId } from "./order/check-chain-id"
-import type { CreateAuctionRequest} from "./auction/start"
-import { startAuction } from "./auction/start"
+import type { CreateAuctionRequest } from "./auction/start"
+import { StartAuction } from "./auction/start"
 import { cancelAuction } from "./auction/cancel"
 import { finishAuction } from "./auction/finish"
-import type { PutBidRequest } from "./auction/put-bid"
-import { putBid } from "./auction/put-bid"
-import type { BuyOutRequest } from "./auction/buy-out"
-import { buyOut } from "./auction/buy-out"
+import type { PutBidRequest} from "./auction/put-bid"
+import { PutAuctionBid } from "./auction/put-bid"
+import type { BuyOutRequest} from "./auction/buy-out"
+import { BuyoutAuction } from "./auction/buy-out"
 
 export interface RaribleOrderSdk {
 	/**
@@ -185,17 +185,15 @@ export interface RaribleAuctionSdk {
 
 	/**
    * Put bid
-   * @param auctionId Auction ID
    * @param request Put bid request
    */
-	putBid(auctionId: BigNumber, request: PutBidRequest): Promise<EthereumTransaction>
+	putBid(request: PutBidRequest): Promise<EthereumTransaction>
 
 	/**
    * Buy out auction if it possible
-   * @param auctionId Auction ID
    * @param request Buy out request
    */
-	buyOut(auctionId: BigNumber, request: BuyOutRequest): Promise<EthereumTransaction>
+	buyOut(request: BuyOutRequest): Promise<EthereumTransaction>
 }
 
 export interface RaribleSdk {
@@ -238,6 +236,9 @@ export function createRaribleSdk(
 	const sellService = new OrderSell(upsertService, checkAssetType, checkWalletChainId)
 	const bidService = new OrderBid(upsertService, checkAssetType, checkWalletChainId)
 	const wethConverter = new ConvertWeth(ethereum, send, config)
+	const startAuctionService = new StartAuction(ethereum, config, approveFn)
+	const putAuctionBidService = new PutAuctionBid(ethereum, config, approveFn, apis.auction)
+	const buyOutAuctionService = new BuyoutAuction(ethereum, config, approveFn, apis.auction)
 
 	return {
 		apis,
@@ -256,11 +257,11 @@ export function createRaribleSdk(
 			getBaseOrderFillFee: filler.getBaseOrderFillFee,
 		},
 		auction: {
-			start: startAuction.bind(null, ethereum, config, approveFn),
+			start: startAuctionService.start,
 			cancel: cancelAuction.bind(null, ethereum, config),
 			finish: finishAuction.bind(null, ethereum, config),
-			putBid: putBid.bind(null, ethereum, config, approveFn, apis.auction),
-			buyOut: buyOut.bind(null, ethereum, config, approveFn, apis.auction),
+			putBid: putAuctionBidService.putBid,
+			buyOut: buyOutAuctionService.buyout,
 		},
 		nft: {
 			mint: partialCall(

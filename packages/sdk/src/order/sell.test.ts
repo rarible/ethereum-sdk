@@ -94,9 +94,11 @@ describe.each(providers)("sell", (ethereum) => {
 				account: treasuryAddress,
 				value: 100,
 			}],
+			start: Math.round(Date.now()/1000 + 10),
+			end: Math.round(Date.now()/1000 + 200),
 		})
 
-		console.log("hash", order.hash)
+		expect(order.status).toBe("INACTIVE")
 		expect(order.hash).toBeTruthy()
 
 		await delay(1000)
@@ -109,7 +111,6 @@ describe.each(providers)("sell", (ethereum) => {
 				price: nextPrice,
 			})
 			expect(updatedOrder.take.value.toString()).toBe(nextPrice.toString())
-			console.log("updatedOrder", updatedOrder)
 		})
 	})
 

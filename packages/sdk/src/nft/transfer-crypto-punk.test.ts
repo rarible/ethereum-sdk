@@ -4,7 +4,7 @@ import { awaitAll } from "@rarible/ethereum-sdk-test-common"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
 import { toAddress } from "@rarible/types"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
-import { send as sendTemplate, sentTx } from "../common/send-transaction"
+import { getSendWithInjects, sentTx } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { deployCryptoPunks } from "./contracts/cryptoPunks/deploy"
 import { transferCryptoPunk } from "./transfer-crypto-punk"
@@ -24,7 +24,7 @@ describe("transfer crypto punks", () => {
 
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = sendTemplate.bind(null, gatewayApi)
+	const send = getSendWithInjects().bind(null, gatewayApi)
 
 	beforeAll(async () => {
 		await sentTx(it.punksMarket.methods.allInitialOwnersAssigned(), {from: sellerAddress})

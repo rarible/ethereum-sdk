@@ -6,7 +6,7 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { getApiConfig } from "../config/api-config"
-import { send as sendTemplate, sentTx } from "../common/send-transaction"
+import { getSendWithInjects, sentTx } from "../common/send-transaction"
 import { approveErc1155 as approveErc1155Template } from "./approve-erc1155"
 import { deployTestErc1155 } from "./contracts/test/test-erc1155"
 
@@ -19,7 +19,7 @@ describe("approveErc1155", () => {
 	const [testAddress] = addresses
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = sendTemplate.bind(null, gatewayApi)
+	const send = getSendWithInjects().bind(null, gatewayApi)
 	const approveErc1155 = approveErc1155Template.bind(null, ethereum, send)
 
 	let testErc1155: Contract

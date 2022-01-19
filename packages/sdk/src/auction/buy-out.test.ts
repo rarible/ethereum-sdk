@@ -3,7 +3,7 @@ import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber } from "@rarible/types"
 import { AuctionControllerApi, Configuration } from "@rarible/ethereum-api-client"
-import { sentTx, simpleSend } from "../common/send-transaction"
+import { sentTx, getSimpleSendWithInjects } from "../common/send-transaction"
 import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
 import { getEthereumConfig } from "../config"
 import { approve as approveTemplate } from "../order/approve"
@@ -42,8 +42,8 @@ describe("buy out auction", () => {
 		await sentTx(it.testErc1155.methods.mint(sender1Address, 1, 10, "0x"), { from: sender1Address})
 		await sentTx(it.testErc20.methods.mint(sender2Address, 300), { from: sender1Address })
 
-		const approve1 = approveTemplate.bind(null, ethereum1, simpleSend, config.transferProxies)
-		const approve2 = approveTemplate.bind(null, ethereum2, simpleSend, config.transferProxies)
+		const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
+		const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
 
 		const auctionContract = createAuctionContract(web3Seller, config.auction)
 
@@ -100,8 +100,8 @@ describe("buy out auction", () => {
 		await sentTx(it.testErc721.methods.mint(sender1Address, 1), { from: sender1Address})
 		await sentTx(it.testErc20.methods.mint(sender2Address, 300), { from: sender1Address })
 
-		const approve1 = approveTemplate.bind(null, ethereum1, simpleSend, config.transferProxies)
-		const approve2 = approveTemplate.bind(null, ethereum2, simpleSend, config.transferProxies)
+		const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
+		const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
 
 		const auctionContract = createAuctionContract(web3Seller, config.auction)
 
@@ -157,8 +157,8 @@ describe("buy out auction", () => {
 	test("buy out erc-1155 <-> eth", async () => {
 
 		await sentTx(it.testErc1155.methods.mint(sender1Address, 2, 10, "0x"), { from: sender1Address})
-		const approve1 = approveTemplate.bind(null, ethereum1, simpleSend, config.transferProxies)
-		const approve2 = approveTemplate.bind(null, ethereum2, simpleSend, config.transferProxies)
+		const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
+		const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
 
 		const auctionContract = createAuctionContract(web3Seller, config.auction)
 

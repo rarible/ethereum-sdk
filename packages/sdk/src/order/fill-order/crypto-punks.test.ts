@@ -3,7 +3,7 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { awaitAll } from "@rarible/ethereum-sdk-test-common"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
-import { sentTx, simpleSend } from "../../common/send-transaction"
+import { sentTx, getSimpleSendWithInjects } from "../../common/send-transaction"
 import { getEthereumConfig } from "../../config"
 import { deployTestErc20 } from "../contracts/test/test-erc20"
 import { deployTestErc721 } from "../contracts/test/test-erc721"
@@ -29,7 +29,7 @@ describe("fillOrder", () => {
 
 	const apis = createEthereumApis("e2e")
 	const config = getEthereumConfig("e2e")
-	const filler = new OrderFiller(ethereum1, simpleSend, config, apis)
+	const filler = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

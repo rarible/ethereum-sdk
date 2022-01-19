@@ -7,7 +7,7 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { deployTestErc721 } from "../order/contracts/test/test-erc721"
 import { getApiConfig } from "../config/api-config"
-import { send as sendTemplate } from "../common/send-transaction"
+import { getSendWithInjects } from "../common/send-transaction"
 import { transferErc721 } from "./transfer-erc721"
 
 describe("transfer Erc721", () => {
@@ -19,7 +19,7 @@ describe("transfer Erc721", () => {
 
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = sendTemplate.bind(null, gatewayApi)
+	const send = getSendWithInjects().bind(null, gatewayApi)
 
 	const it = awaitAll({
 		testErc721: deployTestErc721(web3, "TST", "TST"),

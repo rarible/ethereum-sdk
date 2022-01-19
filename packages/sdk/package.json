@@ -30,7 +30,9 @@
     "@rarible/action": "~0.5.0",
     "@rarible/ethereum-api-client": "^0.1.18",
     "@rarible/ethereum-provider": "^0.12.26",
+    "@rarible/logger": "~0.6.2",
     "@rarible/utils": "~0.5.0",
+    "axios": "^0.25.0",
     "eth-sig-util": "^3.0.0",
     "ethereumjs-util": "^7.1.0",
     "exponential-backoff": "^3.1.0"

@@ -16,7 +16,7 @@ export function withBiconomyMiddleware(
 	config: IBiconomyConfig
 ): SafeEventEmitterProvider {
 	const engine = new JsonRpcEngine()
-	engine.push(biconomyMiddleware(engine, provider, registry, config))
+	engine.push(biconomyMiddleware(provider, registry, config))
 	engine.push(providerAsMiddleware(provider as any))
 	return providerFromEngine(engine)
 }

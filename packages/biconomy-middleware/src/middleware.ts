@@ -7,7 +7,6 @@ import { providerRequest } from "../../common/utils/provider-request"
 import type { IBiconomyConfig, IContractRegistry } from "./types"
 
 export function biconomyMiddleware(
-	engine: JsonRpcEngine,
 	provider: any,
 	registry: IContractRegistry,
 	biconomyConfig: IBiconomyConfig
@@ -53,7 +52,7 @@ export function biconomyMiddleware(
 						return
 					}
 				} catch (err: any) {
-					res.error = err.toString()
+					res.error = err
 				}
 			}
 		}

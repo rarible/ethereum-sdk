@@ -7,8 +7,8 @@ import { toAddress, toBigNumber, toBinary, toWord } from "@rarible/types"
 import { backOff } from "exponential-backoff"
 import type * as EthereumProvider from "@rarible/ethereum-provider"
 import type { MessageTypes, TypedMessage } from "@rarible/ethereum-provider/src/domain"
+import { providerRequest } from "../../common/utils/provider-request"
 import type { Web3EthereumConfig } from "./domain"
-import { providerRequest } from "./utils/provider-request"
 import { toPromises } from "./utils/to-promises"
 
 export class Web3Ethereum implements EthereumProvider.Ethereum {

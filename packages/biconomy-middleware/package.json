@@ -1,0 +1,41 @@
+{
+  "name": "@rarible/biconomy-middleware",
+  "version": "0.12.26",
+  "description": "Middleware for biconomy integration",
+  "keywords": [
+    "ethereum",
+    "provider"
+  ],
+  "license": "Apache-2.0",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "run-s build:*",
+    "build:esm": "tsc --project tsconfig-build.json",
+    "clean": "rimraf ./build",
+    "test": "jest --testTimeout=10000",
+    "verify": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@biconomy/mexa": "^2.0.25",
+    "eth-json-rpc-middleware": "^7.0.1",
+    "json-rpc-engine": "^6.1.0"
+  },
+  "devDependencies": {
+    "@rarible/ethereum-sdk-test-common": "^0.12.26",
+    "@types/jest": "^27.0.2",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^27.3.1",
+    "typescript": "^4.4.4"
+  },
+  "peerDependencies": {
+    "tslib": "^2.3.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}

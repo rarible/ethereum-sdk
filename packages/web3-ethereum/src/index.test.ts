@@ -1,7 +1,7 @@
 import Web3 from "web3"
 import * as common from "@rarible/ethereum-sdk-test-common"
 import { createGanacheProvider} from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
-import { parseRequestError } from "./utils/parse-request-error"
+import { parseRequestError } from "../../common/utils/parse-request-error"
 import { Web3Ethereum } from "./index"
 
 describe("Web3Ethereum", () => {

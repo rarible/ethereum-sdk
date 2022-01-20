@@ -7,6 +7,7 @@ import type { BigNumber } from "@rarible/types"
 import { toAddress } from "@rarible/types"
 import type { BigNumberValue } from "@rarible/utils/build/bn"
 import type { EthereumTransaction } from "@rarible/ethereum-provider"
+import { Action } from "@rarible/action"
 import { id } from "../common/id"
 import type { EthereumConfig } from "../config/type"
 import type { ApproveFunction } from "../order/approve"
@@ -27,57 +28,76 @@ export type CreateAuctionRequest = {
 	originFees: Part[],
 }
 
-export async function startAuction(
-	ethereum: Maybe<Ethereum>,
-	config: EthereumConfig,
-	approve: ApproveFunction,
-	request: CreateAuctionRequest,
-): Promise<EthereumTransaction> {
-	if (!ethereum) {
-		throw new Error("Wallet is undefined")
-	}
-	await waitTx(
-		approve(
-			toAddress(await ethereum.getFrom()),
-			{
-				assetType: request.makeAssetType,
-				value: request.amount,
-			},
-			true
-		)
-	)
-	const sellAsset = {
-		assetType: {
-			assetClass: id(request.makeAssetType.assetClass),
-			data: getAssetEncodedData(ethereum, request.makeAssetType),
+export type AuctionStartAction = Action<"approve" | "sign", CreateAuctionRequest, EthereumTransaction>
+
+export class StartAuction {
+	constructor(
+		private readonly ethereum: Maybe<Ethereum>,
+		private readonly config: EthereumConfig,
+		private readonly approve: ApproveFunction,
+	) {}
+
+	readonly start: AuctionStartAction = Action.create({
+		id: "approve" as const,
+		run: async (request: CreateAuctionRequest) => {
+			if (!this.ethereum) {
+				throw new Error("Wallet is undefined")
+			}
+			await waitTx(
+				this.approve(
+					toAddress(await this.ethereum.getFrom()),
+					{
+						assetType: request.makeAssetType,
+						value: request.amount,
+					},
+					true
+				)
+			)
+			return request
 		},
-		value: request.amount,
-	}
-	const buyAssetType = {
-		assetClass: id(request.takeAssetType.assetClass),
-		data: getAssetEncodedData(ethereum, request.takeAssetType),
-	}
-
-	const data = ethereum.encodeParameter(AUCTION_DATA_V1, {
-		payouts: request.payouts,
-		originFees: request.originFees,
-		duration: request.duration,
-		startTime: request.startTime || 0,
-		buyOutPrice: (await getPrice(ethereum, request.takeAssetType, request.buyOutPriceDecimal)).toString(),
 	})
+		.thenStep({
+			id: "sign" as const,
+			run: async (request: CreateAuctionRequest) => {
+				if (!this.ethereum) {
+					throw new Error("Wallet is undefined")
+				}
+				const sellAsset = {
+					assetType: {
+						assetClass: id(request.makeAssetType.assetClass),
+						data: getAssetEncodedData(this.ethereum, request.makeAssetType),
+					},
+					value: request.amount,
+				}
+				const buyAssetType = {
+					assetClass: id(request.takeAssetType.assetClass),
+					data: getAssetEncodedData(this.ethereum, request.takeAssetType),
+				}
 
-	return createEthereumAuctionContract(ethereum, config.auction)
-		.functionCall(
-			"startAuction",
-			sellAsset,
-			buyAssetType,
-			(await getPrice(ethereum, request.takeAssetType, request.minimalStepDecimal)).toString(),
-			(await getPrice(ethereum, request.takeAssetType, request.minimalPriceDecimal)).toString(),
-			AUCTION_DATA_TYPE,
-			data,
-		)
-		.send({gas: 10000000})
+				const data = this.ethereum.encodeParameter(AUCTION_DATA_V1, {
+					payouts: request.payouts,
+					originFees: request.originFees,
+					duration: request.duration,
+					startTime: request.startTime || 0,
+					buyOutPrice: (await getPrice(this.ethereum, request.takeAssetType, request.buyOutPriceDecimal)).toString(),
+				})
+
+				return createEthereumAuctionContract(this.ethereum, this.config.auction)
+					.functionCall(
+						"startAuction",
+						sellAsset,
+						buyAssetType,
+						(await getPrice(this.ethereum, request.takeAssetType, request.minimalStepDecimal)).toString(),
+						(await getPrice(this.ethereum, request.takeAssetType, request.minimalPriceDecimal)).toString(),
+						AUCTION_DATA_TYPE,
+						data,
+					)
+					.send({gas: 10000000})
+			},
+		})
+
 }
+
 
 const AUCTION_DATA_V1 = {
 	components: [

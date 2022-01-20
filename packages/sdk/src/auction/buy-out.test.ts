@@ -10,8 +10,8 @@ import { approve as approveTemplate } from "../order/approve"
 import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { getApiConfig } from "../config/api-config"
 import { createAuctionContract } from "./contracts/test/auction"
-import { startAuction } from "./start"
-import { buyOut } from "./buy-out"
+import { StartAuction } from "./start"
+import { BuyoutAuction } from "./buy-out"
 import { deployTestErc721ForAuction } from "./contracts/test/test-erc721"
 import { getAuctionHash } from "./common"
 import { awaitForAuction } from "./test"
@@ -31,6 +31,11 @@ describe("buy out auction", () => {
 
 	const ethereum1 = new Web3Ethereum({web3: web3Seller, from: sender1Address, gas: 1000000})
 	const ethereum2 = new Web3Ethereum({web3: web3Buyer, from: sender2Address, gas: 1000000})
+	const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
+	const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
+
+	const auctionService1 = new StartAuction(ethereum1, config, approve1)
+	const buyoutService2 = new BuyoutAuction(ethereum2, config, approve2, auctionApi)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3Seller, "TST"),
@@ -42,15 +47,9 @@ describe("buy out auction", () => {
 		await sentTx(it.testErc1155.methods.mint(sender1Address, 1, 10, "0x"), { from: sender1Address})
 		await sentTx(it.testErc20.methods.mint(sender2Address, 300), { from: sender1Address })
 
-		const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
-		const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
-
 		const auctionContract = createAuctionContract(web3Seller, config.auction)
 
-		const auction = await startAuction(
-			ethereum1,
-			config,
-			approve1,
+		const auction = await auctionService1.start(
 			{
 				makeAssetType: {
 					assetClass: "ERC1155",
@@ -79,17 +78,11 @@ describe("buy out auction", () => {
 		const hash = getAuctionHash(ethereum1, config, auctionId)
 		await awaitForAuction(auctionApi, hash)
 
-		const buyoutTx = await buyOut(
-			ethereum2,
-			config,
-			approve2,
-			auctionApi,
+		const buyoutTx = await buyoutService2.buyout({
 			auctionId,
-			{
-				payouts: [],
-				originFees: [],
-			}
-		)
+			payouts: [],
+			originFees: [],
+		})
 
 		await buyoutTx.wait()
 
@@ -100,15 +93,9 @@ describe("buy out auction", () => {
 		await sentTx(it.testErc721.methods.mint(sender1Address, 1), { from: sender1Address})
 		await sentTx(it.testErc20.methods.mint(sender2Address, 300), { from: sender1Address })
 
-		const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
-		const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
-
 		const auctionContract = createAuctionContract(web3Seller, config.auction)
 
-		const auction = await startAuction(
-			ethereum1,
-			config,
-			approve1,
+		const auction = await auctionService1.start(
 			{
 				makeAssetType: {
 					assetClass: "ERC721",
@@ -137,17 +124,11 @@ describe("buy out auction", () => {
 		const hash = getAuctionHash(ethereum1, config, auctionId)
 		await awaitForAuction(auctionApi, hash)
 
-		const buyoutTx = await buyOut(
-			ethereum2,
-			config,
-			approve2,
-			auctionApi,
+		const buyoutTx = await buyoutService2.buyout({
 			auctionId,
-			{
-				payouts: [],
-				originFees: [],
-			}
-		)
+			payouts: [],
+			originFees: [],
+		})
 
 		await buyoutTx.wait()
 
@@ -157,33 +138,27 @@ describe("buy out auction", () => {
 	test("buy out erc-1155 <-> eth", async () => {
 
 		await sentTx(it.testErc1155.methods.mint(sender1Address, 2, 10, "0x"), { from: sender1Address})
-		const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
-		const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
 
 		const auctionContract = createAuctionContract(web3Seller, config.auction)
 
-		const auction = await startAuction(
-			ethereum1,
-			config,
-			approve1,
-			{
-				makeAssetType: {
-					assetClass: "ERC1155",
-					contract: toAddress(it.testErc1155.options.address),
-					tokenId: toBigNumber("2"),
-				},
-				amount: toBigNumber("1"),
-				takeAssetType: {
-					assetClass: "ETH",
-				},
-				minimalStepDecimal: toBigNumber("0.000000000000000001"),
-				minimalPriceDecimal: toBigNumber("0.000000000000000005"),
-				duration: 1000,
-				startTime: 0,
-				buyOutPriceDecimal: toBigNumber("0.00000000000000001"),
-				originFees: [],
-				payouts: [],
-			}
+		const auction = await auctionService1.start({
+			makeAssetType: {
+				assetClass: "ERC1155",
+				contract: toAddress(it.testErc1155.options.address),
+				tokenId: toBigNumber("2"),
+			},
+			amount: toBigNumber("1"),
+			takeAssetType: {
+				assetClass: "ETH",
+			},
+			minimalStepDecimal: toBigNumber("0.000000000000000001"),
+			minimalPriceDecimal: toBigNumber("0.000000000000000005"),
+			duration: 1000,
+			startTime: 0,
+			buyOutPriceDecimal: toBigNumber("0.00000000000000001"),
+			originFees: [],
+			payouts: [],
+		}
 		)
 
 		await auction.wait()
@@ -193,17 +168,11 @@ describe("buy out auction", () => {
 		const hash = getAuctionHash(ethereum1, config, auctionId)
 		await awaitForAuction(auctionApi, hash)
 
-		const buyoutTx = await buyOut(
-			ethereum2,
-			config,
-			approve2,
-			auctionApi,
+		const buyoutTx = await buyoutService2.buyout({
 			auctionId,
-			{
-				payouts: [],
-				originFees: [],
-			}
-		)
+			payouts: [],
+			originFees: [],
+		})
 		await buyoutTx.wait()
 		expect(await it.testErc1155.methods.balanceOf(sender2Address, "2").call()).toBe("1")
 	})

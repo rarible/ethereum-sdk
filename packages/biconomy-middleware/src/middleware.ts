@@ -53,7 +53,7 @@ export function biconomyMiddleware(
 						return
 					}
 				} catch (err: any) {
-					res.error = err.toString()
+					res.error = err
 				}
 			}
 		}

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.30](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.29...v0.12.30) (2022-01-20)
+
+
+### Features
+
+* union integration for auction ([#99](https://github.com/rarible/protocol-ethereum-sdk/issues/99)) ([bd839ad](https://github.com/rarible/protocol-ethereum-sdk/commit/bd839ad4101406e362699bd6ee15064eb66e8f46))
+
+
+
+
+
 ## [0.12.29](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.28...v0.12.29) (2022-01-19)
 
 

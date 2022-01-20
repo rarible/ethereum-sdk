@@ -2,7 +2,7 @@ import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber } from "@rarible/types"
-import { sentTx, simpleSend } from "../common/send-transaction"
+import { sentTx, getSimpleSendWithInjects } from "../common/send-transaction"
 import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
 import { getEthereumConfig } from "../config"
 import { approve as approveTemplate } from "../order/approve"
@@ -16,7 +16,7 @@ describe("cancel auction", () => {
 	const web3 = new Web3(provider as any)
 	const config = getEthereumConfig("e2e")
 	const ethereum1 = new Web3Ethereum({web3, from: sender1Address, gas: 1000000})
-	const approve1 = approveTemplate.bind(null, ethereum1, simpleSend, config.transferProxies)
+	const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
 	const auctionService = new StartAuction(ethereum1, config, approve1)
 
 	const it = awaitAll({

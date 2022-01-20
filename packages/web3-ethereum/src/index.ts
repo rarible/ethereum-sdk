@@ -56,17 +56,30 @@ export class Web3Contract implements EthereumProvider.EthereumContract {
 
 	functionCall(name: string, ...args: any): EthereumProvider.EthereumFunctionCall {
 		return new Web3FunctionCall(
-			this.config, this.contract.methods[name](...args), toAddress(this.contract.options.address)
+			this.config, this.contract, name, args
 		)
 	}
 }
 
 export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
+	private readonly sendMethod: ContractSendMethod
+
 	constructor(
 		private readonly config: Web3EthereumConfig,
-		private readonly sendMethod: ContractSendMethod,
-		private readonly contract: Address
-	) {}
+		private readonly contract: Contract,
+		private readonly methodName: string,
+		private readonly args: any[]
+	) {
+		this.sendMethod = this.contract.methods[this.methodName](...this.args)
+	}
+
+	async getCallInfo(): Promise<EthereumProvider.EthereumFunctionCallInfo> {
+		return {
+			method: this.methodName,
+			args: this.args,
+			from: await this.getFrom(),
+		}
+	}
 
 	get data(): string {
 		return this.sendMethod.encodeABI()
@@ -101,7 +114,7 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 			toBinary(this.data),
 			tx.nonce,
 			from,
-			this.contract
+			toAddress(this.contract.options.address)
 		)
 	}
 

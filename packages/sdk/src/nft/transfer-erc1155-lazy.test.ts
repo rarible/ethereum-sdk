@@ -4,7 +4,7 @@ import { Configuration, GatewayControllerApi, NftCollectionControllerApi, NftIte
 import { randomAddress, toAddress, toBigNumber } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
-import { send as sendTemplate } from "../common/send-transaction"
+import { getSendWithInjects } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { createErc1155V2Collection } from "../common/mint"
 import { checkChainId } from "../order/check-chain-id"
@@ -30,7 +30,7 @@ describe("transfer Erc721 lazy", () => {
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
 	const sign = signNft.bind(null, ethereum, 17)
-	const send = sendTemplate.bind(null, gatewayApi)
+	const send = getSendWithInjects().bind(null, gatewayApi)
 	const config = getEthereumConfig("e2e")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 

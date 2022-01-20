@@ -9,7 +9,7 @@ import type { Ethereum } from "@rarible/ethereum-provider"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { Web3Ethereum } from "../../../web3-ethereum"
 import { getApiConfig } from "../config/api-config"
-import { send as sendTemplate, sentTx } from "../common/send-transaction"
+import { getSendWithInjects, sentTx } from "../common/send-transaction"
 import { approveErc20 as approveErc20Template } from "./approve-erc20"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
 
@@ -32,7 +32,7 @@ describe.each(providers)("approveErc20", (ethereum: Ethereum) => {
 	const [testAddress] = addresses
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = sendTemplate.bind(null, gatewayApi)
+	const send = getSendWithInjects().bind(null, gatewayApi)
 	const approveErc20 = approveErc20Template.bind(null, ethereum, send)
 
 	const it = awaitAll({

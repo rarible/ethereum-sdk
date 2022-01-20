@@ -5,7 +5,7 @@ import { awaitAll } from "@rarible/ethereum-sdk-test-common"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { toBn } from "@rarible/utils/build/bn"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
-import { send as sendTemplate, sentTx, simpleSend } from "../../common/send-transaction"
+import { getSendWithInjects, sentTx, getSimpleSendWithInjects } from "../../common/send-transaction"
 import { getEthereumConfig } from "../../config"
 import { deployTestErc20 } from "../contracts/test/test-erc20"
 import { deployTestErc721 } from "../contracts/test/test-erc721"
@@ -35,10 +35,10 @@ describe("buy & acceptBid orders", () => {
 	const config = getEthereumConfig("e2e")
 	const apis = createEthereumApis("e2e")
 
-	const filler = new OrderFiller(ethereum1, simpleSend, config, apis)
+	const filler = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis)
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = sendTemplate.bind(null, gatewayApi)
+	const send = getSendWithInjects().bind(null, gatewayApi)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -391,7 +391,7 @@ describe("buy & acceptBid orders", () => {
 
 		const finalOrder = { ...left, signature }
 
-		const filler = new OrderFiller(ethereum2, simpleSend, config, apis)
+		const filler = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis)
 
 		await filler.acceptBid({ order: finalOrder, amount: 1, originFees: []})
 

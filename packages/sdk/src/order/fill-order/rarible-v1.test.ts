@@ -5,7 +5,7 @@ import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { getEthereumConfig } from "../../config"
 import { retry } from "../../common/retry"
-import { simpleSend } from "../../common/send-transaction"
+import { getSimpleSendWithInjects } from "../../common/send-transaction"
 import { getApiConfig } from "../../config/api-config"
 import { signOrder } from "../sign-order"
 import { deployTestErc721 } from "../contracts/test/test-erc721"
@@ -29,7 +29,7 @@ describe("test exchange v1 order", () => {
 
 	const apis = createEthereumApis("e2e")
 
-	const filler = new OrderFiller(ethereum2, simpleSend, e2eConfig, apis)
+	const filler = new OrderFiller(ethereum2, getSimpleSendWithInjects(), e2eConfig, apis)
 
 	const seller = toAddress(wallet1.getAddressString())
 	const buyer = toAddress(wallet2.getAddressString())

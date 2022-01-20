@@ -10,7 +10,7 @@ import { retry } from "../common/retry"
 import type { ERC721RequestV3} from "../nft/mint"
 import { mint } from "../nft/mint"
 import { signNft } from "../nft/sign-nft"
-import { send as sendTemplate } from "../common/send-transaction"
+import { getSendWithInjects } from "../common/send-transaction"
 import { createErc721V3Collection } from "../common/mint"
 import { getApiConfig } from "../config/api-config"
 import { createTestProviders } from "../common/create-test-providers"
@@ -29,7 +29,7 @@ describe.each(providers)("check-asset-type test", ethereum => {
 	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const sign = signNft.bind(null, ethereum, 17)
-	const send = sendTemplate.bind(null, gatewayApi)
+	const send = getSendWithInjects().bind(null, gatewayApi)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
 	const config = getEthereumConfig("e2e")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)

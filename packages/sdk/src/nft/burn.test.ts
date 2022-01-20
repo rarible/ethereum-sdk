@@ -9,7 +9,7 @@ import {
 import { toBn } from "@rarible/utils"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
-import { send as sendTemplate } from "../common/send-transaction"
+import { getSendWithInjects } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { createTestProviders } from "../common/create-test-providers"
 import {
@@ -40,7 +40,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 	const mintLazyApi = new NftLazyMintControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const sign = signNft.bind(null, ethereum, 17)
-	const send = sendTemplate.bind(ethereum, gatewayApi)
+	const send = getSendWithInjects().bind(ethereum, gatewayApi)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, collectionApi)
 	const config = getEthereumConfig("e2e")
 	const checkChainId = checkChainIdTemplate.bind(null, ethereum, config)

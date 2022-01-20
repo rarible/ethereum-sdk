@@ -114,6 +114,14 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 		private readonly args: any[],
 	) {}
 
+	async getCallInfo(): Promise<EthereumProvider.EthereumFunctionCallInfo> {
+		return {
+			method: this.name,
+			args: this.args,
+			from: undefined,
+		}
+	}
+
 	get data(): string {
 		return (this.contract.populateTransaction[this.name](...this.args) as any).data
 	}

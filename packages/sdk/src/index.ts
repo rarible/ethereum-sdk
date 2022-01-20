@@ -11,7 +11,7 @@ import { approve as approveTemplate } from "./order/approve"
 import type { SellOrderAction, SellOrderUpdateAction } from "./order/sell"
 import { OrderSell } from "./order/sell"
 import { signOrder as signOrderTemplate } from "./order/sign-order"
-import type { BidOrderAction, BidUpdateOrderAction} from "./order/bid"
+import type { BidOrderAction, BidUpdateOrderAction } from "./order/bid"
 import { OrderBid } from "./order/bid"
 import * as order from "./order"
 import { checkAssetType as checkAssetTypeTemplate } from "./order/check-asset-type"
@@ -24,19 +24,20 @@ import type { BurnAsset } from "./nft/burn"
 import { burn as burnTemplate } from "./nft/burn"
 import type { RaribleEthereumApis } from "./common/apis"
 import { createEthereumApis } from "./common/apis"
-import { send as sendTemplate } from "./common/send-transaction"
+import { getSendWithInjects } from "./common/send-transaction"
 import { cancel as cancelTemplate } from "./order/cancel"
-import type { FillOrderAction } from "./order/fill-order/types"
+import type { FillOrderAction, GetOrderFillTxData } from "./order/fill-order/types"
 import type { SimpleOrder } from "./order/types"
 import { OrderFiller } from "./order/fill-order"
 import { getBaseOrderFee as getBaseOrderFeeTemplate } from "./order/get-base-order-fee"
 import { DeployErc721 } from "./nft/deploy-erc721"
 import { DeployErc1155 } from "./nft/deploy-erc1155"
 import type { DeployNft } from "./common/deploy"
-import type { BalanceRequestAssetType} from "./common/balances"
+import type { BalanceRequestAssetType } from "./common/balances"
 import { Balances } from "./common/balances"
 import type { EthereumNetwork } from "./types"
-import type { GetOrderFillTxData } from "./order/fill-order/types"
+import type { IRaribleEthereumSdkConfig } from "./types"
+import { LogsLevel } from "./types"
 import { ConvertWeth } from "./order/convert-weth"
 import { checkChainId } from "./order/check-chain-id"
 import type { CreateAuctionRequest} from "./auction/start"
@@ -47,6 +48,7 @@ import type { PutBidRequest } from "./auction/put-bid"
 import { putBid } from "./auction/put-bid"
 import type { BuyOutRequest } from "./auction/buy-out"
 import { buyOut } from "./auction/buy-out"
+import { createRemoteLogger, getEnvironment } from "./common/logger/logger"
 
 export interface RaribleOrderSdk {
 	/**
@@ -210,11 +212,16 @@ export interface RaribleSdk {
 export function createRaribleSdk(
 	ethereum: Maybe<Ethereum>,
 	env: EthereumNetwork,
-	params?: ConfigurationParameters
+	sdkConfig?: IRaribleEthereumSdkConfig
 ): RaribleSdk {
 	const config = getEthereumConfig(env)
-	const apis = createEthereumApis(env, params)
-	const send = partialCall(sendTemplate, apis.gateway)
+	const apis = createEthereumApis(env, sdkConfig?.apiClientParams)
+	const send = partialCall(getSendWithInjects({
+		logger: {
+			instance: createRemoteLogger({ethereum, env: getEnvironment(env)}),
+			level: sdkConfig?.logs ?? LogsLevel.DISABLED,
+		},
+	}), apis.gateway)
 	const checkLazyAssetType = partialCall(order.checkLazyAssetType, apis.nftItem)
 	const checkLazyAsset = partialCall(order.checkLazyAsset, checkLazyAssetType)
 	const checkLazyOrder = order.checkLazyOrder.bind(null, checkLazyAsset)

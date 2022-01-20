@@ -4,7 +4,7 @@ import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
 import { BigNumber } from "@rarible/utils"
-import { simpleSend } from "../common/send-transaction"
+import { getSimpleSendWithInjects } from "../common/send-transaction"
 import { getEthereumConfig } from "../config"
 import { deployWethContract } from "./contracts/test/weth"
 import { ConvertWeth } from "./convert-weth"
@@ -17,7 +17,7 @@ describe("convert weth test", () => {
 	const ethereum = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const config = getEthereumConfig("e2e")
 
-	const converter = new ConvertWeth(ethereum, simpleSend, config)
+	const converter = new ConvertWeth(ethereum, getSimpleSendWithInjects(), config)
 
 	const it = awaitAll({
 		deployWeth: deployWethContract(web3),

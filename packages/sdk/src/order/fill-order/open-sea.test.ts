@@ -8,7 +8,7 @@ import type { Contract } from "web3-eth-contract"
 import type { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
-import { sentTx, simpleSend } from "../../common/send-transaction"
+import { sentTx, getSimpleSendWithInjects } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
 import { getEthereumConfig } from "../../config"
 import { id32 } from "../../common/id"
@@ -57,10 +57,10 @@ describe("fillOrder: Opensea orders", function () {
 	}
 	const apis = createEthereumApis("e2e")
 
-	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, simpleSend, config)
-	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, simpleSend, config)
-	const orderFiller1 = new OrderFiller(ethereum1, simpleSend, config, apis)
-	const orderFiller2 = new OrderFiller(ethereum2, simpleSend, config, apis)
+	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, getSimpleSendWithInjects(), config)
+	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, getSimpleSendWithInjects(), config)
+	const orderFiller1 = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis)
+	const orderFiller2 = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

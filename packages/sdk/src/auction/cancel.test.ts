@@ -2,7 +2,7 @@ import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber } from "@rarible/types"
-import { sentTx, simpleSend } from "../common/send-transaction"
+import { sentTx, getSimpleSendWithInjects } from "../common/send-transaction"
 import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
 import { getEthereumConfig } from "../config"
 import { approve as approveTemplate } from "../order/approve"
@@ -22,7 +22,7 @@ describe("cancel auction", () => {
 	})
 
 	test("cancel auction", async () => {
-		const approve1 = approveTemplate.bind(null, ethereum1, simpleSend, config.transferProxies)
+		const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
 
 		await sentTx(it.testErc1155.methods.mint(sender1Address, 1, 10, "0x"), { from: sender1Address })
 

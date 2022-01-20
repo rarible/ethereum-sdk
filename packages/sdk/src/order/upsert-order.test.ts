@@ -7,7 +7,7 @@ import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
 import { createTestProviders } from "../common/create-test-providers"
 import { createEthereumApis } from "../common/apis"
-import { simpleSend } from "../common/send-transaction"
+import { getSimpleSendWithInjects } from "../common/send-transaction"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { UpsertOrder } from "./upsert-order"
 import { signOrder } from "./sign-order"
@@ -26,7 +26,7 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 	const sign = signOrder.bind(null, ethereum, config)
 	const apis = createEthereumApis("e2e")
 
-	const orderService = new OrderFiller(ethereum, simpleSend, config, apis)
+	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis)
 	const approve = () => Promise.resolve(undefined)
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const orderApi = new OrderControllerApi(configuration)

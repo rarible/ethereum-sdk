@@ -12,8 +12,9 @@ import { id } from "../common/id"
 import type { EthereumConfig } from "../config/type"
 import type { ApproveFunction } from "../order/approve"
 import { waitTx } from "../common/wait-tx"
+import { getPrice } from "../common/get-price"
 import { createEthereumAuctionContract } from "./contracts/auction"
-import { AUCTION_DATA_TYPE, getPrice } from "./common"
+import { AUCTION_DATA_TYPE } from "./common"
 
 export type CreateAuctionRequest = {
 	makeAssetType: AssetType,

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.31](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.30...v0.12.31) (2022-01-23)
+
+
+### Features
+
+* export get decimals ([#102](https://github.com/rarible/protocol-ethereum-sdk/issues/102)) ([841e99f](https://github.com/rarible/protocol-ethereum-sdk/commit/841e99f58e4bd21e07dd30204fb020e939c79506))
+
+
+
+
+
 ## [0.12.30](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.29...v0.12.30) (2022-01-20)
 
 

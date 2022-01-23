@@ -10,12 +10,13 @@ import type { Auction } from "@rarible/ethereum-api-client/build/models"
 import type { EthereumConfig } from "../config/type"
 import type { ApproveFunction } from "../order/approve"
 import { waitTx } from "../common/wait-tx"
+import { getPrice } from "../common/get-price"
 import { createEthereumAuctionContract } from "./contracts/auction"
 import {
 	AUCTION_BID_DATA_V1,
 	AUCTION_DATA_TYPE,
 	getAuctionHash,
-	getAuctionOperationOptions, getPrice,
+	getAuctionOperationOptions,
 } from "./common"
 
 export type BuyOutRequest = {

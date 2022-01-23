@@ -6,9 +6,10 @@ import { retry } from "../../common/retry"
 import type { EthereumConfig } from "../../config/type"
 import type { ApproveFunction } from "../../order/approve"
 import type { PutBidRequest } from "../put-bid"
-import { AUCTION_BID_DATA_V1, AUCTION_DATA_TYPE, getAuctionOperationOptions, getPrice } from "../common"
+import { AUCTION_BID_DATA_V1, AUCTION_DATA_TYPE, getAuctionOperationOptions } from "../common"
 import { waitTx } from "../../common/wait-tx"
 import { createEthereumAuctionContract } from "../contracts/auction"
+import { getPrice } from "../../common/get-price"
 
 export async function awaitForAuction(auctionApi: AuctionControllerApi, auctionHash: string) {
 	return retry(60, 1000, async () => {

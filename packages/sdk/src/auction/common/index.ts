@@ -2,11 +2,8 @@ import { keccak256 } from "ethereumjs-util"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { BigNumber } from "@rarible/types"
 import type { AssetType } from "@rarible/ethereum-api-client"
-import type { BigNumberValue} from "@rarible/utils/build/bn"
-import { toBn } from "@rarible/utils/build/bn"
 import { id } from "../../common/id"
 import type { EthereumConfig } from "../../config/type"
-import { createErc20Contract } from "../../order/contracts/erc20"
 
 export const AUCTION_DATA_TYPE = id("V1")
 
@@ -15,22 +12,6 @@ export function getAuctionOperationOptions(buyAssetType: AssetType, value: BigNu
 		return {value}
 	}
 	return {}
-}
-
-export async function getPrice(
-	ethereum: Ethereum, assetType: AssetType, priceDecimal: BigNumberValue
-): Promise<BigNumberValue> {
-	switch (assetType.assetClass) {
-		case "ETH":
-			return toBn(priceDecimal).multipliedBy(toBn(10).pow(18))
-		case "ERC20":
-			const decimals = await createErc20Contract(ethereum, assetType.contract)
-				.functionCall("decimals")
-				.call()
-			return toBn(priceDecimal).multipliedBy(toBn(10).pow(Number(decimals)))
-		default:
-			throw new Error(`Asset type should be either ETH or ERC-20, received=${JSON.stringify(assetType)}`)
-	}
 }
 
 export function getAuctionHash(

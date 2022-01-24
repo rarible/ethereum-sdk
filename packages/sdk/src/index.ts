@@ -40,13 +40,13 @@ import type { IRaribleEthereumSdkConfig } from "./types"
 import { LogsLevel } from "./types"
 import { ConvertWeth } from "./order/convert-weth"
 import { checkChainId } from "./order/check-chain-id"
-import type { CreateAuctionRequest } from "./auction/start"
+import type { AuctionStartAction} from "./auction/start"
 import { StartAuction } from "./auction/start"
 import { cancelAuction } from "./auction/cancel"
 import { finishAuction } from "./auction/finish"
-import type { PutBidRequest} from "./auction/put-bid"
+import type { PutAuctionBidAction } from "./auction/put-bid"
 import { PutAuctionBid } from "./auction/put-bid"
-import type { BuyOutRequest} from "./auction/buy-out"
+import type { BuyoutAuctionAction } from "./auction/buy-out"
 import { BuyoutAuction } from "./auction/buy-out"
 import { createRemoteLogger, getEnvironment } from "./common/logger/logger"
 
@@ -171,7 +171,7 @@ export interface RaribleAuctionSdk {
    * Start new auction
    * @param request start auction request
    */
-	start(request: CreateAuctionRequest): Promise<EthereumTransaction>
+	start: AuctionStartAction
 
 	/**
    * Cancel started auction
@@ -189,13 +189,13 @@ export interface RaribleAuctionSdk {
    * Put bid
    * @param request Put bid request
    */
-	putBid(request: PutBidRequest): Promise<EthereumTransaction>
+	putBid: PutAuctionBidAction
 
 	/**
    * Buy out auction if it possible
    * @param request Buy out request
    */
-	buyOut(request: BuyOutRequest): Promise<EthereumTransaction>
+	buyOut: BuyoutAuctionAction
 }
 
 export interface RaribleSdk {

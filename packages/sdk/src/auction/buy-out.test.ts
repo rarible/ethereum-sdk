@@ -9,6 +9,7 @@ import { getEthereumConfig } from "../config"
 import { approve as approveTemplate } from "../order/approve"
 import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { getApiConfig } from "../config/api-config"
+import { createEthereumApis } from "../common/apis"
 import { createAuctionContract } from "./contracts/test/auction"
 import { StartAuction } from "./start"
 import { BuyoutAuction } from "./buy-out"
@@ -34,7 +35,8 @@ describe("buy out auction", () => {
 	const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
 	const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
 
-	const auctionService1 = new StartAuction(ethereum1, config, approve1)
+	const apis = createEthereumApis("e2e")
+	const auctionService1 = new StartAuction(ethereum1, config, approve1, apis)
 	const buyoutService2 = new BuyoutAuction(ethereum2, config, approve2, auctionApi)
 
 	const it = awaitAll({

@@ -11,6 +11,7 @@ import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { deployTransferProxy } from "../order/contracts/test/test-transfer-proxy"
 import { deployErc20TransferProxy } from "../order/contracts/test/test-erc20-transfer-proxy"
 import { deployTestRoyaltiesProvider } from "../order/contracts/test/test-royalties-provider"
+import { createEthereumApis } from "../common/apis"
 import { createAuctionContract, deployAuctionContract } from "./contracts/test/auction"
 import { StartAuction } from "./start"
 import { finishAuction } from "./finish"
@@ -29,7 +30,8 @@ describe("finish auction auction", () => {
 	const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
 	const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
 
-	const auctionService = new StartAuction(ethereum1, config, approve1)
+	const apis = createEthereumApis("e2e")
+	const auctionService = new StartAuction(ethereum1, config, approve1, apis)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3, "TST"),

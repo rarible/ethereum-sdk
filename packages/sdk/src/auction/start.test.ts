@@ -7,6 +7,7 @@ import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
 import { getEthereumConfig } from "../config"
 import { approve as approveTemplate } from "../order/approve"
 import { deployTestErc20 } from "../order/contracts/test/test-erc20"
+import { createEthereumApis } from "../common/apis"
 import { StartAuction } from "./start"
 import { deployTestErc721ForAuction } from "./contracts/test/test-erc721"
 
@@ -19,7 +20,8 @@ describe("start auction", () => {
 
 	const ethereum1 = new Web3Ethereum({web3, from: sender1Address, gas: 1000000})
 	const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
-	const auctionService = new StartAuction(ethereum1, config, approve1)
+	const apis = createEthereumApis("e2e")
+	const auctionService = new StartAuction(ethereum1, config, approve1, apis)
 
 	const it = awaitAll({
 		testErc721: deployTestErc721ForAuction(web3, "TST", "TST"),

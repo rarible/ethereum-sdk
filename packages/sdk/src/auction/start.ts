@@ -13,11 +13,14 @@ import type { EthereumConfig } from "../config/type"
 import type { ApproveFunction } from "../order/approve"
 import { waitTx } from "../common/wait-tx"
 import { getPrice } from "../common/get-price"
+import type { AssetTypeRequest, AssetTypeResponse} from "../order/check-asset-type"
+import type { RaribleEthereumApis } from "../common/apis"
+import { checkAssetType } from "../order/check-asset-type"
 import { createEthereumAuctionContract } from "./contracts/auction"
 import { AUCTION_DATA_TYPE } from "./common"
 
 export type CreateAuctionRequest = {
-	makeAssetType: AssetType,
+	makeAssetType: AssetTypeRequest,
 	amount: BigNumber,
 	takeAssetType: EthAssetType | Erc20AssetType,
 	minimalStepDecimal: BigNumberValue,
@@ -32,11 +35,16 @@ export type CreateAuctionRequest = {
 export type AuctionStartAction = Action<"approve" | "sign", CreateAuctionRequest, EthereumTransaction>
 
 export class StartAuction {
+	private readonly checkAssetType: (asset: AssetTypeRequest) => Promise<AssetTypeResponse>
+
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly config: EthereumConfig,
 		private readonly approve: ApproveFunction,
-	) {}
+		private readonly apis: RaribleEthereumApis,
+	) {
+		this.checkAssetType = checkAssetType.bind(null, apis.nftCollection)
+	}
 
 	readonly start: AuctionStartAction = Action.create({
 		id: "approve" as const,
@@ -44,29 +52,30 @@ export class StartAuction {
 			if (!this.ethereum) {
 				throw new Error("Wallet is undefined")
 			}
+			const makeAssetType = await this.checkAssetType(request.makeAssetType)
 			await waitTx(
 				this.approve(
 					toAddress(await this.ethereum.getFrom()),
 					{
-						assetType: request.makeAssetType,
+						assetType: makeAssetType,
 						value: request.amount,
 					},
 					true
 				)
 			)
-			return request
+			return { request, makeAssetType }
 		},
 	})
 		.thenStep({
 			id: "sign" as const,
-			run: async (request: CreateAuctionRequest) => {
+			run: async ({ request, makeAssetType }: { request: CreateAuctionRequest, makeAssetType: AssetTypeResponse}) => {
 				if (!this.ethereum) {
 					throw new Error("Wallet is undefined")
 				}
 				const sellAsset = {
 					assetType: {
-						assetClass: id(request.makeAssetType.assetClass),
-						data: getAssetEncodedData(this.ethereum, request.makeAssetType),
+						assetClass: id(makeAssetType.assetClass),
+						data: getAssetEncodedData(this.ethereum, makeAssetType),
 					},
 					value: request.amount,
 				}

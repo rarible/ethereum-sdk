@@ -22,7 +22,7 @@ describe("middleware test", () => {
 		rpcUl: "https://node-rinkeby.rarible.com/",
 	})
 
-	test("Should use biconomy middleware", async () => {
+	test.skip("Should use biconomy middleware", async () => {
 		const biconomyProvider = withBiconomyMiddleware(provider as any, testRegistry, {
 			apiKey: "",
 		})

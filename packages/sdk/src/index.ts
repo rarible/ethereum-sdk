@@ -1,5 +1,5 @@
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
-import type { Address, ConfigurationParameters, OrderForm } from "@rarible/ethereum-api-client"
+import type { Address, OrderForm } from "@rarible/ethereum-api-client"
 import type { BigNumber } from "@rarible/types"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { BigNumberValue } from "@rarible/utils/build/bn"

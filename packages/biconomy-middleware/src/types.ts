@@ -4,20 +4,13 @@ export interface IBiconomyConfig {
 }
 
 export type ContractMetadata = {
-	abi: [
-		{ "name": "getNonce", [key: string]: any },
-		{ "name": "executeMetaTransaction", [key: string]: any }
-	],
-	address: string,
-	signData: {
-		types: {
-			EIP712Domain: {name: string, type: string}[]
-			MetaTransaction: {name: string, type: string}[],
-		},
-		domain: Record<string, any>,
-		primaryType: string,
-		[key: string]: any
-	}
+	types: {
+		EIP712Domain: {name: string, type: string}[]
+		MetaTransaction: {name: string, type: string}[],
+	},
+	domain: Record<string, any>,
+	primaryType: string,
+	[key: string]: any
 }
 
 export interface IContractRegistry {

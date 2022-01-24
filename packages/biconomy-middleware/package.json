@@ -22,14 +22,17 @@
   "dependencies": {
     "@biconomy/mexa": "^2.0.25",
     "eth-json-rpc-middleware": "^7.0.1",
-    "json-rpc-engine": "^6.1.0"
+    "json-rpc-engine": "^6.1.0",
+    "ethers": "~5.4.4"
   },
   "devDependencies": {
     "@rarible/ethereum-sdk-test-common": "^0.12.26",
     "@types/jest": "^27.0.2",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.3.1",
-    "typescript": "^4.4.4"
+    "typescript": "^4.4.4",
+    "node-fetch": "^2.6.7",
+    "form-data": "^4.0.0"
   },
   "peerDependencies": {
     "tslib": "^2.3.1"

@@ -1084,87 +1084,24 @@ export const rinkebyMetaTxContract = {
 }
 
 export const rinkebyMetaTxContractMetadata: ContractMetadata = {
-	abi: [
-		{
-			"inputs": [
-				{
-					"internalType": "address",
-					"name": "user",
-					"type": "address",
-				},
-			],
-			"name": "getNonce",
-			"outputs": [
-				{
-					"internalType": "uint256",
-					"name": "nonce",
-					"type": "uint256",
-				},
-			],
-			"stateMutability": "view",
-			"type": "function",
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "address",
-					"name": "userAddress",
-					"type": "address",
-				},
-				{
-					"internalType": "bytes",
-					"name": "functionSignature",
-					"type": "bytes",
-				},
-				{
-					"internalType": "bytes32",
-					"name": "sigR",
-					"type": "bytes32",
-				},
-				{
-					"internalType": "bytes32",
-					"name": "sigS",
-					"type": "bytes32",
-				},
-				{
-					"internalType": "uint8",
-					"name": "sigV",
-					"type": "uint8",
-				},
-			],
-			"name": "executeMetaTransaction",
-			"outputs": [
-				{
-					"internalType": "bytes",
-					"name": "",
-					"type": "bytes",
-				},
-			],
-			"stateMutability": "payable",
-			"type": "function",
-		},
-	],
-	address: rinkebyMetaTxContract.address,
-	signData: {
-		types: {
-			EIP712Domain: [
-				{name: "name", type: "string"},
-				{name: "version", type: "string"},
-				{type: "uint256", name: "chainId"},
-				{name: "verifyingContract", type: "address"},
-			],
-			MetaTransaction: [
-				{name: "nonce", type: "uint256"},
-				{name: "from", type: "address"},
-				{name: "functionSignature", type: "bytes"},
-			],
-		},
-		domain: {
-			name: rinkebyMetaTxContract.name,
-			version: rinkebyMetaTxContract.version,
-			chainId: 4,
-			verifyingContract: rinkebyMetaTxContract.address,
-		},
-		primaryType: "MetaTransaction",
+	types: {
+		EIP712Domain: [
+			{name: "name", type: "string"},
+			{name: "version", type: "string"},
+			{type: "uint256", name: "chainId"},
+			{name: "verifyingContract", type: "address"},
+		],
+		MetaTransaction: [
+			{name: "nonce", type: "uint256"},
+			{name: "from", type: "address"},
+			{name: "functionSignature", type: "bytes"},
+		],
 	},
+	domain: {
+		name: rinkebyMetaTxContract.name,
+		version: rinkebyMetaTxContract.version,
+		chainId: 4,
+		verifyingContract: rinkebyMetaTxContract.address,
+	},
+	primaryType: "MetaTransaction",
 }

@@ -9,6 +9,7 @@ import { getEthereumConfig } from "../config"
 import { approve as approveTemplate } from "../order/approve"
 import { getApiConfig } from "../config/api-config"
 import { deployTestErc20 } from "../order/contracts/test/test-erc20"
+import { createEthereumApis } from "../common/apis"
 import { createAuctionContract } from "./contracts/test/auction"
 import { StartAuction } from "./start"
 import { PutAuctionBid } from "./put-bid"
@@ -37,7 +38,8 @@ describe("put auction bid", () => {
 
 	const bidService = new PutAuctionBid(ethereum2, config, approve2, auctionApi)
 
-	const auctionStartService1 = new StartAuction(ethereum1, config, approve1)
+	const apis = createEthereumApis("e2e")
+	const auctionStartService1 = new StartAuction(ethereum1, config, approve1, apis)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3, "TST"),

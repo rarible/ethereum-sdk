@@ -3,9 +3,9 @@ import { Biconomy } from "@biconomy/mexa"
 import type { JsonRpcMiddleware } from "json-rpc-engine"
 import { createAsyncMiddleware } from "json-rpc-engine"
 import type { Block } from "eth-json-rpc-middleware/dist/utils/cache"
-import { providerRequest } from "../../common/utils/provider-request"
 import type { IBiconomyConfig, IContractRegistry } from "./types"
 import { MetaContractAbi } from "./abi/methods-abi"
+import { providerRequest } from "./utils/provider-request"
 
 export function biconomyMiddleware(
 	provider: any,

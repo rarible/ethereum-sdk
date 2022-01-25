@@ -6,7 +6,6 @@
     import { Registry, withBiconomyMiddleware } from "@rarible/biconomy-middleware"
 
     const provider = ... // an web3 provider   
-    const walletAddress = ... // ethereum wallet 
     
     // contract metadata provider see IContractRegistry
     const remoteTestRegistry = new Registry("https://example.com/registry.json") 

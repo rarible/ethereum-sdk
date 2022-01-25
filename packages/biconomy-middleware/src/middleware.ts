@@ -17,7 +17,7 @@ export function biconomyMiddleware(
 	const signer = ethersProvider.getSigner()
 	const biconomyState = new Promise(((resolve, reject) => {
 		biconomy.onEvent(biconomy.READY, resolve)
-		biconomy.onEvent(biconomy.ERROR, (error: any, message: any) => reject(new Error(error.message + "\n" + message)))
+		biconomy.onEvent(biconomy.ERROR, (error: any, message: any) => reject(new Error(error.message + (message ? "\n" + message : ""))))
 	}))
 
 	return createAsyncMiddleware(async (req, res, next) => {

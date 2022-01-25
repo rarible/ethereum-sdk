@@ -22,8 +22,7 @@
   "dependencies": {
     "@biconomy/mexa": "^2.0.25",
     "eth-json-rpc-middleware": "^7.0.1",
-    "json-rpc-engine": "^6.1.0",
-    "ethers": "~5.4.4"
+    "json-rpc-engine": "^6.1.0"
   },
   "devDependencies": {
     "@rarible/ethereum-sdk-test-common": "^0.12.26",
@@ -36,7 +35,8 @@
     "web3": "1.2.11"
   },
   "peerDependencies": {
-    "tslib": "^2.3.1"
+    "tslib": "^2.3.1",
+    "ethers": "^5.0.24"
   },
   "publishConfig": {
     "access": "public",

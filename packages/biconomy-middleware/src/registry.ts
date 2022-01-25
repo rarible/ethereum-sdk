@@ -1,4 +1,3 @@
-import fetch from "node-fetch"
 import type { ContractMetadata, IContractRegistry } from "./types"
 
 export class Registry implements IContractRegistry {

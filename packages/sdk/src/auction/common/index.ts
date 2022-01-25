@@ -2,6 +2,7 @@ import { keccak256 } from "ethereumjs-util"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { BigNumber } from "@rarible/types"
 import type { AssetType } from "@rarible/ethereum-api-client"
+import type { Maybe } from "@rarible/types/build/maybe"
 import { id } from "../../common/id"
 import type { EthereumConfig } from "../../config/type"
 
@@ -15,10 +16,13 @@ export function getAuctionOperationOptions(buyAssetType: AssetType, value: BigNu
 }
 
 export function getAuctionHash(
-	ethereum: Ethereum,
+	ethereum: Maybe<Ethereum>,
 	config: EthereumConfig,
 	auctionId: BigNumber,
 ): string {
+	if (!ethereum) {
+		throw new Error("Wallet is undefined")
+	}
 	const hash = ethereum.encodeParameter(AUCTION_HASH_TYPE, {
 		contractAddress: config.auction,
 		auctionId: auctionId,

@@ -49,6 +49,7 @@ import { PutAuctionBid } from "./auction/put-bid"
 import type { BuyoutAuctionAction } from "./auction/buy-out"
 import { BuyoutAuction } from "./auction/buy-out"
 import { createRemoteLogger, getEnvironment } from "./common/logger/logger"
+import { getAuctionHash } from "./auction/common"
 
 export interface RaribleOrderSdk {
 	/**
@@ -196,6 +197,11 @@ export interface RaribleAuctionSdk {
    * @param request Buy out request
    */
 	buyOut: BuyoutAuctionAction
+	/**
+   * Generate hash of auction by id
+   * @param auctionId Auction ID
+   */
+	getHash: (auctionId: BigNumber) => string
 }
 
 export interface RaribleSdk {
@@ -269,6 +275,7 @@ export function createRaribleSdk(
 			finish: finishAuction.bind(null, ethereum, config),
 			putBid: putAuctionBidService.putBid,
 			buyOut: buyOutAuctionService.buyout,
+			getHash: getAuctionHash.bind(null, ethereum, config),
 		},
 		nft: {
 			mint: partialCall(

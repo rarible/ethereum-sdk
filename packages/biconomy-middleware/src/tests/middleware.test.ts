@@ -1,0 +1,51 @@
+import Web3 from "web3"
+import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
+import { Web3Ethereum } from "@rarible/web3-ethereum"
+import { withBiconomyMiddleware } from "../biconomy"
+import type { ContractMetadata, IContractRegistry } from "../types"
+import { rinkebyMetaTxContract, rinkebyMetaTxContractMetadata } from "./metaTxContract/contract"
+
+const testRegistry: IContractRegistry = {
+	async getMetadata(address: string): Promise<ContractMetadata | undefined> {
+		switch (address.toLowerCase()) {
+			case "0xf93c3a4d1590bf8be8272a970071a6dfc9dd2cf8":
+				return rinkebyMetaTxContractMetadata
+			default:
+				return undefined
+		}
+	},
+}
+
+describe("middleware test", () => {
+	const {provider, wallet} = createE2eProvider(undefined, {
+		networkId: 4,
+		rpcUl: "https://node-rinkeby.rarible.com/",
+	})
+
+	test.skip("Should use biconomy middleware", async () => {
+		const biconomyProvider = withBiconomyMiddleware(provider as any, testRegistry, {
+			apiKey: "",
+		})
+		const web3 = new Web3(biconomyProvider as any)
+
+		const ethereum = new Web3Ethereum({web3})
+
+		const contract = ethereum.createContract(
+			rinkebyMetaTxContract.abi,
+			rinkebyMetaTxContract.address
+		)
+
+		const args = {
+			tokenId: wallet.getAddressString() + "000000000000000000001027",
+			tokenURI: "uri:/",
+			supply: 1,
+			creators: [{account: wallet.getAddressString(), value: 10000}],
+			royalties: [],
+			signatures: ["0x"],
+		}
+
+		const tx = await contract.functionCall("mintAndTransfer", args, wallet.getAddressString()).send()
+		const receipt = await tx.wait()
+		expect(receipt.transactionHash).toBeTruthy()
+	})
+})

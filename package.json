@@ -9,6 +9,7 @@
     "clean": "lerna run clean --parallel",
     "build-all": "sh ./scripts/build.sh",
     "build-test-common": "yarn workspace @rarible/ethereum-sdk-test-common run build",
+    "build-biconomy-middleware": "yarn workspace @rarible/biconomy-middleware run build",
     "build-ethereum-provider": "yarn workspace @rarible/ethereum-provider run build",
     "build-ethers-ethereum": "yarn workspace @rarible/ethers-ethereum run build",
     "build-web3-ethereum": "yarn workspace @rarible/web3-ethereum run build",

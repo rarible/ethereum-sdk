@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.34](https://github.com/rarible/ethereum-sdk/compare/v0.12.33...v0.12.34) (2022-01-25)
+
+
+### Features
+
+* add biconomy provider middleware ([9bafdaf](https://github.com/rarible/ethereum-sdk/commit/9bafdafb8e8fcb5a46fc8dbbe2021ab856a807e3))
+* use ethers instead of web3 ([a576484](https://github.com/rarible/ethereum-sdk/commit/a576484a55716a799c84ffd176ca8a49cd684512))
+
+
+
+
+
 ## [0.12.31](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.30...v0.12.31) (2022-01-23)
 
 **Note:** Version bump only for package @rarible/ethereum-sdk-test-common

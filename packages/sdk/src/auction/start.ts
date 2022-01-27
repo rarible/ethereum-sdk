@@ -4,7 +4,7 @@ import type { Erc20AssetType, EthAssetType } from "@rarible/ethereum-api-client"
 import type { Part } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { BigNumber } from "@rarible/types"
-import { toAddress } from "@rarible/types"
+import { toAddress, toBigNumber } from "@rarible/types"
 import type { BigNumberValue } from "@rarible/utils/build/bn"
 import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import { Action } from "@rarible/action"
@@ -17,7 +17,7 @@ import type { AssetTypeRequest, AssetTypeResponse} from "../order/check-asset-ty
 import type { RaribleEthereumApis } from "../common/apis"
 import { checkAssetType } from "../order/check-asset-type"
 import { createEthereumAuctionContract } from "./contracts/auction"
-import { AUCTION_DATA_TYPE } from "./common"
+import { AUCTION_DATA_TYPE, getAuctionHash } from "./common"
 
 export type CreateAuctionRequest = {
 	makeAssetType: AssetTypeRequest,
@@ -32,10 +32,16 @@ export type CreateAuctionRequest = {
 	originFees: Part[],
 }
 
-export type AuctionStartAction = Action<"approve" | "sign", CreateAuctionRequest, EthereumTransaction>
+export type AuctionStartAction = Action<"approve" | "sign", CreateAuctionRequest, AuctionStartResponse>
+export type AuctionStartResponse = {
+	tx: EthereumTransaction
+	hash: Promise<string>
+	auctionId: Promise<BigNumber>
+}
 
 export class StartAuction {
 	private readonly checkAssetType: (asset: AssetTypeRequest) => Promise<AssetTypeResponse>
+	private readonly getAuctionHash: (auctionId: BigNumber) => string
 
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
@@ -44,6 +50,7 @@ export class StartAuction {
 		private readonly apis: RaribleEthereumApis,
 	) {
 		this.checkAssetType = checkAssetType.bind(null, apis.nftCollection)
+		this.getAuctionHash = getAuctionHash.bind(null, this.ethereum, this.config)
 	}
 
 	readonly start: AuctionStartAction = Action.create({
@@ -92,7 +99,7 @@ export class StartAuction {
 					buyOutPrice: (await getPrice(this.ethereum, request.takeAssetType, request.buyOutPriceDecimal)).toString(),
 				})
 
-				return createEthereumAuctionContract(this.ethereum, this.config.auction)
+				const tx = await createEthereumAuctionContract(this.ethereum, this.config.auction)
 					.functionCall(
 						"startAuction",
 						sellAsset,
@@ -103,6 +110,24 @@ export class StartAuction {
 						data,
 					)
 					.send({gas: 10000000})
+
+				const auctionIdPromise = tx.wait()
+					.then(receipt => {
+						const createdEvent = receipt.events.find(e => e.event === "AuctionCreated")
+						if (!createdEvent) throw new Error("AuctionCreated event has not been found")
+						return toBigNumber(createdEvent.args.auctionId)
+					})
+
+				const hashPromise = auctionIdPromise
+					.then((auctionId) => {
+						return this.getAuctionHash(auctionId)
+					})
+
+				return {
+					tx,
+					hash: hashPromise,
+					auctionId: auctionIdPromise,
+				}
 			},
 		})
 

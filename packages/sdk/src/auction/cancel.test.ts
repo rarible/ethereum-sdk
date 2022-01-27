@@ -49,15 +49,14 @@ describe("cancel auction", () => {
 		}
 		)
 
-		await auction.wait()
+		await auction.tx.wait()
 
 		const auctionContract = createAuctionContract(web3, config.auction)
-		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc1155.options.address, "1").call()
 
-		const tx = await cancelAuction(ethereum1, config, toBigNumber(auctionId))
+		const tx = await cancelAuction(ethereum1, config, await auction.auctionId)
 		await tx.wait()
 
-		const auctionExistence = await auctionContract.methods.checkAuctionExistence(auctionId).call()
+		const auctionExistence = await auctionContract.methods.checkAuctionExistence(await auction.auctionId).call()
 		expect(auctionExistence).toBe(false)
 	})
 })

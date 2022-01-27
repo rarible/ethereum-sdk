@@ -4,7 +4,7 @@ import type { Erc20AssetType, EthAssetType } from "@rarible/ethereum-api-client"
 import type { Part } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { BigNumber } from "@rarible/types"
-import { toAddress } from "@rarible/types"
+import { toAddress, toBigNumber } from "@rarible/types"
 import type { BigNumberValue } from "@rarible/utils/build/bn"
 import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import { Action } from "@rarible/action"
@@ -36,6 +36,7 @@ export type AuctionStartAction = Action<"approve" | "sign", CreateAuctionRequest
 export type AuctionStartResponse = {
 	tx: EthereumTransaction
 	hash: Promise<string>
+	auctionId: Promise<BigNumber>
 }
 
 export class StartAuction {
@@ -110,16 +111,22 @@ export class StartAuction {
 					)
 					.send({gas: 10000000})
 
-				const hashPromise = tx.wait()
+				const auctionIdPromise = tx.wait()
 					.then(receipt => {
 						const createdEvent = receipt.events.find(e => e.event === "AuctionCreated")
 						if (!createdEvent) throw new Error("AuctionCreated event has not been found")
-						return this.getAuctionHash(createdEvent.args.auctionId)
+						return toBigNumber(createdEvent.args.auctionId)
+					})
+
+				const hashPromise = auctionIdPromise
+					.then((auctionId) => {
+						return this.getAuctionHash(auctionId)
 					})
 
 				return {
 					tx,
 					hash: hashPromise,
+					auctionId: auctionIdPromise,
 				}
 			},
 		})

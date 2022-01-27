@@ -10,11 +10,9 @@ import { approve as approveTemplate } from "../order/approve"
 import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { getApiConfig } from "../config/api-config"
 import { createEthereumApis } from "../common/apis"
-import { createAuctionContract } from "./contracts/test/auction"
 import { StartAuction } from "./start"
 import { BuyoutAuction } from "./buy-out"
 import { deployTestErc721ForAuction } from "./contracts/test/test-erc721"
-import { getAuctionHash } from "./common"
 import { awaitForAuction } from "./test"
 
 describe("buy out auction", () => {
@@ -49,8 +47,6 @@ describe("buy out auction", () => {
 		await sentTx(it.testErc1155.methods.mint(sender1Address, 1, 10, "0x"), { from: sender1Address})
 		await sentTx(it.testErc20.methods.mint(sender2Address, 300), { from: sender1Address })
 
-		const auctionContract = createAuctionContract(web3Seller, config.auction)
-
 		const auction = await auctionService1.start(
 			{
 				makeAssetType: {
@@ -75,13 +71,10 @@ describe("buy out auction", () => {
 
 		await auction.tx.wait()
 
-		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc1155.options.address, "1").call()
-
-		const hash = getAuctionHash(ethereum1, config, auctionId)
-		await awaitForAuction(auctionApi, hash)
+		await awaitForAuction(auctionApi, await auction.hash)
 
 		const buyoutTx = await buyoutService2.buyout({
-			auctionId,
+			auctionId: await auction.auctionId,
 			payouts: [],
 			originFees: [],
 		})
@@ -94,8 +87,6 @@ describe("buy out auction", () => {
 	test("buy out erc-721 <-> erc-20", async () => {
 		await sentTx(it.testErc721.methods.mint(sender1Address, 1), { from: sender1Address})
 		await sentTx(it.testErc20.methods.mint(sender2Address, 300), { from: sender1Address })
-
-		const auctionContract = createAuctionContract(web3Seller, config.auction)
 
 		const auction = await auctionService1.start(
 			{
@@ -121,13 +112,10 @@ describe("buy out auction", () => {
 
 		await auction.tx.wait()
 
-		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc721.options.address, "1").call()
-
-		const hash = getAuctionHash(ethereum1, config, auctionId)
-		await awaitForAuction(auctionApi, hash)
+		await awaitForAuction(auctionApi, await auction.hash)
 
 		const buyoutTx = await buyoutService2.buyout({
-			auctionId,
+			auctionId: await auction.auctionId,
 			payouts: [],
 			originFees: [],
 		})
@@ -140,8 +128,6 @@ describe("buy out auction", () => {
 	test("buy out erc-1155 <-> eth", async () => {
 
 		await sentTx(it.testErc1155.methods.mint(sender1Address, 2, 10, "0x"), { from: sender1Address})
-
-		const auctionContract = createAuctionContract(web3Seller, config.auction)
 
 		const auction = await auctionService1.start({
 			makeAssetType: {
@@ -164,13 +150,10 @@ describe("buy out auction", () => {
 
 		await auction.tx.wait()
 
-		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc1155.options.address, "2").call()
-
-		const hash = getAuctionHash(ethereum1, config, auctionId)
-		await awaitForAuction(auctionApi, hash)
+		await awaitForAuction(auctionApi, await auction.hash)
 
 		const buyoutTx = await buyoutService2.buyout({
-			auctionId,
+			auctionId: await auction.auctionId,
 			payouts: [],
 			originFees: [],
 		})

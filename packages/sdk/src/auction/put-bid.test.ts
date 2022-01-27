@@ -10,10 +10,8 @@ import { approve as approveTemplate } from "../order/approve"
 import { getApiConfig } from "../config/api-config"
 import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { createEthereumApis } from "../common/apis"
-import { createAuctionContract } from "./contracts/test/auction"
 import { StartAuction } from "./start"
 import { PutAuctionBid } from "./put-bid"
-import { getAuctionHash } from "./common"
 import { awaitForAuction } from "./test"
 
 describe("put auction bid", () => {
@@ -73,15 +71,11 @@ describe("put auction bid", () => {
 		)
 
 		await auction.tx.wait()
-		const auctionContract = createAuctionContract(web3, config.auction)
 
-		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc1155.options.address, "1").call()
-
-		const hash = getAuctionHash(ethereum1, config, auctionId)
-		await awaitForAuction(auctionApi, hash)
+		await awaitForAuction(auctionApi, await auction.hash)
 
 		const putBidTx = await bidService.putBid({
-			auctionId,
+			auctionId: await auction.auctionId,
 			priceDecimal: toBigNumber("0.00000000000000005"),
 			payouts: [],
 			originFees: [],
@@ -89,6 +83,7 @@ describe("put auction bid", () => {
 
 		await putBidTx.wait()
 	})
+
 	test("put erc-1155 <-> eth bid", async () => {
 		await sentTx(it.testErc1155.methods.mint(sender1Address, 1, 10, "0x"), { from: sender1Address })
 
@@ -114,15 +109,10 @@ describe("put auction bid", () => {
 		)
 		await auction.tx.wait()
 
-		const auctionContract = createAuctionContract(web3, config.auction)
-
-		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc1155.options.address, "1").call()
-
-		const hash = getAuctionHash(ethereum1, config, auctionId)
-		await awaitForAuction(auctionApi, hash)
+		await awaitForAuction(auctionApi, await auction.hash)
 
 		const putBidTx = await bidService.putBid({
-			auctionId,
+			auctionId: await auction.auctionId,
 			priceDecimal: toBigNumber("0.00000000000000005"),
 			payouts: [],
 			originFees: [],

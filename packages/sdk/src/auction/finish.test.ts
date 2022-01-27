@@ -12,7 +12,7 @@ import { deployTransferProxy } from "../order/contracts/test/test-transfer-proxy
 import { deployErc20TransferProxy } from "../order/contracts/test/test-erc20-transfer-proxy"
 import { deployTestRoyaltiesProvider } from "../order/contracts/test/test-royalties-provider"
 import { createEthereumApis } from "../common/apis"
-import { createAuctionContract, deployAuctionContract } from "./contracts/test/auction"
+import { deployAuctionContract } from "./contracts/test/auction"
 import { StartAuction } from "./start"
 import { finishAuction } from "./finish"
 import { increaseTime, testPutBid } from "./test"
@@ -96,9 +96,6 @@ describe("finish auction auction", () => {
 		)
 
 		await auction.tx.wait()
-		const auctionContract = createAuctionContract(web3, config.auction)
-
-		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc1155.options.address, "1").call()
 
 		const putBidTx = await testPutBid(
 			ethereum2,
@@ -109,7 +106,7 @@ describe("finish auction auction", () => {
 				contract: toAddress(it.testErc20.options.address),
 			},
 			{
-				auctionId,
+				auctionId: await auction.auctionId,
 				priceDecimal: toBigNumber("0.00000000000000005"),
 				payouts: [],
 				originFees: [],
@@ -123,7 +120,7 @@ describe("finish auction auction", () => {
 		const finishAuctionTx = await finishAuction(
 			ethereum1,
 			config,
-			auctionId
+			await auction.auctionId
 		)
 		await finishAuctionTx.wait()
 

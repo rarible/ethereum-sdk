@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.36](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.35...v0.12.36) (2022-01-27)
+
+
+### Features
+
+* mumbai dev config ([bf63041](https://github.com/rarible/protocol-ethereum-sdk/commit/bf6304177abb7b1bbd147898c37c69ab9e2c59e5))
+
+
+
+
+
 ## [0.12.35](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.34...v0.12.35) (2022-01-25)
 
 

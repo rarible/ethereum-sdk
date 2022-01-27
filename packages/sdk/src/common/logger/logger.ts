@@ -16,6 +16,8 @@ export function getEnvironment(network: EthereumNetwork): Environment {
 		case "mainnet":
 		case "polygon":
 			return "prod"
+		case "mumbai-dev":
+			return "dev"
 		case "ropsten":
 		case "mumbai":
 		case "rinkeby":

@@ -33,7 +33,7 @@ describe("start auction", () => {
 
 		await sentTx(it.testErc721.methods.mint(sender1Address, 1), { from: sender1Address })
 
-		const auction = await auctionService.start(
+		const auctionResponse = await auctionService.start(
 			{
 				makeAssetType: {
 					assetClass: "ERC721",
@@ -54,13 +54,14 @@ describe("start auction", () => {
 			}
 		)
 
-		await auction.wait()
+		await auctionResponse.tx.wait()
+		expect(await auctionResponse.hash).toBeTruthy()
 	})
 
 	test("start erc-1155 <-> eth auction", async () => {
 		await sentTx(it.testErc1155.methods.mint(sender1Address, 1, 10, "0x"), { from: sender1Address })
 
-		const auction = await auctionService.start(
+		const auctionResponse = await auctionService.start(
 			{
 				makeAssetType: {
 					assetClass: "ERC1155",
@@ -81,13 +82,13 @@ describe("start auction", () => {
 			}
 		)
 
-		await auction.wait()
+		await auctionResponse.tx.wait()
 	})
 
 	test("start erc-1155 <-> erc20 auction", async () => {
 		await sentTx(it.testErc1155.methods.mint(sender1Address, 2, 10, "0x"), { from: sender1Address })
 
-		const auction = await auctionService.start(
+		const auctionResponse = await auctionService.start(
 			{
 				makeAssetType: {
 					assetClass: "ERC1155",
@@ -109,6 +110,6 @@ describe("start auction", () => {
 			}
 		)
 
-		await auction.wait()
+		await auctionResponse.tx.wait()
 	})
 })

@@ -73,7 +73,7 @@ describe("buy out auction", () => {
 			}
 		)
 
-		await auction.wait()
+		await auction.tx.wait()
 
 		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc1155.options.address, "1").call()
 
@@ -119,7 +119,7 @@ describe("buy out auction", () => {
 			}
 		)
 
-		await auction.wait()
+		await auction.tx.wait()
 
 		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc721.options.address, "1").call()
 
@@ -160,10 +160,9 @@ describe("buy out auction", () => {
 			buyOutPriceDecimal: toBigNumber("0.00000000000000001"),
 			originFees: [],
 			payouts: [],
-		}
-		)
+		})
 
-		await auction.wait()
+		await auction.tx.wait()
 
 		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc1155.options.address, "2").call()
 

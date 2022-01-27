@@ -95,7 +95,7 @@ describe("finish auction auction", () => {
 			}
 		)
 
-		await auction.wait()
+		await auction.tx.wait()
 		const auctionContract = createAuctionContract(web3, config.auction)
 
 		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc1155.options.address, "1").call()

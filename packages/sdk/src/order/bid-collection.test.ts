@@ -1,7 +1,7 @@
 import { toAddress } from "@rarible/types"
 import {
-	Configuration,
-	NftCollectionControllerApi,
+	Configuration, GatewayControllerApi,
+	NftCollectionControllerApi, NftLazyMintControllerApi,
 	OrderControllerApi,
 } from "@rarible/ethereum-api-client"
 import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
@@ -11,9 +11,13 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toBigNumber } from "@rarible/types"
 import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
-import { sentTx, getSimpleSendWithInjects } from "../common/send-transaction"
+import { sentTx, getSimpleSendWithInjects, getSendWithInjects } from "../common/send-transaction"
 import { delay } from "../common/retry"
 import { createEthereumApis } from "../common/apis"
+import { createErc721V3Collection } from "../common/mint"
+import type { ERC721RequestV3, MintOffChainResponse} from "../nft/mint"
+import { mint as mintTemplate } from "../nft/mint"
+import { signNft } from "../nft/sign-nft"
 import { OrderBid } from "./bid"
 import { signOrder as signOrderTemplate } from "./sign-order"
 import { OrderFiller } from "./fill-order"
@@ -38,7 +42,7 @@ describe("bid", () => {
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const orderApi = new OrderControllerApi(configuration)
 	const config = getEthereumConfig("e2e")
-	const signOrder = signOrderTemplate.bind(null, ethereum2, config)
+	const signOrder2 = signOrderTemplate.bind(null, ethereum2, config)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
 	const apis = createEthereumApis("e2e")
 	const checkWalletChainId = checkChainId.bind(null, ethereum2, config)
@@ -50,12 +54,21 @@ describe("bid", () => {
 		orderService,
 		(x) => Promise.resolve(x),
 		approve2,
-		signOrder,
+		signOrder2,
 		orderApi,
 		ethereum2,
 		checkWalletChainId,
 	)
 	const orderBid = new OrderBid(upserter, checkAssetType, checkWalletChainId)
+
+	const gatewayApi = new GatewayControllerApi(configuration)
+	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
+	const send = getSendWithInjects().bind(null, gatewayApi)
+	const sign1 = signNft.bind(null, ethereum1, 17)
+	const mint1 = mintTemplate
+		.bind(null, ethereum1, send, sign1, nftCollectionApi)
+		.bind(null, nftLazyMintApi, checkWalletChainId)
+	const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web32, "Test1", "TST1"),
@@ -106,6 +119,55 @@ describe("bid", () => {
 				assetClass: "ERC721",
 				contract: toAddress(it.testErc721.options.address),
 				tokenId: toBigNumber("1"),
+			},
+		})
+		await acceptBidTx.wait()
+	})
+
+	test("create bid for erc-721 collection and accept bid with lazy-item", async () => {
+		const ownerCollectionAddress = toAddress(await ethereum1.getFrom())
+		const bidderAddress = toAddress(await ethereum2.getFrom())
+
+		await sentTx(
+			it.testErc20.methods.mint(bidderAddress, "100000000000000"), {
+			  from: bidderAddress,
+			  gas: 8000000,
+		  }
+		)
+
+		const mintedItem = await mint1({
+			collection: createErc721V3Collection(e2eErc721V3ContractAddress),
+			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
+			creators: [{ account: toAddress(ownerCollectionAddress), value: 10000 }],
+			royalties: [],
+			lazy: true,
+		} as ERC721RequestV3) as MintOffChainResponse
+
+		const erc20Contract = toAddress(it.testErc20.options.address)
+
+		const order = await orderBid.bid({
+			maker: bidderAddress,
+			makeAssetType: {
+				assetClass: "ERC20",
+				contract: erc20Contract,
+			},
+			takeAssetType: {
+				assetClass: "COLLECTION",
+				contract: e2eErc721V3ContractAddress,
+			},
+			price: toBn("12"),
+			amount: 1,
+			payouts: [],
+			originFees: [],
+		}) as SimpleRaribleV2Order
+
+		const acceptBidTx = await filler1.acceptBid({
+			order,
+			amount: 1,
+			originFees: [],
+			assetType: {
+				contract: e2eErc721V3ContractAddress,
+				tokenId: mintedItem.item.tokenId,
 			},
 		})
 		await acceptBidTx.wait()

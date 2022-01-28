@@ -3,6 +3,7 @@ import { toAddress } from "@rarible/types"
 import { Action } from "@rarible/action"
 import type { Address } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
+import type { AssetType } from "@rarible/ethereum-api-client"
 import type {
 	SimpleCryptoPunkOrder,
 	SimpleLegacyOrder,
@@ -16,6 +17,7 @@ import type { RaribleEthereumApis } from "../../common/apis"
 import { checkChainId } from "../check-chain-id"
 import type { CheckAssetTypeFunction } from "../check-asset-type"
 import { checkAssetType } from "../check-asset-type"
+import { checkLazyAssetType } from "../check-lazy-asset-type"
 import type {
 	CryptoPunksOrderFillRequest,
 	FillOrderAction,
@@ -37,6 +39,7 @@ export class OrderFiller {
 	openSeaHandler: OpenSeaOrderHandler
 	punkHandler: CryptoPunksOrderHandler
 	private checkAssetType: CheckAssetTypeFunction
+	private checkLazyAssetType: (type: AssetType) => Promise<AssetType>
 
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
@@ -51,6 +54,7 @@ export class OrderFiller {
 		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config)
 		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
+		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 	}
 
 	private getFillAction<Request extends FillOrderRequest>(): Action<FillOrderStageId, Request, EthereumTransaction> {
@@ -65,6 +69,7 @@ export class OrderFiller {
 					const inverted = await this.invertOrder(request, from)
 					if (request.assetType && inverted.make.assetType.assetClass === "COLLECTION") {
 						inverted.make.assetType = await this.checkAssetType(request.assetType)
+						inverted.make.assetType = await this.checkLazyAssetType(inverted.make.assetType)
 					}
 					await this.approveOrder(inverted, Boolean(request.infinite))
 					return { request, inverted }

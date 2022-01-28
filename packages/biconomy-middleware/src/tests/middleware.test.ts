@@ -8,7 +8,7 @@ import { rinkebyMetaTxContract, rinkebyMetaTxContractMetadata } from "./metaTxCo
 const testRegistry: IContractRegistry = {
 	async getMetadata(address: string): Promise<ContractMetadata | undefined> {
 		switch (address.toLowerCase()) {
-			case "0xf93c3a4d1590bf8be8272a970071a6dfc9dd2cf8":
+			case "0x329ee2ea52e74ddd622bf06412f49e0177840d3c":
 				return rinkebyMetaTxContractMetadata
 			default:
 				return undefined

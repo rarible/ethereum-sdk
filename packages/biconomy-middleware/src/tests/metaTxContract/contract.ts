@@ -3,7 +3,7 @@ import type { ContractMetadata } from "../../types"
 export const rinkebyMetaTxContract = {
 	name: "ERC721RaribleMeta",
 	version: "1",
-	address: "0xf93c3a4d1590bf8Be8272a970071A6dfC9DD2cf8",
+	address: "0x329ee2ea52e74ddd622bf06412f49e0177840d3c",
 	abi: [
 		{
 			"anonymous": false,
@@ -1088,8 +1088,8 @@ export const rinkebyMetaTxContractMetadata: ContractMetadata = {
 		EIP712Domain: [
 			{name: "name", type: "string"},
 			{name: "version", type: "string"},
-			{type: "uint256", name: "chainId"},
 			{name: "verifyingContract", type: "address"},
+			{name: "salt", type: "bytes32"},
 		],
 		MetaTransaction: [
 			{name: "nonce", type: "uint256"},
@@ -1100,8 +1100,8 @@ export const rinkebyMetaTxContractMetadata: ContractMetadata = {
 	domain: {
 		name: rinkebyMetaTxContract.name,
 		version: rinkebyMetaTxContract.version,
-		chainId: 4,
 		verifyingContract: rinkebyMetaTxContract.address,
+		salt: "0x" + (4).toString(16).padStart(64, "0"),
 	},
 	primaryType: "MetaTransaction",
 }

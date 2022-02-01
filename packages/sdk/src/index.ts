@@ -20,7 +20,7 @@ import { mint as mintTemplate } from "./nft/mint"
 import type { TransferAsset } from "./nft/transfer"
 import { transfer as transferTemplate } from "./nft/transfer"
 import { signNft as signNftTemplate } from "./nft/sign-nft"
-import type { BurnAsset } from "./nft/burn"
+import type { BurnRequest } from "./nft/burn"
 import { burn as burnTemplate } from "./nft/burn"
 import type { RaribleEthereumApis } from "./common/apis"
 import { createEthereumApis } from "./common/apis"
@@ -137,10 +137,9 @@ export interface RaribleNftSdk {
 	transfer(asset: TransferAsset, to: Address, amount?: BigNumber): Promise<EthereumTransaction>
 
 	/**
-	 * @param asset asset to burn
-	 * @param amount amount to burn
+	 * @param request burn request
 	 */
-	burn(asset: BurnAsset, amount?: BigNumber): Promise<EthereumTransaction | void>
+	burn(request: BurnRequest): Promise<EthereumTransaction | void>
 
 	deploy: DeployNft
 }

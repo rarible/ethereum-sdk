@@ -1,6 +1,6 @@
 import type Web3 from "web3"
 import type { Contract } from "web3-eth-contract"
-import { erc721v1Abi } from "../v1"
+import { erc721v1Abi } from "../../v1"
 import { erc721v1MintableTokenBytecode } from "./bytecodes"
 
 export async function deployErc721V1(web3: Web3, name: string, symbol: string): Promise<Contract> {

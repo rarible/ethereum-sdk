@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.40](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.39...v0.12.40) (2022-02-02)
+
+
+### Bug Fixes
+
+* burn creators ([e3abbfd](https://github.com/rarible/protocol-ethereum-sdk/commit/e3abbfdd4b02afaf77b20bfa386c78b35968b592))
+
+
+
+
+
 ## [0.12.39](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.38...v0.12.39) (2022-02-02)
 
 

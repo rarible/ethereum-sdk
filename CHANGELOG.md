@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.39](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.38...v0.12.39) (2022-02-02)
+
+
+### Bug Fixes
+
+* pass creators to burn lazy minted item ([bc3cff2](https://github.com/rarible/protocol-ethereum-sdk/commit/bc3cff2fc18d858a3cc1b718a7782660e66cd99a))
+
+
+
+
+
 ## [0.12.38](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.37...v0.12.38) (2022-01-28)
 
 

@@ -47,10 +47,14 @@ export async function burn(
 			if (!lazyValueBn.isEqualTo(ownership.value.value)) {
 				throw new Error("Unable to burn lazy minted item")
 			}
+			const creators = !request.creators || !request.creators.length
+				? [from]
+				: request.creators?.map(creator => creator.account)
+
 			return apis.nftItem.deleteLazyMintNftAsset({
 				itemId: createItemId(request.assetType.contract, toBigNumber(`${request.assetType.tokenId}`)),
 				burnLazyNftForm: {
-					creators: request.creators?.map(creator => creator.account) ?? [from],
+					creators,
 					signatures: [
 						toBinary(await ethereum.personalSign(`I would like to burn my ${request.assetType.tokenId} item.`)),
 					],

@@ -139,7 +139,33 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 				contract: e2eErc1155V2ContractAddress,
 				tokenId: minted.tokenId,
 			},
+			amount: toBigNumber("50"),
 			creators: [{ account: toAddress(testAddress), value: 10000 }],
+		})
+
+		await retry(5, 2000, async () => {
+			const nftItemResponse = await apis.nftItem.getNftItemById({
+				itemId: `${e2eErc1155V2ContractAddress}:${minted.tokenId}`,
+			})
+			expect(nftItemResponse.deleted).toBe(true)
+		})
+	})
+
+	test("should burn ERC-1155 v2 lazy and burn creators is empty", async () => {
+		const minted = await mint(mintLazyApi, checkChainId, {
+			collection: createErc1155V2Collection(e2eErc1155V2ContractAddress),
+			uri: "ipfs://ipfs/hash",
+			supply: 100,
+			creators: [{ account: toAddress(testAddress), value: 10000 }],
+			royalties: [],
+			lazy: true,
+		} as ERC1155RequestV2)
+		await burn(checkChainId, {
+			assetType: {
+				contract: e2eErc1155V2ContractAddress,
+				tokenId: minted.tokenId,
+			},
+			creators: [],
 		})
 
 		await retry(5, 2000, async () => {

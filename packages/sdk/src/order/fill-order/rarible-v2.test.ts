@@ -62,7 +62,7 @@ describe("buy & acceptBid orders", () => {
 			it.exchangeV2.methods.__ExchangeV2_init(
 				toAddress(it.transferProxy.options.address),
 				toAddress(it.erc20TransferProxy.options.address),
-				toBigNumber("100"),
+				toBigNumber("0"),
 				sender1Address,
 				toAddress(it.royaltiesProvider.options.address)
 			),

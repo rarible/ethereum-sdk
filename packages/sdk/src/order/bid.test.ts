@@ -51,7 +51,8 @@ describe.each(providers)("bid", (ethereum) => {
 		.bind(null, ethereum, send, signNft, nftCollectionApi)
 		.bind(null, nftLazyMintApi, checkWalletChainId)
 
-	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis, env)
+	const getBaseOrderFee = async () => 0
+	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
 
 	const upserter = new UpsertOrder(
 		orderService,

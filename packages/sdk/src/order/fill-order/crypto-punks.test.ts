@@ -30,7 +30,8 @@ describe("fillOrder", () => {
 	const env = "e2e" as const
 	const apis = createEthereumApis(env)
 	const config = getEthereumConfig(env)
-	const filler = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis, env)
+	const getBaseOrderFee = async () => 0
+	const filler = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

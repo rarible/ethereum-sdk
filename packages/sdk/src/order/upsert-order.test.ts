@@ -27,7 +27,8 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 	const sign = signOrder.bind(null, ethereum, config)
 	const apis = createEthereumApis(env)
 
-	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis, env)
+	const getBaseOrderFee = async () => 0
+	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
 	const approve = () => Promise.resolve(undefined)
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const orderApi = new OrderControllerApi(configuration)

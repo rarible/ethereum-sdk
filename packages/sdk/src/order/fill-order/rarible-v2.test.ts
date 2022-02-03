@@ -36,7 +36,8 @@ describe("buy & acceptBid orders", () => {
 	const config = getEthereumConfig(env)
 	const apis = createEthereumApis(env)
 
-	const filler = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis, env)
+	const getBaseOrderFee = async () => 100
+	const filler = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
 	const configuration = new Configuration(getApiConfig(env))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const send = getSendWithInjects().bind(null, gatewayApi)
@@ -62,7 +63,7 @@ describe("buy & acceptBid orders", () => {
 			it.exchangeV2.methods.__ExchangeV2_init(
 				toAddress(it.transferProxy.options.address),
 				toAddress(it.erc20TransferProxy.options.address),
-				toBigNumber("0"),
+				toBigNumber("100"),
 				sender1Address,
 				toAddress(it.royaltiesProvider.options.address)
 			),
@@ -391,7 +392,7 @@ describe("buy & acceptBid orders", () => {
 
 		const finalOrder = { ...left, signature }
 
-		const filler = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis, env)
+		const filler = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
 
 		await filler.acceptBid({ order: finalOrder, amount: 1, originFees: []})
 

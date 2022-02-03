@@ -231,7 +231,8 @@ export function createRaribleSdk(
 	const checkAssetType = partialCall(checkAssetTypeTemplate, apis.nftCollection)
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
-	const filler = new OrderFiller(ethereum, send, config, apis, env)
+	const getBaseOrderFee = getBaseOrderConfigFee.bind(null, config, env)
+	const filler = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
 
 	const approveFn = partialCall(approveTemplate, ethereum, send, config.transferProxies)
 
@@ -265,7 +266,7 @@ export function createRaribleSdk(
 			bidUpdate: bidService.update,
 			upsert: upsertService.upsert,
 			cancel: partialCall(cancelTemplate, checkLazyOrder, ethereum, config.exchange, checkWalletChainId),
-			getBaseOrderFee: getBaseOrderConfigFee.bind(null, config, env),
+			getBaseOrderFee: getBaseOrderFee,
 			getBaseOrderFillFee: filler.getBaseOrderFillFee,
 		},
 		auction: {

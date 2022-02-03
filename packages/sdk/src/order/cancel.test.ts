@@ -31,7 +31,8 @@ describe("cancel order", () => {
 	const apis = createEthereumApis(env)
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
-	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis, env)
+	const getBaseOrderFee = async () => 0
+	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

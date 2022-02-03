@@ -12,8 +12,8 @@ import { waitTx } from "../../common/wait-tx"
 import type { SimpleRaribleV2Order } from "../types"
 import { isSigner } from "../../common/is-signer"
 import { fixSignature } from "../../common/fix-signature"
-import type { EthereumNetwork } from "../../types"
 import { getBaseOrderConfigFee } from "../get-base-order-fee"
+import type { SimpleOrder } from "../types"
 import { invertOrder } from "./invert-order"
 import type { OrderHandler, RaribleV2OrderFillRequest } from "./types"
 import type { OrderFillSendData } from "./types"
@@ -24,7 +24,7 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
-		private readonly env: EthereumNetwork,
+		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 	) {}
 
 	invert(request: RaribleV2OrderFillRequest, maker: Address): SimpleRaribleV2Order {
@@ -120,6 +120,6 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 	}
 
 	async getBaseOrderFee(): Promise<number> {
-		return getBaseOrderConfigFee(this.config, this.env, "RARIBLE_V2")
+		return this.getBaseOrderFeeConfig("RARIBLE_V2")
 	}
 }

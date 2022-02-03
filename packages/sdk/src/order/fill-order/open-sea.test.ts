@@ -58,10 +58,11 @@ describe("fillOrder: Opensea orders", function () {
 	}
 	const apis = createEthereumApis(env)
 
-	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, getSimpleSendWithInjects(), config, env)
-	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, getSimpleSendWithInjects(), config, env)
-	const orderFiller1 = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis, env)
-	const orderFiller2 = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis, env)
+	const getBaseOrderFee = async () => 0
+	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, getSimpleSendWithInjects(), config, getBaseOrderFee)
+	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, getSimpleSendWithInjects(), config, getBaseOrderFee)
+	const orderFiller1 = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
+	const orderFiller2 = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

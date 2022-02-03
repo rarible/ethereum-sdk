@@ -17,8 +17,8 @@ import { createOpenseaContract } from "../contracts/exchange-opensea-v1"
 import { toVrs } from "../../common/to-vrs"
 import { waitTx } from "../../common/wait-tx"
 import type { SimpleOpenSeaV1Order } from "../types"
-import type { EthereumNetwork } from "../../types"
 import { getBaseOrderConfigFee } from "../get-base-order-fee"
+import type { SimpleOrder } from "../types"
 import type { OpenSeaOrderDTO } from "./open-sea-types"
 import type { OpenSeaV1OrderFillRequest, OrderHandler } from "./types"
 import { convertOpenSeaOrderToDTO } from "./open-sea-converter"
@@ -29,7 +29,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
-		private readonly env: EthereumNetwork,
+		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 	) {}
 
 	invert({ order }: OpenSeaV1OrderFillRequest, maker: Address): SimpleOpenSeaV1Order {
@@ -62,7 +62,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	}
 
 	async getBaseOrderFee(): Promise<number> {
-		return getBaseOrderConfigFee(this.config, this.env, "OPEN_SEA_V1")
+		return this.getBaseOrderFeeConfig("OPEN_SEA_V1")
 	}
 
 	getOrderFee(order: SimpleOpenSeaV1Order): number {

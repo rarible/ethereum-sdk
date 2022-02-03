@@ -50,7 +50,8 @@ describe.each(providers)("sell", (ethereum) => {
 		.bind(null, nftLazyMintApi, checkWalletChainId)
 	const apis = createEthereumApis("e2e")
 
-	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis, env)
+	const getBaseOrderFee = async () => 0
+	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
 	const upserter = new UpsertOrder(
 		orderService,
 		(x) => Promise.resolve(x),

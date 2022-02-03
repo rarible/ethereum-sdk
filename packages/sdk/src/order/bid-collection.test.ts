@@ -48,7 +48,8 @@ describe("bid", () => {
 	const apis = createEthereumApis(env)
 	const checkWalletChainId = checkChainId.bind(null, ethereum2, config)
 
-	const orderService = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis, env)
+	const getBaseOrderFee = async () => 0
+	const orderService = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
 	const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
 
 	const upserter = new UpsertOrder(
@@ -76,7 +77,7 @@ describe("bid", () => {
 		testErc721: deployTestErc721(web31, "Test", "TST"),
 	})
 
-	const filler1 = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis, env)
+	const filler1 = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
 
 	test("create bid for collection", async () => {
 		const ownerCollectionAddress = toAddress(await ethereum1.getFrom())

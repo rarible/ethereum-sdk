@@ -10,7 +10,7 @@
     if (ethereum && ethereum.isMetaMask) {
       const web = new Web3(ethereum)
       const web3Ethereum = new window.raribleWeb3Ethereum.Web3Ethereum({ web3: web })
-      const env = "rinkeby" // "e2e" | "ropsten" | "rinkeby" | "mainnet"
+      const env = "rinkeby" // "e2e" | "ropsten" | "rinkeby" | "polygon" | "mumbai" | "mumbai-dev | "mainnet"
       const raribleSdk = new window.raribleEthereumSdk.createRaribleSdk(web3Ethereum, env)
       const mintFormInitial = {
         id: "0x6ede7f3c26975aad32a475e1021d8f6f39c89d82", // default collection on "rinkeby" that supports lazy minting

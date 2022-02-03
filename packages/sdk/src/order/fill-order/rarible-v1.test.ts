@@ -23,13 +23,14 @@ describe("test exchange v1 order", () => {
 	const ethereum1 = new Web3Ethereum({ web3: web31 })
 	const ethereum2 = new Web3Ethereum({ web3: web32 })
 
+	const env = "e2e" as const
 	const e2eConfig = getEthereumConfig("e2e")
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const ownershipApi = new NftOwnershipControllerApi(configuration)
 
 	const apis = createEthereumApis("e2e")
 
-	const filler = new OrderFiller(ethereum2, getSimpleSendWithInjects(), e2eConfig, apis)
+	const filler = new OrderFiller(ethereum2, getSimpleSendWithInjects(), e2eConfig, apis, env)
 
 	const seller = toAddress(wallet1.getAddressString())
 	const buyer = toAddress(wallet2.getAddressString())

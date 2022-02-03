@@ -23,14 +23,15 @@ describe("cancel order", () => {
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
 	const approve = () => Promise.resolve(undefined)
-	const config = getEthereumConfig("e2e")
+	const env = "e2e" as const
+	const config = getEthereumConfig(env)
 	const sign = signOrder.bind(null, ethereum, config)
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const configuration = new Configuration(getApiConfig(env))
 	const orderApi = new OrderControllerApi(configuration)
-	const apis = createEthereumApis("e2e")
+	const apis = createEthereumApis(env)
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
-	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis)
+	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis, env)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

@@ -48,19 +48,20 @@ describe("fillOrder: Opensea orders", function () {
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
+	const env = "e2e" as const
 	const config: EthereumConfig = {
-		...getEthereumConfig("e2e"),
+		...getEthereumConfig(env),
 		openSea: {
 			metadata: id32("RARIBLE"),
 			proxyRegistry: ZERO_ADDRESS,
 		},
 	}
-	const apis = createEthereumApis("e2e")
+	const apis = createEthereumApis(env)
 
-	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, getSimpleSendWithInjects(), config)
-	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, getSimpleSendWithInjects(), config)
-	const orderFiller1 = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis)
-	const orderFiller2 = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis)
+	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, getSimpleSendWithInjects(), config, env)
+	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, getSimpleSendWithInjects(), config, env)
+	const orderFiller1 = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis, env)
+	const orderFiller2 = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis, env)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

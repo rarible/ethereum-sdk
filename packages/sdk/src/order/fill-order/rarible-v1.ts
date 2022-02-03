@@ -12,6 +12,8 @@ import { createExchangeV1Contract } from "../contracts/exchange-v1"
 import { toLegacyAssetType } from "../to-legacy-asset-type"
 import { toVrs } from "../../common/to-vrs"
 import { waitTx } from "../../common/wait-tx"
+import type { EthereumNetwork } from "../../types"
+import { getBaseOrderConfigFee } from "../get-base-order-fee"
 import { invertOrder } from "./invert-order"
 import type { LegacyOrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
 
@@ -22,6 +24,7 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 		private readonly orderApi: OrderControllerApi,
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
+		private readonly env: EthereumNetwork,
 	) {}
 
 	invert(request: LegacyOrderFillRequest, maker: Address): SimpleLegacyOrder {
@@ -41,8 +44,8 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 		await waitTx(approve(this.ethereum, this.send, this.config.transferProxies, order.maker, withFee, infinite))
 	}
 
-	getBaseOrderFee(): number {
-		return 0
+	async getBaseOrderFee(): Promise<number> {
+		return getBaseOrderConfigFee(this.config, this.env, "RARIBLE_V1")
 	}
 
 	getOrderFee(order: SimpleLegacyOrder): number {

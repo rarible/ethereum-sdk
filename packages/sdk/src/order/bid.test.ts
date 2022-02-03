@@ -34,23 +34,24 @@ const { provider, wallet } = createE2eProvider(
 const { providers } = createTestProviders(provider, wallet)
 
 describe.each(providers)("bid", (ethereum) => {
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const env = "e2e" as const
+	const configuration = new Configuration(getApiConfig(env))
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 	const orderApi = new OrderControllerApi(configuration)
 	const send = getSendWithInjects().bind(null, gatewayApi)
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig(env)
 	const signOrder = signOrderTemplate.bind(null, ethereum, config)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
 	const signNft = signNftTemplate.bind(null, ethereum, config.chainId)
-	const apis = createEthereumApis("e2e")
+	const apis = createEthereumApis(env)
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const mint = mintTemplate
 		.bind(null, ethereum, send, signNft, nftCollectionApi)
 		.bind(null, nftLazyMintApi, checkWalletChainId)
 
-	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis)
+	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis, env)
 
 	const upserter = new UpsertOrder(
 		orderService,

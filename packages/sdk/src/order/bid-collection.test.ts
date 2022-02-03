@@ -38,16 +38,17 @@ describe("bid", () => {
 	const web32 = new Web3(provider2)
 	const ethereum2 = new Web3Ethereum({ web3: web32 })
 
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const env = "e2e" as const
+	const configuration = new Configuration(getApiConfig(env))
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const orderApi = new OrderControllerApi(configuration)
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig(env)
 	const signOrder2 = signOrderTemplate.bind(null, ethereum2, config)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
-	const apis = createEthereumApis("e2e")
+	const apis = createEthereumApis(env)
 	const checkWalletChainId = checkChainId.bind(null, ethereum2, config)
 
-	const orderService = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis)
+	const orderService = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis, env)
 	const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
 
 	const upserter = new UpsertOrder(
@@ -75,7 +76,7 @@ describe("bid", () => {
 		testErc721: deployTestErc721(web31, "Test", "TST"),
 	})
 
-	const filler1 = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis)
+	const filler1 = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis, env)
 
 	test("create bid for collection", async () => {
 		const ownerCollectionAddress = toAddress(await ethereum1.getFrom())

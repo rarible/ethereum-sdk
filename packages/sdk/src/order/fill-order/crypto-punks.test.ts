@@ -27,9 +27,10 @@ describe("fillOrder", () => {
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 
-	const apis = createEthereumApis("e2e")
-	const config = getEthereumConfig("e2e")
-	const filler = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis)
+	const env = "e2e" as const
+	const apis = createEthereumApis(env)
+	const config = getEthereumConfig(env)
+	const filler = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis, env)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -65,7 +66,6 @@ describe("fillOrder", () => {
 		config.exchange.v2 = toAddress(it.exchangeV2.options.address)
 		config.transferProxies.cryptoPunks = toAddress(it.punksTransferProxy.options.address)
 		config.chainId = 17
-		config.fees.v2 = 100
 
 		await sentTx(it.erc20TransferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
 			from: sender1Address,

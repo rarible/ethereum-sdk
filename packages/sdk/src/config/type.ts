@@ -35,7 +35,7 @@ export type EthereumConfig = {
 	chainId: number
 	exchange: ExchangeAddresses
 	transferProxies: TransferProxies
-	fees: ExchangeFees
+	feeConfigUrl: string
 	openSea: OpenSeaConfig
 	factories: FactoriesAddresses
 	weth: Address

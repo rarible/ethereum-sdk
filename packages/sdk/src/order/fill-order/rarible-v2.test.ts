@@ -32,11 +32,12 @@ describe("buy & acceptBid orders", () => {
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
-	const config = getEthereumConfig("e2e")
-	const apis = createEthereumApis("e2e")
+	const env = "e2e" as const
+	const config = getEthereumConfig(env)
+	const apis = createEthereumApis(env)
 
-	const filler = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis)
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const filler = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis, env)
+	const configuration = new Configuration(getApiConfig(env))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const send = getSendWithInjects().bind(null, gatewayApi)
 
@@ -72,7 +73,6 @@ describe("buy & acceptBid orders", () => {
 		config.transferProxies.cryptoPunks = toAddress(it.punksTransferProxy.options.address)
 		config.transferProxies.erc20 = toAddress(it.erc20TransferProxy.options.address)
 		config.chainId = 17
-		config.fees.v2 = 100
 
 		await sentTx(it.transferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
 			from: sender1Address,
@@ -391,7 +391,7 @@ describe("buy & acceptBid orders", () => {
 
 		const finalOrder = { ...left, signature }
 
-		const filler = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis)
+		const filler = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis, env)
 
 		await filler.acceptBid({ order: finalOrder, amount: 1, originFees: []})
 

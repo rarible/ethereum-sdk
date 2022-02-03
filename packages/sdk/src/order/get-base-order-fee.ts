@@ -17,7 +17,7 @@ export async function getBaseOrderConfigFee(
 		throw new Error(`Unsupported order type ${type}`)
 	}
 
-	return envFeeConfig[type]
+	return Number(envFeeConfig[type])
 }
 
 export type CommonFeeConfig = Record<EthereumNetwork, EnvFeeConfig>

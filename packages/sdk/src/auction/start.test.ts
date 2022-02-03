@@ -10,7 +10,6 @@ import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { createEthereumApis } from "../common/apis"
 import { StartAuction } from "./start"
 import { deployTestErc721ForAuction } from "./contracts/test/test-erc721"
-import { createAuctionContract } from "./contracts/test/auction"
 
 describe("start auction", () => {
 	const { provider, wallet } = createE2eProvider("0xa0d2baba419896add0b6e638ba4e50190f331db18e3271760b12ce87fa853dcb")
@@ -58,11 +57,6 @@ describe("start auction", () => {
 		await auctionResponse.tx.wait()
 		expect(await auctionResponse.hash).toBeTruthy()
 		expect(await auctionResponse.auctionId).toBeTruthy()
-
-		const auctionContract = createAuctionContract(web3, config.auction)
-		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc721.options.address, "1").call()
-
-		expect(await auctionResponse.auctionId).toBe(auctionId)
 	})
 
 	test("start erc-1155 <-> eth auction", async () => {
@@ -90,10 +84,6 @@ describe("start auction", () => {
 		)
 
 		await auctionResponse.tx.wait()
-		const auctionContract = createAuctionContract(web3, config.auction)
-		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc1155.options.address, "1").call()
-
-		expect(await auctionResponse.auctionId).toBe(auctionId)
 	})
 
 	test("start erc-1155 <-> erc20 auction", async () => {
@@ -122,9 +112,5 @@ describe("start auction", () => {
 		)
 
 		await auctionResponse.tx.wait()
-		const auctionContract = createAuctionContract(web3, config.auction)
-		const auctionId = await auctionContract.methods.getAuctionByToken(it.testErc1155.options.address, "2").call()
-
-		expect(await auctionResponse.auctionId).toBe(auctionId)
 	})
 })

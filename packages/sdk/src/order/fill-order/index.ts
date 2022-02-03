@@ -18,7 +18,6 @@ import { checkChainId } from "../check-chain-id"
 import type { CheckAssetTypeFunction } from "../check-asset-type"
 import { checkAssetType } from "../check-asset-type"
 import { checkLazyAssetType } from "../check-lazy-asset-type"
-import { CURRENT_ORDER_TYPE_VERSION } from "../../common/order"
 import type {
 	CryptoPunksOrderFillRequest,
 	FillOrderAction,

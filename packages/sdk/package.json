@@ -25,8 +25,6 @@
     "verify": "tsc --noEmit"
   },
   "dependencies": {
-    "@ethereumjs/common": "^2.4.0",
-    "@ethereumjs/tx": "^3.3.0",
     "@rarible/action": "~0.5.0",
     "@rarible/ethereum-api-client": "^0.1.18",
     "@rarible/ethereum-provider": "^0.12.30",

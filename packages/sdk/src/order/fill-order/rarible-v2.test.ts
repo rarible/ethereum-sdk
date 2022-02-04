@@ -16,7 +16,7 @@ import { deployTestRoyaltiesProvider } from "../contracts/test/test-royalties-pr
 import { signOrder } from "../sign-order"
 import { deployTestErc1155 } from "../contracts/test/test-erc1155"
 import type { SimpleOrder } from "../types"
-import { deployCryptoPunks } from "../../nft/contracts/cryptoPunks/deploy"
+import { deployCryptoPunks } from "../../nft/contracts/cryptoPunks/test/deploy"
 import { deployCryptoPunkTransferProxy } from "../contracts/test/test-crypto-punks-transfer-proxy"
 import { deployCryptoPunkAssetMatcher } from "../contracts/test/test-crypto-punks-asset-matcher"
 import { id } from "../../common/id"

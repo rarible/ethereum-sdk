@@ -1,5 +1,6 @@
 import type { Address, BigNumber, Binary, Word } from "@rarible/types"
 import type { MessageTypes, TypedMessage } from "./domain"
+export * from "./domain"
 
 export type EthereumTransactionEvent = {
 	event: string,

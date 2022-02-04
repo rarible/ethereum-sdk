@@ -761,5 +761,3 @@ export const erc721v1Abi: AbiItem[] = [
 		"type": "function",
 	},
 ]
-
-export type ERC721V1Abi = typeof erc721v1Abi

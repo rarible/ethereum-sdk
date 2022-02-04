@@ -14,6 +14,6 @@ export async function deployCryptoPunks(web3: Web3) {
 		.send({ from: address, gas: 4000000, gasPrice: "0" })
 }
 
-export function createCryptoPunks(web3: Web3, address?: Address): Contract {
+function createCryptoPunks(web3: Web3, address?: Address): Contract {
 	return new web3.eth.Contract(cryptoPunksAbi, address)
 }

@@ -21,6 +21,7 @@ import {
 import { createEthereumApis } from "../common/apis"
 import { getEthereumConfig } from "../config"
 import { checkChainId as checkChainIdTemplate } from "../order/check-chain-id"
+import { retry } from "../common/retry"
 import type { ERC1155RequestV1, ERC721RequestV2, ERC721RequestV3, ERC1155RequestV2} from "./mint"
 import { mint as mintTemplate } from "./mint"
 import { signNft } from "./sign-nft"
@@ -66,8 +67,10 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 		expect(toBn(testBalance).toString()).toBe("1")
 
 		await burn(checkChainId, {
-			contract: contractErc721,
-			tokenId: minted.tokenId,
+			assetType: {
+				contract: contractErc721,
+				tokenId: minted.tokenId,
+			},
 		})
 		const testBalanceAfterBurn = await testErc721.functionCall("balanceOf", testAddress).call()
 		expect(toBn(testBalanceAfterBurn).toString()).toBe("0")
@@ -85,9 +88,12 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 				supply: 100,
 			} as ERC1155RequestV1)
 		await burn(checkChainId, {
-			contract: contractErc1155,
-			tokenId: minted.tokenId,
-		}, toBigNumber("50"))
+			assetType: {
+				contract: contractErc1155,
+				tokenId: minted.tokenId,
+			},
+			amount: toBigNumber("50"),
+		})
 
 		const testBalanceAfterBurn = await testErc1155.functionCall("balanceOf", testAddress, minted.tokenId).call()
 		expect(toBn(testBalanceAfterBurn).toString()).toBe("50")
@@ -105,8 +111,17 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 				lazy: true,
 			} as ERC721RequestV3)
 		await burn(checkChainId, {
-			contract: e2eErc721V3ContractAddress,
-			tokenId: minted.tokenId,
+			assetType: {
+				contract: e2eErc721V3ContractAddress,
+				tokenId: minted.tokenId,
+			},
+			creators: [{ account: toAddress(testAddress), value: 10000 }],
+		})
+		await retry(5, 2000, async () => {
+			const nftItemResponse = await apis.nftItem.getNftItemById({
+				itemId: `${e2eErc721V3ContractAddress}:${minted.tokenId}`,
+			})
+			expect(nftItemResponse.deleted).toBe(true)
 		})
 	})
 
@@ -120,8 +135,44 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 			lazy: true,
 		} as ERC1155RequestV2)
 		await burn(checkChainId, {
-			contract: e2eErc1155V2ContractAddress,
-			tokenId: minted.tokenId,
+			assetType: {
+				contract: e2eErc1155V2ContractAddress,
+				tokenId: minted.tokenId,
+			},
+			amount: toBigNumber("50"),
+			creators: [{ account: toAddress(testAddress), value: 10000 }],
+		})
+
+		await retry(5, 2000, async () => {
+			const nftItemResponse = await apis.nftItem.getNftItemById({
+				itemId: `${e2eErc1155V2ContractAddress}:${minted.tokenId}`,
+			})
+			expect(nftItemResponse.deleted).toBe(true)
+		})
+	})
+
+	test("should burn ERC-1155 v2 lazy and burn creators is empty", async () => {
+		const minted = await mint(mintLazyApi, checkChainId, {
+			collection: createErc1155V2Collection(e2eErc1155V2ContractAddress),
+			uri: "ipfs://ipfs/hash",
+			supply: 100,
+			creators: [{ account: toAddress(testAddress), value: 10000 }],
+			royalties: [],
+			lazy: true,
+		} as ERC1155RequestV2)
+		await burn(checkChainId, {
+			assetType: {
+				contract: e2eErc1155V2ContractAddress,
+				tokenId: minted.tokenId,
+			},
+			creators: [],
+		})
+
+		await retry(5, 2000, async () => {
+			const nftItemResponse = await apis.nftItem.getNftItemById({
+				itemId: `${e2eErc1155V2ContractAddress}:${minted.tokenId}`,
+			})
+			expect(nftItemResponse.deleted).toBe(true)
 		})
 	})
 })

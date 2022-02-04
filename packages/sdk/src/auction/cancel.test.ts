@@ -7,6 +7,7 @@ import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
 import { getEthereumConfig } from "../config"
 import { approve as approveTemplate } from "../order/approve"
 import { createEthereumApis } from "../common/apis"
+import { checkChainId } from "../order/check-chain-id"
 import { createAuctionContract } from "./contracts/test/auction"
 import { StartAuction } from "./start"
 import { cancelAuction } from "./cancel"
@@ -17,9 +18,11 @@ describe("cancel auction", () => {
 	const web3 = new Web3(provider as any)
 	const config = getEthereumConfig("e2e")
 	const ethereum1 = new Web3Ethereum({web3, from: sender1Address, gas: 1000000})
-	const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
+	const checkWalletChainId = checkChainId.bind(null, ethereum1, config)
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+	const approve1 = approveTemplate.bind(null, ethereum1, send, config.transferProxies)
 	const apis = createEthereumApis("e2e")
-	const auctionService = new StartAuction(ethereum1, config, approve1, apis)
+	const auctionService = new StartAuction(ethereum1, send, config, approve1, apis)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3, "TST"),
@@ -53,7 +56,7 @@ describe("cancel auction", () => {
 
 		const auctionContract = createAuctionContract(web3, config.auction)
 
-		const tx = await cancelAuction(ethereum1, config, await auction.auctionId)
+		const tx = await cancelAuction(ethereum1, send, config, await auction.auctionId)
 		await tx.wait()
 
 		const auctionExistence = await auctionContract.methods.checkAuctionExistence(await auction.auctionId).call()

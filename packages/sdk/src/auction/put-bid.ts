@@ -11,6 +11,8 @@ import type { EthereumConfig } from "../config/type"
 import type { ApproveFunction } from "../order/approve"
 import { waitTx } from "../common/wait-tx"
 import { getPrice } from "../common/get-price"
+import type { SendFunction } from "../common/send-transaction"
+import { checkChainId } from "../order/check-chain-id"
 import { createEthereumAuctionContract } from "./contracts/auction"
 import { AUCTION_BID_DATA_V1, AUCTION_DATA_TYPE, getAuctionHash, getAuctionOperationOptions } from "./common"
 
@@ -26,6 +28,7 @@ export type PutAuctionBidAction = Action<"approve" | "sign", PutBidRequest, Ethe
 export class PutAuctionBid {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
+		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly approve: ApproveFunction,
 		private readonly auctionApi: AuctionControllerApi,
@@ -69,10 +72,15 @@ export class PutAuctionBid {
 					data: bidData,
 				}
 				const options = getAuctionOperationOptions(auction.buy, price)
-
-				return createEthereumAuctionContract(this.ethereum, this.config.auction)
-					.functionCall("putBid", request.auctionId, bid)
-					.send(options)
+				const contract = createEthereumAuctionContract(this.ethereum, this.config.auction)
+				return this.send(
+					contract.functionCall("putBid", request.auctionId, bid),
+					options
+				)
 			},
+		})
+		.before(async (request: PutBidRequest) => {
+			await checkChainId(this.ethereum, this.config)
+			return request
 		})
 }

@@ -8,21 +8,21 @@ import { getApiConfig } from "../config/api-config"
 import { getTokenId as getTokenIdTemplate } from "../nft/get-token-id"
 import { getErc721Contract } from "../nft/contracts/erc721"
 import { ERC721VersionEnum } from "../nft/contracts/domain"
+import { checkChainId } from "../order/check-chain-id"
+import { getEthereumConfig } from "../config"
 import { createPendingLogs, getSendWithInjects } from "./send-transaction"
 
 describe("sendTransaction", () => {
 	const { provider, wallet } = createE2eProvider()
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
+	const config = getEthereumConfig("e2e")
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const collectionApi = new NftCollectionControllerApi(configuration)
-	const send = getSendWithInjects(/*{
-		logger: {
-			instance: createRemoteLogger({ethereum, env: "e2e"}),
-			level: LogsLevel.TRACE,
-		},
-	}*/).bind(null, gatewayApi)
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+
+	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 	const getTokenId = getTokenIdTemplate.bind(null, collectionApi)
 
 	let testErc721: EthereumContract
@@ -40,5 +40,21 @@ describe("sendTransaction", () => {
 		const logs = await createPendingLogs(gatewayApi, tx)
 		expect(logs).toBeTruthy()
 		expect(tx.from.toLowerCase()).toBe(minter.toLowerCase())
+	})
+
+	test("throw error if config.chainId is make a difference with chainId of wallet", async () => {
+		const config = getEthereumConfig("rinkeby")
+		const configuration = new Configuration(getApiConfig("rinkeby"))
+		const gatewayApi = new GatewayControllerApi(configuration)
+		const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+
+		const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
+
+		const minter = toAddress(wallet.getAddressString())
+		const { tokenId, signature: { v, r, s } } = await getTokenId(collectionId, minter)
+		const functionCall = testErc721.functionCall("mint", tokenId, v, r, s, [], "uri")
+		const tx = send(functionCall)
+
+		await expect(tx).rejects.toThrow("Config chainId=4, but wallet chainId=17")
 	})
 })

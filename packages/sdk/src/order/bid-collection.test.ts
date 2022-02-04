@@ -45,29 +45,33 @@ describe("bid", () => {
 	const signOrder2 = signOrderTemplate.bind(null, ethereum2, config)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
 	const apis = createEthereumApis("e2e")
-	const checkWalletChainId = checkChainId.bind(null, ethereum2, config)
+	const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
 
-	const orderService = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis)
-	const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
+	const send2 = getSimpleSendWithInjects().bind(null, checkWalletChainId2)
+
+	const orderService = new OrderFiller(ethereum2, send2, config, apis)
+	const approve2 = approveTemplate.bind(null, ethereum2, send2, config.transferProxies)
 
 	const upserter = new UpsertOrder(
 		orderService,
+		send2,
 		(x) => Promise.resolve(x),
 		approve2,
 		signOrder2,
 		orderApi,
 		ethereum2,
-		checkWalletChainId,
+		checkWalletChainId2,
 	)
-	const orderBid = new OrderBid(upserter, checkAssetType, checkWalletChainId)
+	const orderBid = new OrderBid(upserter, checkAssetType, checkWalletChainId2)
 
+	const checkWalletChainId1 = checkChainId.bind(null, ethereum1, config)
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
-	const send = getSendWithInjects().bind(null, gatewayApi)
+	const send1 = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId1)
 	const sign1 = signNft.bind(null, ethereum1, 17)
 	const mint1 = mintTemplate
-		.bind(null, ethereum1, send, sign1, nftCollectionApi)
-		.bind(null, nftLazyMintApi, checkWalletChainId)
+		.bind(null, ethereum1, send1, sign1, nftCollectionApi)
+		.bind(null, nftLazyMintApi, checkWalletChainId1)
 	const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 
 	const it = awaitAll({
@@ -75,7 +79,7 @@ describe("bid", () => {
 		testErc721: deployTestErc721(web31, "Test", "TST"),
 	})
 
-	const filler1 = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis)
+	const filler1 = new OrderFiller(ethereum1, send1, config, apis)
 
 	test("create bid for collection", async () => {
 		const ownerCollectionAddress = toAddress(await ethereum1.getFrom())

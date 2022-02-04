@@ -29,10 +29,10 @@ describe.each(providers)("check-asset-type test", ethereum => {
 	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const sign = signNft.bind(null, ethereum, 17)
-	const send = getSendWithInjects().bind(null, gatewayApi)
-	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
 	const config = getEthereumConfig("e2e")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
+	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
 
 	test("should set assetClass if type not present", async () => {
 		const request: ERC721RequestV3 = {

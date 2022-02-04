@@ -28,11 +28,11 @@ describe("transfer Erc721 lazy", () => {
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = getSendWithInjects().bind(null, gatewayApi)
-	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
-	const sign = signNft.bind(null, ethereum, 17)
 	const config = getEthereumConfig("e2e")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
+	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
+	const sign = signNft.bind(null, ethereum, 17)
 
 
 	test("should transfer erc721 lazy token", async () => {

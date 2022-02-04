@@ -10,8 +10,10 @@ import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/c
 import { Web3Ethereum } from "../../../web3-ethereum"
 import { getApiConfig } from "../config/api-config"
 import { getSendWithInjects, sentTx } from "../common/send-transaction"
+import { getEthereumConfig } from "../config"
 import { approveErc20 as approveErc20Template } from "./approve-erc20"
 import { deployTestErc20 } from "./contracts/test/test-erc20"
+import { checkChainId } from "./check-chain-id"
 
 const pk = "d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469"
 const { provider, addresses } = createGanacheProvider(pk)
@@ -32,7 +34,9 @@ describe.each(providers)("approveErc20", (ethereum: Ethereum) => {
 	const [testAddress] = addresses
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = getSendWithInjects().bind(null, gatewayApi)
+	const config = getEthereumConfig("e2e")
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 	const approveErc20 = approveErc20Template.bind(null, ethereum, send)
 
 	const it = awaitAll({

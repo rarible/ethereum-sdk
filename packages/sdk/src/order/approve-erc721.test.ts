@@ -6,8 +6,10 @@ import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-clien
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { getApiConfig } from "../config/api-config"
 import { sentTx, getSendWithInjects } from "../common/send-transaction"
+import { getEthereumConfig } from "../config"
 import { approveErc721 as approveErc721Template } from "./approve-erc721"
 import { deployTestErc721 } from "./contracts/test/test-erc721"
+import { checkChainId } from "./check-chain-id"
 
 describe("approveErc721", () => {
 	const { provider, addresses } = createGanacheProvider()
@@ -16,7 +18,9 @@ describe("approveErc721", () => {
 	const [from] = addresses
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = getSendWithInjects().bind(null, gatewayApi)
+	const config = getEthereumConfig("e2e")
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 
 	const approveErc721 = approveErc721Template.bind(null, ethereum, send)
 

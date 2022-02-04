@@ -14,7 +14,7 @@ import { getApiConfig } from "../config/api-config"
 import type { ERC721RequestV3 } from "../nft/mint"
 import { mint as mintTemplate } from "../nft/mint"
 import { createTestProviders } from "../common/create-test-providers"
-import { getSendWithInjects, getSimpleSendWithInjects } from "../common/send-transaction"
+import { getSendWithInjects } from "../common/send-transaction"
 import { signNft as signNftTemplate } from "../nft/sign-nft"
 import { createErc721V3Collection } from "../common/mint"
 import { delay, retry } from "../common/retry"
@@ -38,20 +38,21 @@ describe.each(providers)("sell", (ethereum) => {
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 	const orderApi = new OrderControllerApi(configuration)
-	const send = getSendWithInjects().bind(null, gatewayApi)
 	const config = getEthereumConfig("e2e")
 	const signOrder = signOrderTemplate.bind(null, ethereum, config)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
 	const signNft = signNftTemplate.bind(null, ethereum, config.chainId)
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 	const mint = mintTemplate
 		.bind(null, ethereum, send, signNft, nftCollectionApi)
 		.bind(null, nftLazyMintApi, checkWalletChainId)
 	const apis = createEthereumApis("e2e")
 
-	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis)
+	const orderService = new OrderFiller(ethereum, send, config, apis)
 	const upserter = new UpsertOrder(
 		orderService,
+		send,
 		(x) => Promise.resolve(x),
 		() => Promise.resolve(undefined),
 		signOrder,

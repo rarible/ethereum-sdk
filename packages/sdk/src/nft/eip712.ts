@@ -1,4 +1,4 @@
-import type { MessageTypes } from "packages/ethereum-provider/build/domain"
+import type { MessageTypes } from "@rarible/ethereum-provider"
 
 export const EIP721_NFT_TYPE = "Mint721"
 export const NFT_DOMAIN_TYPE = [

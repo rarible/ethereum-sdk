@@ -6,7 +6,7 @@ import { randomAddress, toAddress } from "@rarible/types"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { getSendWithInjects, sentTx } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
-import { deployCryptoPunks } from "../nft/contracts/cryptoPunks/deploy"
+import { deployCryptoPunks } from "../nft/contracts/cryptoPunks/test/deploy"
 import { approveCryptoPunk } from "./approve-crypto-punk"
 
 describe("approve crypto punks", () => {

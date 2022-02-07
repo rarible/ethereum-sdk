@@ -8,14 +8,16 @@ import type { SendFunction } from "../../common/send-transaction"
 import { waitTx } from "../../common/wait-tx"
 import type { SimpleCryptoPunkOrder } from "../types"
 import { createCryptoPunksMarketContract } from "../../nft/contracts/cryptoPunks"
+import type { SimpleOrder } from "../types"
 import { invertOrder } from "./invert-order"
 import type { CryptoPunksOrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
 
 export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFillRequest> {
 	constructor(
-		readonly ethereum: Maybe<Ethereum>,
-		readonly send: SendFunction,
-		readonly config: EthereumConfig,
+		private readonly ethereum: Maybe<Ethereum>,
+		private readonly send: SendFunction,
+		private readonly config: EthereumConfig,
+		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 	) {}
 
 	invert(request: CryptoPunksOrderFillRequest, maker: Address): SimpleCryptoPunkOrder {
@@ -86,7 +88,7 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 		return 0
 	}
 
-	getBaseOrderFee(): number {
-		return 0
+	async getBaseOrderFee(): Promise<number> {
+		return this.getBaseOrderFeeConfig("CRYPTO_PUNK")
 	}
 }

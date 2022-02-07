@@ -31,10 +31,11 @@ describe("test exchange v1 order", () => {
 	const apis = createEthereumApis("e2e")
 	const config = getEthereumConfig("e2e")
 
+	const getBaseOrderFee = async () => 0
 	const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
 	const send2 = getSimpleSendWithInjects().bind(null, checkWalletChainId2)
 
-	const filler = new OrderFiller(ethereum2, send2, e2eConfig, apis)
+	const filler = new OrderFiller(ethereum2, send2, e2eConfig, apis, getBaseOrderFee)
 
 	const seller = toAddress(wallet1.getAddressString())
 	const buyer = toAddress(wallet2.getAddressString())

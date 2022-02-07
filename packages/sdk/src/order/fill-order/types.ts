@@ -46,9 +46,9 @@ export interface OrderHandler<T extends FillOrderRequest> {
 	sendTransaction: (initial: T["order"], inverted: T["order"], request: T) => Promise<EthereumTransaction>
 	getTransactionData: (order: T["order"], inverted: T["order"], request: T) => Promise<OrderFillSendData>
 
-	getBaseOrderFee(order: T["order"]): number
+	getBaseOrderFee(order: T["order"]): Promise<number> | number
 
-	getOrderFee(order: T["order"]): number
+	getOrderFee(order: T["order"]): Promise<number> | number
 }
 
 export type GetOrderFillTxData = (request: FillOrderRequest) => Promise<OrderFillTransactionData>

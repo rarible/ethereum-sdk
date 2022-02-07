@@ -46,13 +46,14 @@ export class OrderFiller {
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly apis: RaribleEthereumApis,
+		private readonly getBaseOrderFee: (type: SimpleOrder["type"]) => Promise<number>,
 	) {
 		this.getBaseOrderFillFee = this.getBaseOrderFillFee.bind(this)
 		this.getTransactionData = this.getTransactionData.bind(this)
-		this.v1Handler = new RaribleV1OrderHandler(ethereum, apis.order, send, config)
-		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config)
-		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config)
-		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config)
+		this.v1Handler = new RaribleV1OrderHandler(ethereum, apis.order, send, config, getBaseOrderFee)
+		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config, getBaseOrderFee)
+		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, getBaseOrderFee)
+		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config, getBaseOrderFee)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 	}
@@ -222,7 +223,7 @@ export class OrderFiller {
 			case "RARIBLE_V2":
 				return this.v2Handler.getBaseOrderFee()
 			case "OPEN_SEA_V1":
-				return this.openSeaHandler.getBaseOrderFee(order)
+				return this.openSeaHandler.getBaseOrderFee()
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getBaseOrderFee()
 			default:

@@ -17,6 +17,7 @@ import { createOpenseaContract } from "../contracts/exchange-opensea-v1"
 import { toVrs } from "../../common/to-vrs"
 import { waitTx } from "../../common/wait-tx"
 import type { SimpleOpenSeaV1Order } from "../types"
+import type { SimpleOrder } from "../types"
 import type { OpenSeaOrderDTO } from "./open-sea-types"
 import type { OpenSeaV1OrderFillRequest, OrderHandler } from "./types"
 import { convertOpenSeaOrderToDTO } from "./open-sea-converter"
@@ -27,6 +28,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
+		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 	) {}
 
 	invert({ order }: OpenSeaV1OrderFillRequest, maker: Address): SimpleOpenSeaV1Order {
@@ -58,16 +60,16 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		}
 	}
 
-	getBaseOrderFee(order: SimpleOpenSeaV1Order): number {
+	async getBaseOrderFee(): Promise<number> {
+		return this.getBaseOrderFeeConfig("OPEN_SEA_V1")
+	}
+
+	getOrderFee(order: SimpleOpenSeaV1Order): number {
 		if (order.data.feeRecipient === ZERO_ADDRESS) {
 			return toBn(order.data.takerProtocolFee).plus(order.data.takerRelayerFee).toNumber()
 		} else {
 			return toBn(order.data.makerProtocolFee).plus(order.data.makerRelayerFee).toNumber()
 		}
-	}
-
-	getOrderFee(order: SimpleOpenSeaV1Order): number {
-		return this.getBaseOrderFee(order)
 	}
 
 	async approve(order: SimpleOpenSeaV1Order, infinite: boolean) {

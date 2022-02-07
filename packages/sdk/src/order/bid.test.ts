@@ -54,7 +54,9 @@ describe.each(providers)("bid", (ethereum) => {
 		.bind(null, ethereum, send, signNft, nftCollectionApi)
 		.bind(null, nftLazyMintApi, checkWalletChainId)
 	const approve = approveTemplate.bind(null, ethereum, send, config.transferProxies)
-	const orderService = new OrderFiller(ethereum, send, config, apis)
+	const getBaseOrderFee = async () => 0
+
+	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
 
 	const checkLazyAssetType = checkLazyAssetTypeTemplate.bind(null, apis.nftItem)
 	const checkLazyAsset = checkLazyAssetTemplate.bind(null, checkLazyAssetType)

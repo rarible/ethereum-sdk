@@ -1,6 +1,7 @@
 import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 import { id32 } from "../common/id"
 import type { EthereumConfig } from "./type"
+import { FEE_CONFIG_URL } from "./common"
 
 export const ropstenConfig: EthereumConfig = {
 	basePath: "https://ethereum-api-dev.rarible.org",
@@ -18,9 +19,7 @@ export const ropstenConfig: EthereumConfig = {
 		openseaV1: ZERO_ADDRESS,
 		cryptoPunks: toAddress("0x6B8ABca06F4D08310dc09540B8E27E5A0D9572E9"),
 	},
-	fees: {
-		v2: 0,
-	},
+	feeConfigUrl: FEE_CONFIG_URL,
 	openSea: {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: ZERO_ADDRESS,

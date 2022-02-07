@@ -29,7 +29,7 @@ import { cancel as cancelTemplate } from "./order/cancel"
 import type { FillOrderAction, GetOrderFillTxData } from "./order/fill-order/types"
 import type { SimpleOrder } from "./order/types"
 import { OrderFiller } from "./order/fill-order"
-import { getBaseOrderFee as getBaseOrderFeeTemplate } from "./order/get-base-order-fee"
+import { getBaseOrderConfigFee } from "./order/get-base-order-fee"
 import { DeployErc721 } from "./nft/deploy-erc721"
 import { DeployErc1155 } from "./nft/deploy-erc1155"
 import type { DeployNft } from "./common/deploy"
@@ -233,7 +233,8 @@ export function createRaribleSdk(
 	const checkLazyOrder = order.checkLazyOrder.bind(null, checkLazyAsset)
 	const checkAssetType = partialCall(checkAssetTypeTemplate, apis.nftCollection)
 
-	const filler = new OrderFiller(ethereum, send, config, apis)
+	const getBaseOrderFee = getBaseOrderConfigFee.bind(null, config, env)
+	const filler = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
 
 	const approveFn = partialCall(approveTemplate, ethereum, send, config.transferProxies)
 
@@ -268,7 +269,7 @@ export function createRaribleSdk(
 			bidUpdate: bidService.update,
 			upsert: upsertService.upsert,
 			cancel: partialCall(cancelTemplate, checkLazyOrder, ethereum, send, config.exchange, checkWalletChainId),
-			getBaseOrderFee: getBaseOrderFeeTemplate.bind(null, config),
+			getBaseOrderFee: getBaseOrderFee,
 			getBaseOrderFillFee: filler.getBaseOrderFillFee,
 		},
 		auction: {

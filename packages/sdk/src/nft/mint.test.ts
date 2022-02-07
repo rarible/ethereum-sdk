@@ -44,7 +44,7 @@ const nftCollectionApi = new NftCollectionControllerApi(configuration)
 const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 const nftItemApi = new NftItemControllerApi(configuration)
 const gatewayApi = new GatewayControllerApi(configuration)
-const send = getSendWithInjects().bind(null, gatewayApi)
+
 const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 const e2eErc1155V2ContractAddress = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
 
@@ -58,6 +58,8 @@ describe.each(providers)("mint test", ethereum => {
 	})
 
 	const sign = signNft.bind(null, ethereum, 17)
+
+	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 
 	const mint = mintTemplate
 		.bind(null, ethereum, send, sign, nftCollectionApi)

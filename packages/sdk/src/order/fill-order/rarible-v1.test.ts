@@ -11,6 +11,7 @@ import { signOrder } from "../sign-order"
 import { deployTestErc721 } from "../contracts/test/test-erc721"
 import type { SimpleLegacyOrder, SimpleOrder } from "../types"
 import { createEthereumApis } from "../../common/apis"
+import { checkChainId } from "../check-chain-id"
 import { OrderFiller } from "./"
 
 describe("test exchange v1 order", () => {
@@ -28,8 +29,12 @@ describe("test exchange v1 order", () => {
 	const ownershipApi = new NftOwnershipControllerApi(configuration)
 
 	const apis = createEthereumApis("e2e")
+	const config = getEthereumConfig("e2e")
 
-	const filler = new OrderFiller(ethereum2, getSimpleSendWithInjects(), e2eConfig, apis)
+	const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
+	const send2 = getSimpleSendWithInjects().bind(null, checkWalletChainId2)
+
+	const filler = new OrderFiller(ethereum2, send2, e2eConfig, apis)
 
 	const seller = toAddress(wallet1.getAddressString())
 	const buyer = toAddress(wallet2.getAddressString())

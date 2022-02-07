@@ -2,7 +2,11 @@ import type { ContractSendMethod, SendOptions } from "web3-eth-contract"
 import type { PromiEvent } from "web3-core"
 import { toAddress, toBinary, toWord } from "@rarible/types"
 import type { GatewayControllerApi } from "@rarible/ethereum-api-client"
-import type { EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
+import type {
+	EthereumFunctionCall,
+	EthereumSendOptions,
+	EthereumTransaction,
+} from "@rarible/ethereum-provider"
 import type { AbstractLogger } from "@rarible/logger/build/domain"
 import { LogsLevel } from "../types"
 
@@ -17,6 +21,7 @@ export type SendFunction = (
 
 type SendMethod = (
 	api: GatewayControllerApi,
+	checkChainId: () => Promise<boolean>,
 	functionCall: EthereumFunctionCall,
 	options?: EthereumSendOptions
 ) => Promise<EthereumTransaction>
@@ -28,9 +33,11 @@ export function getSendWithInjects(injects: {
 
 	return async function send(
 		api: GatewayControllerApi,
+		checkChainId: () => Promise<boolean>,
 		functionCall: EthereumFunctionCall,
 		options?: EthereumSendOptions
 	): Promise<EthereumTransaction> {
+		await checkChainId()
 		const callInfo = await functionCall.getCallInfo()
 		const logsAvailable = logger && logger.level && callInfo
 
@@ -51,6 +58,7 @@ export function getSendWithInjects(injects: {
 }
 
 type SimpleSendMethod = (
+	checkChainId: () => Promise<boolean>,
 	functionCall: EthereumFunctionCall,
 	options?: EthereumSendOptions,
 ) => Promise<EthereumTransaction>
@@ -61,6 +69,7 @@ export function getSimpleSendWithInjects(injects: {
 	const logger = injects.logger
 
 	return async function simpleSend(
+		checkChainId: () => Promise<boolean>,
 		functionCall: EthereumFunctionCall,
 		options?: EthereumSendOptions,
 	) {

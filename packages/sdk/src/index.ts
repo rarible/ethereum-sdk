@@ -219,17 +219,19 @@ export function createRaribleSdk(
 ): RaribleSdk {
 	const config = getEthereumConfig(env)
 	const apis = createEthereumApis(env, sdkConfig?.apiClientParams)
-	const send = partialCall(getSendWithInjects({
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+
+	const sendWithInjects = partialCall(getSendWithInjects({
 		logger: {
 			instance: createRemoteLogger({ethereum, env: getEnvironment(env)}),
 			level: sdkConfig?.logs ?? LogsLevel.DISABLED,
 		},
 	}), apis.gateway)
+	const send = partialCall(sendWithInjects, checkWalletChainId)
 	const checkLazyAssetType = partialCall(order.checkLazyAssetType, apis.nftItem)
 	const checkLazyAsset = partialCall(order.checkLazyAsset, checkLazyAssetType)
 	const checkLazyOrder = order.checkLazyOrder.bind(null, checkLazyAsset)
 	const checkAssetType = partialCall(checkAssetTypeTemplate, apis.nftCollection)
-	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
 	const filler = new OrderFiller(ethereum, send, config, apis)
 
@@ -237,6 +239,7 @@ export function createRaribleSdk(
 
 	const upsertService = new UpsertOrder(
 		filler,
+		send,
 		checkLazyOrder,
 		partialCall(approveTemplate, ethereum, send, config.transferProxies),
 		partialCall(signOrderTemplate, ethereum, config),
@@ -248,9 +251,9 @@ export function createRaribleSdk(
 	const sellService = new OrderSell(upsertService, checkAssetType, checkWalletChainId)
 	const bidService = new OrderBid(upsertService, checkAssetType, checkWalletChainId)
 	const wethConverter = new ConvertWeth(ethereum, send, config)
-	const startAuctionService = new StartAuction(ethereum, config, approveFn, apis)
-	const putAuctionBidService = new PutAuctionBid(ethereum, config, approveFn, apis.auction)
-	const buyOutAuctionService = new BuyoutAuction(ethereum, config, approveFn, apis.auction)
+	const startAuctionService = new StartAuction(ethereum, send, config, approveFn, apis)
+	const putAuctionBidService = new PutAuctionBid(ethereum, send, config, approveFn, apis.auction)
+	const buyOutAuctionService = new BuyoutAuction(ethereum, send, config, approveFn, apis.auction)
 
 	return {
 		apis,
@@ -264,14 +267,14 @@ export function createRaribleSdk(
 			bid: bidService.bid,
 			bidUpdate: bidService.update,
 			upsert: upsertService.upsert,
-			cancel: partialCall(cancelTemplate, checkLazyOrder, ethereum, config.exchange, checkWalletChainId),
+			cancel: partialCall(cancelTemplate, checkLazyOrder, ethereum, send, config.exchange, checkWalletChainId),
 			getBaseOrderFee: getBaseOrderFeeTemplate.bind(null, config),
 			getBaseOrderFillFee: filler.getBaseOrderFillFee,
 		},
 		auction: {
 			start: startAuctionService.start,
-			cancel: cancelAuction.bind(null, ethereum, config),
-			finish: finishAuction.bind(null, ethereum, config),
+			cancel: cancelAuction.bind(null, ethereum, send, config),
+			finish: finishAuction.bind(null, ethereum, send, config),
 			putBid: putAuctionBidService.putBid,
 			buyOut: buyOutAuctionService.buyout,
 			getHash: getAuctionHash.bind(null, ethereum, config),
@@ -302,7 +305,7 @@ export function createRaribleSdk(
 			},
 		},
 		balances: {
-			getBalance: new Balances(ethereum, apis.erc20Balance).getBalance,
+			getBalance: new Balances(ethereum, apis.erc20Balance, checkWalletChainId).getBalance,
 			convert: wethConverter.convert,
 			getWethContractAddress: wethConverter.getWethContractAddress,
 		},

@@ -14,12 +14,14 @@ export type BalanceRequestAssetType = EthAssetType | Erc20AssetType
 export class Balances {
 	constructor(
 		private ethereum: Maybe<Ethereum>,
-		private erc20BalanceController: Erc20BalanceControllerApi
+		private erc20BalanceController: Erc20BalanceControllerApi,
+		private readonly checkWalletChainId: () => Promise<boolean>,
 	) {
 		this.getBalance = this.getBalance.bind(this)
 	}
 
 	async getBalance(address: Address, assetType: BalanceRequestAssetType): Promise<BigNumberValue> {
+		await this.checkWalletChainId()
 		switch (assetType.assetClass) {
 			case "ETH": {
 				if (!this.ethereum) {

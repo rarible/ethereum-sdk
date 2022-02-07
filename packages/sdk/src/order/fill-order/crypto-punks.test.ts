@@ -19,6 +19,7 @@ import { id } from "../../common/id"
 import { deployCryptoPunkAssetMatcher } from "../contracts/test/test-crypto-punks-asset-matcher"
 import { retry } from "../../common/retry"
 import { createEthereumApis } from "../../common/apis"
+import { checkChainId } from "../check-chain-id"
 import { OrderFiller } from "./index"
 
 describe("fillOrder", () => {
@@ -29,7 +30,10 @@ describe("fillOrder", () => {
 
 	const apis = createEthereumApis("e2e")
 	const config = getEthereumConfig("e2e")
-	const filler = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis)
+	const checkWalletChainId = checkChainId.bind(null, ethereum1, config)
+
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+	const filler = new OrderFiller(ethereum1, send, config, apis)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

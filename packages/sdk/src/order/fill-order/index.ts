@@ -14,10 +14,10 @@ import type {
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
 import type { RaribleEthereumApis } from "../../common/apis"
-import { checkChainId } from "../check-chain-id"
 import type { CheckAssetTypeFunction } from "../check-asset-type"
 import { checkAssetType } from "../check-asset-type"
 import { checkLazyAssetType } from "../check-lazy-asset-type"
+import { checkChainId } from "../check-chain-id"
 import type {
 	CryptoPunksOrderFillRequest,
 	FillOrderAction,

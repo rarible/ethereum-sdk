@@ -11,6 +11,8 @@ import type { EthereumConfig } from "../config/type"
 import type { ApproveFunction } from "../order/approve"
 import { waitTx } from "../common/wait-tx"
 import { getPrice } from "../common/get-price"
+import type { SendFunction } from "../common/send-transaction"
+import { checkChainId } from "../order/check-chain-id"
 import { createEthereumAuctionContract } from "./contracts/auction"
 import {
 	AUCTION_BID_DATA_V1,
@@ -29,6 +31,7 @@ export type BuyoutAuctionAction = Action<"approve" | "sign", BuyOutRequest, Ethe
 export class BuyoutAuction {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
+		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly approve: ApproveFunction,
 		private readonly auctionApi: AuctionControllerApi,
@@ -77,10 +80,15 @@ export class BuyoutAuction {
 				}
 
 				const options = getAuctionOperationOptions(auction.buy, price)
-
-				return createEthereumAuctionContract(this.ethereum, this.config.auction)
-					.functionCall("buyOut", request.auctionId, bid)
-					.send(options)
+				const contract = createEthereumAuctionContract(this.ethereum, this.config.auction)
+				return this.send(
+					contract.functionCall("buyOut", request.auctionId, bid),
+					options
+				)
 			},
+		})
+		.before(async (request: BuyOutRequest) => {
+			await checkChainId(this.ethereum, this.config)
+			return request
 		})
 }

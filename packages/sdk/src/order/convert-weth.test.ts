@@ -9,6 +9,7 @@ import { getEthereumConfig } from "../config"
 import { deployWethContract } from "./contracts/test/weth"
 import { ConvertWeth } from "./convert-weth"
 import { createWethContract } from "./contracts/weth"
+import { checkChainId } from "./check-chain-id"
 
 describe("convert weth test", () => {
 	const { addresses, provider } = createGanacheProvider()
@@ -17,7 +18,9 @@ describe("convert weth test", () => {
 	const ethereum = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const config = getEthereumConfig("e2e")
 
-	const converter = new ConvertWeth(ethereum, getSimpleSendWithInjects(), config)
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+	const converter = new ConvertWeth(ethereum, send, config)
 
 	const it = awaitAll({
 		deployWeth: deployWethContract(web3),

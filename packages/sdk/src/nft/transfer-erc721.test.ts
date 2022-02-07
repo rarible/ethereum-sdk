@@ -8,6 +8,8 @@ import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/c
 import { deployTestErc721 } from "../order/contracts/test/test-erc721"
 import { getApiConfig } from "../config/api-config"
 import { getSendWithInjects } from "../common/send-transaction"
+import { getEthereumConfig } from "../config"
+import { checkChainId } from "../order/check-chain-id"
 import { transferErc721 } from "./transfer-erc721"
 
 describe("transfer Erc721", () => {
@@ -19,7 +21,9 @@ describe("transfer Erc721", () => {
 
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = getSendWithInjects().bind(null, gatewayApi)
+	const config = getEthereumConfig("e2e")
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 
 	const it = awaitAll({
 		testErc721: deployTestErc721(web3, "TST", "TST"),

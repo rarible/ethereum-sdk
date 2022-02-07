@@ -21,7 +21,6 @@ export class DeployErc721 {
 	async deployToken(
 		name: string, symbol: string, baseURI: string, contractURI: string
 	): Promise<{tx: EthereumTransaction, address: Address}> {
-		await checkChainId(this.ethereum, this.config)
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
@@ -38,7 +37,6 @@ export class DeployErc721 {
 	private async getContractAddress(
 		name: string, symbol: string, baseURI: string, contractURI: string, salt: Word
 	): Promise<Address> {
-		await checkChainId(this.ethereum, this.config)
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}

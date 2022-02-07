@@ -10,6 +10,7 @@ import { approve as approveTemplate } from "../order/approve"
 import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { getApiConfig } from "../config/api-config"
 import { createEthereumApis } from "../common/apis"
+import { checkChainId } from "../order/check-chain-id"
 import { StartAuction } from "./start"
 import { BuyoutAuction } from "./buy-out"
 import { deployTestErc721ForAuction } from "./contracts/test/test-erc721"
@@ -30,12 +31,16 @@ describe("buy out auction", () => {
 
 	const ethereum1 = new Web3Ethereum({web3: web3Seller, from: sender1Address, gas: 1000000})
 	const ethereum2 = new Web3Ethereum({web3: web3Buyer, from: sender2Address, gas: 1000000})
-	const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
-	const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
+	const checkWalletChainId1 = checkChainId.bind(null, ethereum1, config)
+	const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
+	const send1 = getSimpleSendWithInjects().bind(null, checkWalletChainId1)
+	const send2 = getSimpleSendWithInjects().bind(null, checkWalletChainId2)
+	const approve1 = approveTemplate.bind(null, ethereum1, send1, config.transferProxies)
+	const approve2 = approveTemplate.bind(null, ethereum2, send2, config.transferProxies)
 
 	const apis = createEthereumApis("e2e")
-	const auctionService1 = new StartAuction(ethereum1, config, approve1, apis)
-	const buyoutService2 = new BuyoutAuction(ethereum2, config, approve2, auctionApi)
+	const auctionService1 = new StartAuction(ethereum1, send1, config, approve1, apis)
+	const buyoutService2 = new BuyoutAuction(ethereum2, send1, config, approve2, auctionApi)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3Seller, "TST"),

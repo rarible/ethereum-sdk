@@ -4,8 +4,7 @@ import Web3 from "web3"
 import { awaitAll } from "@rarible/ethereum-sdk-test-common"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { toBn } from "@rarible/utils/build/bn"
-import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
-import { getSendWithInjects, sentTx, getSimpleSendWithInjects } from "../../common/send-transaction"
+import {sentTx, getSimpleSendWithInjects } from "../../common/send-transaction"
 import { getEthereumConfig } from "../../config"
 import { deployTestErc20 } from "../contracts/test/test-erc20"
 import { deployTestErc721 } from "../contracts/test/test-erc721"
@@ -21,8 +20,8 @@ import { deployCryptoPunkTransferProxy } from "../contracts/test/test-crypto-pun
 import { deployCryptoPunkAssetMatcher } from "../contracts/test/test-crypto-punks-asset-matcher"
 import { id } from "../../common/id"
 import { approveErc20 } from "../approve-erc20"
-import { getApiConfig } from "../../config/api-config"
 import { createEthereumApis } from "../../common/apis"
+import { checkChainId } from "../check-chain-id"
 import { OrderFiller } from "./index"
 
 describe("buy & acceptBid orders", () => {
@@ -36,11 +35,10 @@ describe("buy & acceptBid orders", () => {
 	const config = getEthereumConfig(env)
 	const apis = createEthereumApis(env)
 
+	const checkWalletChainId = checkChainId.bind(null, ethereum1, config)
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
 	const getBaseOrderFee = async () => 100
-	const filler = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
-	const configuration = new Configuration(getApiConfig(env))
-	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = getSendWithInjects().bind(null, gatewayApi)
+	const filler = new OrderFiller(ethereum1, send, config, apis, getBaseOrderFee)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -392,7 +390,7 @@ describe("buy & acceptBid orders", () => {
 
 		const finalOrder = { ...left, signature }
 
-		const filler = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
+		const filler = new OrderFiller(ethereum2, send, config, apis, getBaseOrderFee)
 
 		await filler.acceptBid({ order: finalOrder, amount: 1, originFees: []})
 

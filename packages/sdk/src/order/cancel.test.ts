@@ -32,7 +32,8 @@ describe("cancel order", () => {
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
 	const getBaseOrderFee = async () => 0
-	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -89,6 +90,7 @@ describe("cancel order", () => {
 		const checkLazyOrder = <T>(form: T) => Promise.resolve(form)
 		const upserter = new UpsertOrder(
 			orderService,
+			send,
 			checkLazyOrder,
 			approve,
 			sign,
@@ -98,7 +100,7 @@ describe("cancel order", () => {
 		)
 
 		const order = await upserter.upsert({ order: form })
-		const tx = await cancel(checkLazyOrder, ethereum, config.exchange, checkWalletChainId, order)
+		const tx = await cancel(checkLazyOrder, ethereum, send, config.exchange, checkWalletChainId, order)
 		await tx.wait()
 
 		const cancelledOrder = await retry(15, 2000, async () => {

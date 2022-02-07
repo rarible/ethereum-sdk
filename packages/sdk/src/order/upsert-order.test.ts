@@ -26,14 +26,16 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 	const config = getEthereumConfig(env)
 	const sign = signOrder.bind(null, ethereum, config)
 	const apis = createEthereumApis(env)
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
 	const getBaseOrderFee = async () => 0
-	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
+
 	const approve = () => Promise.resolve(undefined)
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const orderApi = new OrderControllerApi(configuration)
 	const checkLazyOrder: any = async (form: any) => Promise.resolve(form)
-	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
 	test("sign and upsert works", async () => {
 
@@ -51,6 +53,7 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 		}
 		const upserter = new UpsertOrder(
 			orderService,
+			send,
 			checkLazyOrder,
 			approve,
 			sign,
@@ -81,6 +84,7 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 		}
 		const upserter = new UpsertOrder(
 			orderService,
+			send,
 			checkLazyOrder,
 			approve,
 			sign,
@@ -112,6 +116,7 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 		}
 		const upserter = new UpsertOrder(
 			orderService,
+			send,
 			checkLazyOrder,
 			approve,
 			sign,

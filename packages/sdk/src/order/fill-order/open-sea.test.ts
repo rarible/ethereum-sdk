@@ -59,10 +59,16 @@ describe("fillOrder: Opensea orders", function () {
 	const apis = createEthereumApis(env)
 
 	const getBaseOrderFee = async () => 0
-	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, getSimpleSendWithInjects(), config, getBaseOrderFee)
-	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, getSimpleSendWithInjects(), config, getBaseOrderFee)
-	const orderFiller1 = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
-	const orderFiller2 = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis, getBaseOrderFee)
+	const checkWalletChainId1 = checkChainId.bind(null, ethereum1, config)
+	const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
+
+	const send1 = getSimpleSendWithInjects().bind(null, checkWalletChainId1)
+	const send2 = getSimpleSendWithInjects().bind(null, checkWalletChainId2)
+
+	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, getBaseOrderFee)
+	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, send2, config, getBaseOrderFee)
+	const orderFiller1 = new OrderFiller(ethereum1, send1, config, apis, getBaseOrderFee)
+	const orderFiller2 = new OrderFiller(ethereum2, send2, config, apis, getBaseOrderFee)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -277,6 +283,7 @@ describe("fillOrder: Opensea orders", function () {
 		const cancelledOrder = await cancel(
 			checkLazyOrder,
 			ethereum1,
+			send1,
 			{
 				openseaV1: toAddress(wyvernExchange.options.address),
 				v1: ZERO_ADDRESS,

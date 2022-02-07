@@ -7,7 +7,9 @@ import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/c
 import { getSendWithInjects, sentTx } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { deployCryptoPunks } from "../nft/contracts/cryptoPunks/test/deploy"
+import { getEthereumConfig } from "../config"
 import { approveCryptoPunk } from "./approve-crypto-punk"
+import { checkChainId } from "./check-chain-id"
 
 describe("approve crypto punks", () => {
 	const {
@@ -24,7 +26,10 @@ describe("approve crypto punks", () => {
 
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = getSendWithInjects().bind(null, gatewayApi)
+
+	const config = getEthereumConfig("e2e")
+	const checkWalletChainId = checkChainId.bind(null, ethereumSeller, config)
+	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 	const approve = approveCryptoPunk.bind(null, ethereumSeller, send)
 
 	beforeAll(async () => {

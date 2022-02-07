@@ -16,6 +16,8 @@ import { getPrice } from "../common/get-price"
 import type { AssetTypeRequest, AssetTypeResponse} from "../order/check-asset-type"
 import type { RaribleEthereumApis } from "../common/apis"
 import { checkAssetType } from "../order/check-asset-type"
+import type { SendFunction } from "../common/send-transaction"
+import { checkChainId } from "../order/check-chain-id"
 import { createEthereumAuctionContract } from "./contracts/auction"
 import { AUCTION_DATA_TYPE, getAuctionHash } from "./common"
 
@@ -45,6 +47,7 @@ export class StartAuction {
 
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
+		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly approve: ApproveFunction,
 		private readonly apis: RaribleEthereumApis,
@@ -99,17 +102,19 @@ export class StartAuction {
 					buyOutPrice: (await getPrice(this.ethereum, request.takeAssetType, request.buyOutPriceDecimal)).toString(),
 				})
 
-				const tx = await createEthereumAuctionContract(this.ethereum, this.config.auction)
-					.functionCall(
-						"startAuction",
-						sellAsset,
-						buyAssetType,
-						(await getPrice(this.ethereum, request.takeAssetType, request.minimalStepDecimal)).toString(),
-						(await getPrice(this.ethereum, request.takeAssetType, request.minimalPriceDecimal)).toString(),
-						AUCTION_DATA_TYPE,
-						data,
-					)
-					.send({gas: 10000000})
+				const tx = await this.send(
+					await createEthereumAuctionContract(this.ethereum, this.config.auction)
+						.functionCall(
+							"startAuction",
+							sellAsset,
+							buyAssetType,
+							(await getPrice(this.ethereum, request.takeAssetType, request.minimalStepDecimal)).toString(),
+							(await getPrice(this.ethereum, request.takeAssetType, request.minimalPriceDecimal)).toString(),
+							AUCTION_DATA_TYPE,
+							data,
+						)
+				)
+
 
 				const auctionIdPromise = tx.wait()
 					.then(receipt => {
@@ -129,6 +134,10 @@ export class StartAuction {
 					auctionId: auctionIdPromise,
 				}
 			},
+		})
+		.before(async (request: CreateAuctionRequest) => {
+			await checkChainId(this.ethereum, this.config)
+			return request
 		})
 
 }

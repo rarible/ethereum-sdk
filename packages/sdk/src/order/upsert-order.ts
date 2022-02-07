@@ -19,6 +19,8 @@ import { toBn } from "@rarible/utils/build/bn"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { Maybe } from "@rarible/types/build/maybe"
 import { createCryptoPunksMarketContract } from "../nft/contracts/cryptoPunks"
+import type { SendFunction } from "../common/send-transaction"
+import { getRequiredWallet } from "../common/get-required-wallet"
 import type { SimpleCryptoPunkOrder, SimpleOrder, UpsertSimpleOrder } from "./types"
 import { addFee } from "./add-fee"
 import type { ApproveFunction } from "./approve"
@@ -50,6 +52,7 @@ export type OrderRequest = {
 export class UpsertOrder {
 	constructor(
 		private readonly orderFiller: OrderFiller,
+		private readonly send: SendFunction,
 		public readonly checkLazyOrder: (form: CheckLazyOrderPart) => Promise<CheckLazyOrderPart>,
 		private readonly approveFn: ApproveFunction,
 		private readonly signOrder: (order: SimpleOrder) => Promise<Binary>,
@@ -85,10 +88,6 @@ export class UpsertOrder {
 	}
 
 	async getPrice(hasPrice: HasPrice, assetType: Erc20AssetType | EthAssetType): Promise<BigNumberValue> {
-		if (!this.ethereum) {
-			throw new Error("Wallet undefined")
-		}
-
 		if ("price" in hasPrice) {
 			return hasPrice.price
 		} else {
@@ -96,7 +95,10 @@ export class UpsertOrder {
 				case "ETH":
 					return toBn(hasPrice.priceDecimal).multipliedBy(toBn(10).pow(18))
 				case "ERC20":
-					const decimals = await createErc20Contract(this.ethereum, assetType.contract)
+					const decimals = await createErc20Contract(
+						getRequiredWallet(this.ethereum),
+						assetType.contract
+					)
 						.functionCall("decimals")
 						.call()
 					return toBn(hasPrice.priceDecimal).multipliedBy(toBn(10).pow(Number(decimals)))
@@ -144,10 +146,7 @@ export class UpsertOrder {
 		if (request.maker) {
 			return request.maker
 		} else {
-			if (!this.ethereum) {
-				throw new Error("Wallet undefined")
-			}
-			return toAddress(await this.ethereum.getFrom())
+			return toAddress(await getRequiredWallet(this.ethereum).getFrom())
 		}
 	}
 
@@ -173,10 +172,7 @@ export class UpsertOrder {
 		if (order.type !== "CRYPTO_PUNK") {
 			throw new Error(`can't update punk order with type: ${order.type}`)
 		}
-		if (!this.ethereum) {
-			throw new Error("Wallet undefined")
-		}
-		await this.updateCryptoPunkOrderByContract(this.ethereum, order, request)
+		await this.updateCryptoPunkOrderByContract(getRequiredWallet(this.ethereum), order, request)
 		return simpleToCryptoPunkOrder(order)
 	}
 
@@ -186,10 +182,10 @@ export class UpsertOrder {
 		const price = await this.getPrice(request, <EthAssetType>{})
 		if (order.make.assetType.assetClass === "CRYPTO_PUNKS") {
 			const ethContract = createCryptoPunksMarketContract(ethereum, order.make.assetType.contract)
-			await ethContract.functionCall("offerPunkForSale", order.make.assetType.tokenId, price).send()
+			await this.send(ethContract.functionCall("offerPunkForSale", order.make.assetType.tokenId, price))
 		} else if (order.take.assetType.assetClass === "CRYPTO_PUNKS") {
 			const ethContract = createCryptoPunksMarketContract(ethereum, order.take.assetType.contract)
-			await ethContract.functionCall("enterBidForPunk", order.take.assetType.tokenId).send({ value: price.toString() })
+			await this.send(ethContract.functionCall("enterBidForPunk", order.take.assetType.tokenId), { value: price.toString() })
 		} else {
 			throw new Error("Crypto punks asset has not been found")
 		}

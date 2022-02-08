@@ -1,13 +1,11 @@
 import type { Ethereum } from "@rarible/ethereum-provider"
-import type { AssetType } from "@rarible/ethereum-api-client"
-import type { Erc20AssetType, EthAssetType } from "@rarible/ethereum-api-client"
-import type { Part } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { BigNumber } from "@rarible/types"
 import { toAddress, toBigNumber } from "@rarible/types"
-import type { BigNumberValue } from "@rarible/utils/build/bn"
 import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import { Action } from "@rarible/action"
+import type { AssetType } from "@rarible/ethereum-api-client"
+import { toBn } from "@rarible/utils"
 import { id } from "../common/id"
 import type { EthereumConfig } from "../config/type"
 import type { ApproveFunction } from "../order/approve"
@@ -18,21 +16,13 @@ import type { RaribleEthereumApis } from "../common/apis"
 import { checkAssetType } from "../order/check-asset-type"
 import type { SendFunction } from "../common/send-transaction"
 import { checkChainId } from "../order/check-chain-id"
+import type { CreateAuctionRequest } from "../../build/auction/start"
+import { isNft } from "../order/is-nft"
+import { isPaymentToken } from "../common/is-payment-token"
+import { validateParts } from "../common/validate-part"
 import { createEthereumAuctionContract } from "./contracts/auction"
-import { AUCTION_DATA_TYPE, getAuctionHash } from "./common"
-
-export type CreateAuctionRequest = {
-	makeAssetType: AssetTypeRequest,
-	amount: BigNumber,
-	takeAssetType: EthAssetType | Erc20AssetType,
-	minimalStepDecimal: BigNumberValue,
-	minimalPriceDecimal: BigNumberValue,
-	duration: number,
-	startTime?: number,
-	buyOutPriceDecimal: BigNumberValue,
-	payouts: Part[],
-	originFees: Part[],
-}
+import { AUCTION_DATA_TYPE, AUCTION_DATA_V1, getAssetEncodedData, getAuctionHash } from "./common"
+import { validateCreateAuctionRequest } from "./common/create-auction-request.type.validator"
 
 export type AuctionStartAction = Action<"approve" | "sign", CreateAuctionRequest, AuctionStartResponse>
 export type AuctionStartResponse = {
@@ -63,6 +53,8 @@ export class StartAuction {
 				throw new Error("Wallet is undefined")
 			}
 			const makeAssetType = await this.checkAssetType(request.makeAssetType)
+			this.validate(request, makeAssetType)
+
 			await waitTx(
 				this.approve(
 					toAddress(await this.ethereum.getFrom()),
@@ -140,88 +132,48 @@ export class StartAuction {
 			return request
 		})
 
-}
+	validate(request: CreateAuctionRequest, makeAssetType: AssetType): boolean {
+		//Types validations of each request field
+		console.log("req", request)
+		validateCreateAuctionRequest(request)
 
+		if (!isNft(makeAssetType)) {
+			throw new Error("Make asset should be NFT token")
+		}
+		if (!isPaymentToken(request.takeAssetType)) {
+			throw new Error("Take asset should be payment token (ETH or ERC-20)")
+		}
+		const minPrice = toBn(request.minimalPriceDecimal)
+		if (!minPrice.isPositive()) {
+			throw new Error("Minimal price should be a correct value")
+		}
 
-const AUCTION_DATA_V1 = {
-	components: [
-		{
-			components: [
-				{
-					name: "account",
-					type: "address",
-				},
-				{
-					name: "value",
-					type: "uint96",
-				},
-			],
-			name: "payouts",
-			type: "tuple[]",
-		},
-		{
-			components: [
-				{
-					name: "account",
-					type: "address",
-				},
-				{
-					name: "value",
-					type: "uint96",
-				},
-			],
-			name: "originFees",
-			type: "tuple[]",
-		},
-		{
-			name: "duration",
-			type: "uint96",
-		},
-		{
-			name: "startTime",
-			type: "uint96",
-		},
-		{
-			name: "buyOutPrice",
-			type: "uint96",
-		},
-	],
-	name: "data",
-	type: "tuple",
-}
+		const step = toBn(request.minimalStepDecimal)
+		if (!step.isPositive()) {
+			throw new Error("Minimal step should be a correct value")
+		}
+		if (isNaN(request.duration) || request.duration <= 0) {
+			throw new Error("Wrong auction duration")
+		}
 
-function getAssetEncodedData(
-	ethereum: Ethereum,
-	asset: AssetType
-): string {
-	switch (asset.assetClass) {
-		case "ETH": {
-			return "0x"
+		const startTimestamp = toBn(request.startTime || 0)
+		if (
+			startTimestamp.isNaN() || (!startTimestamp.isZero() && !startTimestamp.isInteger()) ||
+      startTimestamp.isNegative() || startTimestamp.isLessThan(Date.now() / 1000)
+		) {
+			throw new Error(`Wrong auction start time timestamp = ${startTimestamp.toString()}`)
 		}
-		case "ERC20": {
-			return ethereum.encodeParameter("address", asset.contract)
+		const buyout = toBn(request.buyOutPriceDecimal)
+		if (!buyout.isPositive() || buyout.isLessThanOrEqualTo(minPrice)) {
+			throw new Error("Auction buyout price should be correct and greater than minimal price")
 		}
-		case "ERC721":
-		case "ERC1155": {
-			return ethereum.encodeParameter({
-				components: [
-					{
-						name: "contractAddress",
-						type: "address",
-					},
-					{
-						name: "tokenId",
-						type: "uint256",
-					},
-				],
-				name: "data",
-				type: "tuple",
-			}, {
-				contractAddress: asset.contract,
-				tokenId: asset.tokenId,
-			})
+		const amount = toBn(request.amount)
+		if (!amount.isInteger() || amount.isLessThanOrEqualTo(0)) {
+			throw new Error("Auction asset amount should be integer and greater than 0")
 		}
-		default:
-			throw new Error("Unrecognized asset for auction")
+
+		validateParts(request.originFees)
+		validateParts(request.payouts)
+		return true
 	}
 }

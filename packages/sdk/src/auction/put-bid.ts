@@ -1,27 +1,23 @@
 import type { Maybe } from "@rarible/types/build/maybe"
-import type { Ethereum } from "@rarible/ethereum-provider"
+import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { BigNumber } from "@rarible/types"
-import type { Part } from "@rarible/ethereum-api-client"
 import { toAddress, toBigNumber } from "@rarible/types"
-import type { AuctionControllerApi } from "@rarible/ethereum-api-client"
+import { AuctionStatus } from "@rarible/ethereum-api-client"
 import { Action } from "@rarible/action"
-import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Auction } from "@rarible/ethereum-api-client/build/models"
+import { toBn } from "@rarible/utils"
 import type { EthereumConfig } from "../config/type"
 import type { ApproveFunction } from "../order/approve"
 import { waitTx } from "../common/wait-tx"
 import { getPrice } from "../common/get-price"
 import type { SendFunction } from "../common/send-transaction"
 import { checkChainId } from "../order/check-chain-id"
+import { validateParts } from "../common/validate-part"
+import type { RaribleEthereumApis } from "../common/apis"
 import { createEthereumAuctionContract } from "./contracts/auction"
-import { AUCTION_BID_DATA_V1, AUCTION_DATA_TYPE, getAuctionHash, getAuctionOperationOptions } from "./common"
-
-export type PutBidRequest = {
-	auctionId: BigNumber
-	priceDecimal: BigNumber
-	payouts: Part[]
-	originFees: Part[]
-}
+import { AUCTION_BID_DATA_V1, AUCTION_DATA_TYPE, getAuctionOperationOptions } from "./common"
+import type { PutBidRequest } from "./common/put-bid-request.type"
+import { validatePutBidRequest } from "./common/put-bid-request.type.validator"
 
 export type PutAuctionBidAction = Action<"approve" | "sign", PutBidRequest, EthereumTransaction>
 
@@ -31,7 +27,7 @@ export class PutAuctionBid {
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly approve: ApproveFunction,
-		private readonly auctionApi: AuctionControllerApi,
+		private readonly apis: RaribleEthereumApis,
 	) {}
 
 	readonly putBid: PutAuctionBidAction = Action.create({
@@ -40,8 +36,9 @@ export class PutAuctionBid {
 			if (!this.ethereum) {
 				throw new Error("Wallet is undefined")
 			}
-			const auctionHash = getAuctionHash(this.ethereum, this.config, request.auctionId)
-			const auction = await this.auctionApi.getAuctionByHash({ hash: auctionHash })
+			const auction = await this.apis.auction.getAuctionByHash({ hash: request.hash })
+			this.validate(request, auction)
+
 			const price = toBigNumber((await getPrice(this.ethereum, auction.buy, request.priceDecimal)).toString())
 
 			if (auction.buy.assetClass !== "ETH") {
@@ -74,7 +71,7 @@ export class PutAuctionBid {
 				const options = getAuctionOperationOptions(auction.buy, price)
 				const contract = createEthereumAuctionContract(this.ethereum, this.config.auction)
 				return this.send(
-					contract.functionCall("putBid", request.auctionId, bid),
+					contract.functionCall("putBid", request.hash, bid),
 					options
 				)
 			},
@@ -83,4 +80,32 @@ export class PutAuctionBid {
 			await checkChainId(this.ethereum, this.config)
 			return request
 		})
+
+	validate(request: PutBidRequest, auction: Auction): boolean {
+		validatePutBidRequest(request)
+		if (auction.status !== AuctionStatus.ACTIVE) {
+			throw new Error(`Auction status is ${auction.status}, expected ${AuctionStatus.ACTIVE}`)
+		}
+
+		const price = toBn(request.priceDecimal)
+		if (price.isNaN() || !price.isPositive()) {
+			throw new Error("Wrong bid price")
+		}
+
+		if (auction.lastBid) {
+			const lastBid = toBn(auction.lastBid.amount)
+			const minimalNextPrice = lastBid.plus(auction.minimalStep)
+			if (minimalNextPrice.isLessThan(price)) {
+				throw new Error("Bid price should be greater")
+			}
+		} else {
+			if (price.isLessThan(auction.minimalPrice)) {
+				throw new Error("Bid price should be greater")
+			}
+		}
+		validateParts(request.originFees)
+		validateParts(request.payouts)
+
+		return true
+	}
 }

@@ -19,6 +19,7 @@ describe("put auction bid", () => {
 	const { provider, wallet: walletSeller } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a")
 	const { provider: providerBuyer, wallet: walletBuyer } = createE2eProvider("0xa0d2baba419896add0b6e638ba4e50190f331db18e3271760b12ce87fa853dcb")
 
+
 	const sender1Address = walletSeller.getAddressString()
 	const sender2Address = walletBuyer.getAddressString()
 
@@ -69,7 +70,7 @@ describe("put auction bid", () => {
 				minimalStepDecimal: toBigNumber("0.00000000000000001"),
 				minimalPriceDecimal: toBigNumber("0.00000000000000005"),
 				duration: 1000,
-				startTime: 0,
+				startTime: Math.floor(Date.now() / 1000),
 				buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
 				originFees: [],
 				payouts: [],
@@ -81,7 +82,7 @@ describe("put auction bid", () => {
 		await awaitForAuction(auctionApi, await auction.hash)
 
 		const putBidTx = await bidService.putBid({
-			auctionId: await auction.auctionId,
+			hash: await auction.hash,
 			priceDecimal: toBigNumber("0.00000000000000005"),
 			payouts: [],
 			originFees: [],
@@ -118,7 +119,7 @@ describe("put auction bid", () => {
 		await awaitForAuction(auctionApi, await auction.hash)
 
 		const putBidTx = await bidService.putBid({
-			auctionId: await auction.auctionId,
+			hash: await auction.hash,
 			priceDecimal: toBigNumber("0.00000000000000005"),
 			payouts: [],
 			originFees: [],

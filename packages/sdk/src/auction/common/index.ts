@@ -3,6 +3,7 @@ import type { Ethereum } from "@rarible/ethereum-provider"
 import type { BigNumber } from "@rarible/types"
 import type { AssetType } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
+import type { Auction } from "@rarible/ethereum-api-client/build/models"
 import { id } from "../../common/id"
 import type { EthereumConfig } from "../../config/type"
 
@@ -62,6 +63,23 @@ export function getAssetEncodedData(
 		default:
 			throw new Error("Unrecognized asset for auction")
 	}
+}
+
+export function validateAuctionRangeTime(auction: Auction): boolean {
+	if (auction.data.startTime) {
+		const startTime = new Date(auction.data.startTime).getTime()
+		if (startTime > 0 && startTime > Date.now()) {
+			return false
+		}
+	}
+	if (auction.endTime) {
+		const endTime = new Date(auction.endTime).getTime()
+
+		if (endTime > 0 && endTime < Date.now()) {
+			return false
+		}
+	}
+	return true
 }
 
 export const AUCTION_DATA_TYPE = id("V1")

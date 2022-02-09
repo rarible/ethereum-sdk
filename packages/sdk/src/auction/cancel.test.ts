@@ -56,7 +56,7 @@ describe("cancel auction", () => {
 
 		const auctionContract = createAuctionContract(web3, config.auction)
 
-		const tx = await cancelAuction(ethereum1, send, config, await auction.auctionId)
+		const tx = await cancelAuction(ethereum1, send, config, apis, await auction.hash)
 		await tx.wait()
 
 		const auctionExistence = await auctionContract.methods.checkAuctionExistence(await auction.auctionId).call()

@@ -3,7 +3,6 @@ import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { BigNumber } from "@rarible/types"
 import { toAddress, toBigNumber } from "@rarible/types"
 import type { Part } from "@rarible/ethereum-api-client"
-import type { AuctionControllerApi } from "@rarible/ethereum-api-client"
 
 import { Action } from "@rarible/action"
 import type { Auction } from "@rarible/ethereum-api-client/build/models"
@@ -13,16 +12,17 @@ import { waitTx } from "../common/wait-tx"
 import { getPrice } from "../common/get-price"
 import type { SendFunction } from "../common/send-transaction"
 import { checkChainId } from "../order/check-chain-id"
+import type { RaribleEthereumApis } from "../common/apis"
 import { createEthereumAuctionContract } from "./contracts/auction"
 import {
 	AUCTION_BID_DATA_V1,
 	AUCTION_DATA_TYPE,
-	getAuctionHash,
 	getAuctionOperationOptions,
+	validateAuctionRangeTime,
 } from "./common"
 
 export type BuyOutRequest = {
-	auctionId: BigNumber
+	hash: string
 	payouts: Part[]
 	originFees: Part[]
 }
@@ -34,7 +34,7 @@ export class BuyoutAuction {
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly approve: ApproveFunction,
-		private readonly auctionApi: AuctionControllerApi,
+		private readonly apis: RaribleEthereumApis,
 	) {}
 
 	readonly buyout: BuyoutAuctionAction = Action.create({
@@ -43,8 +43,8 @@ export class BuyoutAuction {
 			if (!this.ethereum) {
 				throw new Error("Wallet is undefined")
 			}
-			const auctionHash = getAuctionHash(this.ethereum, this.config, request.auctionId)
-			const auction = await this.auctionApi.getAuctionByHash({ hash: auctionHash })
+			const auction = await this.apis.auction.getAuctionByHash({ hash: request.hash })
+			this.validate(auction)
 			if (auction.data.buyOutPrice === undefined) {
 				throw new Error("Buy out is unavailable for current auction")
 			}
@@ -82,7 +82,7 @@ export class BuyoutAuction {
 				const options = getAuctionOperationOptions(auction.buy, price)
 				const contract = createEthereumAuctionContract(this.ethereum, this.config.auction)
 				return this.send(
-					contract.functionCall("buyOut", request.auctionId, bid),
+					contract.functionCall("buyOut", auction.auctionId, bid),
 					options
 				)
 			},
@@ -91,4 +91,10 @@ export class BuyoutAuction {
 			await checkChainId(this.ethereum, this.config)
 			return request
 		})
+
+	validate(auction: Auction) {
+		if (!validateAuctionRangeTime(auction)) {
+			throw new Error("Auction should be active")
+		}
+	}
 }

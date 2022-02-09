@@ -134,7 +134,6 @@ export class StartAuction {
 
 	validate(request: CreateAuctionRequest, makeAssetType: AssetType): boolean {
 		//Types validations of each request field
-		console.log("req", request)
 		validateCreateAuctionRequest(request)
 
 		if (!isNft(makeAssetType)) {
@@ -157,11 +156,13 @@ export class StartAuction {
 		}
 
 		const startTimestamp = toBn(request.startTime || 0)
-		if (
-			startTimestamp.isNaN() || (!startTimestamp.isZero() && !startTimestamp.isInteger()) ||
-      startTimestamp.isNegative() || startTimestamp.isLessThan(Date.now() / 1000)
-		) {
-			throw new Error(`Wrong auction start time timestamp = ${startTimestamp.toString()}`)
+		if (!startTimestamp.isZero()) {
+			if (
+				startTimestamp.isNaN() || !startTimestamp.isInteger() ||
+        startTimestamp.isNegative() || startTimestamp.isLessThan(Date.now() / 1000)
+			) {
+				throw new Error(`Wrong auction start time timestamp = ${startTimestamp.toString()}`)
+			}
 		}
 		const buyout = toBn(request.buyOutPriceDecimal)
 		if (!buyout.isPositive() || buyout.isLessThanOrEqualTo(minPrice)) {

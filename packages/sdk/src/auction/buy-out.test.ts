@@ -40,7 +40,7 @@ describe("buy out auction", () => {
 
 	const apis = createEthereumApis("e2e")
 	const auctionService1 = new StartAuction(ethereum1, send1, config, approve1, apis)
-	const buyoutService2 = new BuyoutAuction(ethereum2, send1, config, approve2, auctionApi)
+	const buyoutService2 = new BuyoutAuction(ethereum2, send1, config, approve2, apis)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3Seller, "TST"),
@@ -79,7 +79,7 @@ describe("buy out auction", () => {
 		await awaitForAuction(auctionApi, await auction.hash)
 
 		const buyoutTx = await buyoutService2.buyout({
-			auctionId: await auction.auctionId,
+			hash: await auction.hash,
 			payouts: [],
 			originFees: [],
 		})
@@ -120,7 +120,7 @@ describe("buy out auction", () => {
 		await awaitForAuction(auctionApi, await auction.hash)
 
 		const buyoutTx = await buyoutService2.buyout({
-			auctionId: await auction.auctionId,
+			hash: await auction.hash,
 			payouts: [],
 			originFees: [],
 		})
@@ -158,7 +158,7 @@ describe("buy out auction", () => {
 		await awaitForAuction(auctionApi, await auction.hash)
 
 		const buyoutTx = await buyoutService2.buyout({
-			auctionId: await auction.auctionId,
+			hash: await auction.hash,
 			payouts: [],
 			originFees: [],
 		})

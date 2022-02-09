@@ -49,8 +49,8 @@ describe.each(providers)("approveErc20", (ethereum: Ethereum) => {
 
 	test(name(ethereum, "should approve exact value if not infinite"), async () => {
 		const operator = randomAddress()
-		await approveErc20(toAddress(it.testErc20.options.address), testAddress, operator, toBn(100), false)
-
+		const tx = await approveErc20(toAddress(it.testErc20.options.address), testAddress, operator, toBn(100), false)
+		await tx?.wait()
 		const result = toBn(await it.testErc20.methods.allowance(testAddress, operator).call())
 		expect(result.eq(100)).toBeTruthy()
 	})
@@ -59,8 +59,9 @@ describe.each(providers)("approveErc20", (ethereum: Ethereum) => {
 		const infiniteBn = toBn(2).pow(256).minus(1)
 
 		const operator = randomAddress()
-		await approveErc20(toAddress(it.testErc20.options.address), testAddress, operator, toBn(infiniteBn), true)
-
+		const addressErc20 = toAddress(it.testErc20.options.address)
+		const tx = await approveErc20(addressErc20, testAddress, operator, toBn(infiniteBn), true)
+		await tx?.wait()
 		const result = toBn(await it.testErc20.methods.allowance(testAddress, operator).call())
 		expect(result.toString()).toBe(infiniteBn.toString())
 	})

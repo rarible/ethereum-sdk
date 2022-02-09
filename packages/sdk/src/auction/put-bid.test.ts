@@ -28,6 +28,7 @@ describe("put auction bid", () => {
 	const config = getEthereumConfig("e2e")
 
 	const configuration = new Configuration(getApiConfig("e2e"))
+	const apis = createEthereumApis("e2e")
 	const auctionApi = new AuctionControllerApi(configuration)
 
 	const ethereum1 = new Web3Ethereum({web3, from: sender1Address, gas: 1000000})
@@ -41,9 +42,8 @@ describe("put auction bid", () => {
 	const approve1 = approveTemplate.bind(null, ethereum1, send1, config.transferProxies)
 	const approve2 = approveTemplate.bind(null, ethereum2, send2, config.transferProxies)
 
-	const bidService = new PutAuctionBid(ethereum2, send2, config, approve2, auctionApi)
+	const bidService = new PutAuctionBid(ethereum2, send2, config, approve2, apis)
 
-	const apis = createEthereumApis("e2e")
 	const auctionStartService1 = new StartAuction(ethereum1, send1, config, approve1, apis)
 
 	const it = awaitAll({
@@ -71,7 +71,7 @@ describe("put auction bid", () => {
 				minimalPriceDecimal: toBigNumber("0.00000000000000005"),
 				duration: 1000,
 				startTime: Math.floor(Date.now() / 1000),
-				buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
+				buyOutPriceDecimal: toBigNumber("0.00000000000000010"),
 				originFees: [],
 				payouts: [],
 			}

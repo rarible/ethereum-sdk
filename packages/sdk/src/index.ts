@@ -253,8 +253,8 @@ export function createRaribleSdk(
 	const bidService = new OrderBid(upsertService, checkAssetType, checkWalletChainId)
 	const wethConverter = new ConvertWeth(ethereum, send, config)
 	const startAuctionService = new StartAuction(ethereum, send, config, approveFn, apis)
-	const putAuctionBidService = new PutAuctionBid(ethereum, send, config, approveFn, apis.auction)
-	const buyOutAuctionService = new BuyoutAuction(ethereum, send, config, approveFn, apis.auction)
+	const putAuctionBidService = new PutAuctionBid(ethereum, send, config, approveFn, apis)
+	const buyOutAuctionService = new BuyoutAuction(ethereum, send, config, approveFn, apis)
 
 	return {
 		apis,
@@ -274,8 +274,8 @@ export function createRaribleSdk(
 		},
 		auction: {
 			start: startAuctionService.start,
-			cancel: cancelAuction.bind(null, ethereum, send, config),
-			finish: finishAuction.bind(null, ethereum, send, config),
+			cancel: cancelAuction.bind(null, ethereum, send, config, apis),
+			finish: finishAuction.bind(null, ethereum, send, config, apis),
 			putBid: putAuctionBidService.putBid,
 			buyOut: buyOutAuctionService.buyout,
 			getHash: getAuctionHash.bind(null, ethereum, config),

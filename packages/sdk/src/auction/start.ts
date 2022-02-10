@@ -6,6 +6,8 @@ import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import { Action } from "@rarible/action"
 import type { AssetType } from "@rarible/ethereum-api-client"
 import { toBn } from "@rarible/utils"
+import type { Erc20AssetType, EthAssetType, Part } from "@rarible/ethereum-api-client"
+import type { BigNumberValue } from "@rarible/utils/build/bn"
 import { id } from "../common/id"
 import type { EthereumConfig } from "../config/type"
 import type { ApproveFunction } from "../order/approve"
@@ -20,9 +22,21 @@ import { isNft } from "../order/is-nft"
 import { isPaymentToken } from "../common/is-payment-token"
 import { validateParts } from "../common/validate-part"
 import type { EthereumNetwork } from "../types"
-import type { CreateAuctionRequest } from "./common/create-auction-request.type"
 import { createEthereumAuctionContract } from "./contracts/auction"
 import { AUCTION_DATA_TYPE, AUCTION_DATA_V1, getAssetEncodedData, getAuctionHash } from "./common"
+
+export type CreateAuctionRequest = {
+	makeAssetType: AssetTypeRequest,
+	amount: BigNumber,
+	takeAssetType: EthAssetType | Erc20AssetType,
+	minimalStepDecimal: BigNumberValue,
+	minimalPriceDecimal: BigNumberValue,
+	duration: number,
+	startTime?: number,
+	buyOutPriceDecimal: BigNumberValue,
+	originFees?: Part[],
+}
+
 
 export type AuctionStartAction = Action<"approve" | "sign", CreateAuctionRequest, AuctionStartResponse>
 export type AuctionStartResponse = {
@@ -136,9 +150,6 @@ export class StartAuction {
 		})
 
 	validate(request: CreateAuctionRequest, makeAssetType: AssetType): boolean {
-		//Types validations of each request field
-		// validateCreateAuctionRequest(request)
-
 		if (!isNft(makeAssetType)) {
 			throw new Error("Make asset should be NFT token")
 		}

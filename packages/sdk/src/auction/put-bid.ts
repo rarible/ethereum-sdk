@@ -2,6 +2,7 @@ import type { Maybe } from "@rarible/types/build/maybe"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { BigNumber } from "@rarible/types"
 import { toAddress, toBigNumber } from "@rarible/types"
+import type { Part } from "@rarible/ethereum-api-client"
 import { AuctionStatus } from "@rarible/ethereum-api-client"
 import { Action } from "@rarible/action"
 import type { Auction } from "@rarible/ethereum-api-client/build/models"
@@ -16,9 +17,12 @@ import { validateParts } from "../common/validate-part"
 import type { RaribleEthereumApis } from "../common/apis"
 import { createEthereumAuctionContract } from "./contracts/auction"
 import { AUCTION_BID_DATA_V1, AUCTION_DATA_TYPE, calculatePartsSum, getAuctionOperationOptions } from "./common"
-import type { PutBidRequest } from "./common/put-bid-request.type"
-import { validatePutBidRequest } from "./common/put-bid-request.type.validator"
 
+export type PutBidRequest = {
+	hash: string
+	priceDecimal: BigNumber
+	originFees?: Part[]
+}
 export type PutAuctionBidAction = Action<"approve" | "sign", PutBidRequest, EthereumTransaction>
 
 export class PutAuctionBid {
@@ -84,7 +88,6 @@ export class PutAuctionBid {
 		})
 
 	validate(request: PutBidRequest, auction: Auction): boolean {
-		validatePutBidRequest(request)
 		if (auction.status !== AuctionStatus.ACTIVE) {
 			throw new Error(`Auction status is ${auction.status}, expected ${AuctionStatus.ACTIVE}`)
 		}
@@ -102,7 +105,7 @@ export class PutAuctionBid {
 			}
 		} else {
 			if (price.isLessThan(auction.minimalPrice)) {
-				throw new Error("Bid price should be greater")
+				throw new Error("Bid price should be greater than minimal price")
 			}
 		}
 		validateParts(request.originFees)

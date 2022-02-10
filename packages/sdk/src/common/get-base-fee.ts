@@ -1,4 +1,5 @@
-import fetch from "node-fetch"
+import type { AxiosResponse } from "axios"
+import axios from "axios"
 import type { EthereumConfig } from "../config/type"
 import type { EthereumNetwork } from "../types"
 import type { SimpleOrder } from "../order/types"
@@ -10,9 +11,8 @@ export async function getBaseFee(
 	type: SimpleOrder["type"] | "AUCTION" = CURRENT_ORDER_TYPE_VERSION
 ): Promise<number> {
 	return 0
-	const commonFeeConfigResponse = await fetch(config.feeConfigUrl)
-	const commonFeeConfig: CommonFeeConfig = await commonFeeConfigResponse.json()
-	const envFeeConfig = commonFeeConfig[env]
+	const commonFeeConfigResponse: AxiosResponse<CommonFeeConfig> = await axios.get(config.feeConfigUrl)
+	const envFeeConfig = commonFeeConfigResponse.data[env]
 
 	if (!(type in envFeeConfig)) {
 		throw new Error(`Unsupported fee type ${type}`)

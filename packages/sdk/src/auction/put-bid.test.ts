@@ -18,10 +18,12 @@ import { awaitForAuction } from "./test"
 describe("put auction bid", () => {
 	const { provider, wallet: walletSeller } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a")
 	const { provider: providerBuyer, wallet: walletBuyer } = createE2eProvider("0xa0d2baba419896add0b6e638ba4e50190f331db18e3271760b12ce87fa853dcb")
+	const { wallet: feeWallet } = createE2eProvider()
 
 
 	const sender1Address = walletSeller.getAddressString()
 	const sender2Address = walletBuyer.getAddressString()
+	const feeAddress = feeWallet.getAddressString()
 
 	const web3 = new Web3(provider as any)
 	const web3Buyer = new Web3(providerBuyer as any)
@@ -44,7 +46,7 @@ describe("put auction bid", () => {
 
 	const bidService = new PutAuctionBid(ethereum2, send2, config, approve2, apis)
 
-	const auctionStartService1 = new StartAuction(ethereum1, send1, config, approve1, apis)
+	const auctionStartService1 = new StartAuction(ethereum1, send1, config, "e2e", approve1, apis)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3, "TST"),
@@ -70,10 +72,8 @@ describe("put auction bid", () => {
 				minimalStepDecimal: toBigNumber("0.00000000000000001"),
 				minimalPriceDecimal: toBigNumber("0.00000000000000005"),
 				duration: 1000,
-				startTime: Math.floor(Date.now() / 1000),
 				buyOutPriceDecimal: toBigNumber("0.00000000000000010"),
 				originFees: [],
-				payouts: [],
 			}
 		)
 
@@ -84,7 +84,6 @@ describe("put auction bid", () => {
 		const putBidTx = await bidService.putBid({
 			hash: await auction.hash,
 			priceDecimal: toBigNumber("0.00000000000000005"),
-			payouts: [],
 			originFees: [],
 		})
 
@@ -109,9 +108,11 @@ describe("put auction bid", () => {
 				minimalPriceDecimal: toBigNumber("0.00000000000000005"),
 				duration: 1000,
 				startTime: 0,
-				buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
-				originFees: [],
-				payouts: [],
+				buyOutPriceDecimal: toBigNumber("0.00000000000000500"),
+				originFees: [{
+					account: toAddress(feeAddress),
+					value: 1000,
+				}],
 			}
 		)
 		await auction.tx.wait()
@@ -120,9 +121,11 @@ describe("put auction bid", () => {
 
 		const putBidTx = await bidService.putBid({
 			hash: await auction.hash,
-			priceDecimal: toBigNumber("0.00000000000000005"),
-			payouts: [],
-			originFees: [],
+			priceDecimal: toBigNumber("0.00000000000000100"),
+			originFees: [{
+				account: toAddress(feeAddress),
+				value: 1000,
+			}],
 		})
 		await putBidTx.wait()
 	})

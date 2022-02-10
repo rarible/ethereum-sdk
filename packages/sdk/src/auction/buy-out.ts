@@ -16,15 +16,14 @@ import type { RaribleEthereumApis } from "../common/apis"
 import { createEthereumAuctionContract } from "./contracts/auction"
 import {
 	AUCTION_BID_DATA_V1,
-	AUCTION_DATA_TYPE,
+	AUCTION_DATA_TYPE, calculatePartsSum,
 	getAuctionOperationOptions,
 	validateAuctionRangeTime,
 } from "./common"
 
 export type BuyOutRequest = {
 	hash: string
-	payouts: Part[]
-	originFees: Part[]
+	originFees?: Part[]
 }
 export type BuyoutAuctionAction = Action<"approve" | "sign", BuyOutRequest, EthereumTransaction>
 
@@ -69,9 +68,10 @@ export class BuyoutAuction {
 				if (!this.ethereum) {
 					throw new Error("Wallet is undefined")
 				}
+				const buyerOriginFees = request.originFees || []
 				const bidData = this.ethereum.encodeParameter(AUCTION_BID_DATA_V1, {
-					payouts: request.payouts,
-					originFees: request.originFees,
+					payouts: [],
+					originFees: buyerOriginFees,
 				})
 				const bid = {
 					amount: price,
@@ -79,7 +79,8 @@ export class BuyoutAuction {
 					data: bidData,
 				}
 
-				const options = getAuctionOperationOptions(auction.buy, price)
+				const totalOriginFees = calculatePartsSum(buyerOriginFees.concat(auction.data.originFees))
+				const options = getAuctionOperationOptions(auction.buy, price, totalOriginFees)
 				const contract = createEthereumAuctionContract(this.ethereum, this.config.auction)
 				return this.send(
 					contract.functionCall("buyOut", auction.auctionId, bid),

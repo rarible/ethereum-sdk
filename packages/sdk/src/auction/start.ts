@@ -16,13 +16,13 @@ import type { RaribleEthereumApis } from "../common/apis"
 import { checkAssetType } from "../order/check-asset-type"
 import type { SendFunction } from "../common/send-transaction"
 import { checkChainId } from "../order/check-chain-id"
-import type { CreateAuctionRequest } from "../../build/auction/start"
 import { isNft } from "../order/is-nft"
 import { isPaymentToken } from "../common/is-payment-token"
 import { validateParts } from "../common/validate-part"
+import type { EthereumNetwork } from "../types"
+import type { CreateAuctionRequest } from "./common/create-auction-request.type"
 import { createEthereumAuctionContract } from "./contracts/auction"
 import { AUCTION_DATA_TYPE, AUCTION_DATA_V1, getAssetEncodedData, getAuctionHash } from "./common"
-import { validateCreateAuctionRequest } from "./common/create-auction-request.type.validator"
 
 export type AuctionStartAction = Action<"approve" | "sign", CreateAuctionRequest, AuctionStartResponse>
 export type AuctionStartResponse = {
@@ -34,11 +34,14 @@ export type AuctionStartResponse = {
 export class StartAuction {
 	private readonly checkAssetType: (asset: AssetTypeRequest) => Promise<AssetTypeResponse>
 	private readonly getAuctionHash: (auctionId: BigNumber) => string
+	private readonly MAX_DURATION_SECONDS = 60 * 60 * 24 * 1000 //1000 days
+	private readonly MIN_DURATION_SECONDS = 60 * 60 * 15 // 15 minutes
 
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
+		private readonly env: EthereumNetwork,
 		private readonly approve: ApproveFunction,
 		private readonly apis: RaribleEthereumApis,
 	) {
@@ -87,8 +90,8 @@ export class StartAuction {
 				}
 
 				const data = this.ethereum.encodeParameter(AUCTION_DATA_V1, {
-					payouts: request.payouts,
-					originFees: request.originFees,
+					payouts: [],
+					originFees: request.originFees || [],
 					duration: request.duration,
 					startTime: request.startTime || 0,
 					buyOutPrice: (await getPrice(this.ethereum, request.takeAssetType, request.buyOutPriceDecimal)).toString(),
@@ -134,7 +137,7 @@ export class StartAuction {
 
 	validate(request: CreateAuctionRequest, makeAssetType: AssetType): boolean {
 		//Types validations of each request field
-		validateCreateAuctionRequest(request)
+		// validateCreateAuctionRequest(request)
 
 		if (!isNft(makeAssetType)) {
 			throw new Error("Make asset should be NFT token")
@@ -151,19 +154,25 @@ export class StartAuction {
 		if (!step.isPositive()) {
 			throw new Error("Minimal step should be a correct value")
 		}
-		if (isNaN(request.duration) || request.duration <= 0) {
-			throw new Error("Wrong auction duration")
-		}
 
 		const startTimestamp = toBn(request.startTime || 0)
 		if (!startTimestamp.isZero()) {
-			if (
-				startTimestamp.isNaN() || !startTimestamp.isInteger() ||
-        startTimestamp.isNegative() || startTimestamp.isLessThan(Date.now() / 1000)
-			) {
+			if (startTimestamp.isNaN() || !startTimestamp.isInteger() || startTimestamp.isNegative()) {
 				throw new Error(`Wrong auction start time timestamp = ${startTimestamp.toString()}`)
 			}
+			if (startTimestamp.isLessThan(Date.now() / 1000)) {
+				throw new Error("Auction start time should be greater than current time")
+			}
 		}
+
+		const duration = toBn(request.duration)
+		if (duration.isNaN() || duration.isNegative() || duration.isGreaterThan(this.MAX_DURATION_SECONDS)) {
+			throw new Error("Incorrect duration value")
+		}
+		if (this.env !== "e2e" && duration.isLessThan(this.MIN_DURATION_SECONDS)) {
+			throw new Error("Auction duration should be greater than minimal duration time")
+		}
+
 		const buyout = toBn(request.buyOutPriceDecimal)
 		if (!buyout.isPositive() || buyout.isLessThanOrEqualTo(minPrice)) {
 			throw new Error("Auction buyout price should be correct and greater than minimal price")
@@ -174,7 +183,6 @@ export class StartAuction {
 		}
 
 		validateParts(request.originFees)
-		validateParts(request.payouts)
 		return true
 	}
 }

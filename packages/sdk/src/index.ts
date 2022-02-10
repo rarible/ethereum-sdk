@@ -252,7 +252,7 @@ export function createRaribleSdk(
 	const sellService = new OrderSell(upsertService, checkAssetType, checkWalletChainId)
 	const bidService = new OrderBid(upsertService, checkAssetType, checkWalletChainId)
 	const wethConverter = new ConvertWeth(ethereum, send, config)
-	const startAuctionService = new StartAuction(ethereum, send, config, approveFn, apis)
+	const startAuctionService = new StartAuction(ethereum, send, config, env, approveFn, apis)
 	const putAuctionBidService = new PutAuctionBid(ethereum, send, config, approveFn, apis)
 	const buyOutAuctionService = new BuyoutAuction(ethereum, send, config, approveFn, apis)
 

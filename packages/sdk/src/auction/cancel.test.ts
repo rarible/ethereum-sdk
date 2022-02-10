@@ -11,6 +11,7 @@ import { checkChainId } from "../order/check-chain-id"
 import { createAuctionContract } from "./contracts/test/auction"
 import { StartAuction } from "./start"
 import { cancelAuction } from "./cancel"
+import { awaitForAuction } from "./test"
 
 describe("cancel auction", () => {
 	const { provider, wallet } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a")
@@ -22,7 +23,7 @@ describe("cancel auction", () => {
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
 	const approve1 = approveTemplate.bind(null, ethereum1, send, config.transferProxies)
 	const apis = createEthereumApis("e2e")
-	const auctionService = new StartAuction(ethereum1, send, config, approve1, apis)
+	const auctionService = new StartAuction(ethereum1, send, config, "e2e", approve1, apis)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3, "TST"),
@@ -48,11 +49,12 @@ describe("cancel auction", () => {
 			startTime: 0,
 			buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
 			originFees: [],
-			payouts: [],
 		}
 		)
 
 		await auction.tx.wait()
+
+		await awaitForAuction(apis.auction, await auction.hash)
 
 		const auctionContract = createAuctionContract(web3, config.auction)
 

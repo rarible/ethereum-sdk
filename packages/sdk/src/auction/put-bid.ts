@@ -15,7 +15,7 @@ import { checkChainId } from "../order/check-chain-id"
 import { validateParts } from "../common/validate-part"
 import type { RaribleEthereumApis } from "../common/apis"
 import { createEthereumAuctionContract } from "./contracts/auction"
-import { AUCTION_BID_DATA_V1, AUCTION_DATA_TYPE, getAuctionOperationOptions } from "./common"
+import { AUCTION_BID_DATA_V1, AUCTION_DATA_TYPE, calculatePartsSum, getAuctionOperationOptions } from "./common"
 import type { PutBidRequest } from "./common/put-bid-request.type"
 import { validatePutBidRequest } from "./common/put-bid-request.type.validator"
 
@@ -59,19 +59,21 @@ export class PutAuctionBid {
 				if (!this.ethereum) {
 					throw new Error("Wallet is undefined")
 				}
+				const bidderOriginFees = request.originFees || []
 				const bidData = this.ethereum.encodeParameter(AUCTION_BID_DATA_V1, {
-					payouts: request.payouts,
-					originFees: request.originFees,
+					payouts: [],
+					originFees: bidderOriginFees,
 				})
 				const bid = {
 					amount: price,
 					dataType: AUCTION_DATA_TYPE,
 					data: bidData,
 				}
-				const options = getAuctionOperationOptions(auction.buy, price)
+				const totalOriginFees = calculatePartsSum(bidderOriginFees.concat(auction.data.originFees))
+				const options = getAuctionOperationOptions(auction.buy, price, totalOriginFees)
 				const contract = createEthereumAuctionContract(this.ethereum, this.config.auction)
 				return this.send(
-					contract.functionCall("putBid", request.hash, bid),
+					contract.functionCall("putBid", auction.auctionId, bid),
 					options
 				)
 			},
@@ -104,7 +106,6 @@ export class PutAuctionBid {
 			}
 		}
 		validateParts(request.originFees)
-		validateParts(request.payouts)
 
 		return true
 	}

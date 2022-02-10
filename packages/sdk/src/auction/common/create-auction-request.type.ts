@@ -12,6 +12,5 @@ export type CreateAuctionRequest = {
 	duration: number,
 	startTime?: number,
 	buyOutPriceDecimal: BigNumberValue,
-	payouts: Part[],
-	originFees: Part[],
+	originFees?: Part[],
 }

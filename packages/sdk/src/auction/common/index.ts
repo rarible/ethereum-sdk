@@ -1,15 +1,17 @@
 import { keccak256 } from "ethereumjs-util"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { BigNumber } from "@rarible/types"
-import type { AssetType } from "@rarible/ethereum-api-client"
+import type { AssetType, Part } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { Auction } from "@rarible/ethereum-api-client/build/models"
 import { id } from "../../common/id"
 import type { EthereumConfig } from "../../config/type"
+import { addFee } from "../../order/add-fee"
 
-export function getAuctionOperationOptions(buyAssetType: AssetType, value: BigNumber) {
+export function getAuctionOperationOptions(buyAssetType: AssetType, value: BigNumber, fee: number) {
 	if (buyAssetType.assetClass === "ETH") {
-		return {value}
+		const totalValue = addFee({assetType: buyAssetType, value}, fee)
+		return {value: totalValue.value}
 	}
 	return {}
 }
@@ -80,6 +82,12 @@ export function validateAuctionRangeTime(auction: Auction): boolean {
 		}
 	}
 	return true
+}
+
+export function calculatePartsSum(parts?: Part[]): number {
+	return (parts || [])
+		.map(f => f.value)
+		.reduce((v, acc) => v + acc, 0)
 }
 
 export const AUCTION_DATA_TYPE = id("V1")

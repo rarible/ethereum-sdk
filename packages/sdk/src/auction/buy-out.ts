@@ -13,6 +13,8 @@ import { getPrice } from "../common/get-price"
 import type { SendFunction } from "../common/send-transaction"
 import { checkChainId } from "../order/check-chain-id"
 import type { RaribleEthereumApis } from "../common/apis"
+import type { EthereumNetwork } from "../types"
+import { getBaseFee } from "../common/get-base-fee"
 import { createEthereumAuctionContract } from "./contracts/auction"
 import {
 	AUCTION_BID_DATA_V1,
@@ -28,13 +30,17 @@ export type BuyOutRequest = {
 export type BuyoutAuctionAction = Action<"approve" | "sign", BuyOutRequest, EthereumTransaction>
 
 export class BuyoutAuction {
+	getBaseFee: () => Promise<number>
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
+		private readonly env: EthereumNetwork,
 		private readonly approve: ApproveFunction,
 		private readonly apis: RaribleEthereumApis,
-	) {}
+	) {
+		this.getBaseFee = getBaseFee.bind(null, config, env, "AUCTION")
+	}
 
 	readonly buyout: BuyoutAuctionAction = Action.create({
 		id: "approve" as const,
@@ -79,8 +85,9 @@ export class BuyoutAuction {
 					data: bidData,
 				}
 
-				const totalOriginFees = calculatePartsSum(buyerOriginFees.concat(auction.data.originFees))
-				const options = getAuctionOperationOptions(auction.buy, price, totalOriginFees)
+				const protocolFee = await this.getBaseFee()
+				const totalFees = calculatePartsSum(buyerOriginFees.concat(auction.data.originFees)) + protocolFee
+				const options = getAuctionOperationOptions(auction.buy, price, totalFees)
 				const contract = createEthereumAuctionContract(this.ethereum, this.config.auction)
 				return this.send(
 					contract.functionCall("buyOut", auction.auctionId, bid),

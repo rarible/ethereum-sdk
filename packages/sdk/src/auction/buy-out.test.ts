@@ -42,7 +42,7 @@ describe("buy out auction", () => {
 
 	const apis = createEthereumApis("e2e")
 	const auctionService1 = new StartAuction(ethereum1, send1, config, "e2e", approve1, apis)
-	const buyoutService2 = new BuyoutAuction(ethereum2, send1, config, approve2, apis)
+	const buyoutService2 = new BuyoutAuction(ethereum2, send1, config, "e2e", approve2, apis)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3Seller, "TST"),

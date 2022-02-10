@@ -15,6 +15,8 @@ import type { SendFunction } from "../common/send-transaction"
 import { checkChainId } from "../order/check-chain-id"
 import { validateParts } from "../common/validate-part"
 import type { RaribleEthereumApis } from "../common/apis"
+import { getBaseFee } from "../common/get-base-fee"
+import type { EthereumNetwork } from "../types"
 import { createEthereumAuctionContract } from "./contracts/auction"
 import { AUCTION_BID_DATA_V1, AUCTION_DATA_TYPE, calculatePartsSum, getAuctionOperationOptions } from "./common"
 
@@ -26,13 +28,17 @@ export type PutBidRequest = {
 export type PutAuctionBidAction = Action<"approve" | "sign", PutBidRequest, EthereumTransaction>
 
 export class PutAuctionBid {
+	getBaseFee: () => Promise<number>
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
+		private readonly env: EthereumNetwork,
 		private readonly approve: ApproveFunction,
 		private readonly apis: RaribleEthereumApis,
-	) {}
+	) {
+		this.getBaseFee = getBaseFee.bind(null, config, env, "AUCTION")
+	}
 
 	readonly putBid: PutAuctionBidAction = Action.create({
 		id: "approve" as const,
@@ -73,8 +79,9 @@ export class PutAuctionBid {
 					dataType: AUCTION_DATA_TYPE,
 					data: bidData,
 				}
-				const totalOriginFees = calculatePartsSum(bidderOriginFees.concat(auction.data.originFees))
-				const options = getAuctionOperationOptions(auction.buy, price, totalOriginFees)
+				const protocolFee = await this.getBaseFee()
+				const totalFees = calculatePartsSum(bidderOriginFees.concat(auction.data.originFees)) + protocolFee
+				const options = getAuctionOperationOptions(auction.buy, price, totalFees)
 				const contract = createEthereumAuctionContract(this.ethereum, this.config.auction)
 				return this.send(
 					contract.functionCall("putBid", auction.auctionId, bid),

@@ -44,7 +44,7 @@ describe("put auction bid", () => {
 	const approve1 = approveTemplate.bind(null, ethereum1, send1, config.transferProxies)
 	const approve2 = approveTemplate.bind(null, ethereum2, send2, config.transferProxies)
 
-	const bidService = new PutAuctionBid(ethereum2, send2, config, approve2, apis)
+	const bidService = new PutAuctionBid(ethereum2, send2, config, "e2e", approve2, apis)
 
 	const auctionStartService1 = new StartAuction(ethereum1, send1, config, "e2e", approve1, apis)
 

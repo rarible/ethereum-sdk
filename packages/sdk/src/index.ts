@@ -29,7 +29,7 @@ import { cancel as cancelTemplate } from "./order/cancel"
 import type { FillOrderAction, GetOrderFillTxData } from "./order/fill-order/types"
 import type { SimpleOrder } from "./order/types"
 import { OrderFiller } from "./order/fill-order"
-import { getBaseOrderConfigFee } from "./order/get-base-order-fee"
+import { getBaseFee } from "./common/get-base-fee"
 import { DeployErc721 } from "./nft/deploy-erc721"
 import { DeployErc1155 } from "./nft/deploy-erc1155"
 import type { DeployNft } from "./common/deploy"
@@ -233,7 +233,7 @@ export function createRaribleSdk(
 	const checkLazyOrder = order.checkLazyOrder.bind(null, checkLazyAsset)
 	const checkAssetType = partialCall(checkAssetTypeTemplate, apis.nftCollection)
 
-	const getBaseOrderFee = getBaseOrderConfigFee.bind(null, config, env)
+	const getBaseOrderFee = getBaseFee.bind(null, config, env)
 	const filler = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
 
 	const approveFn = partialCall(approveTemplate, ethereum, send, config.transferProxies)
@@ -253,8 +253,8 @@ export function createRaribleSdk(
 	const bidService = new OrderBid(upsertService, checkAssetType, checkWalletChainId)
 	const wethConverter = new ConvertWeth(ethereum, send, config)
 	const startAuctionService = new StartAuction(ethereum, send, config, env, approveFn, apis)
-	const putAuctionBidService = new PutAuctionBid(ethereum, send, config, approveFn, apis)
-	const buyOutAuctionService = new BuyoutAuction(ethereum, send, config, approveFn, apis)
+	const putAuctionBidService = new PutAuctionBid(ethereum, send, config, env, approveFn, apis)
+	const buyOutAuctionService = new BuyoutAuction(ethereum, send, config, env, approveFn, apis)
 
 	return {
 		apis,

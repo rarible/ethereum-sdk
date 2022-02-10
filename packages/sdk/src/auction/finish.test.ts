@@ -44,7 +44,7 @@ describe("finish auction auction", () => {
 
 	const apis = createEthereumApis("e2e")
 	const auctionService = new StartAuction(ethereum1, send1, config, "e2e", approve1, apis)
-	const putBidService = new PutAuctionBid(ethereum2, send2, config, approve2, apis)
+	const putBidService = new PutAuctionBid(ethereum2, send2, config, "e2e", approve2, apis)
 
 	const finishAuction = finishAuctionTemplate.bind(this, ethereum1, send1, config, apis)
 

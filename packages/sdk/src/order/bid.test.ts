@@ -119,7 +119,7 @@ describe.each(providers)("bid", (ethereum) => {
 		})
 		expect(order.hash).toBeTruthy()
 
-		await retry(5, 500, async () => {
+		await retry(5, 2000, async () => {
 			const nextPrice = "40000000000000000"
 			const updatedOrder = await orderSell.update({
 				orderHash: order.hash,
@@ -172,7 +172,7 @@ describe.each(providers)("bid", (ethereum) => {
 		}
 		const order = await upserter.upsert({ order: form })
 
-		await retry(5, 500, async () => {
+		await retry(5, 2000, async () => {
 			const nextPrice = "20000000000000000"
 			const updatedOrder = await orderSell.update({
 				orderHash: order.hash,

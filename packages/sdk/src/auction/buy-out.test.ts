@@ -19,9 +19,11 @@ import { awaitForAuction } from "./test"
 describe("buy out auction", () => {
 	const { provider: providerSeller, wallet: walletSeller } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a")
 	const { provider: providerBuyer, wallet: walletBuyer } = createE2eProvider("0xa0d2baba419896add0b6e638ba4e50190f331db18e3271760b12ce87fa853dcb")
+	const { wallet: feeWallet } = createE2eProvider()
 
 	const sender1Address = walletSeller.getAddressString()
 	const sender2Address = walletBuyer.getAddressString()
+	const feeAddress = feeWallet.getAddressString()
 	const web3Seller = new Web3(providerSeller as any)
 	const web3Buyer = new Web3(providerBuyer as any)
 	const config = getEthereumConfig("e2e")
@@ -39,8 +41,8 @@ describe("buy out auction", () => {
 	const approve2 = approveTemplate.bind(null, ethereum2, send2, config.transferProxies)
 
 	const apis = createEthereumApis("e2e")
-	const auctionService1 = new StartAuction(ethereum1, send1, config, approve1, apis)
-	const buyoutService2 = new BuyoutAuction(ethereum2, send1, config, approve2, auctionApi)
+	const auctionService1 = new StartAuction(ethereum1, send1, config, "e2e", approve1, apis)
+	const buyoutService2 = new BuyoutAuction(ethereum2, send1, config, "e2e", approve2, apis)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3Seller, "TST"),
@@ -70,7 +72,6 @@ describe("buy out auction", () => {
 				startTime: 0,
 				buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
 				originFees: [],
-				payouts: [],
 			}
 		)
 
@@ -79,8 +80,7 @@ describe("buy out auction", () => {
 		await awaitForAuction(auctionApi, await auction.hash)
 
 		const buyoutTx = await buyoutService2.buyout({
-			auctionId: await auction.auctionId,
-			payouts: [],
+			hash: await auction.hash,
 			originFees: [],
 		})
 
@@ -111,7 +111,6 @@ describe("buy out auction", () => {
 				startTime: 0,
 				buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
 				originFees: [],
-				payouts: [],
 			}
 		)
 
@@ -120,8 +119,7 @@ describe("buy out auction", () => {
 		await awaitForAuction(auctionApi, await auction.hash)
 
 		const buyoutTx = await buyoutService2.buyout({
-			auctionId: await auction.auctionId,
-			payouts: [],
+			hash: await auction.hash,
 			originFees: [],
 		})
 
@@ -148,9 +146,11 @@ describe("buy out auction", () => {
 			minimalPriceDecimal: toBigNumber("0.000000000000000005"),
 			duration: 1000,
 			startTime: 0,
-			buyOutPriceDecimal: toBigNumber("0.00000000000000001"),
-			originFees: [],
-			payouts: [],
+			buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
+			originFees: [{
+				account: toAddress(feeAddress),
+				value: 500,
+			}],
 		})
 
 		await auction.tx.wait()
@@ -158,11 +158,15 @@ describe("buy out auction", () => {
 		await awaitForAuction(auctionApi, await auction.hash)
 
 		const buyoutTx = await buyoutService2.buyout({
-			auctionId: await auction.auctionId,
-			payouts: [],
-			originFees: [],
+			hash: await auction.hash,
+			originFees: [{
+				account: toAddress(feeAddress),
+				value: 500,
+			}],
 		})
 		await buyoutTx.wait()
 		expect(await it.testErc1155.methods.balanceOf(sender2Address, "2").call()).toBe("1")
+
+		expect(await web3Buyer.eth.getBalance(feeAddress)).toBe("10")
 	})
 })

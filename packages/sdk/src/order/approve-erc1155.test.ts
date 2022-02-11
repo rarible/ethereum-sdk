@@ -33,7 +33,7 @@ describe("approveErc1155", () => {
 
 	test("should approve", async () => {
 		const tokenId = testAddress + "b00000000000000000000003"
-		await testErc1155.methods.mint(testAddress, tokenId, toBn(1), "123").send({ from: testAddress, gas: 200000 })
+		await sentTx(testErc1155.methods.mint(testAddress, tokenId, toBn(1), "123"), { from: testAddress, gas: 200000 })
 
 		const balance = await testErc1155.methods.balanceOf(testAddress, tokenId).call()
 		expect(balance).toEqual("1")

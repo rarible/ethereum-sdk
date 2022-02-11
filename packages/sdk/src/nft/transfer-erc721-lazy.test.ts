@@ -63,7 +63,7 @@ describe("transfer Erc721 lazy", () => {
 			contract: contract,
 		}
 
-		await transfer(
+		const transferTx = await transfer(
 			ethereum,
 			send,
 			checkAssetType,
@@ -73,6 +73,7 @@ describe("transfer Erc721 lazy", () => {
 			asset,
 			recipient
 		)
+		await transferTx.wait()
 		const erc721Lazy = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, contract)
 		const recipientBalance = await erc721Lazy.functionCall("balanceOf", recipient).call()
 		expect(recipientBalance).toEqual("1")

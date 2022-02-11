@@ -40,12 +40,13 @@ describe("approve crypto punks", () => {
 	test("should approve", async () => {
 		const operator = randomAddress()
 
-		await approve(
+		const tx = await approve(
 			toAddress(it.punksMarket.options.address),
 			sellerAddress,
 			operator,
 			0
 		)
+		await tx?.wait()
 		const offer = await it.punksMarket.methods.punksOfferedForSale(0).call()
 
 		expect(offer.isForSale).toBe(true)

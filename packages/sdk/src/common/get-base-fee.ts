@@ -10,7 +10,6 @@ export async function getBaseFee(
 	env: EthereumNetwork,
 	type: SimpleOrder["type"] | "AUCTION" = CURRENT_ORDER_TYPE_VERSION
 ): Promise<number> {
-	return 0
 	const commonFeeConfigResponse: AxiosResponse<CommonFeeConfig> = await axios.get(config.feeConfigUrl)
 	const envFeeConfig = commonFeeConfigResponse.data[env]
 

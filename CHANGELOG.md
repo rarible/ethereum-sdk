@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.42](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.41...v0.12.42) (2022-02-11)
+
+
+### Bug Fixes
+
+* change config fee url ([#120](https://github.com/rarible/protocol-ethereum-sdk/issues/120)) ([9e49eb3](https://github.com/rarible/protocol-ethereum-sdk/commit/9e49eb3d1f9a2b456938947991efcbecd5e22372))
+* check wallet in send fn, updated auction txs ([#118](https://github.com/rarible/protocol-ethereum-sdk/issues/118)) ([c3d90c8](https://github.com/rarible/protocol-ethereum-sdk/commit/c3d90c88f98946bc05703e1384abe7f0796d9fb0))
+* get base fee ([#122](https://github.com/rarible/protocol-ethereum-sdk/issues/122)) ([3e1924c](https://github.com/rarible/protocol-ethereum-sdk/commit/3e1924cb84afac78f10ef9f3c4d31d60861204bf))
+
+
+
+
+
 ## [0.12.41](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.40...v0.12.41) (2022-02-03)
 
 

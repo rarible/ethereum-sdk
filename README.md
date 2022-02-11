@@ -19,7 +19,8 @@ or inject package into your web page with web3 instance
 ### With protocol-ethereum-sdk, you can:
 
 - Create sell orders
-- Create/accept bid for auctions
+- Create/accept bid on NFTs
+- Create/finish/cancel auctions and also put bids and buy out NFTs
 - Buy tokens for regular sell orders
 - Create Lazy Mint NFT ERC721 and ERC1155 tokens
 - Make regular mint
@@ -153,6 +154,74 @@ sdk.order.acceptBid({ order, payouts: [], originFees: [], amount: 1, infinite: t
 For example, you can get the `order` object using our sdk api methods `sdk.apis.order.getSellOrders({})` and pass it
 to `buy` function. You can get more information in the test
 repository [sell e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/erc721-sale.test.ts)
+
+### Auctions
+
+You can create auction:
+```typescript
+const auction = sdk.auction.start({
+  makeAssetType: { // NFT asset type
+    assetClass: "ERC1155",
+    contract: toAddress(nftContractAddress),
+    tokenId: toBigNumber("1"),
+  },
+  amount: toBigNumber("1"), // NFT amount, for ERC721 always be 1
+  takeAssetType: { // payment token asset type
+    assetClass: "ERC20",
+    contract: toAddress(paymentTokenContractAddress),
+  },
+  minimalStepDecimal: toBigNumber("0.1"), // Minimal step of next bid (0.5, 0.6 and etc...)
+  minimalPriceDecimal: toBigNumber("0.5"), // Minimal bid price
+  duration: 1000, // Auction duration in seconds, less 15 minutes (60*60*15) and greater than 1000 days 
+  startTime: 0, // Timestamp start of auction. If not set, auction will start when first bid will place 
+  buyOutPriceDecimal: toBigNumber("1"), // Buy out price
+  originFees: [], // Origin fees in format: { address, value } (value in range 0-10000, where 10000 - 100%, 0 - 0%)
+})
+await auction.tx.wait() // Waiting for tx accepting
+```
+it returns 
+```typescript
+{ 
+  tx, // EthereumTransaction
+  hash, // Promise<string> - auction hash
+  auctionId // Promise<string> - ID auction 
+}
+```
+
+
+Place an auction bid:
+```typescript
+sdk.auction.putBid({
+  hash: auctionHash, // Hash of auction, created during start auction
+  priceDecimal: toBigNumber("0.2"), // Bid price
+  originFees: [{ // Optional - origin fees
+    account: toAddress(feeAddress),
+    value: 1000,
+  }],
+})
+```
+
+Buy out NFT
+```typescript
+sdk.auction.putBid({
+  hash: auctionHash, // Hash of auction, created during start auction
+})
+```
+
+Cancel auction
+```typescript
+sdk.auction.cancel({
+  hash: auctionHash, // Hash of auction, created during start auction
+})
+```
+
+Finish auction
+```typescript
+sdk.auction.finish({ // You can finish auction when duration is over and made at least one bid 
+  hash: auctionHash, // Hash of auction, created during start auction
+})
+```
+
 
 #### Mint NFT Tokens
 

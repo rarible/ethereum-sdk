@@ -153,6 +153,9 @@ export class StartAuction {
 		if (!isNft(makeAssetType)) {
 			throw new Error("Make asset should be NFT token")
 		}
+		if (makeAssetType.assetClass === "ERC721_LAZY" || makeAssetType.assetClass === "ERC1155_LAZY") {
+			throw new Error("Auction cannot be created with lazy assets")
+		}
 		if (!isPaymentToken(request.takeAssetType)) {
 			throw new Error("Take asset should be payment token (ETH or ERC-20)")
 		}

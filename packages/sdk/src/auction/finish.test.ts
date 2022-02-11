@@ -54,7 +54,8 @@ describe("finish auction auction", () => {
 	})
 
 	test("finish auction erc-1155 <-> erc-20", async () => {
-		await sentTx(it.testErc1155.methods.mint(sender1Address, 1, 10, "0x"), { from: sender1Address, gas: 1000000 })
+		const tokenId = "1"
+		await sentTx(it.testErc1155.methods.mint(sender1Address, tokenId, 10, "0x"), { from: sender1Address, gas: 1000000 })
 		const erc20Supply = toBn("30000000")
 		await sentTx(
 			it.testErc20.methods.mint(sender2Address, erc20Supply.toString()),
@@ -66,7 +67,7 @@ describe("finish auction auction", () => {
 				makeAssetType: {
 					assetClass: "ERC1155",
 					contract: toAddress(it.testErc1155.options.address),
-					tokenId: toBigNumber("1"),
+					tokenId: toBigNumber(tokenId),
 				},
 				amount: toBigNumber("1"),
 				takeAssetType: {
@@ -108,7 +109,7 @@ describe("finish auction auction", () => {
 
 		const feeAddressFinishBidBalance = toBn(await it.testErc20.methods.balanceOf(feeAddress).call())
 
-		expect(await it.testErc1155.methods.balanceOf(sender2Address, "1").call()).toBe("1")
+		expect(await it.testErc1155.methods.balanceOf(sender2Address, tokenId).call()).toBe("1")
 
 		const bidFinishPriceDecimal = toBn("0.000000000000000066")
 		const finalBidderErcBalance = erc20Supply.minus(bidFinishPriceDecimal.multipliedBy(toBn(10).pow(18)).toString())
@@ -118,7 +119,8 @@ describe("finish auction auction", () => {
 	})
 
 	test("finish auction erc-1155 <-> eth", async () => {
-		await sentTx(it.testErc1155.methods.mint(sender1Address, 1, 10, "0x"), { from: sender1Address, gas: 1000000 })
+		const tokenId = "2"
+		await sentTx(it.testErc1155.methods.mint(sender1Address, tokenId, 10, "0x"), { from: sender1Address, gas: 1000000 })
 		const erc20Supply = toBn("30000000")
 		await sentTx(
 			it.testErc20.methods.mint(sender2Address, erc20Supply.toString()),
@@ -130,7 +132,7 @@ describe("finish auction auction", () => {
 				makeAssetType: {
 					assetClass: "ERC1155",
 					contract: toAddress(it.testErc1155.options.address),
-					tokenId: toBigNumber("1"),
+					tokenId: toBigNumber(tokenId),
 				},
 				amount: toBigNumber("1"),
 				takeAssetType: {
@@ -169,7 +171,7 @@ describe("finish auction auction", () => {
 		const finishAuctionTx = await finishAuction(await auction.hash)
 		await finishAuctionTx.wait()
 
-		expect(await it.testErc1155.methods.balanceOf(sender2Address, "1").call()).toBe("1")
+		expect(await it.testErc1155.methods.balanceOf(sender2Address, tokenId).call()).toBe("1")
 
 		expect(await web3Buyer.eth.getBalance(feeAddress)).toBe("12")
 	})

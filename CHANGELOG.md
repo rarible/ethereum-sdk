@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.44](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.43...v0.12.44) (2022-02-14)
+
+
+### Bug Fixes
+
+* lazy mint tests skip ([f1ae4c9](https://github.com/rarible/protocol-ethereum-sdk/commit/f1ae4c92c633b70448c035bc5a7b7ace0584694e))
+
+
+
+
+
 ## [0.12.43](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.42...v0.12.43) (2022-02-14)
 
 

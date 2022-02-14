@@ -35,7 +35,7 @@ describe("transfer Erc721 lazy", () => {
 	const sign = signNft.bind(null, ethereum, 17)
 
 
-	test("should transfer erc721 lazy token", async () => {
+	test.skip("should transfer erc721 lazy token", async () => {
 		const from = toAddress(wallet.getAddressString())
 		const recipient = randomAddress()
 		const contract = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")

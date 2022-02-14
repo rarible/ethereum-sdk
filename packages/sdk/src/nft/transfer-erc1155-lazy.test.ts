@@ -34,7 +34,7 @@ describe("transfer Erc721 lazy", () => {
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 
-	test("should transfer erc1155 lazy token", async () => {
+	test.skip("should transfer erc1155 lazy token", async () => {
 		const recipient = randomAddress()
 		const contract = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
 

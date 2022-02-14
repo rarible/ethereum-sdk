@@ -4,12 +4,11 @@ import { toBn } from "@rarible/utils/build/bn"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
-import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
+import { createGanacheProvider, deployTestErc1155 } from "@rarible/ethereum-sdk-test-common"
 import { getApiConfig } from "../config/api-config"
 import { getSendWithInjects, sentTx } from "../common/send-transaction"
 import { getEthereumConfig } from "../config"
 import { approveErc1155 as approveErc1155Template } from "./approve-erc1155"
-import { deployTestErc1155 } from "./contracts/test/test-erc1155"
 import { checkChainId } from "./check-chain-id"
 
 describe("approveErc1155", () => {

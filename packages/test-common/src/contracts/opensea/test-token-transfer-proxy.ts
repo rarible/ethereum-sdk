@@ -15,7 +15,7 @@ export async function deployOpenseaTokenTransferProxy(web3: Web3, proxyRegistryA
 		arguments: [
 			proxyRegistryAddress,
 		],
-	}).send({ from: address, gas: 4000000, gasPrice: "0" })
+	}).send({ from: address, gas: 8000000, gasPrice: "0" })
 }
 
 const tokenTransferProxyAbi: AbiItem[] = [

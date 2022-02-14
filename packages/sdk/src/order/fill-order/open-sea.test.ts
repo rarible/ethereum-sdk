@@ -89,7 +89,9 @@ describe("fillOrder: Opensea orders", function () {
 		 */
 
 		wyvernProxyRegistry = await deployOpenseaProxyRegistry(web3)
+		console.log("deployed wyvernProxyRegistry", wyvernProxyRegistry.options.address)
 		wyvernTokenTransferProxy = await deployOpenseaTokenTransferProxy(web3, wyvernProxyRegistry.options.address)
+		console.log("deployed wyvernTokenTransferProxy", wyvernTokenTransferProxy.options.address)
 
 		wyvernExchange = await deployOpenSeaExchangeV1(
 			web3,
@@ -97,6 +99,7 @@ describe("fillOrder: Opensea orders", function () {
 			wyvernTokenTransferProxy.options.address,
 			it.testErc20.options.address,
 		)
+		console.log("deployed wyvernExchange", wyvernExchange.options.address)
 
 		config.exchange.openseaV1 = toAddress(wyvernExchange.options.address)
 		config.openSea.proxyRegistry = toAddress(wyvernProxyRegistry.options.address)

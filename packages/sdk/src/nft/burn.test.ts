@@ -111,7 +111,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 		expect(toBn(testBalanceAfterBurn).toString()).toBe("50")
 	})
 
-	test("should burn ERC-721 v3 lazy", async () => {
+	test.skip("should burn ERC-721 v3 lazy", async () => {
 		const minted = await mint(
 			mintLazyApi,
 			checkChainId,
@@ -137,7 +137,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 		})
 	})
 
-	test("should burn ERC-1155 v2 lazy", async () => {
+	test.skip("should burn ERC-1155 v2 lazy", async () => {
 		const minted = await mint(mintLazyApi, checkChainId, {
 			collection: createErc1155V2Collection(e2eErc1155V2ContractAddress),
 			uri: "ipfs://ipfs/hash",
@@ -163,7 +163,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 		})
 	})
 
-	test("should burn ERC-1155 v2 lazy and burn creators is empty", async () => {
+	test.skip("should burn ERC-1155 v2 lazy and burn creators is empty", async () => {
 		const minted = await mint(mintLazyApi, checkChainId, {
 			collection: createErc1155V2Collection(e2eErc1155V2ContractAddress),
 			uri: "ipfs://ipfs/hash",

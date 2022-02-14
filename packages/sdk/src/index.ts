@@ -29,7 +29,7 @@ import { cancel as cancelTemplate } from "./order/cancel"
 import type { FillOrderAction, GetOrderFillTxData } from "./order/fill-order/types"
 import type { SimpleOrder } from "./order/types"
 import { OrderFiller } from "./order/fill-order"
-import { getBaseOrderFee as getBaseOrderFeeTemplate } from "./order/get-base-order-fee"
+import { getBaseFee } from "./common/get-base-fee"
 import { DeployErc721 } from "./nft/deploy-erc721"
 import { DeployErc1155 } from "./nft/deploy-erc1155"
 import type { DeployNft } from "./common/deploy"
@@ -175,15 +175,15 @@ export interface RaribleAuctionSdk {
 
 	/**
    * Cancel started auction
-   * @param auctionId Auction ID
+   * @param hash Auction hash
    */
-	cancel(auctionId: BigNumber): Promise<EthereumTransaction>
+	cancel(hash: string): Promise<EthereumTransaction>
 
 	/**
    * Finish auction with at least one bid
-   * @param auctionId Auction ID
+   * @param hash Auction hash
    */
-	finish(auctionId: BigNumber): Promise<EthereumTransaction>
+	finish(hash: string): Promise<EthereumTransaction>
 
 	/**
    * Put bid
@@ -219,24 +219,28 @@ export function createRaribleSdk(
 ): RaribleSdk {
 	const config = getEthereumConfig(env)
 	const apis = createEthereumApis(env, sdkConfig?.apiClientParams)
-	const send = partialCall(getSendWithInjects({
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+
+	const sendWithInjects = partialCall(getSendWithInjects({
 		logger: {
 			instance: createRemoteLogger({ethereum, env: getEnvironment(env)}),
 			level: sdkConfig?.logs ?? LogsLevel.DISABLED,
 		},
 	}), apis.gateway)
+	const send = partialCall(sendWithInjects, checkWalletChainId)
 	const checkLazyAssetType = partialCall(order.checkLazyAssetType, apis.nftItem)
 	const checkLazyAsset = partialCall(order.checkLazyAsset, checkLazyAssetType)
 	const checkLazyOrder = order.checkLazyOrder.bind(null, checkLazyAsset)
 	const checkAssetType = partialCall(checkAssetTypeTemplate, apis.nftCollection)
-	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
-	const filler = new OrderFiller(ethereum, send, config, apis)
+	const getBaseOrderFee = getBaseFee.bind(null, config, env)
+	const filler = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
 
 	const approveFn = partialCall(approveTemplate, ethereum, send, config.transferProxies)
 
 	const upsertService = new UpsertOrder(
 		filler,
+		send,
 		checkLazyOrder,
 		partialCall(approveTemplate, ethereum, send, config.transferProxies),
 		partialCall(signOrderTemplate, ethereum, config),
@@ -248,9 +252,9 @@ export function createRaribleSdk(
 	const sellService = new OrderSell(upsertService, checkAssetType, checkWalletChainId)
 	const bidService = new OrderBid(upsertService, checkAssetType, checkWalletChainId)
 	const wethConverter = new ConvertWeth(ethereum, send, config)
-	const startAuctionService = new StartAuction(ethereum, config, approveFn, apis)
-	const putAuctionBidService = new PutAuctionBid(ethereum, config, approveFn, apis.auction)
-	const buyOutAuctionService = new BuyoutAuction(ethereum, config, approveFn, apis.auction)
+	const startAuctionService = new StartAuction(ethereum, send, config, env, approveFn, apis)
+	const putAuctionBidService = new PutAuctionBid(ethereum, send, config, env, approveFn, apis)
+	const buyOutAuctionService = new BuyoutAuction(ethereum, send, config, env, approveFn, apis)
 
 	return {
 		apis,
@@ -264,14 +268,14 @@ export function createRaribleSdk(
 			bid: bidService.bid,
 			bidUpdate: bidService.update,
 			upsert: upsertService.upsert,
-			cancel: partialCall(cancelTemplate, checkLazyOrder, ethereum, config.exchange, checkWalletChainId),
-			getBaseOrderFee: getBaseOrderFeeTemplate.bind(null, config),
+			cancel: partialCall(cancelTemplate, checkLazyOrder, ethereum, send, config.exchange, checkWalletChainId),
+			getBaseOrderFee: getBaseOrderFee,
 			getBaseOrderFillFee: filler.getBaseOrderFillFee,
 		},
 		auction: {
 			start: startAuctionService.start,
-			cancel: cancelAuction.bind(null, ethereum, config),
-			finish: finishAuction.bind(null, ethereum, config),
+			cancel: cancelAuction.bind(null, ethereum, send, config, apis),
+			finish: finishAuction.bind(null, ethereum, send, config, apis),
 			putBid: putAuctionBidService.putBid,
 			buyOut: buyOutAuctionService.buyout,
 			getHash: getAuctionHash.bind(null, ethereum, config),
@@ -302,7 +306,7 @@ export function createRaribleSdk(
 			},
 		},
 		balances: {
-			getBalance: new Balances(ethereum, apis.erc20Balance).getBalance,
+			getBalance: new Balances(ethereum, apis.erc20Balance, checkWalletChainId).getBalance,
 			convert: wethConverter.convert,
 			getWethContractAddress: wethConverter.getWethContractAddress,
 		},

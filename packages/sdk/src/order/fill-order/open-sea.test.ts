@@ -1,5 +1,13 @@
-import { awaitAll } from "@rarible/ethereum-sdk-test-common"
-import { createGanacheProvider} from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
+import {
+	awaitAll,
+	createGanacheProvider,
+	deployOpenSeaExchangeV1,
+	deployOpenseaTokenTransferProxy,
+	deployTestErc20,
+	deployTestErc721,
+	deployTestErc1155,
+	deployOpenseaProxyRegistry,
+} from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import type { Address, Asset } from "@rarible/ethereum-api-client"
@@ -20,12 +28,6 @@ import {
 	hashToSign,
 	OPENSEA_ORDER_TEMPLATE,
 } from "../test/order-opensea"
-import { deployTestErc20 } from "../contracts/test/test-erc20"
-import { deployTestErc721 } from "../contracts/test/test-erc721"
-import { deployTestErc1155 } from "../contracts/test/test-erc1155"
-import { deployOpenseaProxyRegistry } from "../contracts/test/opensea/test-proxy-registry"
-import { deployOpenseaTokenTransferProxy } from "../contracts/test/opensea/test-token-transfer-proxy"
-import { deployOpenSeaExchangeV1 } from "../contracts/test/opensea/test-exchange-opensea-v1"
 import { createOpenseaProxyRegistryEthContract } from "../contracts/proxy-registry-opensea"
 import { createOpenseaContract } from "../contracts/exchange-opensea-v1"
 import { cancel } from "../cancel"
@@ -48,19 +50,27 @@ describe("fillOrder: Opensea orders", function () {
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
+	const env = "e2e" as const
 	const config: EthereumConfig = {
-		...getEthereumConfig("e2e"),
+		...getEthereumConfig(env),
 		openSea: {
 			metadata: id32("RARIBLE"),
 			proxyRegistry: ZERO_ADDRESS,
 		},
 	}
-	const apis = createEthereumApis("e2e")
+	const apis = createEthereumApis(env)
 
-	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, getSimpleSendWithInjects(), config)
-	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, getSimpleSendWithInjects(), config)
-	const orderFiller1 = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis)
-	const orderFiller2 = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis)
+	const getBaseOrderFee = async () => 0
+	const checkWalletChainId1 = checkChainId.bind(null, ethereum1, config)
+	const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
+
+	const send1 = getSimpleSendWithInjects().bind(null, checkWalletChainId1)
+	const send2 = getSimpleSendWithInjects().bind(null, checkWalletChainId2)
+
+	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, getBaseOrderFee)
+	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, send2, config, getBaseOrderFee)
+	const orderFiller1 = new OrderFiller(ethereum1, send1, config, apis, getBaseOrderFee)
+	const orderFiller2 = new OrderFiller(ethereum2, send2, config, apis, getBaseOrderFee)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -278,6 +288,7 @@ describe("fillOrder: Opensea orders", function () {
 		const cancelledOrder = await cancel(
 			checkLazyOrder,
 			ethereum1,
+			send1,
 			{
 				openseaV1: toAddress(wyvernExchange.options.address),
 				v1: ZERO_ADDRESS,

@@ -1,10 +1,6 @@
 import type { Address } from "@rarible/ethereum-api-client"
 import type { Word } from "@rarible/types"
 
-export type ExchangeFees = {
-	v2: number
-}
-
 export type ExchangeAddresses = {
 	v1: Address
 	v2: Address
@@ -35,7 +31,7 @@ export type EthereumConfig = {
 	chainId: number
 	exchange: ExchangeAddresses
 	transferProxies: TransferProxies
-	fees: ExchangeFees
+	feeConfigUrl: string
 	openSea: OpenSeaConfig
 	factories: FactoriesAddresses
 	weth: Address

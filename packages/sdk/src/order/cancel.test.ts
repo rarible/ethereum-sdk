@@ -4,6 +4,8 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber, toBinary } from "@rarible/types"
 import type { OrderForm } from "@rarible/ethereum-api-client"
 import { Configuration, OrderControllerApi } from "@rarible/ethereum-api-client"
+import { deployTestErc20 } from "@rarible/ethereum-sdk-test-common"
+import { deployTestErc721 } from "@rarible/ethereum-sdk-test-common"
 import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
 import { retry } from "../common/retry"
@@ -13,8 +15,6 @@ import { cancel } from "./cancel"
 import { signOrder } from "./sign-order"
 import { UpsertOrder } from "./upsert-order"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
-import { deployTestErc20 } from "./contracts/test/test-erc20"
-import { deployTestErc721 } from "./contracts/test/test-erc721"
 import { OrderFiller } from "./fill-order"
 import { checkChainId } from "./check-chain-id"
 
@@ -23,14 +23,17 @@ describe("cancel order", () => {
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
 	const approve = () => Promise.resolve(undefined)
-	const config = getEthereumConfig("e2e")
+	const env = "e2e" as const
+	const config = getEthereumConfig(env)
 	const sign = signOrder.bind(null, ethereum, config)
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const configuration = new Configuration(getApiConfig(env))
 	const orderApi = new OrderControllerApi(configuration)
-	const apis = createEthereumApis("e2e")
+	const apis = createEthereumApis(env)
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
-	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis)
+	const getBaseOrderFee = async () => 0
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -87,6 +90,7 @@ describe("cancel order", () => {
 		const checkLazyOrder = <T>(form: T) => Promise.resolve(form)
 		const upserter = new UpsertOrder(
 			orderService,
+			send,
 			checkLazyOrder,
 			approve,
 			sign,
@@ -96,7 +100,7 @@ describe("cancel order", () => {
 		)
 
 		const order = await upserter.upsert({ order: form })
-		const tx = await cancel(checkLazyOrder, ethereum, config.exchange, checkWalletChainId, order)
+		const tx = await cancel(checkLazyOrder, ethereum, send, config.exchange, checkWalletChainId, order)
 		await tx.wait()
 
 		const cancelledOrder = await retry(15, 2000, async () => {

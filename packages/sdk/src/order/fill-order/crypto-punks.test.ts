@@ -1,24 +1,27 @@
 import { randomWord, toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
-import { awaitAll } from "@rarible/ethereum-sdk-test-common"
-import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
+import {
+	awaitAll,
+	createGanacheProvider,
+	deployTestErc20,
+	deployTestErc721,
+	deployTransferProxy,
+	deployErc20TransferProxy,
+	deployTestExchangeV2,
+	deployTestRoyaltiesProvider,
+	deployTestErc1155,
+	deployCryptoPunks,
+	deployCryptoPunkTransferProxy,
+	deployCryptoPunkAssetMatcher,
+} from "@rarible/ethereum-sdk-test-common"
 import { sentTx, getSimpleSendWithInjects } from "../../common/send-transaction"
 import { getEthereumConfig } from "../../config"
-import { deployTestErc20 } from "../contracts/test/test-erc20"
-import { deployTestErc721 } from "../contracts/test/test-erc721"
-import { deployTransferProxy } from "../contracts/test/test-transfer-proxy"
-import { deployErc20TransferProxy } from "../contracts/test/test-erc20-transfer-proxy"
-import { deployTestExchangeV2 } from "../contracts/test/test-exchange-v2"
-import { deployTestRoyaltiesProvider } from "../contracts/test/test-royalties-provider"
-import { deployTestErc1155 } from "../contracts/test/test-erc1155"
 import type { SimpleOrder } from "../types"
-import { deployCryptoPunks } from "../../nft/contracts/cryptoPunks/test/deploy"
-import { deployCryptoPunkTransferProxy } from "../contracts/test/test-crypto-punks-transfer-proxy"
 import { id } from "../../common/id"
-import { deployCryptoPunkAssetMatcher } from "../contracts/test/test-crypto-punks-asset-matcher"
 import { retry } from "../../common/retry"
 import { createEthereumApis } from "../../common/apis"
+import { checkChainId } from "../check-chain-id"
 import { OrderFiller } from "./index"
 
 describe("fillOrder", () => {
@@ -27,9 +30,14 @@ describe("fillOrder", () => {
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 
-	const apis = createEthereumApis("e2e")
-	const config = getEthereumConfig("e2e")
-	const filler = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis)
+	const env = "e2e" as const
+	const apis = createEthereumApis(env)
+	const config = getEthereumConfig(env)
+	const checkWalletChainId = checkChainId.bind(null, ethereum1, config)
+
+	const getBaseOrderFee = async () => 0
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+	const filler = new OrderFiller(ethereum1, send, config, apis, getBaseOrderFee)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -65,7 +73,6 @@ describe("fillOrder", () => {
 		config.exchange.v2 = toAddress(it.exchangeV2.options.address)
 		config.transferProxies.cryptoPunks = toAddress(it.punksTransferProxy.options.address)
 		config.chainId = 17
-		config.fees.v2 = 100
 
 		await sentTx(it.erc20TransferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
 			from: sender1Address,

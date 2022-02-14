@@ -1,0 +1,51 @@
+{
+  "mainnet": {
+    "RARIBLE_V1": 0,
+    "RARIBLE_V2": 0,
+    "OPEN_SEA_V1": 0,
+    "CRYPTO_PUNK": 0,
+    "AUCTION": 0
+  },
+  "mumbai": {
+    "RARIBLE_V1": 0,
+    "RARIBLE_V2": 0,
+    "OPEN_SEA_V1": 0,
+    "CRYPTO_PUNK": 0,
+    "AUCTION": 0
+  },
+  "mumbai-dev": {
+    "RARIBLE_V1": 0,
+    "RARIBLE_V2": 0,
+    "OPEN_SEA_V1": 0,
+    "CRYPTO_PUNK": 0,
+    "AUCTION": 0
+  },
+  "polygon": {
+    "RARIBLE_V1": 0,
+    "RARIBLE_V2": 0,
+    "OPEN_SEA_V1": 0,
+    "CRYPTO_PUNK": 0,
+    "AUCTION": 0
+  },
+  "rinkeby": {
+    "RARIBLE_V1": 0,
+    "RARIBLE_V2": 0,
+    "OPEN_SEA_V1": 0,
+    "CRYPTO_PUNK": 0,
+    "AUCTION": 0
+  },
+  "ropsten": {
+    "RARIBLE_V1": 0,
+    "RARIBLE_V2": 0,
+    "OPEN_SEA_V1": 0,
+    "CRYPTO_PUNK": 0,
+    "AUCTION": 0
+  },
+  "e2e": {
+    "RARIBLE_V1": 0,
+    "RARIBLE_V2": 0,
+    "OPEN_SEA_V1": 0,
+    "CRYPTO_PUNK": 0,
+    "AUCTION": 0
+  }
+}

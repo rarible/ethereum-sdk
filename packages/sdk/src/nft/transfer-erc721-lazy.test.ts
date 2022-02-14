@@ -28,14 +28,14 @@ describe("transfer Erc721 lazy", () => {
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = getSendWithInjects().bind(null, gatewayApi)
-	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
-	const sign = signNft.bind(null, ethereum, 17)
 	const config = getEthereumConfig("e2e")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
+	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
+	const sign = signNft.bind(null, ethereum, 17)
 
 
-	test("should transfer erc721 lazy token", async () => {
+	test.skip("should transfer erc721 lazy token", async () => {
 		const from = toAddress(wallet.getAddressString())
 		const recipient = randomAddress()
 		const contract = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
@@ -63,7 +63,7 @@ describe("transfer Erc721 lazy", () => {
 			contract: contract,
 		}
 
-		await transfer(
+		const transferTx = await transfer(
 			ethereum,
 			send,
 			checkAssetType,
@@ -73,6 +73,7 @@ describe("transfer Erc721 lazy", () => {
 			asset,
 			recipient
 		)
+		await transferTx.wait()
 		const erc721Lazy = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, contract)
 		const recipientBalance = await erc721Lazy.functionCall("balanceOf", recipient).call()
 		expect(recipientBalance).toEqual("1")

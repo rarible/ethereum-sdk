@@ -1,26 +1,26 @@
-import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll, createE2eProvider, deployTestErc1155, deployTestErc20, deployTestErc721ForAuction } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber } from "@rarible/types"
 import { AuctionControllerApi, Configuration } from "@rarible/ethereum-api-client"
 import { sentTx, getSimpleSendWithInjects } from "../common/send-transaction"
-import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
 import { getEthereumConfig } from "../config"
 import { approve as approveTemplate } from "../order/approve"
-import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { getApiConfig } from "../config/api-config"
 import { createEthereumApis } from "../common/apis"
+import { checkChainId } from "../order/check-chain-id"
 import { StartAuction } from "./start"
 import { BuyoutAuction } from "./buy-out"
-import { deployTestErc721ForAuction } from "./contracts/test/test-erc721"
 import { awaitForAuction } from "./test"
 
 describe("buy out auction", () => {
 	const { provider: providerSeller, wallet: walletSeller } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a")
 	const { provider: providerBuyer, wallet: walletBuyer } = createE2eProvider("0xa0d2baba419896add0b6e638ba4e50190f331db18e3271760b12ce87fa853dcb")
+	const { wallet: feeWallet } = createE2eProvider()
 
 	const sender1Address = walletSeller.getAddressString()
 	const sender2Address = walletBuyer.getAddressString()
+	const feeAddress = feeWallet.getAddressString()
 	const web3Seller = new Web3(providerSeller as any)
 	const web3Buyer = new Web3(providerBuyer as any)
 	const config = getEthereumConfig("e2e")
@@ -30,12 +30,16 @@ describe("buy out auction", () => {
 
 	const ethereum1 = new Web3Ethereum({web3: web3Seller, from: sender1Address, gas: 1000000})
 	const ethereum2 = new Web3Ethereum({web3: web3Buyer, from: sender2Address, gas: 1000000})
-	const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
-	const approve2 = approveTemplate.bind(null, ethereum2, getSimpleSendWithInjects(), config.transferProxies)
+	const checkWalletChainId1 = checkChainId.bind(null, ethereum1, config)
+	const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
+	const send1 = getSimpleSendWithInjects().bind(null, checkWalletChainId1)
+	const send2 = getSimpleSendWithInjects().bind(null, checkWalletChainId2)
+	const approve1 = approveTemplate.bind(null, ethereum1, send1, config.transferProxies)
+	const approve2 = approveTemplate.bind(null, ethereum2, send2, config.transferProxies)
 
 	const apis = createEthereumApis("e2e")
-	const auctionService1 = new StartAuction(ethereum1, config, approve1, apis)
-	const buyoutService2 = new BuyoutAuction(ethereum2, config, approve2, auctionApi)
+	const auctionService1 = new StartAuction(ethereum1, send1, config, "e2e", approve1, apis)
+	const buyoutService2 = new BuyoutAuction(ethereum2, send1, config, "e2e", approve2, apis)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3Seller, "TST"),
@@ -65,7 +69,6 @@ describe("buy out auction", () => {
 				startTime: 0,
 				buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
 				originFees: [],
-				payouts: [],
 			}
 		)
 
@@ -74,8 +77,7 @@ describe("buy out auction", () => {
 		await awaitForAuction(auctionApi, await auction.hash)
 
 		const buyoutTx = await buyoutService2.buyout({
-			auctionId: await auction.auctionId,
-			payouts: [],
+			hash: await auction.hash,
 			originFees: [],
 		})
 
@@ -106,7 +108,6 @@ describe("buy out auction", () => {
 				startTime: 0,
 				buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
 				originFees: [],
-				payouts: [],
 			}
 		)
 
@@ -115,8 +116,7 @@ describe("buy out auction", () => {
 		await awaitForAuction(auctionApi, await auction.hash)
 
 		const buyoutTx = await buyoutService2.buyout({
-			auctionId: await auction.auctionId,
-			payouts: [],
+			hash: await auction.hash,
 			originFees: [],
 		})
 
@@ -143,9 +143,11 @@ describe("buy out auction", () => {
 			minimalPriceDecimal: toBigNumber("0.000000000000000005"),
 			duration: 1000,
 			startTime: 0,
-			buyOutPriceDecimal: toBigNumber("0.00000000000000001"),
-			originFees: [],
-			payouts: [],
+			buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
+			originFees: [{
+				account: toAddress(feeAddress),
+				value: 500,
+			}],
 		})
 
 		await auction.tx.wait()
@@ -153,11 +155,15 @@ describe("buy out auction", () => {
 		await awaitForAuction(auctionApi, await auction.hash)
 
 		const buyoutTx = await buyoutService2.buyout({
-			auctionId: await auction.auctionId,
-			payouts: [],
-			originFees: [],
+			hash: await auction.hash,
+			originFees: [{
+				account: toAddress(feeAddress),
+				value: 500,
+			}],
 		})
 		await buyoutTx.wait()
 		expect(await it.testErc1155.methods.balanceOf(sender2Address, "2").call()).toBe("1")
+
+		expect(await web3Buyer.eth.getBalance(feeAddress)).toBe("10")
 	})
 })

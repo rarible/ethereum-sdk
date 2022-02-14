@@ -1,6 +1,7 @@
 import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 import { id32 } from "../common/id"
 import type { EthereumConfig } from "./type"
+import { FEE_CONFIG_URL } from "./common"
 
 export const rinkebyConfig: EthereumConfig = {
 	basePath: "https://ethereum-api-staging.rarible.org",
@@ -18,9 +19,7 @@ export const rinkebyConfig: EthereumConfig = {
 		openseaV1: toAddress("0x82d102457854c985221249f86659c9d6cf12aa72"),
 		cryptoPunks: toAddress("0xfc2aa1b3365b8e0cac7a7d22fd7655e643792d17"),
 	},
-	fees: {
-		v2: 0,
-	},
+	feeConfigUrl: FEE_CONFIG_URL,
 	openSea: {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: toAddress("0xf57b2c51ded3a29e6891aba85459d600256cf317"),

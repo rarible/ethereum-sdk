@@ -1,10 +1,11 @@
-import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll, createE2eProvider, deployTestErc20 } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
 import { Configuration, Erc20BalanceControllerApi } from "@rarible/ethereum-api-client"
-import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { getApiConfig } from "../config/api-config"
+import { checkChainId } from "../order/check-chain-id"
+import { getEthereumConfig } from "../config"
 import { Balances } from "./balances"
 import { retry } from "./retry"
 
@@ -15,7 +16,11 @@ describe("getBalance test", () => {
 
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const erc20BalanceController = new Erc20BalanceControllerApi(configuration)
-	const balances = new Balances(ethereum, erc20BalanceController)
+	const config = getEthereumConfig("e2e")
+
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+
+	const balances = new Balances(ethereum, erc20BalanceController, checkWalletChainId)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

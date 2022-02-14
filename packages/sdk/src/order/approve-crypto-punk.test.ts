@@ -1,13 +1,13 @@
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
-import { awaitAll } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll, createGanacheProvider, deployCryptoPunks } from "@rarible/ethereum-sdk-test-common"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
 import { randomAddress, toAddress } from "@rarible/types"
-import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { getSendWithInjects, sentTx } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
-import { deployCryptoPunks } from "../nft/contracts/cryptoPunks/test/deploy"
+import { getEthereumConfig } from "../config"
 import { approveCryptoPunk } from "./approve-crypto-punk"
+import { checkChainId } from "./check-chain-id"
 
 describe("approve crypto punks", () => {
 	const {
@@ -24,7 +24,10 @@ describe("approve crypto punks", () => {
 
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = getSendWithInjects().bind(null, gatewayApi)
+
+	const config = getEthereumConfig("e2e")
+	const checkWalletChainId = checkChainId.bind(null, ethereumSeller, config)
+	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 	const approve = approveCryptoPunk.bind(null, ethereumSeller, send)
 
 	beforeAll(async () => {
@@ -35,12 +38,13 @@ describe("approve crypto punks", () => {
 	test("should approve", async () => {
 		const operator = randomAddress()
 
-		await approve(
+		const tx = await approve(
 			toAddress(it.punksMarket.options.address),
 			sellerAddress,
 			operator,
 			0
 		)
+		await tx?.wait()
 		const offer = await it.punksMarket.methods.punksOfferedForSale(0).call()
 
 		expect(offer.isForSale).toBe(true)

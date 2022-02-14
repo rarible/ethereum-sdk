@@ -1,27 +1,36 @@
-import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
+import {
+	awaitAll,
+	createE2eProvider,
+	deployTestErc1155,
+	deployTestErc20,
+	deployTestErc721ForAuction,
+} from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber } from "@rarible/types"
 import { sentTx, getSimpleSendWithInjects } from "../common/send-transaction"
-import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
 import { getEthereumConfig } from "../config"
 import { approve as approveTemplate } from "../order/approve"
-import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { createEthereumApis } from "../common/apis"
+import { checkChainId } from "../order/check-chain-id"
 import { StartAuction } from "./start"
-import { deployTestErc721ForAuction } from "./contracts/test/test-erc721"
 
 describe("start auction", () => {
 	const { provider, wallet } = createE2eProvider("0xa0d2baba419896add0b6e638ba4e50190f331db18e3271760b12ce87fa853dcb")
+	const { wallet: feeWallet } = createE2eProvider()
 
 	const sender1Address = wallet.getAddressString()
+	const feeWalletAddress = feeWallet.getAddressString()
 	const web3 = new Web3(provider as any)
 	const config = getEthereumConfig("e2e")
 
 	const ethereum1 = new Web3Ethereum({web3, from: sender1Address, gas: 1000000})
-	const approve1 = approveTemplate.bind(null, ethereum1, getSimpleSendWithInjects(), config.transferProxies)
+	const checkWalletChainId = checkChainId.bind(null, ethereum1, config)
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+
+	const approve1 = approveTemplate.bind(null, ethereum1, send, config.transferProxies)
 	const apis = createEthereumApis("e2e")
-	const auctionService = new StartAuction(ethereum1, config, approve1, apis)
+	const auctionService = new StartAuction(ethereum1, send, config, "e2e", approve1, apis)
 
 	const it = awaitAll({
 		testErc721: deployTestErc721ForAuction(web3, "TST", "TST"),
@@ -45,12 +54,10 @@ describe("start auction", () => {
 					assetClass: "ETH",
 				},
 				minimalStepDecimal: toBigNumber("0.00000000000000001"),
-				minimalPriceDecimal: toBigNumber("0.00000000000000005"),
+				minimalPriceDecimal: toBigNumber("0.00000000000000001"),
 				duration: 1000,
-				startTime: 0,
+				startTime: Math.floor(Date.now() / 1000) + 100,
 				buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
-				originFees: [],
-				payouts: [],
 			}
 		)
 
@@ -76,10 +83,39 @@ describe("start auction", () => {
 				minimalStepDecimal: toBigNumber("0.00000000000000001"),
 				minimalPriceDecimal: toBigNumber("0.00000000000000005"),
 				duration: 1000,
-				startTime: 0,
-				buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
+				startTime: Math.floor(Date.now() / 1000) + 100,
+				buyOutPriceDecimal: toBigNumber("0.00000000000000006"),
+				originFees: [{
+					account: toAddress(feeWalletAddress),
+					value: 250,
+				}],
+			}
+		)
+
+		await auctionResponse.tx.wait()
+	})
+
+	test("start erc-721 <-> erc20 auction", async () => {
+		await sentTx(it.testErc721.methods.mint(sender1Address, 2), { from: sender1Address })
+
+		const auctionResponse = await auctionService.start(
+			{
+				makeAssetType: {
+					assetClass: "ERC721",
+					contract: toAddress(it.testErc721.options.address),
+					tokenId: toBigNumber("2"),
+				},
+				amount: toBigNumber("1"),
+				takeAssetType: {
+					assetClass: "ERC20",
+					contract: toAddress(it.testErc20.options.address),
+				},
+				minimalStepDecimal: toBigNumber("0.00000000000000001"),
+				minimalPriceDecimal: toBigNumber("0.00000000000000005"),
+				duration: 1000,
+				startTime: Math.floor(Date.now() / 1000) + 5,
+				buyOutPriceDecimal: toBigNumber("0.0000000000000006"),
 				originFees: [],
-				payouts: [],
 			}
 		)
 
@@ -103,11 +139,10 @@ describe("start auction", () => {
 				},
 				minimalStepDecimal: toBigNumber("0.00000000000000001"),
 				minimalPriceDecimal: toBigNumber("0.00000000000000005"),
-				duration: 1000,
+				duration: 0,
 				startTime: 0,
-				buyOutPriceDecimal: toBigNumber("0.0000000000000001"),
+				buyOutPriceDecimal: toBigNumber("0.0000000000000006"),
 				originFees: [],
-				payouts: [],
 			}
 		)
 

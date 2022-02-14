@@ -1,28 +1,29 @@
 import { randomAddress, randomWord, toAddress, toBigNumber } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
-import { awaitAll } from "@rarible/ethereum-sdk-test-common"
-import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { toBn } from "@rarible/utils/build/bn"
-import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
-import { getSendWithInjects, sentTx, getSimpleSendWithInjects } from "../../common/send-transaction"
+import {
+	deployTestErc20,
+	deployTestErc721,
+	deployTransferProxy,
+	deployErc20TransferProxy,
+	deployTestExchangeV2,
+	deployTestRoyaltiesProvider,
+	deployTestErc1155,
+	deployCryptoPunkTransferProxy,
+	deployCryptoPunkAssetMatcher,
+	deployCryptoPunks,
+	createGanacheProvider,
+	awaitAll,
+} from "@rarible/ethereum-sdk-test-common"
+import {sentTx, getSimpleSendWithInjects } from "../../common/send-transaction"
 import { getEthereumConfig } from "../../config"
-import { deployTestErc20 } from "../contracts/test/test-erc20"
-import { deployTestErc721 } from "../contracts/test/test-erc721"
-import { deployTransferProxy } from "../contracts/test/test-transfer-proxy"
-import { deployErc20TransferProxy } from "../contracts/test/test-erc20-transfer-proxy"
-import { deployTestExchangeV2 } from "../contracts/test/test-exchange-v2"
-import { deployTestRoyaltiesProvider } from "../contracts/test/test-royalties-provider"
 import { signOrder } from "../sign-order"
-import { deployTestErc1155 } from "../contracts/test/test-erc1155"
 import type { SimpleOrder } from "../types"
-import { deployCryptoPunks } from "../../nft/contracts/cryptoPunks/test/deploy"
-import { deployCryptoPunkTransferProxy } from "../contracts/test/test-crypto-punks-transfer-proxy"
-import { deployCryptoPunkAssetMatcher } from "../contracts/test/test-crypto-punks-asset-matcher"
 import { id } from "../../common/id"
 import { approveErc20 } from "../approve-erc20"
-import { getApiConfig } from "../../config/api-config"
 import { createEthereumApis } from "../../common/apis"
+import { checkChainId } from "../check-chain-id"
 import { OrderFiller } from "./index"
 
 describe("buy & acceptBid orders", () => {
@@ -32,13 +33,14 @@ describe("buy & acceptBid orders", () => {
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
-	const config = getEthereumConfig("e2e")
-	const apis = createEthereumApis("e2e")
+	const env = "e2e" as const
+	const config = getEthereumConfig(env)
+	const apis = createEthereumApis(env)
 
-	const filler = new OrderFiller(ethereum1, getSimpleSendWithInjects(), config, apis)
-	const configuration = new Configuration(getApiConfig("e2e"))
-	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = getSendWithInjects().bind(null, gatewayApi)
+	const checkWalletChainId = checkChainId.bind(null, ethereum1, config)
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+	const getBaseOrderFee = async () => 100
+	const filler = new OrderFiller(ethereum1, send, config, apis, getBaseOrderFee)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -72,7 +74,6 @@ describe("buy & acceptBid orders", () => {
 		config.transferProxies.cryptoPunks = toAddress(it.punksTransferProxy.options.address)
 		config.transferProxies.erc20 = toAddress(it.erc20TransferProxy.options.address)
 		config.chainId = 17
-		config.fees.v2 = 100
 
 		await sentTx(it.transferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
 			from: sender1Address,
@@ -391,7 +392,7 @@ describe("buy & acceptBid orders", () => {
 
 		const finalOrder = { ...left, signature }
 
-		const filler = new OrderFiller(ethereum2, getSimpleSendWithInjects(), config, apis)
+		const filler = new OrderFiller(ethereum2, send, config, apis, getBaseOrderFee)
 
 		await filler.acceptBid({ order: finalOrder, amount: 1, originFees: []})
 

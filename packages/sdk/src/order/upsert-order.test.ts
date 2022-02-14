@@ -1,7 +1,7 @@
 import { toAddress, toBigNumber, toBinary } from "@rarible/types"
 import type { OrderForm } from "@rarible/ethereum-api-client"
 import { Configuration, OrderControllerApi } from "@rarible/ethereum-api-client"
-import { createE2eProvider, awaitAll } from "@rarible/ethereum-sdk-test-common"
+import { createE2eProvider, awaitAll, deployTestErc20 } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils"
 import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
@@ -12,7 +12,6 @@ import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { UpsertOrder } from "./upsert-order"
 import { signOrder } from "./sign-order"
 import { OrderFiller } from "./fill-order"
-import { deployTestErc20 } from "./contracts/test/test-erc20"
 import { checkChainId } from "./check-chain-id"
 
 const { provider, wallet } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
@@ -22,16 +21,20 @@ const it = awaitAll({
 })
 
 describe.each(providers)("upsertOrder", (ethereum) => {
-	const config = getEthereumConfig("e2e")
+	const env = "e2e" as const
+	const config = getEthereumConfig(env)
 	const sign = signOrder.bind(null, ethereum, config)
-	const apis = createEthereumApis("e2e")
+	const apis = createEthereumApis(env)
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
-	const orderService = new OrderFiller(ethereum, getSimpleSendWithInjects(), config, apis)
+	const getBaseOrderFee = async () => 0
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
+
 	const approve = () => Promise.resolve(undefined)
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const orderApi = new OrderControllerApi(configuration)
 	const checkLazyOrder: any = async (form: any) => Promise.resolve(form)
-	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
 	test("sign and upsert works", async () => {
 
@@ -49,6 +52,7 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 		}
 		const upserter = new UpsertOrder(
 			orderService,
+			send,
 			checkLazyOrder,
 			approve,
 			sign,
@@ -79,6 +83,7 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 		}
 		const upserter = new UpsertOrder(
 			orderService,
+			send,
 			checkLazyOrder,
 			approve,
 			sign,
@@ -110,6 +115,7 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 		}
 		const upserter = new UpsertOrder(
 			orderService,
+			send,
 			checkLazyOrder,
 			approve,
 			sign,

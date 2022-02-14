@@ -1,13 +1,13 @@
 import { randomAddress, toAddress } from "@rarible/types"
-import { awaitAll } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll, deployTestErc1155, createGanacheProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
-import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
-import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
 import { getApiConfig } from "../config/api-config"
 import { isError } from "../common/is-error"
-import { getSendWithInjects } from "../common/send-transaction"
+import { getSendWithInjects, sentTx } from "../common/send-transaction"
+import { getEthereumConfig } from "../config"
+import { checkChainId } from "../order/check-chain-id"
 import { transferErc1155 } from "./transfer-erc1155"
 
 describe("transfer Erc1155", () => {
@@ -19,7 +19,10 @@ describe("transfer Erc1155", () => {
 
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = getSendWithInjects().bind(null, gatewayApi)
+
+	const config = getEthereumConfig("e2e")
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3, "TST"),
@@ -28,7 +31,7 @@ describe("transfer Erc1155", () => {
 	test("should transfer erc1155 token", async () => {
 		const token1Id = from + "b00000000000000000000001"
 		const token1Balance = "10"
-		await it.testErc1155.methods.mint(from, token1Id, token1Balance, "123").send({ from, gas: 200000 })
+		await sentTx(it.testErc1155.methods.mint(from, token1Id, token1Balance, "123"), { from, gas: 200000 })
 
 		const senderBalance: string = await it.testErc1155.methods.balanceOf(from, token1Id).call()
 		expect(senderBalance === token1Balance).toBeTruthy()
@@ -50,9 +53,9 @@ describe("transfer Erc1155", () => {
 			from + "b00000000000000000000004",
 		]
 		const [token2Balance, token3Balance, token4Balance]: string[] = ["100", "200", "300"]
-		await it.testErc1155.methods.mint(from, token2Id, token2Balance, "123").send({ from: from, gas: 200000 })
-		await it.testErc1155.methods.mint(from, token3Id, token3Balance, "123").send({ from: from, gas: 200000 })
-		await it.testErc1155.methods.mint(from, token4Id, token4Balance, "123").send({ from: from, gas: 200000 })
+		await sentTx(it.testErc1155.methods.mint(from, token2Id, token2Balance, "123"), { from: from, gas: 200000 })
+		await sentTx(it.testErc1155.methods.mint(from, token3Id, token3Balance, "123"), { from: from, gas: 200000 })
+		await sentTx(it.testErc1155.methods.mint(from, token4Id, token4Balance, "123"), { from: from, gas: 200000 })
 
 		const [
 			token2Balances,
@@ -76,6 +79,7 @@ describe("transfer Erc1155", () => {
 			[token2Id, token3Id, token4Id],
 			["10", "100", "300"])
 		expect(!!hash).toBeTruthy()
+		await hash.wait()
 
 		const [
 			resultToken2Balances,
@@ -99,8 +103,8 @@ describe("transfer Erc1155", () => {
 				from + "b00000000000000000000006",
 			]
 			const [token2Balance, token3Balance]: string[] = ["100", "100"]
-			await it.testErc1155.methods.mint(from, token2Id, token2Balance, "123").send({ from: from, gas: 200000 })
-			await it.testErc1155.methods.mint(from, token3Id, token3Balance, "123").send({ from: from, gas: 200000 })
+			await sentTx(it.testErc1155.methods.mint(from, token2Id, token2Balance, "123"), { from: from, gas: 200000 })
+			await sentTx(it.testErc1155.methods.mint(from, token3Id, token3Balance, "123"), { from: from, gas: 200000 })
 
 			const [
 				token2Balances,

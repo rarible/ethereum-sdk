@@ -4,11 +4,12 @@ import { toBn } from "@rarible/utils/build/bn"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
-import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
+import { createGanacheProvider, deployTestErc1155 } from "@rarible/ethereum-sdk-test-common"
 import { getApiConfig } from "../config/api-config"
 import { getSendWithInjects, sentTx } from "../common/send-transaction"
+import { getEthereumConfig } from "../config"
 import { approveErc1155 as approveErc1155Template } from "./approve-erc1155"
-import { deployTestErc1155 } from "./contracts/test/test-erc1155"
+import { checkChainId } from "./check-chain-id"
 
 describe("approveErc1155", () => {
 	const { provider, addresses } = createGanacheProvider(
@@ -19,7 +20,9 @@ describe("approveErc1155", () => {
 	const [testAddress] = addresses
 	const configuration = new Configuration(getApiConfig("e2e"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const send = getSendWithInjects().bind(null, gatewayApi)
+	const config = getEthereumConfig("e2e")
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 	const approveErc1155 = approveErc1155Template.bind(null, ethereum, send)
 
 	let testErc1155: Contract
@@ -29,7 +32,7 @@ describe("approveErc1155", () => {
 
 	test("should approve", async () => {
 		const tokenId = testAddress + "b00000000000000000000003"
-		await testErc1155.methods.mint(testAddress, tokenId, toBn(1), "123").send({ from: testAddress, gas: 200000 })
+		await sentTx(testErc1155.methods.mint(testAddress, tokenId, toBn(1), "123"), { from: testAddress, gas: 200000 })
 
 		const balance = await testErc1155.methods.balanceOf(testAddress, tokenId).call()
 		expect(balance).toEqual("1")

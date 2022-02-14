@@ -1,13 +1,13 @@
 import type { Ethereum } from "@rarible/ethereum-provider"
-import type { AssetType } from "@rarible/ethereum-api-client"
-import type { Erc20AssetType, EthAssetType } from "@rarible/ethereum-api-client"
-import type { Part } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { BigNumber } from "@rarible/types"
 import { toAddress, toBigNumber } from "@rarible/types"
-import type { BigNumberValue } from "@rarible/utils/build/bn"
 import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import { Action } from "@rarible/action"
+import type { AssetType } from "@rarible/ethereum-api-client"
+import { toBn } from "@rarible/utils"
+import type { Erc20AssetType, EthAssetType, Part } from "@rarible/ethereum-api-client"
+import type { BigNumberValue } from "@rarible/utils/build/bn"
 import { id } from "../common/id"
 import type { EthereumConfig } from "../config/type"
 import type { ApproveFunction } from "../order/approve"
@@ -16,8 +16,14 @@ import { getPrice } from "../common/get-price"
 import type { AssetTypeRequest, AssetTypeResponse} from "../order/check-asset-type"
 import type { RaribleEthereumApis } from "../common/apis"
 import { checkAssetType } from "../order/check-asset-type"
+import type { SendFunction } from "../common/send-transaction"
+import { checkChainId } from "../order/check-chain-id"
+import { isNft } from "../order/is-nft"
+import { isPaymentToken } from "../common/is-payment-token"
+import { validateParts } from "../common/validate-part"
+import type { EthereumNetwork } from "../types"
 import { createEthereumAuctionContract } from "./contracts/auction"
-import { AUCTION_DATA_TYPE, getAuctionHash } from "./common"
+import { AUCTION_DATA_TYPE, AUCTION_DATA_V1, getAssetEncodedData, getAuctionHash } from "./common"
 
 export type CreateAuctionRequest = {
 	makeAssetType: AssetTypeRequest,
@@ -28,9 +34,9 @@ export type CreateAuctionRequest = {
 	duration: number,
 	startTime?: number,
 	buyOutPriceDecimal: BigNumberValue,
-	payouts: Part[],
-	originFees: Part[],
+	originFees?: Part[],
 }
+
 
 export type AuctionStartAction = Action<"approve" | "sign", CreateAuctionRequest, AuctionStartResponse>
 export type AuctionStartResponse = {
@@ -42,10 +48,14 @@ export type AuctionStartResponse = {
 export class StartAuction {
 	private readonly checkAssetType: (asset: AssetTypeRequest) => Promise<AssetTypeResponse>
 	private readonly getAuctionHash: (auctionId: BigNumber) => string
+	private readonly MAX_DURATION_SECONDS = 60 * 60 * 24 * 1000 //1000 days
+	private readonly MIN_DURATION_SECONDS = 60 * 60 * 15 // 15 minutes
 
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
+		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
+		private readonly env: EthereumNetwork,
 		private readonly approve: ApproveFunction,
 		private readonly apis: RaribleEthereumApis,
 	) {
@@ -60,6 +70,8 @@ export class StartAuction {
 				throw new Error("Wallet is undefined")
 			}
 			const makeAssetType = await this.checkAssetType(request.makeAssetType)
+			this.validate(request, makeAssetType)
+
 			await waitTx(
 				this.approve(
 					toAddress(await this.ethereum.getFrom()),
@@ -92,24 +104,26 @@ export class StartAuction {
 				}
 
 				const data = this.ethereum.encodeParameter(AUCTION_DATA_V1, {
-					payouts: request.payouts,
-					originFees: request.originFees,
+					payouts: [],
+					originFees: request.originFees || [],
 					duration: request.duration,
 					startTime: request.startTime || 0,
 					buyOutPrice: (await getPrice(this.ethereum, request.takeAssetType, request.buyOutPriceDecimal)).toString(),
 				})
 
-				const tx = await createEthereumAuctionContract(this.ethereum, this.config.auction)
-					.functionCall(
-						"startAuction",
-						sellAsset,
-						buyAssetType,
-						(await getPrice(this.ethereum, request.takeAssetType, request.minimalStepDecimal)).toString(),
-						(await getPrice(this.ethereum, request.takeAssetType, request.minimalPriceDecimal)).toString(),
-						AUCTION_DATA_TYPE,
-						data,
-					)
-					.send({gas: 10000000})
+				const tx = await this.send(
+					await createEthereumAuctionContract(this.ethereum, this.config.auction)
+						.functionCall(
+							"startAuction",
+							sellAsset,
+							buyAssetType,
+							(await getPrice(this.ethereum, request.takeAssetType, request.minimalStepDecimal)).toString(),
+							(await getPrice(this.ethereum, request.takeAssetType, request.minimalPriceDecimal)).toString(),
+							AUCTION_DATA_TYPE,
+							data,
+						)
+				)
+
 
 				const auctionIdPromise = tx.wait()
 					.then(receipt => {
@@ -130,89 +144,59 @@ export class StartAuction {
 				}
 			},
 		})
+		.before(async (request: CreateAuctionRequest) => {
+			await checkChainId(this.ethereum, this.config)
+			return request
+		})
 
-}
-
-
-const AUCTION_DATA_V1 = {
-	components: [
-		{
-			components: [
-				{
-					name: "account",
-					type: "address",
-				},
-				{
-					name: "value",
-					type: "uint96",
-				},
-			],
-			name: "payouts",
-			type: "tuple[]",
-		},
-		{
-			components: [
-				{
-					name: "account",
-					type: "address",
-				},
-				{
-					name: "value",
-					type: "uint96",
-				},
-			],
-			name: "originFees",
-			type: "tuple[]",
-		},
-		{
-			name: "duration",
-			type: "uint96",
-		},
-		{
-			name: "startTime",
-			type: "uint96",
-		},
-		{
-			name: "buyOutPrice",
-			type: "uint96",
-		},
-	],
-	name: "data",
-	type: "tuple",
-}
-
-function getAssetEncodedData(
-	ethereum: Ethereum,
-	asset: AssetType
-): string {
-	switch (asset.assetClass) {
-		case "ETH": {
-			return "0x"
+	validate(request: CreateAuctionRequest, makeAssetType: AssetType): boolean {
+		if (!isNft(makeAssetType)) {
+			throw new Error("Make asset should be NFT token")
 		}
-		case "ERC20": {
-			return ethereum.encodeParameter("address", asset.contract)
+		if (makeAssetType.assetClass === "ERC721_LAZY" || makeAssetType.assetClass === "ERC1155_LAZY") {
+			throw new Error("Auction cannot be created with lazy assets")
 		}
-		case "ERC721":
-		case "ERC1155": {
-			return ethereum.encodeParameter({
-				components: [
-					{
-						name: "contractAddress",
-						type: "address",
-					},
-					{
-						name: "tokenId",
-						type: "uint256",
-					},
-				],
-				name: "data",
-				type: "tuple",
-			}, {
-				contractAddress: asset.contract,
-				tokenId: asset.tokenId,
-			})
+		if (!isPaymentToken(request.takeAssetType)) {
+			throw new Error("Take asset should be payment token (ETH or ERC-20)")
 		}
-		default:
-			throw new Error("Unrecognized asset for auction")
+		const minPrice = toBn(request.minimalPriceDecimal)
+		if (!minPrice.isPositive()) {
+			throw new Error("Minimal price should be a correct value")
+		}
+
+		const step = toBn(request.minimalStepDecimal)
+		if (!step.isPositive()) {
+			throw new Error("Minimal step should be a correct value")
+		}
+
+		const startTimestamp = toBn(request.startTime || 0)
+		if (!startTimestamp.isZero()) {
+			if (startTimestamp.isNaN() || !startTimestamp.isInteger() || startTimestamp.isNegative()) {
+				throw new Error(`Wrong auction start time timestamp = ${startTimestamp.toString()}`)
+			}
+			if (startTimestamp.isLessThan(Date.now() / 1000)) {
+				throw new Error("Auction start time should be greater than current time")
+			}
+		}
+
+		const duration = toBn(request.duration)
+		if (duration.isNaN() || duration.isNegative() || duration.isGreaterThan(this.MAX_DURATION_SECONDS)) {
+			throw new Error("Incorrect duration value")
+		}
+		if (this.env !== "e2e" && duration.isLessThan(this.MIN_DURATION_SECONDS)) {
+			throw new Error("Auction duration should be greater than minimal duration time")
+		}
+
+		const buyout = toBn(request.buyOutPriceDecimal)
+		if (!buyout.isPositive() || buyout.isLessThanOrEqualTo(minPrice)) {
+			throw new Error("Auction buyout price should be correct and greater than minimal price")
+		}
+		const amount = toBn(request.amount)
+		if (!amount.isInteger() || amount.isLessThanOrEqualTo(0)) {
+			throw new Error("Auction asset amount should be integer and greater than 0")
+		}
+
+		validateParts(request.originFees)
+		return true
 	}
 }

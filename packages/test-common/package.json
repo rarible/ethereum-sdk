@@ -1,6 +1,6 @@
 {
   "name": "@rarible/ethereum-sdk-test-common",
-  "version": "0.12.43",
+  "version": "0.12.47",
   "description": "",
   "keywords": [
     "ethereum",
@@ -22,8 +22,8 @@
     "@types/web3-provider-engine": "^14.0.1",
     "eth-sig-util": "^3.0.1",
     "ethereumjs-wallet": "^1.0.1",
-    "web3-provider-engine": "^16.0.1",
-    "ganache": "^7.0.2"
+    "ganache": "^7.0.2",
+    "web3-provider-engine": "^16.0.1"
   },
   "devDependencies": {
     "typescript": "^4.4.4"

@@ -1,14 +1,12 @@
 import { randomAddress, toAddress } from "@rarible/types"
-import { awaitAll } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll, createGanacheProvider, deployTestErc721 } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
-import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { getApiConfig } from "../config/api-config"
 import { sentTx, getSendWithInjects } from "../common/send-transaction"
 import { getEthereumConfig } from "../config"
 import { approveErc721 as approveErc721Template } from "./approve-erc721"
-import { deployTestErc721 } from "./contracts/test/test-erc721"
 import { checkChainId } from "./check-chain-id"
 
 describe("approveErc721", () => {

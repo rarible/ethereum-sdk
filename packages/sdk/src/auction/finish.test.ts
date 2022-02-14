@@ -1,13 +1,11 @@
-import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll, createE2eProvider, deployTestErc1155, deployTestErc20 } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber } from "@rarible/types"
 import { toBn } from "@rarible/utils"
 import { sentTx, getSimpleSendWithInjects } from "../common/send-transaction"
-import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
 import { getEthereumConfig } from "../config"
 import { approve as approveTemplate } from "../order/approve"
-import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { createEthereumApis } from "../common/apis"
 import { checkChainId } from "../order/check-chain-id"
 import { delay } from "../common/retry"
@@ -18,7 +16,7 @@ import { awaitForAuction, awaitForAuctionBid } from "./test"
 
 
 describe("finish auction auction", () => {
-	const { provider: providerSeller, wallet: walletSeller } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a")
+	const { provider: providerSeller, wallet: walletSeller } = createE2eProvider("0xded057615d97f0f1c751ea2795bc4b03bbf44844c13ab4f5e6fd976506c276b9")
 	const { provider: providerBuyer, wallet: walletBuyer } = createE2eProvider("0xa0d2baba419896add0b6e638ba4e50190f331db18e3271760b12ce87fa853dcb")
 	const { wallet: feeWallet } = createE2eProvider()
 
@@ -61,6 +59,11 @@ describe("finish auction auction", () => {
 			it.testErc20.methods.mint(sender2Address, erc20Supply.toString()),
 			{ from: sender1Address, gas: 1000000 }
 		)
+		await sentTx(
+			it.testErc20.methods.mint(sender1Address, "10000000000000000000000000000"),
+			{ from: sender1Address, gas: 1000000 }
+		)
+		console.log("erc20", it.testErc20.options.address)
 
 		const auction = await auctionService.start(
 			{

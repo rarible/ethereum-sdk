@@ -1,6 +1,6 @@
 import type Web3 from "web3"
 import type { Address } from "@rarible/ethereum-api-client"
-import type { AbiItem } from "../../../common/abi-item"
+import type { AbiItem } from "../common/abi-item"
 
 const abi: AbiItem[] = [
 	{

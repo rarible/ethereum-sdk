@@ -175,15 +175,15 @@ export interface RaribleAuctionSdk {
 
 	/**
    * Cancel started auction
-   * @param auctionId Auction ID
+   * @param hash Auction hash
    */
-	cancel(auctionId: BigNumber): Promise<EthereumTransaction>
+	cancel(hash: string): Promise<EthereumTransaction>
 
 	/**
    * Finish auction with at least one bid
-   * @param auctionId Auction ID
+   * @param hash Auction hash
    */
-	finish(auctionId: BigNumber): Promise<EthereumTransaction>
+	finish(hash: string): Promise<EthereumTransaction>
 
 	/**
    * Put bid

@@ -1,16 +1,19 @@
-import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
+import {
+	awaitAll,
+	createE2eProvider,
+	deployTestErc1155,
+	deployTestErc20,
+	deployTestErc721ForAuction,
+} from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber } from "@rarible/types"
 import { sentTx, getSimpleSendWithInjects } from "../common/send-transaction"
-import { deployTestErc1155 } from "../order/contracts/test/test-erc1155"
 import { getEthereumConfig } from "../config"
 import { approve as approveTemplate } from "../order/approve"
-import { deployTestErc20 } from "../order/contracts/test/test-erc20"
 import { createEthereumApis } from "../common/apis"
 import { checkChainId } from "../order/check-chain-id"
 import { StartAuction } from "./start"
-import { deployTestErc721ForAuction } from "./contracts/test/test-erc721"
 
 describe("start auction", () => {
 	const { provider, wallet } = createE2eProvider("0xa0d2baba419896add0b6e638ba4e50190f331db18e3271760b12ce87fa853dcb")

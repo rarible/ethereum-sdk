@@ -1,23 +1,25 @@
 import { randomAddress, randomWord, toAddress, toBigNumber } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
-import { awaitAll } from "@rarible/ethereum-sdk-test-common"
-import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { toBn } from "@rarible/utils/build/bn"
+import {
+	deployTestErc20,
+	deployTestErc721,
+	deployTransferProxy,
+	deployErc20TransferProxy,
+	deployTestExchangeV2,
+	deployTestRoyaltiesProvider,
+	deployTestErc1155,
+	deployCryptoPunkTransferProxy,
+	deployCryptoPunkAssetMatcher,
+	deployCryptoPunks,
+	createGanacheProvider,
+	awaitAll,
+} from "@rarible/ethereum-sdk-test-common"
 import {sentTx, getSimpleSendWithInjects } from "../../common/send-transaction"
 import { getEthereumConfig } from "../../config"
-import { deployTestErc20 } from "../contracts/test/test-erc20"
-import { deployTestErc721 } from "../contracts/test/test-erc721"
-import { deployTransferProxy } from "../contracts/test/test-transfer-proxy"
-import { deployErc20TransferProxy } from "../contracts/test/test-erc20-transfer-proxy"
-import { deployTestExchangeV2 } from "../contracts/test/test-exchange-v2"
-import { deployTestRoyaltiesProvider } from "../contracts/test/test-royalties-provider"
 import { signOrder } from "../sign-order"
-import { deployTestErc1155 } from "../contracts/test/test-erc1155"
 import type { SimpleOrder } from "../types"
-import { deployCryptoPunks } from "../../nft/contracts/cryptoPunks/test/deploy"
-import { deployCryptoPunkTransferProxy } from "../contracts/test/test-crypto-punks-transfer-proxy"
-import { deployCryptoPunkAssetMatcher } from "../contracts/test/test-crypto-punks-asset-matcher"
 import { id } from "../../common/id"
 import { approveErc20 } from "../approve-erc20"
 import { createEthereumApis } from "../../common/apis"

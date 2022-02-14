@@ -1,5 +1,13 @@
-import { awaitAll } from "@rarible/ethereum-sdk-test-common"
-import { createGanacheProvider} from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
+import {
+	awaitAll,
+	createGanacheProvider,
+	deployOpenSeaExchangeV1,
+	deployOpenseaTokenTransferProxy,
+	deployTestErc20,
+	deployTestErc721,
+	deployTestErc1155,
+	deployOpenseaProxyRegistry,
+} from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import type { Address, Asset } from "@rarible/ethereum-api-client"
@@ -20,12 +28,6 @@ import {
 	hashToSign,
 	OPENSEA_ORDER_TEMPLATE,
 } from "../test/order-opensea"
-import { deployTestErc20 } from "../contracts/test/test-erc20"
-import { deployTestErc721 } from "../contracts/test/test-erc721"
-import { deployTestErc1155 } from "../contracts/test/test-erc1155"
-import { deployOpenseaProxyRegistry } from "../contracts/test/opensea/test-proxy-registry"
-import { deployOpenseaTokenTransferProxy } from "../contracts/test/opensea/test-token-transfer-proxy"
-import { deployOpenSeaExchangeV1 } from "../contracts/test/opensea/test-exchange-opensea-v1"
 import { createOpenseaProxyRegistryEthContract } from "../contracts/proxy-registry-opensea"
 import { createOpenseaContract } from "../contracts/exchange-opensea-v1"
 import { cancel } from "../cancel"

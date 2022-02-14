@@ -4,7 +4,7 @@ import {
 	NftCollectionControllerApi, NftLazyMintControllerApi,
 	OrderControllerApi,
 } from "@rarible/ethereum-api-client"
-import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll, createE2eProvider, deployTestErc20, deployTestErc721 } from "@rarible/ethereum-sdk-test-common"
 import { toBn } from "@rarible/utils"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
@@ -25,8 +25,6 @@ import { UpsertOrder } from "./upsert-order"
 import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
 import { checkChainId } from "./check-chain-id"
 import type { SimpleRaribleV2Order } from "./types"
-import { deployTestErc20 } from "./contracts/test/test-erc20"
-import { deployTestErc721 } from "./contracts/test/test-erc721"
 import { approve as approveTemplate } from "./approve"
 
 describe("bid", () => {

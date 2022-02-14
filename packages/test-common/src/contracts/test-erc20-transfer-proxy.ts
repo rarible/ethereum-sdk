@@ -1,7 +1,7 @@
 import type Web3 from "web3"
 import type { Address } from "@rarible/ethereum-api-client"
 import type { Contract } from "web3-eth-contract"
-import type { AbiItem } from "../../../common/abi-item"
+import type { AbiItem } from "../common/abi-item"
 
 export function createErc20TransferProxyContract(web3: Web3, address?: Address): Contract {
 	return new web3.eth.Contract(erc20TransferProxyAbi, address)

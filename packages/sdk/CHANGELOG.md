@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.46](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.45...v0.12.46) (2022-02-14)
+
+
+### Bug Fixes
+
+* skip trnsfer lazy tests ([9032f5e](https://github.com/rarible/protocol-ethereum-sdk/commit/9032f5e11989ad1a49d68b3db776ac8fd64b23ac))
+
+
+
+
+
 ## [0.12.45](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.44...v0.12.45) (2022-02-14)
 
 

@@ -165,7 +165,7 @@ describe.each(providers)("mint test", ethereum => {
 		expect(balanceOfMinter).toEqual("100")
 	})
 
-	test("mint ERC-721 v3 lazy", async () => {
+	test.skip("mint ERC-721 v3 lazy", async () => {
 		const minted = await mint({
 			collection: createErc721V3Collection(e2eErc721V3ContractAddress),
 			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
@@ -180,7 +180,7 @@ describe.each(providers)("mint test", ethereum => {
 		expect(lazy.uri).toBe("/ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5")
 	})
 
-	test("mint ERC-1155 v2 lazy", async () => {
+	test.skip("mint ERC-1155 v2 lazy", async () => {
 		const minted = await mint({
 			collection: createErc1155V2Collection(e2eErc1155V2ContractAddress),
 			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",

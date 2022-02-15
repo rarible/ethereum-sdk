@@ -9,6 +9,7 @@ import type {
 } from "@rarible/ethereum-provider"
 import type { AbstractLogger } from "@rarible/logger/build/domain"
 import { LogsLevel } from "../types"
+import { getErrorMessageString } from "./logger/logger"
 
 interface ILoggerConfig {
 	instance: AbstractLogger
@@ -45,12 +46,20 @@ export function getSendWithInjects(injects: {
 			const tx = await functionCall.send(options)
 			await createPendingLogs(api, tx)
 			if (logsAvailable && logger.level >= LogsLevel.TRACE) {
-				logger.instance.trace(callInfo.method, { from: callInfo.from, args: callInfo.args, tx })
+				logger.instance.trace(callInfo.method, {
+					from: callInfo.from,
+					args: callInfo.args,
+					tx,
+				})
 			}
 			return tx
 		} catch (err: any) {
 			if (logsAvailable && logger.level >= LogsLevel.ERROR && callInfo) {
-				logger.instance.error(callInfo.method, { from: callInfo.from, args: callInfo.args, error: err.toString() })
+				logger.instance.error(callInfo.method, {
+					from: callInfo.from,
+					args: callInfo.args,
+					error: getErrorMessageString(err),
+				})
 			}
 			throw err
 		}

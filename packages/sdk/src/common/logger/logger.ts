@@ -33,6 +33,20 @@ const loggerConfig = {
 	elkUrl: "https://logging.rarible.com/",
 }
 
+export function getErrorMessageString(err: any): string {
+	if (!err) {
+		return "not defined"
+	} else if (typeof err === "string") {
+		return err
+	} else if (err instanceof Error) {
+		return err.message
+	} else if (err.message) {
+		return typeof err.message === "string" ? err.message : JSON.stringify(err.message)
+	} else {
+		return JSON.stringify(err)
+	}
+}
+
 export function createRemoteLogger(context: {
 	ethereum: Maybe<Ethereum>,
 	env: Environment,

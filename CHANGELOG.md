@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.48](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.47...v0.12.48) (2022-02-15)
+
+
+### Bug Fixes
+
+* cancel auction owner checking ([bb3cd6f](https://github.com/rarible/protocol-ethereum-sdk/commit/bb3cd6f9464357503a8e231886f72bfecc70de45))
+
+
+
+
+
 ## [0.12.47](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.46...v0.12.47) (2022-02-14)
 
 

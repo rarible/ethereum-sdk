@@ -17,7 +17,7 @@ export async function cancelAuction(
 	}
 	const auction = await apis.auction.getAuctionByHash({ hash })
 	const sender = await ethereum.getFrom()
-	if (auction.seller !== sender) {
+	if (auction.seller.toLowerCase() !== sender.toLowerCase()) {
 		throw new Error("This operation is allowed only for auction owner")
 	}
 	if (auction.lastBid) {

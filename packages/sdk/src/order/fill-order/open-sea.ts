@@ -38,6 +38,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		if (order.data.feeRecipient === ZERO_ADDRESS) {
 			throw new Error("feeRecipient should be specified")
 		}
+		//todo calculate calldata and replacement pattern
 		const data: OrderOpenSeaV1DataV1 = {
 			...order.data,
 			feeRecipient: ZERO_ADDRESS,

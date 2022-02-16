@@ -26,31 +26,19 @@ export function convertOpenSeaOrderToDTO(ethereum: Ethereum, order: SimpleOpenSe
 		throw new Error("Maker or taker should have an NFT asset")
 	}
 
-	let callData: Binary
-	let replacementPattern: Binary
+	const callData: Binary = order.data.callData
+	const replacementPattern: Binary = order.data.replacementPattern
 	let basePrice: BigNumber
 	const makeAssetType = order.make.assetType
 	const takeAssetType = order.take.assetType
 
 	if (makeAssetType.assetClass === "ERC721") {
-		const c = createErc721Contract(ethereum, makeAssetType.contract)
-		callData = toBinary(c.functionCall("transferFrom", order.maker, ZERO_ADDRESS, makeAssetType.tokenId).data)
-		replacementPattern = ERC721_MAKE_REPLACEMENT
 		basePrice = toBigNumber(order.take.value)
 	} else if (makeAssetType.assetClass === "ERC1155") {
-		const c = createErc1155Contract(ethereum, makeAssetType.contract)
-		callData = toBinary(c.functionCall("safeTransferFrom", order.maker, ZERO_ADDRESS, makeAssetType.tokenId, order.make.value, "0x").data)
-		replacementPattern = ERC1155_MAKE_REPLACEMENT
 		basePrice = toBigNumber(order.take.value)
 	} else if (takeAssetType.assetClass === "ERC721") {
-		const c = createErc721Contract(ethereum, takeAssetType.contract)
-		callData = toBinary(c.functionCall("transferFrom", ZERO_ADDRESS, order.maker, takeAssetType.tokenId).data)
-		replacementPattern = ERC721_TAKE_REPLACEMENT
 		basePrice = toBigNumber(order.make.value)
 	} else if (takeAssetType.assetClass === "ERC1155") {
-		const c = createErc1155Contract(ethereum, takeAssetType.contract)
-		callData = toBinary(c.functionCall("safeTransferFrom", ZERO_ADDRESS, order.maker, takeAssetType.tokenId, order.take.value, "0x").data)
-		replacementPattern = ERC1155_TAKE_REPLACEMENT
 		basePrice = toBigNumber(order.make.value)
 	} else {
 		throw new Error("should never happen")
@@ -68,7 +56,7 @@ export function convertOpenSeaOrderToDTO(ethereum: Ethereum, order: SimpleOpenSe
 		feeMethod: OrderOpenSeaV1DataV1FeeMethod[order.data.feeMethod],
 		side: OrderOpenSeaV1DataV1Side[order.data.side],
 		saleKind: OrderOpenSeaV1DataV1SaleKind[order.data.saleKind],
-		target: nftAddress,
+		target: order.data.target || nftAddress,
 		howToCall: OrderOpenSeaV1DataV1HowToCall[order.data.howToCall],
 		calldata: callData,
 		replacementPattern,

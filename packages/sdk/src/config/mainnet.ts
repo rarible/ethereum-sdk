@@ -23,6 +23,7 @@ export const mainnetConfig: EthereumConfig = {
 	openSea: {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: toAddress("0xa5409ec958c83c3f309868babaca7c86dcb077c1"),
+		merkleValidator: toAddress("0xbaf2127b49fc93cbca6269fade0f7f31df4c88a7"),
 	},
 	factories: {
 		erc721: toAddress("0x6E42262978de5233C8d5B05B128C121fBa110DA4"),

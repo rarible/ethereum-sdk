@@ -52,7 +52,7 @@ export class OrderFiller {
 		this.getTransactionData = this.getTransactionData.bind(this)
 		this.v1Handler = new RaribleV1OrderHandler(ethereum, apis.order, send, config, getBaseOrderFee)
 		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config, getBaseOrderFee)
-		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, getBaseOrderFee)
+		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee)
 		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config, getBaseOrderFee)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)

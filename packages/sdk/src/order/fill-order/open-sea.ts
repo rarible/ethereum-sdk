@@ -1,7 +1,7 @@
-import type { Address, Asset } from "@rarible/ethereum-api-client"
+import type { Address, Asset, Binary, Erc721AssetType } from "@rarible/ethereum-api-client"
 import { OrderOpenSeaV1DataV1Side } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumContract, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
-import { toAddress, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
+import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { backOff } from "exponential-backoff"
 import { BigNumber, toBn } from "@rarible/utils"
 import type { OrderOpenSeaV1DataV1 } from "@rarible/ethereum-api-client/build/models/OrderData"
@@ -16,18 +16,38 @@ import { getAssetWithFee } from "../get-asset-with-fee"
 import { createOpenseaContract } from "../contracts/exchange-opensea-v1"
 import { toVrs } from "../../common/to-vrs"
 import { waitTx } from "../../common/wait-tx"
-import type { SimpleOpenSeaV1Order } from "../types"
-import type { SimpleOrder } from "../types"
+import type { SimpleOpenSeaV1Order, SimpleOrder } from "../types"
+import { createErc721Contract } from "../contracts/erc721"
+import { getRequiredWallet } from "../../common/get-required-wallet"
+import { getErc721Contract } from "../../nft/contracts/erc721"
+import { ERC721VersionEnum } from "../../nft/contracts/domain"
+import { createMerkleValidatorContract } from "../contracts/merkle-validator"
+import { getErc1155Contract } from "../../nft/contracts/erc1155"
+import { createErc1155Contract } from "../contracts/erc1155"
+import type { RaribleEthereumApis } from "../../common/apis"
+import { isErc721v3Collection } from "../../nft/mint"
 import type { OpenSeaOrderDTO } from "./open-sea-types"
-import type { OpenSeaV1OrderFillRequest, OrderHandler } from "./types"
-import { convertOpenSeaOrderToDTO } from "./open-sea-converter"
-import type { OrderFillSendData } from "./types"
+import type { OpenSeaV1OrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
+import {
+	convertOpenSeaOrderToDTO,
+	ERC1155_MAKE_REPLACEMENT,
+	ERC1155_TAKE_REPLACEMENT,
+	ERC1155_VALIDATOR_MAKE_REPLACEMENT,
+	ERC1155_VALIDATOR_TAKE_REPLACEMENT,
+	ERC721_MAKE_REPLACEMENT,
+	ERC721_TAKE_REPLACEMENT,
+	ERC721_VALIDATOR_MAKE_REPLACEMENT,
+	ERC721_VALIDATOR_TAKE_REPLACEMENT,
+} from "./open-sea-converter"
+
+export type EncodedOrderCallData = { callData: Binary, replacementPattern: Binary, target: Address }
 
 export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillRequest> {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
+		private readonly apis: RaribleEthereumApis,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 	) {}
 
@@ -38,7 +58,20 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		if (order.data.feeRecipient === ZERO_ADDRESS) {
 			throw new Error("feeRecipient should be specified")
 		}
-		//todo calculate calldata and replacement pattern
+
+		// export enum WyvernSchemaName {
+		//   ERC721 = "ERC721",
+		//   ERC721v3 = "ERC721v3",
+		//   ERC1155 = "ERC1155",
+		// }
+		// const transfer =
+		//   validatorAddress && schema.functions.checkAndTransfer
+		//     ? schema.functions.checkAndTransfer(asset, validatorAddress)
+		//     : schema.functions.transfer(asset);
+		// const schema = this._getSchema(order.metadata.schema)
+
+		// const matchingOrder = this.encodeBuy(schema, order.make)
+
 		const data: OrderOpenSeaV1DataV1 = {
 			...order.data,
 			feeRecipient: ZERO_ADDRESS,
@@ -46,7 +79,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 				? OrderOpenSeaV1DataV1Side.SELL
 				: OrderOpenSeaV1DataV1Side.BUY,
 		}
-		return {
+		const invertedOrder: SimpleOpenSeaV1Order = {
 			...order,
 			make: {
 				...order.take,
@@ -58,6 +91,148 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			taker: order.maker,
 			signature: undefined,
 			data,
+		}
+		invertedOrder.data = {
+			...invertedOrder.data,
+			...this.encodeOrder(invertedOrder),
+		}
+
+		return invertedOrder
+	}
+
+	async encodeOrder(order: SimpleOpenSeaV1Order): Promise<EncodedOrderCallData> {
+		const ethereum = getRequiredWallet(this.ethereum)
+		const makeAssetType = order.make.assetType
+		const takeAssetType = order.take.assetType
+
+		let callData: Binary
+		let replacementPattern: Binary
+		let target: Address
+		const shouldValidate = order.data.target && order.data.target === this.config.openSea.merkleValidator
+		const validatorAddress = shouldValidate ? order.data.target : undefined
+		// if (shouldValidate)
+		//todo calculate calldata and replacement pattern
+		if (makeAssetType.assetClass === "ERC721") {
+			//if v3 version
+			// this.getErc721EncodedData(makeAssetType, order.maker, true, validatorAddress)
+			const collection = await this.apis.nftCollection.getNftCollectionById({
+				collection: toAddress(makeAssetType.contract),
+			})
+			const isErc721v3 = isErc721v3Collection(collection)
+			if (validatorAddress) {
+				const c = createMerkleValidatorContract(ethereum, validatorAddress)
+				replacementPattern = ERC721_VALIDATOR_MAKE_REPLACEMENT
+				const callMethod = isErc721v3 ? "matchERC721WithSafeTransferUsingCriteria" : "matchERC721UsingCriteria"
+				const methodArgs = [order.maker, ZERO_ADDRESS, makeAssetType.contract, makeAssetType.tokenId, "", []]
+				callData = toBinary(c.functionCall(callMethod, ...methodArgs).data)
+				target = validatorAddress
+			} else {
+
+				replacementPattern = ERC721_MAKE_REPLACEMENT
+				target = makeAssetType.contract
+				if (isErc721v3) {
+					const c = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, makeAssetType.contract)
+					callData = toBinary(c.functionCall("safeTransferFrom", order.maker, ZERO_ADDRESS, makeAssetType.tokenId).data)
+				} else {
+					const c = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, makeAssetType.contract)
+					callData = toBinary(c.functionCall("transferFrom", order.maker, ZERO_ADDRESS, makeAssetType.tokenId).data)
+				}
+
+			}
+
+		} else if (makeAssetType.assetClass === "ERC1155") {
+			// getErc1155Contract(ethereum, makeAssetType.contract)
+
+			if (validatorAddress) {
+				const c = createMerkleValidatorContract(ethereum, validatorAddress)
+				callData = toBinary(c.functionCall("matchERC1155UsingCriteria", order.maker, ZERO_ADDRESS, makeAssetType.contract, makeAssetType.tokenId, order.make.value, "0x", []).data)
+				replacementPattern = ERC1155_VALIDATOR_MAKE_REPLACEMENT
+				target = validatorAddress
+			} else {
+				const c = createErc1155Contract(ethereum, makeAssetType.contract)
+				callData = toBinary(c.functionCall("safeTransferFrom", order.maker, ZERO_ADDRESS, makeAssetType.tokenId, order.make.value, "0x").data)
+				replacementPattern = ERC1155_MAKE_REPLACEMENT
+				target = makeAssetType.contract
+			}
+
+		} else if (takeAssetType.assetClass === "ERC721") {
+
+			const collection = await this.apis.nftCollection.getNftCollectionById({
+				collection: toAddress(takeAssetType.contract),
+			})
+			const isErc721v3 = isErc721v3Collection(collection)
+			if (validatorAddress) {
+				const c = createMerkleValidatorContract(ethereum, validatorAddress)
+				replacementPattern = ERC721_VALIDATOR_TAKE_REPLACEMENT
+				let callmethod = isErc721v3 ? "matchERC721WithSafeTransferUsingCriteria" : "matchERC721UsingCriteria"
+				const methodArgs = [ZERO_ADDRESS, order.maker, takeAssetType.contract, takeAssetType.tokenId, "", []]
+				callData = toBinary(c.functionCall(callmethod, ...methodArgs).data)
+				target = validatorAddress
+			} else {
+
+				replacementPattern = ERC721_TAKE_REPLACEMENT
+				target = takeAssetType.contract
+				if (isErc721v3) {
+					const c = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, takeAssetType.contract)
+					callData = toBinary(c.functionCall("safeTransferFrom", ZERO_ADDRESS, order.maker, takeAssetType.tokenId).data)
+				} else {
+					const c = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, takeAssetType.contract)
+					callData = toBinary(c.functionCall("transferFrom", ZERO_ADDRESS, order.maker, takeAssetType.tokenId).data)
+				}
+			}
+
+		} else if (takeAssetType.assetClass === "ERC1155") {
+
+			if (validatorAddress) {
+				const c = createMerkleValidatorContract(ethereum, validatorAddress)
+				callData = toBinary(c.functionCall("matchERC1155UsingCriteria", ZERO_ADDRESS, order.maker, takeAssetType.contract, takeAssetType.tokenId, order.take.value, "0x", []).data)
+				replacementPattern = ERC1155_VALIDATOR_TAKE_REPLACEMENT
+				target = validatorAddress
+			} else {
+				const c = createErc1155Contract(ethereum, takeAssetType.contract)
+				callData = toBinary(c.functionCall("safeTransferFrom", ZERO_ADDRESS, order.maker, takeAssetType.tokenId, order.take.value, "0x").data)
+				replacementPattern = ERC1155_TAKE_REPLACEMENT
+				target = takeAssetType.contract
+			}
+
+		} else {
+			throw new Error("should never happen")
+		}
+
+		return {
+			target,
+			callData,
+			replacementPattern,
+		}
+	}
+
+	async getErc721EncodedData(
+		assetType: Erc721AssetType, maker: Address, isSellSide: boolean, validatorAddress: Address | undefined
+	): Promise<EncodedOrderCallData> {
+		const ethereum = getRequiredWallet(this.ethereum)
+		const collection = await this.apis.nftCollection.getNftCollectionById({
+			collection: toAddress(assetType.contract),
+		})
+		const isErc721v3 = isErc721v3Collection(collection)
+		if (validatorAddress) {
+			const c = createMerkleValidatorContract(ethereum, validatorAddress)
+			replacementPattern = ERC721_VALIDATOR_MAKE_REPLACEMENT
+			const callMethod = isErc721v3 ? "matchERC721WithSafeTransferUsingCriteria" : "matchERC721UsingCriteria"
+			const methodArgs = [maker, ZERO_ADDRESS, assetType.contract, assetType.tokenId, "", []]
+			callData = toBinary(c.functionCall(callMethod, ...methodArgs).data)
+			target = validatorAddress
+		} else {
+
+			replacementPattern = ERC721_MAKE_REPLACEMENT
+			target = assetType.contract
+			if (isErc721v3) {
+				const c = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, assetType.contract)
+				callData = toBinary(c.functionCall("safeTransferFrom", maker, ZERO_ADDRESS, assetType.tokenId).data)
+			} else {
+				const c = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, assetType.contract)
+				callData = toBinary(c.functionCall("transferFrom", maker, ZERO_ADDRESS, assetType.tokenId).data)
+			}
+
 		}
 	}
 

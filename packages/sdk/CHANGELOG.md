@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.49](https://github.com/rarible/ethereum-sdk/compare/v0.12.48...v0.12.49) (2022-02-16)
+
+
+### Features
+
+* **logger:** error message parsing ([2d67d4f](https://github.com/rarible/ethereum-sdk/commit/2d67d4fafc99d310297681df329544eec78defc8))
+* **logger:** error message parsing ([da903a8](https://github.com/rarible/ethereum-sdk/commit/da903a8ef6a87f01fa9d50a02c5cd9bb0189b483))
+* **logger:** set bigger max size of log message ([d96677e](https://github.com/rarible/ethereum-sdk/commit/d96677e10726b988276d48939aec584df2837d1c))
+
+
+
+
+
+
 ## [0.12.48](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.47...v0.12.48) (2022-02-15)
 
 

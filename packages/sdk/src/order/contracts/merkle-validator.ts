@@ -7,14 +7,6 @@ export function createMerkleValidatorContract(ethereum: Ethereum, address?: Addr
 }
 
 export const merkleValidatorAbi: AbiItem[] = [{
-	"inputs": [],
-	"name": "InvalidProof",
-	"type": "error",
-}, {
-	"inputs": [],
-	"name": "UnnecessaryProof",
-	"type": "error",
-}, {
 	"inputs": [{
 		"internalType": "address",
 		"name": "from",

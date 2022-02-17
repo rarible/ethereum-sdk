@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.50](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.49...v0.12.50) (2022-02-17)
+
+
+### Features
+
+* get eth balance from backend ([#130](https://github.com/rarible/protocol-ethereum-sdk/issues/130)) ([53dac0c](https://github.com/rarible/protocol-ethereum-sdk/commit/53dac0c898d3a31c72433aa5161378561ed874b1))
+* **logger:** log sending calls wrapped by try/catch ([#129](https://github.com/rarible/protocol-ethereum-sdk/issues/129)) ([a7b8c2b](https://github.com/rarible/protocol-ethereum-sdk/commit/a7b8c2b1e78cafc48026aec1b1fb4d06d1d5cc4e))
+
+
+
+
+
 
 
 **Note:** Version bump only for package @rarible/protocol-ethereum-sdk

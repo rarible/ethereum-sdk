@@ -18,12 +18,10 @@ import { createOpenseaContract } from "../contracts/exchange-opensea-v1"
 import { toVrs } from "../../common/to-vrs"
 import { waitTx } from "../../common/wait-tx"
 import type { SimpleOpenSeaV1Order, SimpleOrder } from "../types"
-import { createErc721Contract } from "../contracts/erc721"
 import { getRequiredWallet } from "../../common/get-required-wallet"
 import { getErc721Contract } from "../../nft/contracts/erc721"
 import { ERC721VersionEnum } from "../../nft/contracts/domain"
 import { createMerkleValidatorContract } from "../contracts/merkle-validator"
-import { getErc1155Contract } from "../../nft/contracts/erc1155"
 import { createErc1155Contract } from "../contracts/erc1155"
 import type { RaribleEthereumApis } from "../../common/apis"
 import { isErc721v3Collection } from "../../nft/mint"
@@ -52,7 +50,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 	) {}
 
-	invert({ order }: OpenSeaV1OrderFillRequest, maker: Address): SimpleOpenSeaV1Order {
+	async invert({ order }: OpenSeaV1OrderFillRequest, maker: Address): Promise<SimpleOpenSeaV1Order> {
 		if (order.data.side === "BUY" && order.make.assetType.assetClass === "ETH") {
 			throw new Error("BUY order with make=ETH can be only")
 		}
@@ -82,7 +80,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		}
 		invertedOrder.data = {
 			...invertedOrder.data,
-			...this.encodeOrder(invertedOrder),
+			...(await this.encodeOrder(invertedOrder)),
 		}
 
 		return invertedOrder
@@ -126,7 +124,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			const c = createMerkleValidatorContract(ethereum, validatorAddress)
 			const callMethod = isErc721v3 ? "matchERC721WithSafeTransferUsingCriteria" : "matchERC721UsingCriteria"
 
-			const methodArgs = [...startArgs, assetType.contract, assetType.tokenId, "", []]
+			const methodArgs = [...startArgs, assetType.contract, assetType.tokenId, "0x", []]
 			return {
 				replacementPattern: isSellSide ? ERC721_VALIDATOR_MAKE_REPLACEMENT : ERC721_VALIDATOR_TAKE_REPLACEMENT,
 				callData: toBinary(c.functionCall(callMethod, ...methodArgs).data),
@@ -225,6 +223,25 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 
 		const buyVRS = toVrs(buy.signature || "")
 		const sellVRS = toVrs(sell.signature || "")
+
+		const ordersCanMatch = await exchangeContract
+			.functionCall(
+				"ordersCanMatch_",
+				[...getAtomicMatchArgAddresses(buyOrderToSignDTO), ...getAtomicMatchArgAddresses(sellOrderToSignDTO)],
+				[...getAtomicMatchArgUints(buyOrderToSignDTO), ...getAtomicMatchArgUints(sellOrderToSignDTO)],
+				[...getAtomicMatchArgCommonData(buyOrderToSignDTO), ...getAtomicMatchArgCommonData(sellOrderToSignDTO)],
+				buyOrderToSignDTO.calldata,
+				sellOrderToSignDTO.calldata,
+				buyOrderToSignDTO.replacementPattern,
+				sellOrderToSignDTO.replacementPattern,
+				buyOrderToSignDTO.staticExtradata,
+				sellOrderToSignDTO.staticExtradata
+			)
+			.call()
+
+		if (!ordersCanMatch) {
+			throw new Error("Orders cannot be matched")
+		}
 
 		const functionCall = exchangeContract.functionCall(
 			"atomicMatch_",

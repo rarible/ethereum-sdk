@@ -41,7 +41,7 @@ export type FillOrderAction = Action<FillOrderStageId, FillOrderRequest, Ethereu
 export type FillOrderStageId = "approve" | "send-tx"
 
 export interface OrderHandler<T extends FillOrderRequest> {
-	invert: (request: T, maker: Address) => T["order"]
+	invert: (request: T, maker: Address) => T["order"] | Promise<T["order"]>
 	approve: (order: T["order"], infinite: boolean) => Promise<void>
 	sendTransaction: (initial: T["order"], inverted: T["order"], request: T) => Promise<EthereumTransaction>
 	getTransactionData: (order: T["order"], inverted: T["order"], request: T) => Promise<OrderFillSendData>

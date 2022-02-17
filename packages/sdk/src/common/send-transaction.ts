@@ -44,7 +44,11 @@ export function getSendWithInjects(injects: {
 
 		try {
 			const tx = await functionCall.send(options)
-			await createPendingLogs(api, tx)
+			try {
+			  await createPendingLogs(api, tx)
+			} catch (e) {
+				console.error("createPendingLogs error", e)
+			}
 			try {
 				if (logsAvailable && logger.level >= LogsLevel.TRACE) {
 					logger.instance.trace(callInfo.method, {

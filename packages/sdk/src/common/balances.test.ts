@@ -2,25 +2,17 @@ import { awaitAll, createE2eProvider, deployTestErc20 } from "@rarible/ethereum-
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
-import { Configuration, Erc20BalanceControllerApi } from "@rarible/ethereum-api-client"
-import { getApiConfig } from "../config/api-config"
-import { checkChainId } from "../order/check-chain-id"
-import { getEthereumConfig } from "../config"
 import { Balances } from "./balances"
 import { retry } from "./retry"
+import { createEthereumApis } from "./apis"
 
 describe("getBalance test", () => {
 	const { provider } = createE2eProvider()
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3})
+	const apis = createEthereumApis("e2e")
 
-	const configuration = new Configuration(getApiConfig("e2e"))
-	const erc20BalanceController = new Erc20BalanceControllerApi(configuration)
-	const config = getEthereumConfig("e2e")
-
-	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
-
-	const balances = new Balances(ethereum, erc20BalanceController, checkWalletChainId)
+	const balances = new Balances(apis)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

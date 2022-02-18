@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.51](https://github.com/rarible/ethereum-sdk/compare/v0.12.50...v0.12.51) (2022-02-18)
+
+
+### Bug Fixes
+
+* update exchange contract address on mumbai polygon testnet ([7a239b4](https://github.com/rarible/ethereum-sdk/commit/7a239b49dfdb677d4370c5ba851735cb64365956))
+
+
+
+
+
 ## [0.12.50](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.49...v0.12.50) (2022-02-17)
 
 

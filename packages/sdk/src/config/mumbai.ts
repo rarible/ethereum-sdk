@@ -8,7 +8,7 @@ export const mumbaiConfig: EthereumConfig = {
 	chainId: 80001,
 	exchange: {
 		v1: ZERO_ADDRESS,
-		v2: toAddress("0x4F05968D804902dd827Dd0F4fB37Ccc3071C4Bb5"),
+		v2: toAddress("0x2Fc743F5419637B93dDAC159715B902186300041"),
 		openseaV1: ZERO_ADDRESS,
 	},
 	transferProxies: {

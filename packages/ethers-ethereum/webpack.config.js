@@ -3,12 +3,19 @@ const webpack = require("webpack")
 
 module.exports = {
 	entry: "./build/index.js",
+	experiments: {
+		outputModule: true,
+	},
 	output: {
 		path: path.resolve(__dirname, "umd"),
 		filename: "rarible-ethers-ethereum.js",
 		library: {
-			name: "raribleEthersEthereum",
 			type: "umd",
+		},
+		path: path.resolve(__dirname, "esm"),
+		filename: "rarible-ethers-ethereum.js",
+		library: {
+			type: "module",
 		},
 	},
 	resolve: {

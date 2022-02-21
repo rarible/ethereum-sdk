@@ -6,6 +6,7 @@ import type { Block } from "eth-json-rpc-middleware/dist/utils/cache"
 import type { IBiconomyConfig, IContractRegistry } from "./types"
 import { MetaContractAbi } from "./abi/methods-abi"
 import { providerRequest } from "./utils/provider-request"
+import { signTypedData } from "./sign-typed-data"
 
 export function biconomyMiddleware(
 	provider: any,
@@ -39,12 +40,9 @@ export function biconomyMiddleware(
 								functionSignature: tx.data,
 							},
 						}
-
-						const {r, s, v} = getSignatureParameters(await providerRequest(
-							provider,
-							"eth_signTypedData_v4",
-							[tx.from, dataToSign]
-						))
+						const send = ((method: string, params?: any) => providerRequest(provider, method, params))
+						const signature = await signTypedData(send, tx.from, dataToSign as any)
+						const {r, s, v} = getSignatureParameters(signature)
 
 						tx.data = interfaceHelper.encodeFunctionData("executeMetaTransaction", [tx.from, tx.data, r, s, v])
 						res.result = await providerRequest(biconomy, "eth_sendTransaction", [tx])
@@ -64,7 +62,7 @@ function getBiconomySupportedProvider(provider: any) {
 	try {
 		if (provider.send) {
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			const probe = provider.send()
+			provider.send()
 		} else {
 			provider.send = provider.sendAsync
 		}

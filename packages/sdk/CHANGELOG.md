@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.52](https://github.com/rarible/ethereum-sdk/compare/v0.12.51...v0.12.52) (2022-02-21)
+
+
+### Bug Fixes
+
+* correct polygon Exchange address with meta-tx support ([ed58484](https://github.com/rarible/ethereum-sdk/commit/ed58484bbe1178f32d6f3e700fd6ffa8d881dc6f))
+
+
+
+
+
 ## [0.12.51](https://github.com/rarible/ethereum-sdk/compare/v0.12.50...v0.12.51) (2022-02-18)
 
 

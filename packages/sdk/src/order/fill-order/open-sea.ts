@@ -51,9 +51,10 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	) {}
 
 	async invert({ order }: OpenSeaV1OrderFillRequest, maker: Address): Promise<SimpleOpenSeaV1Order> {
-		if (order.data.side === "BUY" && order.make.assetType.assetClass === "ETH") {
-			throw new Error("BUY order with make=ETH can be only")
+		if (order.data.side === "BUY") {
+			throw new Error("Bid opensea orders is not supported yet")
 		}
+
 		if (order.data.feeRecipient === ZERO_ADDRESS) {
 			throw new Error("feeRecipient should be specified")
 		}
@@ -61,9 +62,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		const data: OrderOpenSeaV1DataV1 = {
 			...order.data,
 			feeRecipient: ZERO_ADDRESS,
-			side: order.data.side === OrderOpenSeaV1DataV1Side.BUY
-				? OrderOpenSeaV1DataV1Side.SELL
-				: OrderOpenSeaV1DataV1Side.BUY,
+			side: OrderOpenSeaV1DataV1Side.BUY,
 		}
 		const invertedOrder: SimpleOpenSeaV1Order = {
 			...order,
@@ -219,7 +218,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		const sellOrderToSignDTO = convertOpenSeaOrderToDTO(this.ethereum, sell)
 		const buyOrderToSignDTO = convertOpenSeaOrderToDTO(this.ethereum, buy)
 
-		const exchangeContract = createOpenseaContract(this.ethereum, this.config.exchange.openseaV1)
+		const exchangeContract = createOpenseaContract(this.ethereum, initial.data.exchange)
 
 		const buyVRS = toVrs(buy.signature || "")
 		const sellVRS = toVrs(sell.signature || "")

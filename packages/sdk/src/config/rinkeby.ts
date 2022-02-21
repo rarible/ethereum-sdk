@@ -16,13 +16,13 @@ export const rinkebyConfig: EthereumConfig = {
 		erc20: toAddress("0x2fce8435f0455edc702199741411dbcd1b7606ca"),
 		erc721Lazy: toAddress("0x75fDbe19C2dc673384dDc14C9F453dB86F5f32E8"),
 		erc1155Lazy: toAddress("0x0cF0AAb68432a3710ECbf2f1b112a11cEe31a83C"),
-		openseaV1: toAddress("0x82d102457854c985221249f86659c9d6cf12aa72"),
+		openseaV1: toAddress("0xcdc9188485316bf6fa416d02b4f680227c50b89e"),
 		cryptoPunks: toAddress("0xfc2aa1b3365b8e0cac7a7d22fd7655e643792d17"),
 	},
 	feeConfigUrl: FEE_CONFIG_URL,
 	openSea: {
 		metadata: id32("RARIBLE"),
-		proxyRegistry: toAddress("0xf57b2c51ded3a29e6891aba85459d600256cf317"),
+		proxyRegistry: toAddress("0x1e525eeaf261ca41b809884cbde9dd9e1619573a"),
 		merkleValidator: toAddress("0x45b594792a5cdc008d0de1c1d69faa3d16b3ddc1"),
 	},
 	factories: {

@@ -39,9 +39,6 @@ describe("fill opensea order", function () {
 	test.skip("opensea", async () => {
 
 		const order: any = await apis.order.getOrderByHash({hash: "0xd518e179e3fa39b93619840265e3d0c4363fe4dc6ff73ac5a3dc71675137814d"})
-		// console.log("order", order)
-
-		order.data.target = "0x45b594792a5cdc008d0de1c1d69faa3d16b3ddc1"
 		const tx = await filler.buy({
 			order: order,
 			amount: 1,

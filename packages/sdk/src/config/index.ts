@@ -7,6 +7,8 @@ import type { EthereumConfig } from "./type"
 import { mumbaiConfig } from "./mumbai"
 import { polygonConfig } from "./polygon"
 import { mumbaiDevConfig } from "./mumbai-dev"
+import { devEthereumConfig } from "./dev"
+import { devPolygonConfig } from "./polygon-dev"
 
 const configDictionary: Record<EthereumNetwork, EthereumConfig> = {
 	e2e: e2eConfig,
@@ -16,6 +18,8 @@ const configDictionary: Record<EthereumNetwork, EthereumConfig> = {
 	mumbai: mumbaiConfig,
 	"mumbai-dev": mumbaiDevConfig,
 	polygon: polygonConfig,
+	"dev-ethereum": devEthereumConfig,
+	"dev-polygon": devPolygonConfig,
 }
 
 export function getEthereumConfig(env: EthereumNetwork): EthereumConfig {

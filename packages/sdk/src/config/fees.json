@@ -47,5 +47,19 @@
     "OPEN_SEA_V1": 0,
     "CRYPTO_PUNK": 0,
     "AUCTION": 0
-  }
+  },
+  "dev-ethereum": {
+    "RARIBLE_V1": 0,
+    "RARIBLE_V2": 0,
+    "OPEN_SEA_V1": 0,
+    "CRYPTO_PUNK": 0,
+    "AUCTION": 0
+  },
+  "dev-polygon": {
+    "RARIBLE_V1": 0,
+    "RARIBLE_V2": 0,
+    "OPEN_SEA_V1": 0,
+    "CRYPTO_PUNK": 0,
+    "AUCTION": 0
+  },
 }

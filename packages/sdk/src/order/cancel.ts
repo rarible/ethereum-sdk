@@ -36,7 +36,7 @@ export async function cancel(
 			case "RARIBLE_V2":
 				return cancelV2Order(ethereum, config.v2, order)
 			case "OPEN_SEA_V1":
-				return cancelOpenseaOrderV1(ethereum, config.openseaV1, order)
+				return cancelOpenseaOrderV1(ethereum, order)
 			case "CRYPTO_PUNK":
 				return cancelCryptoPunksOrder(ethereum, order)
 			default:
@@ -56,8 +56,8 @@ async function cancelV2Order(ethereum: Ethereum, contract: Address, order: Simpl
 	return v2.functionCall("cancel", orderToStruct(ethereum, order)).send()
 }
 
-export function cancelOpenseaOrderV1(ethereum: Ethereum, contract: Address, order: SimpleOpenSeaV1Order) {
-	const exchangeContract = createOpenseaContract(ethereum, contract)
+export function cancelOpenseaOrderV1(ethereum: Ethereum, order: SimpleOpenSeaV1Order) {
+	const exchangeContract = createOpenseaContract(ethereum, order.data.exchange)
 
 	const dto = convertOpenSeaOrderToDTO(ethereum, order)
 	const makerVRS = toVrs(order.signature || "0x")
@@ -77,7 +77,7 @@ export function cancelOpenseaOrderV1(ethereum: Ethereum, contract: Address, orde
 		makerVRS.r,
 		makerVRS.s,
 	)
-		.send()
+		.send({gas: 5000000, gasPrice: 100000000000})
 }
 
 export function cancelCryptoPunksOrder(ethereum: Ethereum, order: SimpleCryptoPunkOrder) {

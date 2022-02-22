@@ -302,7 +302,7 @@ export function createRaribleSdk(
 			},
 		},
 		balances: {
-			getBalance: new Balances(ethereum, apis.erc20Balance).getBalance,
+			getBalance: new Balances(apis).getBalance,
 			convert: wethConverter.convert,
 			getWethContractAddress: wethConverter.getWethContractAddress,
 		},

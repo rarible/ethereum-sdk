@@ -10,6 +10,7 @@ describe("getBalance test", () => {
 	const { provider } = createE2eProvider()
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3})
+
 	const apis = createEthereumApis("e2e")
 
 	const balances = new Balances(apis)

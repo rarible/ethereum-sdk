@@ -10,8 +10,14 @@ export async function getBaseFee(
 	env: EthereumNetwork,
 	type: SimpleOrder["type"] | "AUCTION" = CURRENT_ORDER_TYPE_VERSION
 ): Promise<number> {
-	const commonFeeConfigResponse: AxiosResponse<CommonFeeConfig> = await axios.get(config.feeConfigUrl)
-	const envFeeConfig = commonFeeConfigResponse.data[env]
+	let envFeeConfig
+	try {
+	  const commonFeeConfigResponse: AxiosResponse<CommonFeeConfig> = await axios.get(config.feeConfigUrl)
+		envFeeConfig = commonFeeConfigResponse.data[env]
+	} catch (e) {
+		console.error(e)
+		throw new Error("Config with fee variables cannot be loaded")
+	}
 
 	if (!(type in envFeeConfig)) {
 		throw new Error(`Unsupported fee type ${type}`)

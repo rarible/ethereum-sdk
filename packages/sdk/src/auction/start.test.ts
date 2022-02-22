@@ -12,7 +12,7 @@ import { StartAuction } from "./start"
 import { deployTestErc721ForAuction } from "./contracts/test/test-erc721"
 import { createAuctionContract } from "./contracts/test/auction"
 
-describe("start auction", () => {
+describe.skip("start auction", () => {
 	const { provider, wallet } = createE2eProvider("0xa0d2baba419896add0b6e638ba4e50190f331db18e3271760b12ce87fa853dcb")
 
 	const sender1Address = wallet.getAddressString()

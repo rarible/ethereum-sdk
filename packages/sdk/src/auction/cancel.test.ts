@@ -11,7 +11,7 @@ import { createAuctionContract } from "./contracts/test/auction"
 import { StartAuction } from "./start"
 import { cancelAuction } from "./cancel"
 
-describe("cancel auction", () => {
+describe.skip("cancel auction", () => {
 	const { provider, wallet } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a")
 	const sender1Address = wallet.getAddressString()
 	const web3 = new Web3(provider as any)

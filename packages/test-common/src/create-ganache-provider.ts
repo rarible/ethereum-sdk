@@ -1,5 +1,5 @@
 import Wallet from "ethereumjs-wallet"
-import Ganache from "ganache-core"
+import ganache from "ganache"
 import { randomWord, toAddress } from "@rarible/types"
 
 export function createGanacheProvider(...pk: string[]) {
@@ -10,25 +10,25 @@ export function createGanacheProvider(...pk: string[]) {
 		wallets = Array.from(new Array(10).keys()).map(() => new Wallet(Buffer.from(randomWord().substring(2), "hex")))
 	}
 	const accounts = wallets.map(wallet => ({
-		secretKey: wallet.getPrivateKey(),
+		secretKey: wallet.getPrivateKeyString(),
 		balance: "0x1000000000000000000000000000",
 	}))
 
-	const provider = Ganache.provider({
+	const provider = ganache.provider({
 		accounts,
-		// @ts-ignore
-		_chainId: 17,
-		_chainIdRpc: 17,
+		gasLimit: 10000000,
+		hardfork: "berlin",
+		chainId: 17,
 	})
 
 	afterAll((cb) => {
-		provider.close(() => {
+		provider.disconnect().then(() => {
 			setTimeout(cb, 500)
 		})
 	})
 
 	return {
-		provider,
+		provider: provider as any,
 		wallets,
 		addresses: wallets.map(w => toAddress(w.getAddressString())),
 	}

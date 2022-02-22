@@ -3,6 +3,48 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.52](https://github.com/rarible/ethereum-sdk/compare/v0.12.51...v0.12.52) (2022-02-21)
+
+
+### Bug Fixes
+
+* correct polygon Exchange address with meta-tx support ([ed58484](https://github.com/rarible/ethereum-sdk/commit/ed58484bbe1178f32d6f3e700fd6ffa8d881dc6f))
+
+
+
+
+
+## [0.12.51](https://github.com/rarible/ethereum-sdk/compare/v0.12.50...v0.12.51) (2022-02-18)
+
+
+### Bug Fixes
+
+* update exchange contract address on mumbai polygon testnet ([7a239b4](https://github.com/rarible/ethereum-sdk/commit/7a239b49dfdb677d4370c5ba851735cb64365956))
+
+
+
+
+
+## [0.12.50](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.49...v0.12.50) (2022-02-17)
+
+
+### Features
+
+* get eth balance from backend ([#130](https://github.com/rarible/protocol-ethereum-sdk/issues/130)) ([53dac0c](https://github.com/rarible/protocol-ethereum-sdk/commit/53dac0c898d3a31c72433aa5161378561ed874b1))
+* **logger:** log sending calls wrapped by try/catch ([#129](https://github.com/rarible/protocol-ethereum-sdk/issues/129)) ([a7b8c2b](https://github.com/rarible/protocol-ethereum-sdk/commit/a7b8c2b1e78cafc48026aec1b1fb4d06d1d5cc4e))
+
+
+
+
+
+
+
+**Note:** Version bump only for package root
+
+
+
+
+
 ## [0.12.49](https://github.com/rarible/ethereum-sdk/compare/v0.12.48...v0.12.49) (2022-02-16)
 
 

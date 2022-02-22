@@ -44,22 +44,34 @@ export function getSendWithInjects(injects: {
 
 		try {
 			const tx = await functionCall.send(options)
-			await createPendingLogs(api, tx)
-			if (logsAvailable && logger.level >= LogsLevel.TRACE) {
-				logger.instance.trace(callInfo.method, {
-					from: callInfo.from,
-					args: callInfo.args,
-					tx,
-				})
+			try {
+			  await createPendingLogs(api, tx)
+			} catch (e) {
+				console.error("createPendingLogs error", e)
+			}
+			try {
+				if (logsAvailable && logger.level >= LogsLevel.TRACE) {
+					logger.instance.trace(callInfo.method, {
+						from: callInfo.from,
+						args: callInfo.args,
+						tx,
+					})
+				}
+			} catch (e) {
+				console.error("Error while sending logs", e)
 			}
 			return tx
 		} catch (err: any) {
-			if (logsAvailable && logger.level >= LogsLevel.ERROR && callInfo) {
-				logger.instance.error(callInfo.method, {
-					from: callInfo.from,
-					args: callInfo.args,
-					error: getErrorMessageString(err),
-				})
+			try {
+				if (logsAvailable && logger.level >= LogsLevel.ERROR && callInfo) {
+					logger.instance.error(callInfo.method, {
+						from: callInfo.from,
+						args: callInfo.args,
+						error: getErrorMessageString(err),
+					})
+				}
+			} catch (e) {
+				console.error("Error while sending logs", e, err)
 			}
 			throw err
 		}
@@ -87,13 +99,29 @@ export function getSimpleSendWithInjects(injects: {
 
 		try {
 			const tx = functionCall.send(options)
-			if (logsAvailable && logger.level >= LogsLevel.TRACE) {
-				logger.instance.trace(callInfo.method, { from: callInfo.from, args: callInfo.args, tx })
+			try {
+				if (logsAvailable && logger.level >= LogsLevel.TRACE) {
+					logger.instance.trace(callInfo.method, {
+						from: callInfo.from,
+						args: callInfo.args,
+						tx,
+					})
+				}
+			} catch (e) {
+				console.error("Error while sending logs", e)
 			}
 			return tx
 		} catch (err: any) {
-			if (logsAvailable && logger.level >= LogsLevel.ERROR && callInfo) {
-				logger.instance.error(callInfo.method, { from: callInfo.from, args: callInfo.args, error: err.toString() })
+			try {
+				if (logsAvailable && logger.level >= LogsLevel.ERROR && callInfo) {
+					logger.instance.error(callInfo.method, {
+						from: callInfo.from,
+						args: callInfo.args,
+						error: getErrorMessageString(err),
+					})
+				}
+			} catch (e) {
+				console.error("Error while sending logs", e, err)
 			}
 			throw err
 		}

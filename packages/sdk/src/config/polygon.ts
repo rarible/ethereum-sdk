@@ -9,7 +9,7 @@ export const polygonConfig: EthereumConfig = {
 	chainId: 137,
 	exchange: {
 		v1: ZERO_ADDRESS,
-		v2: toAddress("0x835131b455778559CFdDd358eA3Fc762728F4E3e"),
+		v2: toAddress("0x12b3897a36fDB436ddE2788C06Eff0ffD997066e"),
 		openseaV1: ZERO_ADDRESS,
 	},
 	transferProxies: {

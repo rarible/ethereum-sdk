@@ -17,7 +17,7 @@ import { StartAuction } from "./start"
 import { finishAuction } from "./finish"
 import { increaseTime, testPutBid } from "./test"
 
-describe("finish auction auction", () => {
+describe.skip("finish auction auction", () => {
 	const { provider, addresses } = createGanacheProvider()
 	const [sender1Address, sender2Address] = addresses
 

@@ -15,7 +15,7 @@ import { BuyoutAuction } from "./buy-out"
 import { deployTestErc721ForAuction } from "./contracts/test/test-erc721"
 import { awaitForAuction } from "./test"
 
-describe("buy out auction", () => {
+describe.skip("buy out auction", () => {
 	const { provider: providerSeller, wallet: walletSeller } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a")
 	const { provider: providerBuyer, wallet: walletBuyer } = createE2eProvider("0xa0d2baba419896add0b6e638ba4e50190f331db18e3271760b12ce87fa853dcb")
 

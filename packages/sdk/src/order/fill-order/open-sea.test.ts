@@ -43,7 +43,7 @@ import {
 import { convertOpenSeaOrderToDTO } from "./open-sea-converter"
 import { OrderFiller } from "./index"
 
-describe("fillOrder: Opensea orders", function () {
+describe.skip("fillOrder: Opensea orders", function () {
 	const { addresses, provider } = createGanacheProvider()
 	const [sender1Address, sender2Address, feeRecipient] = addresses
 	const web3 = new Web3(provider as any)

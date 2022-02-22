@@ -10,7 +10,7 @@ export async function signTypedData<T extends MessageTypes>(
 	try {
 		return await send(SignTypedDataMethodEnum.V4, [signer, JSON.stringify(data)])
 	} catch (error) {
-		console.error("got error white executing sign typed data v4", error)
+		console.error("got error while executing sign typed data v4", error)
 		if (isError(error) && error.message === "MetaMask Message Signature: Error: Not supported on this device") {
 			return signWithHardwareWallets(send, signer, data)
 		} else {
@@ -18,7 +18,7 @@ export async function signTypedData<T extends MessageTypes>(
 			try {
 				return await send(SignTypedDataMethodEnum.V3, [signer, JSON.stringify(data)])
 			} catch (error) {
-				console.error("got error white executing sign typed data v3", error)
+				console.error("got error while executing sign typed data v3", error)
 				filterErrors(error)
 				return send(SignTypedDataMethodEnum.DEFAULT, [signer, data])
 			}

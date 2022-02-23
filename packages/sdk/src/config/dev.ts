@@ -31,5 +31,3 @@ export const devEthereumConfig: EthereumConfig = {
 	weth: ZERO_ADDRESS,
 	auction: ZERO_ADDRESS,
 }
-
-

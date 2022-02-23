@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.54](https://github.com/rarible/ethereum-sdk/compare/v0.12.53...v0.12.54) (2022-02-23)
+
+
+### Bug Fixes
+
+* fees config file fix ([fbf7399](https://github.com/rarible/ethereum-sdk/commit/fbf7399e6fb8d87f5fff900c604c1203d6928424))
+* fees for k8s envs ([820b00f](https://github.com/rarible/ethereum-sdk/commit/820b00f72221330ef9d1ca46e5d79b573f7d2163))
+* get base fee config tests ([1a524a3](https://github.com/rarible/ethereum-sdk/commit/1a524a3b48de1f9e0ca2a584978264e4866af130))
+* support for k8s evns ([42cb42a](https://github.com/rarible/ethereum-sdk/commit/42cb42aa2e54c3a3602edce143a7ad5b02322299))
+
+
+
+
+
 ## [0.12.53](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.52...v0.12.53) (2022-02-22)
 
 **Note:** Version bump only for package root

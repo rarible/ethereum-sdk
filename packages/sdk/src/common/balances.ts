@@ -4,7 +4,7 @@ import type {
 	EthAssetType,
 } from "@rarible/ethereum-api-client/build/models/AssetType"
 import type { BigNumberValue } from "@rarible/utils"
-import { BigNumber, toBn } from "@rarible/utils"
+import { toBn } from "@rarible/utils"
 import type { RaribleEthereumApis } from "./apis"
 
 export type BalanceRequestAssetType = EthAssetType | Erc20AssetType
@@ -19,7 +19,6 @@ export class Balances {
 			case "ETH": {
 				const ethBalance = await this.apis.balances.getEthBalance({owner: address})
 				return toBn(ethBalance.decimalBalance)
-					.div(new BigNumber(10).pow(18))
 			}
 			case "ERC20": {
 				const balance = await this.apis.balances.getErc20Balance({

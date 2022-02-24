@@ -26,6 +26,12 @@ describe("getBalance test", () => {
 		expect(balance.toString()).toBe("0")
 	})
 
+	test("get non-zero eth balance", async () => {
+		const senderAddress = toAddress("0xa14FC5C72222FAce8A1BcFb416aE2571fA1a7a91")
+		const balance = await balances.getBalance(senderAddress, { assetClass: "ETH" })
+		expect(balance.toString()).toBe("1.9355")
+	})
+
 	test("get erc-20 balance", async () => {
 		const senderAddress = toAddress(await ethereum.getFrom())
 		await it.testErc20.methods.mint(senderAddress, 1).send({

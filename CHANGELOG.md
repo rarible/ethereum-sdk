@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.40-hotfix.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.40-hotfix.0...v0.12.40-hotfix.1) (2022-02-24)
+
+
+### Bug Fixes
+
+* get eth balance ([870d19e](https://github.com/rarible/protocol-ethereum-sdk/commit/870d19e9cbf609238c900ebc6b3e7bc9d7a685d7))
+
+
+
+
+
 ## [0.12.40-hotfix.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.40...v0.12.40-hotfix.0) (2022-02-22)
 
 

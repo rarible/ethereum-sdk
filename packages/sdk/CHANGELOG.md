@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.40-hotfix.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.40-hotfix.1...v0.12.40-hotfix.2) (2022-02-24)
+
+
+### Bug Fixes
+
+* opensea erc 721v3 ([#139](https://github.com/rarible/protocol-ethereum-sdk/issues/139)) ([337d3c5](https://github.com/rarible/protocol-ethereum-sdk/commit/337d3c5e38919e0f5399953f676729eb6f3a3844))
+
+
+
+
+
 ## [0.12.40-hotfix.1](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.40-hotfix.0...v0.12.40-hotfix.1) (2022-02-24)
 
 

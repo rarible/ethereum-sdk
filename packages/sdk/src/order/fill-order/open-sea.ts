@@ -23,7 +23,6 @@ import { ERC721VersionEnum } from "../../nft/contracts/domain"
 import { createMerkleValidatorContract } from "../contracts/merkle-validator"
 import { createErc1155Contract } from "../contracts/erc1155"
 import type { RaribleEthereumApis } from "../../common/apis"
-import { isErc721v3Collection } from "../../nft/mint"
 import type { OpenSeaOrderDTO } from "./open-sea-types"
 import type { OpenSeaV1OrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
 import {

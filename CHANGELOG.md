@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.56](https://github.com/rarible/ethereum-sdk/compare/v0.12.55...v0.12.56) (2022-02-24)
+
+
+### Bug Fixes
+
+* biconomy middleware was not working with metamask ([8b740b2](https://github.com/rarible/ethereum-sdk/commit/8b740b23f1e52ae22ad24b0c94046e82eff05b19))
+
+
+
+
+
 ## [0.12.55](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.54...v0.12.55) (2022-02-24)
 
 

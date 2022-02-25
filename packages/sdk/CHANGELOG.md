@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.40-hotfix.3](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.40-hotfix.2...v0.12.40-hotfix.3) (2022-02-25)
+
+
+### Bug Fixes
+
+* opensea calldata signatures ([1f51f54](https://github.com/rarible/protocol-ethereum-sdk/commit/1f51f5405a945762bf1e8e774030f442a41380d9))
+
+
+
+
+
 ## [0.12.40-hotfix.2](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.40-hotfix.1...v0.12.40-hotfix.2) (2022-02-24)
 
 

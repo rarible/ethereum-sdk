@@ -24,7 +24,6 @@ import { ERC721VersionEnum } from "../../nft/contracts/domain"
 import { createMerkleValidatorContract } from "../contracts/merkle-validator"
 import { createErc1155Contract } from "../contracts/erc1155"
 import type { RaribleEthereumApis } from "../../common/apis"
-import { isErc721v3Collection } from "../../nft/mint"
 import type { OpenSeaOrderDTO } from "./open-sea-types"
 import type { OpenSeaV1OrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
 import {
@@ -94,11 +93,11 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			: undefined
 
 		if (makeAssetType.assetClass === "ERC721") {
-			return this.getErc721EncodedData(makeAssetType, order.maker, true, validatorAddress)
+			return this.getErc721EncodedData(makeAssetType, order.maker, true, validatorAddress, order.data.callData)
 		} else if (makeAssetType.assetClass === "ERC1155") {
 			return this.getErc1155EncodedData(makeAssetType, order.make.value, order.maker, true, validatorAddress)
 		} else if (takeAssetType.assetClass === "ERC721") {
-			return this.getErc721EncodedData(takeAssetType, order.maker, false, validatorAddress)
+			return this.getErc721EncodedData(takeAssetType, order.maker, false, validatorAddress, order.data.callData)
 		} else if (takeAssetType.assetClass === "ERC1155") {
 			return this.getErc1155EncodedData(takeAssetType, order.take.value, order.maker, false, validatorAddress)
 		} else {
@@ -107,21 +106,19 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	}
 
 	async getErc721EncodedData(
-		assetType: Erc721AssetType, maker: Address, isSellSide: boolean, validatorAddress: Address | undefined
+		assetType: Erc721AssetType, maker: Address, isSellSide: boolean,
+		validatorAddress: Address | undefined,  initialCalldata: Binary
 	): Promise<EncodedOrderCallData> {
 		const ethereum = getRequiredWallet(this.ethereum)
-		const collection = await this.apis.nftCollection.getNftCollectionById({
-			collection: toAddress(assetType.contract),
-		})
-		const isErc721v3 = isErc721v3Collection(collection)
 		let startArgs = [maker, ZERO_ADDRESS]
 		if (!isSellSide) {
-			startArgs = startArgs.reverse()
+			startArgs = [ZERO_ADDRESS, maker]
 		}
 
 		if (validatorAddress) {
 			const c = createMerkleValidatorContract(ethereum, validatorAddress)
-			const callMethod = isErc721v3 ? "matchERC721WithSafeTransferUsingCriteria" : "matchERC721UsingCriteria"
+			const isSafeV3Method = initialCalldata.startsWith(MATCH_ERC721_SAFE_TRANSFER_SIGNATURE)
+			const callMethod = isSafeV3Method ? "matchERC721WithSafeTransferUsingCriteria" : "matchERC721UsingCriteria"
 
 			const methodArgs = [...startArgs, assetType.contract, assetType.tokenId, "0x", []]
 			return {
@@ -133,7 +130,8 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 
 			let callData: Binary
 			const transferArgs = [...startArgs, assetType.tokenId]
-			if (isErc721v3) {
+			const isSafeV3Method = initialCalldata.startsWith(SAFE_TRANSFER_SIGNATURE)
+			if (isSafeV3Method) {
 				const c = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, assetType.contract)
 				callData = toBinary(c.functionCall("safeTransferFrom", ...transferArgs).data)
 			} else {
@@ -155,7 +153,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		const ethereum = getRequiredWallet(this.ethereum)
 		let startArgs = [maker, ZERO_ADDRESS]
 		if (!isSellSide) {
-			startArgs = startArgs.reverse()
+			startArgs = [ZERO_ADDRESS, maker]
 		}
 		if (validatorAddress) {
 			const c = createMerkleValidatorContract(ethereum, validatorAddress)
@@ -379,3 +377,6 @@ export function getAtomicMatchArgUints(dto: OpenSeaOrderDTO) {
 export function getAtomicMatchArgCommonData(dto: OpenSeaOrderDTO) {
 	return [dto.feeMethod, dto.side, dto.saleKind, dto.howToCall]
 }
+
+const MATCH_ERC721_SAFE_TRANSFER_SIGNATURE = "0xc5a0236e"
+const SAFE_TRANSFER_SIGNATURE = "0x42842e0e"

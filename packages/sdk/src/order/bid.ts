@@ -17,7 +17,10 @@ export type BidRequest = {
 export type BidOrderOrderStageId = "approve" | "sign"
 export type BidOrderAction = Action<BidOrderOrderStageId, BidRequest, Order>
 
-export type BidUpdateRequest = HasOrder & HasPrice
+export type BidUpdateRequest = HasOrder & HasPrice & {
+	start?: number
+	end?: number
+}
 
 export type BidUpdateOrderAction = Action<BidOrderOrderStageId, BidUpdateRequest, Order>
 
@@ -63,6 +66,8 @@ export class OrderBid {
 				}
 				const price = await this.upserter.getPrice(request, order.make.assetType)
 				const form = await this.prepareOrderUpdateForm(order, price)
+				form.start = request.start ?? form.start
+				form.end = request.end ?? form.end
 				const checked = await this.upserter.checkLazyOrder(form) as OrderForm
 				await this.upserter.approve(checked, true)
 				return checked

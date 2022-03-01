@@ -108,12 +108,16 @@ describe.each(providers)("sell", (ethereum) => {
 
 		const nextPrice = toBigNumber("1")
 
+		const updatedEndDate = Math.round(Date.now()/1000 + 200)
+
 		await retry(5, 500, async () => {
 			const updatedOrder = await orderSell.update({
 				orderHash: order.hash,
 				price: nextPrice,
+				end: updatedEndDate,
 			})
 			expect(updatedOrder.take.value.toString()).toBe(nextPrice.toString())
+			expect(updatedOrder.end).toBe(updatedEndDate)
 		})
 	})
 

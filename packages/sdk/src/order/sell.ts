@@ -21,7 +21,10 @@ export type SellRequest = {
 } & HasPrice & OrderRequest
 export type SellOrderStageId = "approve" | "sign"
 export type SellOrderAction = Action<SellOrderStageId, SellRequest, Order>
-export type SellUpdateRequest = HasOrder & HasPrice
+export type SellUpdateRequest = HasOrder & HasPrice & {
+	start?: number
+	end?: number
+}
 
 export type SellOrderUpdateAction = Action<SellOrderStageId, SellUpdateRequest, Order>
 
@@ -80,6 +83,8 @@ export class OrderSell {
 				} else {
 					const price = await this.upserter.getPrice(request, order.take.assetType)
 					const form = await this.prepareOrderUpdateForm(order, price)
+					form.start = request.start ?? form.start
+					form.end = request.end ?? form.end
 					const checked = await this.upserter.checkLazyOrder(form) as OrderForm
 					await this.upserter.approve(checked, false)
 					return checked

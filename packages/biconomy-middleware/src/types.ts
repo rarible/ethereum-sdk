@@ -10,9 +10,10 @@ export type ContractMetadata = {
 	},
 	domain: Record<string, any>,
 	primaryType: string,
+	allowedFunctions?: string[],
 	[key: string]: any
 }
 
 export interface IContractRegistry {
-	getMetadata(address: string): Promise<ContractMetadata | undefined>
+	getMetadata(address: string, data?: string): Promise<ContractMetadata | undefined>
 }

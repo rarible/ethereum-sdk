@@ -26,7 +26,7 @@ export function biconomyMiddleware(
 			const [tx] = req.params as unknown[]
 			if (isTransactionParams(tx) && hasNullValue(tx)) {
 				try {
-					const metadata = await registry.getMetadata(tx.to)
+					const metadata = await registry.getMetadata(tx.to, tx.data)
 					if (metadata) {
 						await biconomyState
 						const contract = new ethers.Contract(tx.to, MetaContractAbi, signer)

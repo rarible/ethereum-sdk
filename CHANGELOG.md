@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.58](https://github.com/rarible/ethereum-sdk/compare/v0.12.57...v0.12.58) (2022-03-30)
+
+
+### Bug Fixes
+
+* meta tx should not be sent if value is not zero ([99a8598](https://github.com/rarible/ethereum-sdk/commit/99a8598215be95de672afd20d23148a30598f25b))
+
+
+### Features
+
+* pass function signature to getMetadata ([00966be](https://github.com/rarible/ethereum-sdk/commit/00966be4556ca1bc442e2d7c063f3f6d09790262))
+
+
+
+
+
 ## [0.12.57](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.56...v0.12.57) (2022-02-25)
 
 

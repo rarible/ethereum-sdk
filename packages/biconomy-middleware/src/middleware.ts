@@ -24,7 +24,7 @@ export function biconomyMiddleware(
 	return createAsyncMiddleware(async (req, res, next) => {
 		if (req.method === "eth_sendTransaction" && req.params) {
 			const [tx] = req.params as unknown[]
-			if (isTransactionParams(tx)) {
+			if (isTransactionParams(tx) && hasNullValue(tx)) {
 				try {
 					const metadata = await registry.getMetadata(tx.to)
 					if (metadata) {
@@ -98,6 +98,7 @@ type TransactionParams = {
 	from: string
 	to: string
 	data: string
+	value: string | undefined
 }
 
 function isTransactionParams(x: unknown): x is TransactionParams {
@@ -106,4 +107,8 @@ function isTransactionParams(x: unknown): x is TransactionParams {
 		"from" in x &&
 		"to" in x &&
 		"data" in x
+}
+
+function hasNullValue(tx: TransactionParams) {
+	return !tx.value || ethers.BigNumber.from(tx.value).eq(0)
 }

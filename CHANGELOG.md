@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.59](https://github.com/rarible/ethereum-sdk/compare/v0.12.58...v0.12.59) (2022-03-31)
+
+
+### Bug Fixes
+
+* config for new development envs ([723d2a4](https://github.com/rarible/ethereum-sdk/commit/723d2a4fa68f5eb5d2d9a11d9cd3b784c887559b))
+
+
+
+
+
 ## [0.12.58](https://github.com/rarible/ethereum-sdk/compare/v0.12.57...v0.12.58) (2022-03-30)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.60](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.59...v0.12.60) (2022-04-01)
+
+
+### Features
+
+* weth contracts ([30ddab0](https://github.com/rarible/protocol-ethereum-sdk/commit/30ddab0f067eb6ca0a712093e1aaed53ee520d8f))
+
+
+
+
+
 ## [0.12.59](https://github.com/rarible/ethereum-sdk/compare/v0.12.58...v0.12.59) (2022-03-31)
 
 

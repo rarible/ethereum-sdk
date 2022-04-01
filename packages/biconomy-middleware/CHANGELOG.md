@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.61](https://github.com/rarible/ethereum-sdk/compare/v0.12.60...v0.12.61) (2022-04-01)
+
+**Note:** Version bump only for package @rarible/biconomy-middleware
+
+
+
+
+
 ## [0.12.58](https://github.com/rarible/ethereum-sdk/compare/v0.12.57...v0.12.58) (2022-03-30)
 
 

@@ -16,6 +16,6 @@ describe("get price test", () => {
 			assetClass: "ERC20",
 			contract: toAddress("0x55eB2809896aB7414706AaCDde63e3BBb26e0BC6"),
 		}, "0.000000000000000002")
-		console.log("val", value.toString())
+		expect(value.toString()).toEqual("2")
 	})
 })

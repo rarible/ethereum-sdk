@@ -18,6 +18,7 @@ import type { CheckAssetTypeFunction } from "../check-asset-type"
 import { checkAssetType } from "../check-asset-type"
 import { checkLazyAssetType } from "../check-lazy-asset-type"
 import { checkChainId } from "../check-chain-id"
+import type { IRaribleEthereumSdkConfig } from "../../types"
 import type {
 	CryptoPunksOrderFillRequest,
 	FillOrderAction,
@@ -47,12 +48,13 @@ export class OrderFiller {
 		private readonly config: EthereumConfig,
 		private readonly apis: RaribleEthereumApis,
 		private readonly getBaseOrderFee: (type: SimpleOrder["type"]) => Promise<number>,
+		private readonly sdkConfig?: IRaribleEthereumSdkConfig
 	) {
 		this.getBaseOrderFillFee = this.getBaseOrderFillFee.bind(this)
 		this.getTransactionData = this.getTransactionData.bind(this)
 		this.v1Handler = new RaribleV1OrderHandler(ethereum, apis.order, send, config, getBaseOrderFee)
 		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config, getBaseOrderFee)
-		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee)
+		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
 		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config, getBaseOrderFee)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)

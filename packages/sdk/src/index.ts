@@ -234,7 +234,7 @@ export function createRaribleSdk(
 	const checkAssetType = partialCall(checkAssetTypeTemplate, apis.nftCollection)
 
 	const getBaseOrderFee = getBaseFee.bind(null, config, env)
-	const filler = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
+	const filler = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
 
 	const approveFn = partialCall(approveTemplate, ethereum, send, config.transferProxies)
 

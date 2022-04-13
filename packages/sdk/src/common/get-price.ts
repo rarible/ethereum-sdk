@@ -8,6 +8,7 @@ export async function getPrice(
 	ethereum: Ethereum, assetType: AssetType, priceDecimal: BigNumberValue
 ): Promise<BigNumberValue> {
 	const decimals = await getDecimals(ethereum, assetType)
+	console.log("de", decimals.toString())
 	switch (assetType.assetClass) {
 		case "ETH":
 			return toBn(priceDecimal).multipliedBy(toBn(10).pow(decimals))

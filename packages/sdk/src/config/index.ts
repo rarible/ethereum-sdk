@@ -10,7 +10,7 @@ import { mumbaiDevConfig } from "./mumbai-dev"
 import { devEthereumConfig } from "./dev"
 import { devPolygonConfig } from "./polygon-dev"
 
-const configDictionary: Record<EthereumNetwork, EthereumConfig> = {
+export const configDictionary: Record<EthereumNetwork, EthereumConfig> = {
 	e2e: e2eConfig,
 	ropsten: ropstenConfig,
 	rinkeby: rinkebyConfig,

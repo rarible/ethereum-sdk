@@ -19,7 +19,7 @@ const testRegistry: IContractRegistry = {
 describe("middleware test", () => {
 	const {provider, wallet} = createE2eProvider(undefined, {
 		networkId: 4,
-		rpcUl: "https://node-rinkeby.rarible.com/",
+		rpcUrl: "https://node-rinkeby.rarible.com/",
 	})
 
 	test.skip("Should use biconomy middleware", async () => {

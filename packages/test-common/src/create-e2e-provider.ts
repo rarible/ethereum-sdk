@@ -10,15 +10,15 @@ export function createE2eWallet(pk: string = randomWord()): Wallet {
 
 export function createE2eProvider(pk: string = randomWord(), config: {
 	networkId: number
-	rpcUl: string
+	rpcUrl: string
 } = {
-	networkId: 17,
-	rpcUl: "https://node-e2e.rarible.com",
+	networkId: 300500,
+	rpcUrl: "https://dev-ethereum-node.rarible.com",
 }) {
 	const provider = new Web3ProviderEngine({ pollingInterval: 100 })
 	const wallet = createE2eWallet(pk)
 	provider.addProvider(new TestSubprovider(wallet, { networkId: config.networkId, chainId: config.networkId }))
-	provider.addProvider(new RpcSubprovider({ rpcUrl: config.rpcUl }))
+	provider.addProvider(new RpcSubprovider({ rpcUrl: config.rpcUrl }))
 
 	beforeAll(() => provider.start())
 	afterAll(() => provider.stop())

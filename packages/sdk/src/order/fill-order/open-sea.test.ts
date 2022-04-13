@@ -1,22 +1,22 @@
 import {
-	awaitAll,
+	awaitAll, createE2eProvider,
 	createGanacheProvider,
 	deployOpenSeaExchangeV1,
+	deployOpenseaProxyRegistry,
 	deployOpenseaTokenTransferProxy,
+	deployTestErc1155,
 	deployTestErc20,
 	deployTestErc721,
-	deployTestErc1155,
-	deployOpenseaProxyRegistry,
 } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import type { Address, Asset } from "@rarible/ethereum-api-client"
-import { OrderOpenSeaV1DataV1Side } from "@rarible/ethereum-api-client"
+import { OrderOpenSeaV1DataV1Side, Platform } from "@rarible/ethereum-api-client"
 import type { Contract } from "web3-eth-contract"
 import type { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
-import { sentTx, getSimpleSendWithInjects } from "../../common/send-transaction"
+import { getSimpleSendWithInjects, sentTx } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
 import { getEthereumConfig } from "../../config"
 import { id32 } from "../../common/id"
@@ -49,6 +49,10 @@ describe.skip("fillOrder: Opensea orders", function () {
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
+	const { provider: polygonProvider } = createE2eProvider(undefined, {
+		networkId: 137,
+		rpcUrl: "https://polygon-rpc.com",
+	})
 
 	const env = "e2e" as const
 	const config: EthereumConfig = {
@@ -326,6 +330,67 @@ describe.skip("fillOrder: Opensea orders", function () {
 		await mintTestAsset(order.make, sender2Address)
 		order.make = setTestContract(order.make)
 		order.take = setTestContract(order.take)
+	})
+
+	test("get order origin without sdkConfig", async () => {
+		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, apis, getBaseOrderFee)
+		expect(openSeaFillHandler1.getOrderOrigin()).toEqual(id32(Platform.RARIBLE))
+	})
+
+	test("get order origin with sdkConfig and passed ethereum platform", async () => {
+		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, apis, getBaseOrderFee, {
+			ethereum: {
+				openseaOrdersPlatform: Platform.OPEN_SEA,
+			},
+		})
+		expect(openSeaFillHandler1.getOrderOrigin()).toEqual(id32(Platform.OPEN_SEA))
+	})
+
+	test("get order origin with passed polygon platform, but wallet still ethereum", async () => {
+		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, apis, getBaseOrderFee, {
+			polygon: {
+				openseaOrdersPlatform: Platform.OPEN_SEA,
+			},
+		})
+		expect(openSeaFillHandler1.getOrderOrigin()).toEqual(id32(Platform.RARIBLE))
+	})
+
+	test("get order origin with passed polygon platform and polygon wallet", async () => {
+		const web3 = new Web3(polygonProvider as any)
+		const polygon1 = new Web3Ethereum({ web3 })
+		const config: EthereumConfig = {
+			...getEthereumConfig("polygon"),
+			chainId: 137,
+			openSea: {
+				metadata: id32("RARIBLE"),
+				proxyRegistry: ZERO_ADDRESS,
+			},
+		}
+		const openSeaFillHandler1 = new OpenSeaOrderHandler(polygon1, send1, config, apis, getBaseOrderFee, {
+			polygon: {
+				openseaOrdersPlatform: Platform.OPEN_SEA,
+			},
+		})
+		expect(openSeaFillHandler1.getOrderOrigin()).toEqual(id32(Platform.OPEN_SEA))
+	})
+
+	test("get order origin with passed polygon platform and polygon wallet", async () => {
+		const web3 = new Web3(polygonProvider as any)
+		const polygon1 = new Web3Ethereum({ web3 })
+		const config: EthereumConfig = {
+			...getEthereumConfig("polygon"),
+			chainId: 137,
+			openSea: {
+				metadata: id32("RARIBLE"),
+				proxyRegistry: ZERO_ADDRESS,
+			},
+		}
+		const openSeaFillHandler1 = new OpenSeaOrderHandler(polygon1, send1, config, apis, getBaseOrderFee, {
+			polygon: {
+				openseaOrdersPlatform: Platform.OPEN_SEA,
+			},
+		})
+		expect(openSeaFillHandler1.getOrderOrigin()).toEqual(id32(Platform.OPEN_SEA))
 	})
 
 	// Sell-side orders

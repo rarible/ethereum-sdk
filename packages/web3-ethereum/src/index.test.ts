@@ -4,7 +4,8 @@ import { parseRequestError } from "./utils/parse-request-error"
 import { Web3Ethereum } from "./index"
 
 describe("Web3Ethereum", () => {
-	const { provider } = common.createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
+	const { provider } = common.createE2eProvider(
+		"d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
 	const e2eEthereum = new Web3Ethereum({ web3: new Web3(provider as any) })
 
 	const { provider: ganache } = common.createGanacheProvider()
@@ -37,6 +38,6 @@ describe("Web3Ethereum", () => {
 
 	test("getNetwork", async () => {
 		const network = await e2eEthereum.getChainId()
-		expect(network).toBe(17)
+		expect(network).toBe(300500)
 	})
 })

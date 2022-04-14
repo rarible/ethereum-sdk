@@ -1,5 +1,5 @@
 import type { ConfigurationParameters } from "@rarible/ethereum-api-client"
-import type { Platform } from "@rarible/ethereum-api-client"
+import type { Word } from "@rarible/types"
 
 export type EthereumNetwork = "e2e" | "ropsten" | "rinkeby" | "mainnet" | "mumbai" | "mumbai-dev" | "polygon" | "dev-ethereum" | "dev-polygon"
 
@@ -17,5 +17,5 @@ export interface IRaribleEthereumSdkConfig {
 }
 
 export interface EthereumNetworkConfig {
-	openseaOrdersPlatform?: Platform
+	openseaOrdersMetadata?: Word
 }

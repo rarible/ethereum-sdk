@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.63](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.62...v0.12.63) (2022-04-14)
+
+
+### Bug Fixes
+
+* opensea metadata ([186a57e](https://github.com/rarible/protocol-ethereum-sdk/commit/186a57ec3342882a4448134109b7a55eb9c4d5cd))
+
+
+
+
+
 ## [0.12.62](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.61...v0.12.62) (2022-04-13)
 
 

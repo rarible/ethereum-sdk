@@ -14,7 +14,7 @@ import type { Address, Asset } from "@rarible/ethereum-api-client"
 import { OrderOpenSeaV1DataV1Side, Platform } from "@rarible/ethereum-api-client"
 import type { Contract } from "web3-eth-contract"
 import type { EthereumContract } from "@rarible/ethereum-provider"
-import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
+import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
 import { getSimpleSendWithInjects, sentTx } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
@@ -334,28 +334,31 @@ describe.skip("fillOrder: Opensea orders", function () {
 
 	test("get order origin without sdkConfig", async () => {
 		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, apis, getBaseOrderFee)
-		expect(openSeaFillHandler1.getOrderOrigin()).toEqual(id32(Platform.RARIBLE))
+		expect(openSeaFillHandler1.getOrderMetadata()).toEqual(id32(Platform.RARIBLE))
 	})
 
 	test("get order origin with sdkConfig and passed ethereum platform", async () => {
+		const meta = toWord(id32("CUSTOM_STRING"))
 		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, apis, getBaseOrderFee, {
 			ethereum: {
-				openseaOrdersPlatform: Platform.OPEN_SEA,
+				openseaOrdersMetadata: meta,
 			},
 		})
-		expect(openSeaFillHandler1.getOrderOrigin()).toEqual(id32(Platform.OPEN_SEA))
+		expect(openSeaFillHandler1.getOrderMetadata()).toEqual(meta)
 	})
 
 	test("get order origin with passed polygon platform, but wallet still ethereum", async () => {
+		const meta = toWord(id32("CUSTOM_STRING"))
 		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, apis, getBaseOrderFee, {
 			polygon: {
-				openseaOrdersPlatform: Platform.OPEN_SEA,
+				openseaOrdersMetadata: meta,
 			},
 		})
-		expect(openSeaFillHandler1.getOrderOrigin()).toEqual(id32(Platform.RARIBLE))
+		expect(openSeaFillHandler1.getOrderMetadata()).toEqual(id32(Platform.RARIBLE))
 	})
 
 	test("get order origin with passed polygon platform and polygon wallet", async () => {
+		const meta = toWord(id32("CUSTOM_STRING"))
 		const web3 = new Web3(polygonProvider as any)
 		const polygon1 = new Web3Ethereum({ web3 })
 		const config: EthereumConfig = {
@@ -368,13 +371,14 @@ describe.skip("fillOrder: Opensea orders", function () {
 		}
 		const openSeaFillHandler1 = new OpenSeaOrderHandler(polygon1, send1, config, apis, getBaseOrderFee, {
 			polygon: {
-				openseaOrdersPlatform: Platform.OPEN_SEA,
+				openseaOrdersMetadata: meta,
 			},
 		})
-		expect(openSeaFillHandler1.getOrderOrigin()).toEqual(id32(Platform.OPEN_SEA))
+		expect(openSeaFillHandler1.getOrderMetadata()).toEqual(meta)
 	})
 
 	test("get order origin with passed polygon platform and polygon wallet", async () => {
+		const meta = toWord(id32("CUSTOM_STRING"))
 		const web3 = new Web3(polygonProvider as any)
 		const polygon1 = new Web3Ethereum({ web3 })
 		const config: EthereumConfig = {
@@ -387,10 +391,10 @@ describe.skip("fillOrder: Opensea orders", function () {
 		}
 		const openSeaFillHandler1 = new OpenSeaOrderHandler(polygon1, send1, config, apis, getBaseOrderFee, {
 			polygon: {
-				openseaOrdersPlatform: Platform.OPEN_SEA,
+				openseaOrdersMetadata: meta,
 			},
 		})
-		expect(openSeaFillHandler1.getOrderOrigin()).toEqual(id32(Platform.OPEN_SEA))
+		expect(openSeaFillHandler1.getOrderMetadata()).toEqual(meta)
 	})
 
 	// Sell-side orders

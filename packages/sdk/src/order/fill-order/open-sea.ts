@@ -1,7 +1,7 @@
 import type { Address, Asset, Binary, Erc1155AssetType, Erc721AssetType } from "@rarible/ethereum-api-client"
 import { OrderOpenSeaV1DataV1Side } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumContract, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
-import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
+import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { backOff } from "exponential-backoff"
 import { BigNumber, toBn } from "@rarible/utils"
 import type { OrderOpenSeaV1DataV1 } from "@rarible/ethereum-api-client/build/models/OrderData"
@@ -46,7 +46,6 @@ import {
 export type EncodedOrderCallData = { callData: Binary, replacementPattern: Binary, target: Address }
 
 export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillRequest> {
-	orderOrigin: string
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
@@ -54,16 +53,14 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		private readonly apis: RaribleEthereumApis,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly sdkConfig?: IRaribleEthereumSdkConfig
-	) {
-		this.orderOrigin = this.getOrderOrigin()
-	}
+	) {}
 
-	getOrderOrigin() {
+	getOrderMetadata() {
 		const blockchain = getBlockchainFromChainId(this.config.chainId)
 		const ethereumNetworkConfig = getEthereumNetworkConfig(blockchain, this.sdkConfig)
 
-		if (ethereumNetworkConfig && ethereumNetworkConfig.openseaOrdersPlatform) {
-			return id32(ethereumNetworkConfig.openseaOrdersPlatform)
+		if (ethereumNetworkConfig && ethereumNetworkConfig.openseaOrdersMetadata) {
+			return toWord(ethereumNetworkConfig.openseaOrdersMetadata)
 		}
 		return this.config.openSea.metadata || id32("RARIBLE")
 	}
@@ -274,7 +271,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			buyOrderToSignDTO.staticExtradata,
 			sellOrderToSignDTO.staticExtradata,
 			[buyVRS.v, sellVRS.v],
-			[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, this.orderOrigin],
+			[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, this.getOrderMetadata()],
 		)
 
 		return {

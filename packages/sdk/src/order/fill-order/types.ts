@@ -62,3 +62,18 @@ export type OrderFillSendData = {
 	functionCall: EthereumFunctionCall
 	options: EthereumSendOptions
 }
+
+export type GetOrderBuyTxData = (request: GetOrderBuyTxRequest) => Promise<OrderBuyTransactionData>
+
+export type GetOrderBuyTxRequest = {
+	request: FillOrderRequest
+	from: Address
+}
+
+export type OrderBuyTransactionData = {
+	data: string
+	value: string
+	from: string
+	to: string
+	gas: number
+}

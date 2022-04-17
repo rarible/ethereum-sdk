@@ -11,8 +11,12 @@ export async function testSimpleContract(web3: Web3, ethereum: Ethereum) {
 	const eventValue = receipt.events.filter(e => e.event === "Value")[0]
 	expect(eventValue.args.value.toString()).toBe("10")
 
-	const value = await contract.functionCall("value").call()
+	const valueCall = contract.functionCall("value")
+	const value = await valueCall.call()
 	expect(value.toString()).toBe("10")
+
+	const valueCallInfo = await valueCall.getCallInfo()
+	expect(valueCallInfo.contract).toEqual(deployed.options.address)
 }
 
 async function deployTestContract(web3: Web3) {

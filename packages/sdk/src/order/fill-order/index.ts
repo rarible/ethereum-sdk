@@ -33,6 +33,8 @@ import { OpenSeaOrderHandler } from "./open-sea"
 import { CryptoPunksOrderHandler } from "./crypto-punks"
 import type { OrderFillTransactionData, FillOrderStageId } from "./types"
 import type { OrderFillSendData } from "./types"
+import type { GetOrderBuyTxRequest } from "./types"
+import type { OrderBuyTransactionData } from "./types"
 
 export class OrderFiller {
 	v1Handler: RaribleV1OrderHandler
@@ -52,6 +54,7 @@ export class OrderFiller {
 	) {
 		this.getBaseOrderFillFee = this.getBaseOrderFillFee.bind(this)
 		this.getTransactionData = this.getTransactionData.bind(this)
+		this.getBuyTx = this.getBuyTx.bind(this)
 		this.v1Handler = new RaribleV1OrderHandler(ethereum, apis.order, send, config, getBaseOrderFee)
 		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config, getBaseOrderFee)
 		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
@@ -104,6 +107,24 @@ export class OrderFiller {
 	 * Accept bid order
 	 */
 	acceptBid: FillOrderAction = this.getFillAction()
+
+	async getBuyTx({request, from}: GetOrderBuyTxRequest): Promise<OrderBuyTransactionData> {
+		const inverted = await this.invertOrder(request, from)
+		if (request.assetType && inverted.make.assetType.assetClass === "COLLECTION") {
+			inverted.make.assetType = await this.checkAssetType(request.assetType)
+		}
+		const {functionCall, options} = await this.getTransactionRequestData(request, inverted)
+		const callInfo = await functionCall.getCallInfo()
+		const value = options.value?.toString() || "0"
+		const gas = await functionCall.estimateGas({from, value})
+		return {
+			from,
+			gas,
+			value,
+			data: functionCall.data,
+			to: callInfo.contract,
+		}
+	}
 
 	private async invertOrder(request: FillOrderRequest, from: Address) {
 		switch (request.order.type) {
@@ -197,6 +218,7 @@ export class OrderFiller {
 			inverted.make.assetType = await this.checkAssetType(request.assetType)
 		}
 		const {functionCall, options} = await this.getTransactionRequestData(request, inverted)
+
 		return {
 			data: functionCall.data,
 			options,

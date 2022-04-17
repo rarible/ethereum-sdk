@@ -187,19 +187,24 @@ describe("buy & acceptBid orders", () => {
 			value: 100,
 		}]
 		await filler.getTransactionData({ order: finalOrder, amount: 2, originFees })
+		await filler.getBuyTx({
+			request: { order: finalOrder, amount: 2, originFees },
+			from: toAddress(await ethereum1.getFrom()),
+		})
 	})
 
 	test("should match order(buy erc1155 for eth)", async () => {
 		//sender1 has ETH, sender2 has ERC1155
 
-		await sentTx(it.testErc1155.methods.mint(sender2Address, 1, 10, "0x"), { from: sender1Address })
+		const tokenId = "3"
+		await sentTx(it.testErc1155.methods.mint(sender2Address, tokenId, 10, "0x"), { from: sender1Address })
 
 		const left: SimpleOrder = {
 			make: {
 				assetType: {
 					assetClass: "ERC1155",
 					contract: toAddress(it.testErc1155.options.address),
-					tokenId: toBigNumber("1"),
+					tokenId: toBigNumber(tokenId),
 				},
 				value: toBigNumber("5"),
 			},
@@ -225,8 +230,8 @@ describe("buy & acceptBid orders", () => {
 
 		const signature = await signOrder(ethereum2, config, left)
 
-		const before1 = toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call())
-		const before2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call())
+		const before1 = toBn(await it.testErc1155.methods.balanceOf(sender1Address, tokenId).call())
+		const before2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, tokenId).call())
 
 		const finalOrder = { ...left, signature }
 		const originFees = [{
@@ -235,16 +240,16 @@ describe("buy & acceptBid orders", () => {
 		}]
 		await filler.buy({ order: finalOrder, amount: 2, originFees })
 
-		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString()).toBe(
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, tokenId).call()).toString()).toBe(
 			before2.minus(2).toFixed()
 		)
-		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString()).toBe(
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, tokenId).call()).toString()).toBe(
 			before1.plus(2).toFixed()
 		)
 	})
 
 	test("should match order(buy erc1155 for eth) with dataType=V2", async () => {
-		await sentTx(it.testErc1155.methods.mint(sender2Address, 1, 10, "0x"), { from: sender1Address })
+		await sentTx(it.testErc1155.methods.mint(sender2Address, 4, 10, "0x"), { from: sender1Address })
 
 		const left: SimpleOrder = {
 			make: {

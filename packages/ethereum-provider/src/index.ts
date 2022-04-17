@@ -39,16 +39,22 @@ export interface EthereumSendOptions {
 	gasPrice?: number
 }
 
+export interface EthereumEstimateGasOptions {
+	from?: string
+	value?: number | string
+}
+
 export interface EthereumFunctionCallInfo {
 	method: string
 	args: any[]
+	contract: string
 	from?: string
 }
 
 export interface EthereumFunctionCall {
 	data: string
 	getCallInfo(): Promise<EthereumFunctionCallInfo>
-	estimateGas(): Promise<number>
+	estimateGas(options?: EthereumEstimateGasOptions): Promise<number>
 	call(options?: EthereumSendOptions): Promise<any>
 	send(options?: EthereumSendOptions): Promise<EthereumTransaction>
 }

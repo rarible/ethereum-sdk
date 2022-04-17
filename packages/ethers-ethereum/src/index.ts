@@ -118,6 +118,7 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 		return {
 			method: this.name,
 			args: this.args,
+			contract: this.contract.address,
 			from: undefined,
 		}
 	}
@@ -126,9 +127,9 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 		return (this.contract.populateTransaction[this.name](...this.args) as any).data
 	}
 
-	async estimateGas() {
+	async estimateGas(options?: EthereumProvider.EthereumSendOptions) {
 		const func = this.contract.estimateGas[this.name].bind(null, ...this.args)
-		const value = await func()
+		const value = await func(options)
 		return value.toNumber()
 	}
 

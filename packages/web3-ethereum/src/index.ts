@@ -76,6 +76,7 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 	async getCallInfo(): Promise<EthereumProvider.EthereumFunctionCallInfo> {
 		return {
 			method: this.methodName,
+			contract: this.contract.options.address,
 			args: this.args,
 			from: await this.getFrom(),
 		}
@@ -85,8 +86,8 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 		return this.sendMethod.encodeABI()
 	}
 
-	estimateGas() {
-		return this.sendMethod.estimateGas()
+	estimateGas(options: EthereumProvider.EthereumEstimateGasOptions = {}) {
+		return this.sendMethod.estimateGas(options)
 	}
 
 	call(options: EthereumProvider.EthereumSendOptions = {}): Promise<any> {

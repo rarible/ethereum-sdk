@@ -50,6 +50,7 @@ import type { BuyoutAuctionAction } from "./auction/buy-out"
 import { BuyoutAuction } from "./auction/buy-out"
 import { createRemoteLogger, getEnvironment } from "./common/logger/logger"
 import { getAuctionHash } from "./auction/common"
+import type { GetOrderBuyTxData } from "./order/fill-order/types"
 
 export interface RaribleOrderSdk {
 	/**
@@ -100,6 +101,13 @@ export interface RaribleOrderSdk {
    * @param request order and parameters (amount to fill, fees etc)
    */
 	getFillTxData: GetOrderFillTxData
+
+	/**
+   * Get buy transaction data (for external sending)
+   *
+   * @param request order and parameters (amount to fill, fees etc)
+   */
+	getBuyTxData: GetOrderBuyTxData
 
 	/**
 	 * Sell or create bid. Low-level method
@@ -265,6 +273,7 @@ export function createRaribleSdk(
 			buy: filler.buy,
 			acceptBid: filler.acceptBid,
 			getFillTxData: filler.getTransactionData,
+			getBuyTxData: filler.getBuyTx,
 			bid: bidService.bid,
 			bidUpdate: bidService.update,
 			upsert: upsertService.upsert,

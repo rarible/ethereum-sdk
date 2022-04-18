@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.65](https://github.com/rarible/ethereum-sdk/compare/v0.12.64...v0.12.65) (2022-04-18)
+
+
+### Bug Fixes
+
+* simplify getBuyTx ([b3b5907](https://github.com/rarible/ethereum-sdk/commit/b3b59078fd43bdee7f1e31ee7b7f4d44e027c345))
+
+
+
+
+
 ## [0.12.64](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.63...v0.12.64) (2022-04-17)
 
 

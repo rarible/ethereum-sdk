@@ -34,7 +34,7 @@ import { CryptoPunksOrderHandler } from "./crypto-punks"
 import type { OrderFillTransactionData, FillOrderStageId } from "./types"
 import type { OrderFillSendData } from "./types"
 import type { GetOrderBuyTxRequest } from "./types"
-import type { OrderBuyTransactionData } from "./types"
+import type { TransactionData } from "./types"
 
 export class OrderFiller {
 	v1Handler: RaribleV1OrderHandler
@@ -108,7 +108,7 @@ export class OrderFiller {
 	 */
 	acceptBid: FillOrderAction = this.getFillAction()
 
-	async getBuyTx({request, from}: GetOrderBuyTxRequest): Promise<OrderBuyTransactionData> {
+	async getBuyTx({request, from}: GetOrderBuyTxRequest): Promise<TransactionData> {
 		const inverted = await this.invertOrder(request, from)
 		if (request.assetType && inverted.make.assetType.assetClass === "COLLECTION") {
 			inverted.make.assetType = await this.checkAssetType(request.assetType)
@@ -116,10 +116,8 @@ export class OrderFiller {
 		const {functionCall, options} = await this.getTransactionRequestData(request, inverted)
 		const callInfo = await functionCall.getCallInfo()
 		const value = options.value?.toString() || "0"
-		const gas = await functionCall.estimateGas({from, value})
 		return {
 			from,
-			gas,
 			value,
 			data: functionCall.data,
 			to: callInfo.contract,

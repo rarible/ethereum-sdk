@@ -1,18 +1,18 @@
 import {
 	awaitAll,
 	createGanacheProvider,
+	deployErc20TransferProxy,
+	deployMerkleValidator,
 	deployOpenSeaExchangeV1,
+	deployOpenseaProxyRegistry,
 	deployOpenseaTokenTransferProxy,
+	deployTestErc1155,
 	deployTestErc20,
 	deployTestErc721,
-	deployTestErc1155,
-	deployOpenseaProxyRegistry,
-	deployTestExchangeV2,
-	deployTransferProxy,
-	deployErc20TransferProxy,
-	deployTestRoyaltiesProvider,
 	deployTestExchangeBulkV2,
-	deployMerkleValidator,
+	deployTestExchangeV2,
+	deployTestRoyaltiesProvider,
+	deployTransferProxy,
 } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
@@ -22,19 +22,15 @@ import type { Contract } from "web3-eth-contract"
 import type { EthereumContract } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS, ZERO_WORD } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
-import { deployWywernExchangeBulk } from "@rarible/ethereum-sdk-test-common/src"
-import { sentTx, getSimpleSendWithInjects } from "../../common/send-transaction"
-import type { EthereumConfig } from "../../config/type"
-import { getEthereumConfig } from "../../config"
-import { id32 } from "../../common/id"
-import {
-	getOrderSignature,
-	getOrderTemplate,
-} from "../test/order-opensea"
-import { createOpenseaProxyRegistryEthContract } from "../contracts/proxy-registry-opensea"
-import { createEthereumApis } from "../../common/apis"
-import { checkChainId } from "../check-chain-id"
-import { OpenSeaOrderHandler } from "./open-sea"
+import { getSimpleSendWithInjects, sentTx } from "../../../common/send-transaction"
+import type { EthereumConfig } from "../../../config/type"
+import { getEthereumConfig } from "../../../config"
+import { id32 } from "../../../common/id"
+import { getOrderSignature, getOrderTemplate } from "../../test/order-opensea"
+import { createOpenseaProxyRegistryEthContract } from "../../contracts/proxy-registry-opensea"
+import { createEthereumApis } from "../../../common/apis"
+import { checkChainId } from "../../check-chain-id"
+import { OpenSeaOrderHandler } from "../open-sea"
 import { BulkV2OHandler } from "./bulk-v2"
 
 describe("fillOrder: Opensea orders", function () {
@@ -91,7 +87,6 @@ describe("fillOrder: Opensea orders", function () {
 			ethereum1,
 			toAddress(wyvernProxyRegistry.options.address)
 		)
-		console.log("deployed wyvernProxyRegistry", wyvernProxyRegistry.options.address)
 		await sentTx(
 			wyvernProxyRegistry.methods.registerProxy(),
 			{ from: sender1Address }
@@ -102,7 +97,6 @@ describe("fillOrder: Opensea orders", function () {
 		)
 
 		wyvernTokenTransferProxy = await deployOpenseaTokenTransferProxy(web3, wyvernProxyRegistry.options.address)
-		console.log("deployed wyvernTokenTransferProxy", wyvernTokenTransferProxy.options.address)
 
 		wyvernExchange = await deployOpenSeaExchangeV1(
 			web3,
@@ -113,16 +107,6 @@ describe("fillOrder: Opensea orders", function () {
 		await proxyRegistryEthContract
 			.functionCall("grantInitialAuthentication", wyvernExchange.options.address)
 			.send()
-		// wywernExchangeBulk = await deployWywernExchangeBulk(
-		// 	web3,
-		// 	wyvernProxyRegistry.options.address,
-		// 	wyvernTokenTransferProxy.options.address,
-		// 	ZERO_ADDRESS,
-		// 	feeRecipient,
-		// )
-		// await proxyRegistryEthContract
-		// 	.functionCall("grantInitialAuthentication", wywernExchangeBulk.options.address)
-		// 	.send()
 
 		await sentTx(
 			it.exchangeV2.methods.__ExchangeV2_init(
@@ -163,12 +147,6 @@ describe("fillOrder: Opensea orders", function () {
 			from: sender1Address,
 		})
 
-		// const bulkExchangeV2Contract = await createExchangeBulkV2Contract(
-		// ethereum1, toAddress(it.bulkExchange.options.address)
-		// )
-		// await bulkExchangeV2Contract.functionCall(
-		// "__ExchangeBulkV2_init", config.exchange.openseaV1, config.exchange.v2
-		// ).send()
 	})
 
 	async function mintTestAsset(asset: Asset, sender: Address): Promise<any> {
@@ -239,7 +217,7 @@ describe("fillOrder: Opensea orders", function () {
 	}
 
 	test("should fill bulk of orders ERC721", async () => {
-		const order = getOrderTemplate("ERC721", "ETH", OrderOpenSeaV1DataV1Side.SELL)
+		const order = getOrderTemplate("ERC721", "ETH", OrderOpenSeaV1DataV1Side.SELL, true)
 		const nftOwner = sender2Address
 		const nftBuyer = sender1Address
 		const nftOwnerEthereum = ethereum2
@@ -254,6 +232,7 @@ describe("fillOrder: Opensea orders", function () {
 		order.maker = toAddress(nftOwner)
 		order.data.target = toAddress(config.openSea.merkleValidator!)
 
+
 		await mintTestAsset(order.make, nftOwner)
 		await mintTestAsset(order.take, nftBuyer)
 		await openSeaFillHandler.approveSingle(nftOwner, order.make, false)
@@ -262,8 +241,6 @@ describe("fillOrder: Opensea orders", function () {
 		order.signature = toBinary(await getOrderSignature(nftOwnerEthereum, order))
 
 		const nftSellerInitBalance = await getBalance(order.make, nftOwner)
-		console.log("nftSellerInitBalance", nftSellerInitBalance)
-		console.log("buyer balance", await getBalance(order.take, nftBuyer))
 		const result = await openSeaBulkFillHandler.sendTransaction([{ order }])
 		console.log("result", result)
 		await web3.eth.getTransaction(result.hash, function (error, result){
@@ -271,8 +248,6 @@ describe("fillOrder: Opensea orders", function () {
 			console.log("transaction error", error)
 		})
 		const nftSellerFinalBalance = await getBalance(order.make, nftOwner)
-		console.log("nftSellerFinalBalance", nftSellerFinalBalance)
-		console.log("buyer balance", await getBalance(order.take, nftBuyer))
 
 		expect(nftSellerFinalBalance).not.toBe(nftSellerInitBalance)
 	})

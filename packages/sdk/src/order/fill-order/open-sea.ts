@@ -361,15 +361,6 @@ export function getAtomicMatchArgAddresses(dto: OpenSeaOrderDTO) {
 	return [dto.exchange, dto.maker, dto.taker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
 }
 
-export function getAtomicMatchArgAddressesForBulkV2(dto: OpenSeaOrderDTO, bulkV2Address: Address) {
-	if (dto.side === 1) {
-		return [dto.exchange, dto.maker, dto.taker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
-	} else {
-		return [dto.exchange, bulkV2Address, dto.maker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
-	}
-
-}
-
 export function getAtomicMatchArgUints(dto: OpenSeaOrderDTO) {
 	return [
 		dto.makerRelayerFee,

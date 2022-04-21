@@ -1,8 +1,8 @@
 import Web3ProviderEngine from "web3-provider-engine"
 import Wallet from "ethereumjs-wallet"
 import { TestSubprovider } from "@rarible/test-provider"
-import RpcSubprovider from "web3-provider-engine/subproviders/rpc"
 import { randomWord } from "@rarible/types"
+const RpcSubprovider = require("web3-provider-engine/subproviders/rpc.js")
 
 export function createE2eWallet(pk: string = randomWord()): Wallet {
 	return new Wallet(Buffer.from(fixPK(pk), "hex"))

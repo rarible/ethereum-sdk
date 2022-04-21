@@ -10,6 +10,7 @@ export const devPolygonConfig: EthereumConfig = {
 		v1: ZERO_ADDRESS,
 		v2: toAddress("0x8283Ffd0F535E1103C3599D2d00b85815774A896"),
 		openseaV1: ZERO_ADDRESS,
+		bulkV2: ZERO_ADDRESS,
 	},
 	transferProxies: {
 		nft: toAddress("0x3586d3E6CDaE98d5F0eEaB737977Bc78406Da2BD"),

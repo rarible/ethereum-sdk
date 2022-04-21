@@ -43,7 +43,7 @@ import {
 import { convertOpenSeaOrderToDTO } from "./open-sea-converter"
 import { OrderFiller } from "./index"
 
-describe.skip("fillOrder: Opensea orders", function () {
+describe("fillOrder: Opensea orders", function () {
 	const { addresses, provider } = createGanacheProvider()
 	const [sender1Address, sender2Address, feeRecipient] = addresses
 	const web3 = new Web3(provider as any)
@@ -293,6 +293,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 				openseaV1: toAddress(wyvernExchange.options.address),
 				v1: ZERO_ADDRESS,
 				v2: ZERO_ADDRESS,
+				bulkV2: ZERO_ADDRESS,
 			},
 			checkChainId.bind(null, ethereum1, config),
 			{

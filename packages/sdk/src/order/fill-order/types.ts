@@ -62,3 +62,11 @@ export type OrderFillSendData = {
 	functionCall: EthereumFunctionCall
 	options: EthereumSendOptions
 }
+
+export type BulkFillRequest = Omit<CommonFillRequest<SimpleOpenSeaV1Order>, "amount"> |
+CommonFillRequest<SimpleRaribleV2Order> & { payouts?: Part[], originFees?: Part[] }
+
+export type OrderFillBulkSendData = {
+	functionCall: EthereumFunctionCall
+	options: EthereumSendOptions
+}

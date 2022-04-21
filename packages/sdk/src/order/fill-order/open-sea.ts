@@ -209,6 +209,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	async getTransactionData(
 		initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order
 	): Promise<OrderFillSendData> {
+		console.log("getTransaction data")
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
@@ -328,7 +329,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	}
 }
 
-async function getMatchOpenseaOptions(buy: SimpleOpenSeaV1Order): Promise<EthereumSendOptions> {
+export async function getMatchOpenseaOptions(buy: SimpleOpenSeaV1Order): Promise<EthereumSendOptions> {
 	if (buy.make.assetType.assetClass === "ETH") {
 		const fee = toBn(buy.data.takerProtocolFee).plus(buy.data.takerRelayerFee).toNumber()
 		const assetWithFee = getAssetWithFee(buy.make, fee)
@@ -342,7 +343,7 @@ async function getSenderProxy(registryContract: EthereumContract, sender: Addres
 	return toAddress(await registryContract.functionCall("proxies", sender).call())
 }
 
-function getBuySellOrders(left: SimpleOpenSeaV1Order, right: SimpleOpenSeaV1Order) {
+export function getBuySellOrders(left: SimpleOpenSeaV1Order, right: SimpleOpenSeaV1Order) {
 	if (left.data.side === "SELL") {
 		return {
 			buy: right,
@@ -358,6 +359,15 @@ function getBuySellOrders(left: SimpleOpenSeaV1Order, right: SimpleOpenSeaV1Orde
 
 export function getAtomicMatchArgAddresses(dto: OpenSeaOrderDTO) {
 	return [dto.exchange, dto.maker, dto.taker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
+}
+
+export function getAtomicMatchArgAddressesForBulkV2(dto: OpenSeaOrderDTO, bulkV2Address: Address) {
+	if (dto.side === 1) {
+		return [dto.exchange, dto.maker, dto.taker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
+	} else {
+		return [dto.exchange, bulkV2Address, dto.maker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
+	}
+
 }
 
 export function getAtomicMatchArgUints(dto: OpenSeaOrderDTO) {

@@ -1,7 +1,7 @@
 import type { Address, Asset, Binary, Erc1155AssetType, Erc721AssetType } from "@rarible/ethereum-api-client"
 import { OrderOpenSeaV1DataV1Side } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumContract, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
-import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
+import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { backOff } from "exponential-backoff"
 import { BigNumber, toBn } from "@rarible/utils"
 import type { OrderOpenSeaV1DataV1 } from "@rarible/ethereum-api-client/build/models/OrderData"
@@ -24,6 +24,11 @@ import { ERC721VersionEnum } from "../../nft/contracts/domain"
 import { createMerkleValidatorContract } from "../contracts/merkle-validator"
 import { createErc1155Contract } from "../contracts/erc1155"
 import type { RaribleEthereumApis } from "../../common/apis"
+import type { EVMBlockchain} from "../../common/get-blockchain-from-chain-id"
+import { getBlockchainFromChainId } from "../../common/get-blockchain-from-chain-id"
+import type { IRaribleEthereumSdkConfig } from "../../types"
+import type { EthereumNetworkConfig } from "../../types"
+import { id32 } from "../../common/id"
 import type { OpenSeaOrderDTO } from "./open-sea-types"
 import type { OpenSeaV1OrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
 import {
@@ -47,7 +52,18 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		private readonly config: EthereumConfig,
 		private readonly apis: RaribleEthereumApis,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
+		private readonly sdkConfig?: IRaribleEthereumSdkConfig
 	) {}
+
+	getOrderMetadata() {
+		const blockchain = getBlockchainFromChainId(this.config.chainId)
+		const ethereumNetworkConfig = getEthereumNetworkConfig(blockchain, this.sdkConfig)
+
+		if (ethereumNetworkConfig && ethereumNetworkConfig.openseaOrdersMetadata) {
+			return toWord(ethereumNetworkConfig.openseaOrdersMetadata)
+		}
+		return this.config.openSea.metadata || id32("RARIBLE")
+	}
 
 	async invert({ order }: OpenSeaV1OrderFillRequest, maker: Address): Promise<SimpleOpenSeaV1Order> {
 		if (order.data.side === "BUY") {
@@ -256,7 +272,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			buyOrderToSignDTO.staticExtradata,
 			sellOrderToSignDTO.staticExtradata,
 			[buyVRS.v, sellVRS.v],
-			[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, this.config.openSea.metadata],
+			[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, this.getOrderMetadata()],
 		)
 
 		return {
@@ -377,6 +393,19 @@ export function getAtomicMatchArgUints(dto: OpenSeaOrderDTO) {
 
 export function getAtomicMatchArgCommonData(dto: OpenSeaOrderDTO) {
 	return [dto.feeMethod, dto.side, dto.saleKind, dto.howToCall]
+}
+
+function getEthereumNetworkConfig(
+	blockchain: EVMBlockchain, sdkConfig?: IRaribleEthereumSdkConfig
+): EthereumNetworkConfig | void {
+	if (!sdkConfig) {
+		return
+	}
+	switch (blockchain) {
+		case "ETHEREUM": return sdkConfig.ethereum
+		case "POLYGON": return sdkConfig.polygon
+		default: return
+	}
 }
 
 const MATCH_ERC721_SAFE_TRANSFER_SIGNATURE = "0xc5a0236e"

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.64](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.63...v0.12.64) (2022-04-17)
+
+
+### Features
+
+* get transaction data ([e386124](https://github.com/rarible/protocol-ethereum-sdk/commit/e3861248751c12c00e063c400870675849a5f989))
+
+
+
+
+
 ## [0.12.54](https://github.com/rarible/ethereum-sdk/compare/v0.12.53...v0.12.54) (2022-02-23)
 
 **Note:** Version bump only for package @rarible/ethereum-provider

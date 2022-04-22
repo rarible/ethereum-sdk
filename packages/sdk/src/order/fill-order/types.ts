@@ -63,6 +63,20 @@ export type OrderFillSendData = {
 	options: EthereumSendOptions
 }
 
+export type GetOrderBuyTxData = (request: GetOrderBuyTxRequest) => Promise<TransactionData>
+
+export type GetOrderBuyTxRequest = {
+	request: FillOrderRequest
+	from: Address
+}
+
+export type TransactionData = {
+	data: string
+	value: string
+	from: string
+	to: string
+}
+
 export type BulkFillRequest = Omit<CommonFillRequest<SimpleOpenSeaV1Order>, "amount"> |
 CommonFillRequest<SimpleRaribleV2Order> & { payouts?: Part[], originFees?: Part[] }
 

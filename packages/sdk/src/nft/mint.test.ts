@@ -39,25 +39,25 @@ const providers = [
 	new EthersWeb3ProviderEthereum(new ethers.providers.Web3Provider(provider3 as any)),
 ]
 
-const configuration = new Configuration(getApiConfig("e2e"))
+const configuration = new Configuration(getApiConfig("dev-ethereum"))
 const nftCollectionApi = new NftCollectionControllerApi(configuration)
 const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 const nftItemApi = new NftItemControllerApi(configuration)
 const gatewayApi = new GatewayControllerApi(configuration)
 
-const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
-const e2eErc1155V2ContractAddress = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
+const e2eErc721V3ContractAddress = toAddress("0x96CE5b00c75e28d7b15F25eA392Cbb513ce1DE9E")
+const e2eErc1155V2ContractAddress = toAddress("0xda75B20cCFf4F86d2E8Ef00Da61A166edb7a233a")
 
 describe.each(providers)("mint test", ethereum => {
 	let minter: Address
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig("dev-ethereum")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
 	beforeAll(async () => {
 		minter = toAddress(await ethereum.getFrom())
 	})
 
-	const sign = signNft.bind(null, ethereum, 17)
+	const sign = signNft.bind(null, ethereum, 300500)
 
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 

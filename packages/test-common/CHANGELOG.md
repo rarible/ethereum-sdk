@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.64](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.63...v0.12.64) (2022-04-17)
+
+
+### Features
+
+* get transaction data ([e386124](https://github.com/rarible/protocol-ethereum-sdk/commit/e3861248751c12c00e063c400870675849a5f989))
+
+
+
+
+
+## [0.12.62](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.61...v0.12.62) (2022-04-13)
+
+
+### Features
+
+* opensea order origin ([#147](https://github.com/rarible/protocol-ethereum-sdk/issues/147)) ([19f4851](https://github.com/rarible/protocol-ethereum-sdk/commit/19f4851f8de3d512470431db9413131b241dd49d))
+
+
+
+
+
 ## [0.12.61](https://github.com/rarible/ethereum-sdk/compare/v0.12.60...v0.12.61) (2022-04-01)
 
 

@@ -1,13 +1,7 @@
 import type { Address } from "@rarible/types"
-import type { Part } from "@rarible/ethereum-api-client"
+import type { CryptoPunksAssetType, Erc1155AssetType, Erc721AssetType, Part } from "@rarible/ethereum-api-client"
 import type { Action } from "@rarible/action"
-import type { EthereumTransaction } from "@rarible/ethereum-provider"
-import type { EthereumFunctionCall, EthereumSendOptions } from "@rarible/ethereum-provider"
-import type {
-	CryptoPunksAssetType,
-	Erc1155AssetType,
-	Erc721AssetType,
-} from "@rarible/ethereum-api-client"
+import type { EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Erc1155LazyAssetType, Erc721LazyAssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
 import type { SimpleCryptoPunkOrder, SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleRaribleV2Order } from "../types"
 import type { NftAssetType } from "../check-asset-type"
@@ -38,6 +32,7 @@ export type FillOrderRequest =
   CryptoPunksOrderFillRequest
 
 export type FillOrderAction = Action<FillOrderStageId, FillOrderRequest, EthereumTransaction>
+export type FillOrderBulkAction = Action<FillOrderStageId, BulkFillRequest[], EthereumTransaction>
 export type FillOrderStageId = "approve" | "send-tx"
 
 export interface OrderHandler<T extends FillOrderRequest> {
@@ -79,8 +74,3 @@ export type TransactionData = {
 
 export type BulkFillRequest = Omit<CommonFillRequest<SimpleOpenSeaV1Order>, "amount"> |
 CommonFillRequest<SimpleRaribleV2Order> & { payouts?: Part[], originFees?: Part[] }
-
-export type OrderFillBulkSendData = {
-	functionCall: EthereumFunctionCall
-	options: EthereumSendOptions
-}

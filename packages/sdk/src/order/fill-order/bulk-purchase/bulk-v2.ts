@@ -167,14 +167,14 @@ export class BulkV2OHandler {
 				const sellVRS = toVrs(sell.signature || "")
 
 				console.log("TOKEN ID: ", isNft(order.make.assetType) ? order.make.assetType.tokenId : "Not an nft")
-				const encodedInitial = await this.encodeOrder(order)
-				sellOrderToSignDTO.calldata = encodedInitial.callData
-				sellOrderToSignDTO.replacementPattern = encodedInitial.replacementPattern
-				sellOrderToSignDTO.target = encodedInitial.target
-				const encodedInverted = await this.encodeOrder(inverted)
-				buyOrderToSignDTO.calldata = encodedInverted.callData
-				buyOrderToSignDTO.replacementPattern = encodedInverted.replacementPattern
-				buyOrderToSignDTO.target = encodedInverted.target
+				// const encodedInitial = await this.encodeOrder(order)
+				// sellOrderToSignDTO.calldata = encodedInitial.callData
+				// sellOrderToSignDTO.replacementPattern = encodedInitial.replacementPattern
+				// sellOrderToSignDTO.target = encodedInitial.target
+				// const encodedInverted = await this.encodeOrder(inverted)
+				// buyOrderToSignDTO.calldata = encodedInverted.callData
+				// buyOrderToSignDTO.replacementPattern = encodedInverted.replacementPattern
+				// buyOrderToSignDTO.target = encodedInverted.target
 
 				const ordersCanMatch = await exchangeContract
 					.functionCall(

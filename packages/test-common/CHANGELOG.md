@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.65-beta1](https://github.com/rarible/ethereum-sdk/compare/v0.12.65...v0.12.65-beta1) (2022-04-26)
+
+
+### Features
+
+* cryptopunk wrapper ([cb2bdd8](https://github.com/rarible/ethereum-sdk/commit/cb2bdd827f536b7250b50215bbc19649d4ce665f))
+
+
+
+
+
 ## [0.12.64](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.63...v0.12.64) (2022-04-17)
 
 

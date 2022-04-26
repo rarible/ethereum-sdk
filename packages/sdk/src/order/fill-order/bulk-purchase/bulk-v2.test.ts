@@ -317,7 +317,7 @@ describe("fillOrder: Opensea orders", function () {
 			account: randomAddress(),
 			value: 100,
 		}]
-		await filler.buy({ order: finalOrder, amount: 2, originFees })
+		await openSeaBulkFillHandler.buyBulk([{ order: finalOrder, amount: 2, originFees, infinite: true }])
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, tokenId).call()).toString()).toBe(
 			before2.minus(2).toFixed()

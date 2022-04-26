@@ -4,10 +4,13 @@
   ],
   "npmClient": "yarn",
   "useWorkspaces": true,
-  "version": "0.12.65",
+  "version": "0.12.66-alpha.0",
   "command": {
     "publish": {
-      "allowBranch": ["master", "feature/**"],
+      "allowBranch": [
+        "master",
+        "feature/**"
+      ],
       "conventionalCommits": true,
       "registry": "https://registry.npmjs.org/",
       "message": "chore: bump versions after release",

@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.66-alpha.0](https://github.com/rarible/ethereum-sdk/compare/v0.12.65...v0.12.66-alpha.0) (2022-04-26)
+
+
+### Features
+
+* bravo-2047 add bulk purchase method ([f1bab67](https://github.com/rarible/ethereum-sdk/commit/f1bab6786e1ff868be96dabd8b9c144dfdc95aca))
+* bravo-2047 bulk purchase draft ([0c52279](https://github.com/rarible/ethereum-sdk/commit/0c522796a256a21df243bc034c829b760df4a3bf))
+* bravo-2047 update opensea contracts ([0748151](https://github.com/rarible/ethereum-sdk/commit/07481516bf2adc5213e8b69320af4507068ad408))
+
+
+
+
+
 ## [0.12.64](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.63...v0.12.64) (2022-04-17)
 
 

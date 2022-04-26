@@ -29,6 +29,10 @@ export const mainnetConfig: EthereumConfig = {
 		erc721: toAddress("0x6E42262978de5233C8d5B05B128C121fBa110DA4"),
 		erc1155: toAddress("0xda5bfe0bd4443d63833c8f4e3284357299eae6bc"),
 	},
+	cryptoPunks: {
+		marketContract: toAddress("0x6Ba6f2207e343923BA692e5Cae646Fb0F566DB8D"),
+		wrapperContract: toAddress("0x282BDD42f4eb70e7A9D9F40c8fEA0825B7f68C5D"),
+	},
 	weth: toAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
 	auction: ZERO_ADDRESS,
 }

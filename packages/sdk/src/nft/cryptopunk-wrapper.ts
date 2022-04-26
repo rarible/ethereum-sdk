@@ -19,12 +19,12 @@ export async function approveForWrapper(
 		throw new Error("Wallet undefined")
 	}
 
-	const wrapperContract = createCryptoPunksMarketContract(
+	const marketContract = createCryptoPunksMarketContract(
 		ethereum,
 		marketContractAddress
 	)
 
-	return send(wrapperContract.functionCall(
+	return send(marketContract.functionCall(
 		"offerPunkForSaleToAddress",
 		punkIndex,
 		0,

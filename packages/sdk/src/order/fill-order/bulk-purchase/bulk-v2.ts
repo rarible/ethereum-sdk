@@ -209,6 +209,8 @@ export class BulkV2OHandler {
 				)
 
 				console.log("functionCall.getCallInfo", await functionCall.getCallInfo())
+				console.log("eth sdk buy side: ", buy)
+				console.log("eth-sdk amount: ", (await getMatchOpenseaOptions(buy)).value?.toString()!)
 				return {
 					marketWyvern: true,
 					amount: (await getMatchOpenseaOptions(buy)).value?.toString()!,

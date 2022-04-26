@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.66-alpha.3](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-alpha.2...v0.12.66-alpha.3) (2022-04-26)
+
+
+### Bug Fixes
+
+* bravo-2047 bulk purchase add logs ([8e9e3b4](https://github.com/rarible/ethereum-sdk/commit/8e9e3b49cd587e7df1e7e1eee2cee1646a6744f2))
+* bravo-2047 bulk purchase method ([5c190ef](https://github.com/rarible/ethereum-sdk/commit/5c190efb0278213e2006bf0ee6f5120a9fa46cab))
+
+
+
+
+
 ## [0.12.66-alpha.2](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-alpha.1...v0.12.66-alpha.2) (2022-04-26)
 
 

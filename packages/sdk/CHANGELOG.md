@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.66-alpha.2](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-alpha.1...v0.12.66-alpha.2) (2022-04-26)
+
+
+### Bug Fixes
+
+* bravo-2047 fill rinkeby config with bulk purchase contract address ([08e9080](https://github.com/rarible/ethereum-sdk/commit/08e9080a6179659cc42ce3c3910311b740bf1f36))
+
+
+
+
+
 ## [0.12.66-alpha.1](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-alpha.0...v0.12.66-alpha.1) (2022-04-26)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.66-alpha.11](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-alpha.10...v0.12.66-alpha.11) (2022-04-27)
+
+
+### Bug Fixes
+
+* singlePurchase Wrapper ([c8e1011](https://github.com/rarible/ethereum-sdk/commit/c8e1011c574593d68ca91da1fef93145f834698b))
+
+
+
+
+
 ## [0.12.66-alpha.10](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-alpha.9...v0.12.66-alpha.10) (2022-04-27)
 
 

@@ -214,7 +214,7 @@ export class BulkV2OHandler {
 				console.log("eth-sdk amount: ", (await getMatchOpenseaOptions(buy)).value?.toString()!)
 				return {
 					marketWyvern: "1", //1 - opensea; 0 - rarible
-					amount: "100", //sell.take.value.toString(), //(await getMatchOpenseaOptions(buy)).value?.toString()!,
+					amount: (await getMatchOpenseaOptions(buy)).value?.toString()!,
 					tradeData: functionCall.data,
 				}
 			} else {

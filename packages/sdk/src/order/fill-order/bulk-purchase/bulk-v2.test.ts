@@ -36,7 +36,7 @@ import type { SimpleOrder } from "../../types"
 import { signOrder } from "../../sign-order"
 import { BulkV2OHandler } from "./bulk-v2"
 
-describe("fillOrder: Opensea orders", function () {
+describe.skip("fillOrder: Opensea orders", function () {
 	const { addresses, provider } = createGanacheProvider()
 	const [sender1Address, sender2Address, feeRecipient] = addresses
 	const web3 = new Web3(provider as any)

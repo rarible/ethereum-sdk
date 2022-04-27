@@ -98,39 +98,9 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 				"type": "address",
 			},
 		],
-		"name": "__ExchangeBulkV2_init",
+		"name": "__ExchangeWrapper_init",
 		"outputs": [],
 		"stateMutability": "nonpayable",
-		"type": "function",
-	},
-	{
-		"inputs": [
-			{
-				"components": [
-					{
-						"internalType": "bool",
-						"name": "marketWyvern",
-						"type": "bool",
-					},
-					{
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256",
-					},
-					{
-						"internalType": "bytes",
-						"name": "tradeData",
-						"type": "bytes",
-					},
-				],
-				"internalType": "struct ExchangeBulkV2.TradeDetails[]",
-				"name": "tradeDetails",
-				"type": "tuple[]",
-			},
-		],
-		"name": "bulkTransfer",
-		"outputs": [],
-		"stateMutability": "payable",
 		"type": "function",
 	},
 	{
@@ -157,6 +127,76 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 		"name": "setExchange",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function",
+	},
+	{
+		"inputs": [
+			{
+				"components": [
+					{
+						"internalType": "enum ExchangeWrapper.Markets",
+						"name": "marketId",
+						"type": "uint8",
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256",
+					},
+					{
+						"internalType": "bytes",
+						"name": "data",
+						"type": "bytes",
+					},
+				],
+				"internalType": "struct ExchangeWrapper.PurchaseDetails",
+				"name": "purchaseDetails",
+				"type": "tuple",
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "fees",
+				"type": "uint256[]",
+			},
+		],
+		"name": "singlePurchase",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function",
+	},
+	{
+		"inputs": [
+			{
+				"components": [
+					{
+						"internalType": "enum ExchangeWrapper.Markets",
+						"name": "marketId",
+						"type": "uint8",
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256",
+					},
+					{
+						"internalType": "bytes",
+						"name": "data",
+						"type": "bytes",
+					},
+				],
+				"internalType": "struct ExchangeWrapper.PurchaseDetails[]",
+				"name": "purchaseDetails",
+				"type": "tuple[]",
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "fees",
+				"type": "uint256[]",
+			},
+		],
+		"name": "bulkPurchase",
+		"outputs": [],
+		"stateMutability": "payable",
 		"type": "function",
 	},
 ]

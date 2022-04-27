@@ -139,7 +139,7 @@ export class BulkV2OHandler {
 		}
 		let options = {}
 		const tradeData: {
-			marketWyvern: boolean, amount: string, tradeData: string
+			marketWyvern: any, amount: any, tradeData: string
 		}[] = await Promise.all(internal.map(async requestSingle => {
 			const { request, inverted } = requestSingle
 			const { order } = request
@@ -152,7 +152,7 @@ export class BulkV2OHandler {
 			if (order.type === "RARIBLE_V2" && inverted.type === "RARIBLE_V2") {
 				const { functionCall, options } = await this.v2Handler.getTransactionData(order, inverted)
 				return {
-					marketWyvern: false,
+					marketWyvern: 0,
 					amount: options.value?.toString()!,
 					tradeData: functionCall.data,
 				}
@@ -188,8 +188,9 @@ export class BulkV2OHandler {
 						sellOrderToSignDTO.replacementPattern,
 						buyOrderToSignDTO.staticExtradata,
 						sellOrderToSignDTO.staticExtradata,
-					).call()
-				if (!ordersCanMatch) {
+					)
+				console.log("order match input data: ", await ordersCanMatch.getCallInfo())
+				if (!(await ordersCanMatch.call())) {
 					throw new Error("Orders cannot be matched")
 				}
 
@@ -212,8 +213,8 @@ export class BulkV2OHandler {
 				console.log("eth sdk buy side: ", buy)
 				console.log("eth-sdk amount: ", (await getMatchOpenseaOptions(buy)).value?.toString()!)
 				return {
-					marketWyvern: true,
-					amount: (await getMatchOpenseaOptions(buy)).value?.toString()!,
+					marketWyvern: "1", //1 - opensea; 0 - rarible
+					amount: "100", //sell.take.value.toString(), //(await getMatchOpenseaOptions(buy)).value?.toString()!,
 					tradeData: functionCall.data,
 				}
 			} else {
@@ -222,9 +223,15 @@ export class BulkV2OHandler {
 		}))
 		console.log("tradeData", tradeData)
 		const exchangeBulkV2Contract = createExchangeBulkV2Contract(this.ethereum, this.config.exchange.bulkV2)
+		const data = tradeData[0]
 		const functionCall = exchangeBulkV2Contract.functionCall(
-			"bulkTransfer",
-			tradeData,
+			"singlePurchase",
+			{
+				marketId: data.marketWyvern,
+				amount: data.amount,
+				data: data.tradeData,
+			},
+			[]
 		)
 
 		return {

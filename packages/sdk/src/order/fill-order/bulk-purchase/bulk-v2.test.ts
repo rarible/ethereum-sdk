@@ -130,7 +130,7 @@ describe("fillOrder: Opensea orders", function () {
 		)
 
 		await sentTx(
-			it.bulkExchange.methods.__ExchangeBulkV2_init(
+			it.bulkExchange.methods.__ExchangeWrapper_init(
 				wyvernExchange.options.address,
 				it.exchangeV2.options.address,
 			),
@@ -230,6 +230,7 @@ describe("fillOrder: Opensea orders", function () {
 			default: return side
 		}
 	}
+
 	test("should fill bulk of orders ERC721", async () => {
 		const order = getOrderTemplate("ERC721", "ETH", OrderOpenSeaV1DataV1Side.SELL, true)
 		const nftOwner = sender2Address
@@ -258,9 +259,9 @@ describe("fillOrder: Opensea orders", function () {
 
 		const nftSellerInitBalance = await getBalance(order.make, nftOwner)
 		const inverted = await openSeaFillHandler1.invert({ order }, sender2Address)
-		// await openSeaFillHandler1.approve(inverted, false)
-		const result = await openSeaFillHandler1.sendTransaction(order, inverted)
-		//await openSeaBulkFillHandler.sendTransaction([{ order }])
+		await openSeaFillHandler1.approve(inverted, false)
+		// const result = await openSeaFillHandler1.sendTransaction(order, inverted)
+		const result = await openSeaBulkFillHandler.sendTransaction([{ request: { order }, inverted }])
 		console.log("result", result)
 		// console.log("DEBUG", await txdebug(web3, result.hash))
 		await web3.eth.getTransaction(result.hash, function (error, result){
@@ -317,7 +318,7 @@ describe("fillOrder: Opensea orders", function () {
 			account: randomAddress(),
 			value: 100,
 		}]
-		await openSeaBulkFillHandler.buyBulk([{ order: finalOrder, amount: 2, originFees, infinite: true }])
+		await openSeaBulkFillHandler.buyBulk([{ order: finalOrder, amount: 1, originFees, infinite: true }])
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, tokenId).call()).toString()).toBe(
 			before2.minus(2).toFixed()

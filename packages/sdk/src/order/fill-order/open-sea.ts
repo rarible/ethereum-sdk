@@ -276,7 +276,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		const functionCall = openseaWrapperContract.functionCall(
 			"singlePurchase",
 			{
-				marketId: 1,
+				marketId: "1",
 				amount: buy.make.value,
 				data: AtomicMatchFunctionCall.data,
 			},
@@ -355,7 +355,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 
 export async function getMatchOpenseaOptions(buy: SimpleOpenSeaV1Order): Promise<EthereumSendOptions> {
 	if (buy.make.assetType.assetClass === "ETH") {
-		const fee = toBn(buy.data.takerProtocolFee).plus(buy.data.takerRelayerFee).toNumber()
+		const fee = toBn(buy.data.takerProtocolFee).plus(buy.data.takerRelayerFee).plus(250).toNumber()
 		const assetWithFee = getAssetWithFee(buy.make, fee)
 		return { value: assetWithFee.value }
 	} else {

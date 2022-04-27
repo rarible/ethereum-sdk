@@ -249,7 +249,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 				buyOrderToSignDTO.staticExtradata,
 				sellOrderToSignDTO.staticExtradata
 			)
-		console.log("match call data: ", ordersCanMatchPrepare.getCallInfo())
+		console.log("match call data: ", await ordersCanMatchPrepare.getCallInfo())
 		const ordersCanMatch = await ordersCanMatchPrepare.call()
 
 		if (!ordersCanMatch) {

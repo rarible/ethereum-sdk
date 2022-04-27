@@ -1,5 +1,5 @@
 import {
-	awaitAll, createE2eProvider,
+	awaitAll,
 	createGanacheProvider,
 	deployMerkleValidator,
 	deployOpenSeaExchangeV1,
@@ -12,10 +12,10 @@ import {
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import type { Address, Asset } from "@rarible/ethereum-api-client"
-import { OrderOpenSeaV1DataV1Side, Platform } from "@rarible/ethereum-api-client"
+import { OrderOpenSeaV1DataV1Side } from "@rarible/ethereum-api-client"
 import type { Contract } from "web3-eth-contract"
-import type { EthereumContract, EthereumTransaction, EthereumTransactionReceipt } from "@rarible/ethereum-provider"
-import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
+import type { EthereumContract } from "@rarible/ethereum-provider"
+import { toAddress, toBigNumber, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
 import { getSimpleSendWithInjects, sentTx } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
@@ -53,10 +53,6 @@ describe("fillOrder: Opensea orders", function () {
 	const ethereum0 = new Web3Ethereum({ web3, from: contractOwner, gas: 10000000 })
 	const ethereum1 = new Web3Ethereum({ web3, from: buyer, gas: 10000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: seller, gas: 10000000 })
-	const { provider: polygonProvider } = createE2eProvider(undefined, {
-		networkId: 137,
-		rpcUrl: "https://polygon-rpc.com",
-	})
 
 	const env = "e2e" as const
 	const config: EthereumConfig = {
@@ -359,71 +355,6 @@ describe("fillOrder: Opensea orders", function () {
 		order.take = setTestContract(order.take)
 	})
 
-	test("get order origin without sdkConfig", async () => {
-		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, apis, getBaseOrderFee)
-		expect(openSeaFillHandler1.getOrderMetadata()).toEqual(id32(Platform.RARIBLE))
-	})
-
-	test("get order origin with sdkConfig and passed ethereum platform", async () => {
-		const meta = toWord(id32("CUSTOM_STRING"))
-		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, apis, getBaseOrderFee, {
-			ethereum: {
-				openseaOrdersMetadata: meta,
-			},
-		})
-		expect(openSeaFillHandler1.getOrderMetadata()).toEqual(meta)
-	})
-
-	test("get order origin with passed polygon platform, but wallet still ethereum", async () => {
-		const meta = toWord(id32("CUSTOM_STRING"))
-		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, apis, getBaseOrderFee, {
-			polygon: {
-				openseaOrdersMetadata: meta,
-			},
-		})
-		expect(openSeaFillHandler1.getOrderMetadata()).toEqual(id32(Platform.RARIBLE))
-	})
-
-	test("get order origin with passed polygon platform and polygon wallet", async () => {
-		const meta = toWord(id32("CUSTOM_STRING"))
-		const web3 = new Web3(polygonProvider as any)
-		const polygon1 = new Web3Ethereum({ web3 })
-		const config: EthereumConfig = {
-			...getEthereumConfig("polygon"),
-			chainId: 137,
-			openSea: {
-				metadata: id32("RARIBLE"),
-				proxyRegistry: ZERO_ADDRESS,
-			},
-		}
-		const openSeaFillHandler1 = new OpenSeaOrderHandler(polygon1, send1, config, apis, getBaseOrderFee, {
-			polygon: {
-				openseaOrdersMetadata: meta,
-			},
-		})
-		expect(openSeaFillHandler1.getOrderMetadata()).toEqual(meta)
-	})
-
-	test("get order origin with passed polygon platform and polygon wallet", async () => {
-		const meta = toWord(id32("CUSTOM_STRING"))
-		const web3 = new Web3(polygonProvider as any)
-		const polygon1 = new Web3Ethereum({ web3 })
-		const config: EthereumConfig = {
-			...getEthereumConfig("polygon"),
-			chainId: 137,
-			openSea: {
-				metadata: id32("RARIBLE"),
-				proxyRegistry: ZERO_ADDRESS,
-			},
-		}
-		const openSeaFillHandler1 = new OpenSeaOrderHandler(polygon1, send1, config, apis, getBaseOrderFee, {
-			polygon: {
-				openseaOrdersMetadata: meta,
-			},
-		})
-		expect(openSeaFillHandler1.getOrderMetadata()).toEqual(meta)
-	})
-
 	test("Should fill ERC721", async () => {
 		const order: SimpleOpenSeaV1Order = getOrderTemplate("ERC721", "ETH", OrderOpenSeaV1DataV1Side.SELL)
 		const nftOwner = seller
@@ -439,9 +370,9 @@ describe("fillOrder: Opensea orders", function () {
 		order.data.exchange = toAddress(wyvernExchange.options.address)
 		order.data.feeRecipient = toAddress(feeRecipient)
 		order.maker = toAddress(nftOwner)
-		order.taker = toAddress(nftBuyer)
+		// order.taker = toAddress(nftBuyer)
 
-		order.data.target = config.openSea.merkleValidator
+		order.data.target = toAddress(it.merkleValidator.options.address)
 		debugger
 		await mintTestAsset(order.make, nftOwner)
 		debugger
@@ -479,96 +410,6 @@ describe("fillOrder: Opensea orders", function () {
 		expect(nftSellerFinalBalance).not.toBe(nftSellerInitBalance)
 	})
 
-	// Sell-side orders
-	describe.each([
-		getOrderTemplate("ERC721", "ETH", OrderOpenSeaV1DataV1Side.SELL),
-		getOrderTemplate("ERC721", "ERC20", OrderOpenSeaV1DataV1Side.SELL),
-		getOrderTemplate("ERC1155", "ETH", OrderOpenSeaV1DataV1Side.SELL),
-		getOrderTemplate("ERC1155", "ERC20", OrderOpenSeaV1DataV1Side.SELL),
-	])(
-		"side: $data.side $make.assetType.assetClass for $take.assetType.assetClass",
-		(testOrder) => {
-			let order: SimpleOpenSeaV1Order = testOrder
-			const nftOwner = sender2Address
-			const nftBuyer = sender1Address
-			const nftOwnerEthereum = ethereum2
-
-			beforeEach(async () => {
-				order.make = setTestContract(order.make)
-				order.take = setTestContract(order.take)
-				order.data.takerRelayerFee = toBigNumber("500")
-				order.data.takerProtocolFee = toBigNumber("500")
-				order.data.makerRelayerFee = toBigNumber("500")
-				order.data.makerProtocolFee = toBigNumber("500")
-				order.data.exchange = toAddress(wyvernExchange.options.address)
-				order.data.feeRecipient = toAddress(feeRecipient)
-				order.maker = toAddress(nftOwner)
-
-				await mintTestAsset(order.make, nftOwner)
-				await mintTestAsset(order.take, nftBuyer)
-				await openSeaFillHandler2.approveSingle(nftOwner, order.make, false)
-				await openSeaFillHandler2.approveSingle(nftOwner, order.take, false)
-
-				order.signature = toBinary(await getOrderSignature(nftOwnerEthereum, order))
-
-			})
-
-			test("should match order", async () => {
-
-				const nftSellerInitBalance = await getBalance(order.make, nftOwner)
-
-				await orderFiller1.buy({ order })
-
-				const nftSellerFinalBalance = await getBalance(order.make, nftOwner)
-
-				expect(nftSellerFinalBalance).not.toBe(nftSellerInitBalance)
-
-			})
-		})
-
-	// Buy-side orders
-	describe.each([
-		getOrderTemplate("ERC20", "ERC721", OrderOpenSeaV1DataV1Side.BUY),
-		getOrderTemplate("ERC20", "ERC1155", OrderOpenSeaV1DataV1Side.BUY),
-	])(
-		"side: $data.side $make.assetType.assetClass for $take.assetType.assetClass",
-		(testOrder) => {
-			let order: SimpleOpenSeaV1Order = testOrder
-			const nftOwner = sender2Address
-			const nftBuyer = sender1Address
-			const nftBuyerEthereum = ethereum1
-
-			beforeEach(async () => {
-				order.data.exchange = toAddress(wyvernExchange.options.address)
-				order.data.makerRelayerFee = toBigNumber("500")
-				order.data.makerProtocolFee = toBigNumber("500")
-				order.data.takerRelayerFee = toBigNumber("500")
-				order.data.takerProtocolFee = toBigNumber("500")
-				order.data.feeRecipient = feeRecipient
-				order.maker = toAddress(nftBuyer)
-				order.make = setTestContract(order.make)
-				order.take = setTestContract(order.take)
-
-				await mintTestAsset(order.take, nftOwner)
-				await mintTestAsset(order.make, nftBuyer)
-				const buyerApprovalAsset = {
-					...order.make,
-					value: toBigNumber(+order.data.takerRelayerFee + +order.data.takerProtocolFee + order.make.value),
-				}
-				await openSeaFillHandler1.approveSingle(nftBuyer, buyerApprovalAsset, false)
-
-				order.signature = toBinary(await getOrderSignature(nftBuyerEthereum, order))
-			})
-
-			test("should match order", async () => {
-				const nftSellerInitBalance = await getBalance(order.take, nftOwner)
-
-				await orderFiller2.acceptBid({ order })
-
-				const nftSellerFinalBalance = await getBalance(order.take, nftOwner)
-				expect(nftSellerFinalBalance).not.toBe(nftSellerInitBalance)
-			})
-		})
 
 	async function prepareSimpleOrdersForTest() {
 		const exchangeContract = await createOpenseaContract(ethereum1, toAddress(wyvernExchange.options.address))
@@ -596,6 +437,7 @@ describe("fillOrder: Opensea orders", function () {
 		}
 	}
 })
+
 
 async function txdebug(web3: Web3, txhash: string) {
 	const options = {

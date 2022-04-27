@@ -24,10 +24,9 @@ import { ERC721VersionEnum } from "../../nft/contracts/domain"
 import { createMerkleValidatorContract } from "../contracts/merkle-validator"
 import { createErc1155Contract } from "../contracts/erc1155"
 import type { RaribleEthereumApis } from "../../common/apis"
-import type { EVMBlockchain} from "../../common/get-blockchain-from-chain-id"
+import type { EVMBlockchain } from "../../common/get-blockchain-from-chain-id"
 import { getBlockchainFromChainId } from "../../common/get-blockchain-from-chain-id"
-import type { IRaribleEthereumSdkConfig } from "../../types"
-import type { EthereumNetworkConfig } from "../../types"
+import type { EthereumNetworkConfig, IRaribleEthereumSdkConfig } from "../../types"
 import { id32 } from "../../common/id"
 import type { OpenSeaOrderDTO } from "./open-sea-types"
 import type { OpenSeaV1OrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
@@ -225,7 +224,6 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	async getTransactionData(
 		initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order
 	): Promise<OrderFillSendData> {
-		console.log("getTransaction data")
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
@@ -238,7 +236,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		const buyVRS = toVrs(buy.signature || "")
 		const sellVRS = toVrs(sell.signature || "")
 
-		const ordersCanMatch = await exchangeContract
+		const ordersCanMatchPrepare = await exchangeContract
 			.functionCall(
 				"ordersCanMatch_",
 				[...getAtomicMatchArgAddresses(buyOrderToSignDTO), ...getAtomicMatchArgAddresses(sellOrderToSignDTO)],
@@ -251,11 +249,13 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 				buyOrderToSignDTO.staticExtradata,
 				sellOrderToSignDTO.staticExtradata
 			)
-			.call()
+		console.log("match call data: ", ordersCanMatchPrepare.getCallInfo())
+		const ordersCanMatch = await ordersCanMatchPrepare.call()
 
 		if (!ordersCanMatch) {
 			throw new Error("Orders cannot be matched")
 		}
+		console.log("Orders can match!!!!")
 
 		const functionCall = exchangeContract.functionCall(
 			"atomicMatch_",

@@ -271,8 +271,8 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		)
 		console.log("order metadata", this.getOrderMetadata())
 		console.log("buy functionCall.request atomic", await atomicMatchFunctionCall.getCallInfo())
-		const openseaWrapperContract = createOpenseaWrapperContract(this.ethereum, initial.data.exchange)
-
+		const openseaWrapperContract = createOpenseaWrapperContract(this.ethereum, this.config.openSea.openseaWrapper)
+		createOpenseaWrapperContract(this.ethereum, this.config.openSea.openseaWrapper)
 		const functionCall = openseaWrapperContract.functionCall(
 			"singlePurchase",
 			{
@@ -291,7 +291,6 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	async sendTransaction(initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order): Promise<EthereumTransaction> {
 		const {functionCall, options} = await this.getTransactionData(initial, inverted)
 		console.log("buy functionCall.request", await functionCall.getCallInfo())
-		console.log("buy functionCall.data", functionCall.data)
 		console.log("buy functionCall", functionCall)
 		console.log("buy options", options)
 		return this.send(functionCall, options)
@@ -358,7 +357,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 
 export async function getMatchOpenseaOptions(buy: SimpleOpenSeaV1Order): Promise<EthereumSendOptions> {
 	if (buy.make.assetType.assetClass === "ETH") {
-		const fee = toBn(buy.data.takerProtocolFee).plus(buy.data.takerRelayerFee).plus(250).toNumber()
+		const fee = toBn(buy.data.takerProtocolFee).plus(buy.data.takerRelayerFee).toNumber()
 		const assetWithFee = getAssetWithFee(buy.make, fee)
 		return { value: assetWithFee.value }
 	} else {

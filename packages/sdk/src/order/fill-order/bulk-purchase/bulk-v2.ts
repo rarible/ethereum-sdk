@@ -242,7 +242,6 @@ export class BulkV2OHandler {
 	async sendTransaction(internal: InternalBulkRequest[]): Promise<EthereumTransaction> {
 		const { functionCall, options } = await this.getTransactionData(internal)
 		console.log("buy functionCall.request", await functionCall.getCallInfo())
-		console.log("buy functionCall.data", functionCall.data)
 		console.log("buy functionCall", functionCall)
 		console.log("buy options", options)
 		return this.send(functionCall, options)

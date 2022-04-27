@@ -13,7 +13,7 @@ export async function approveForWrapper(
 	marketContractAddress: Address,
 	wrapperContractAddress: Address,
 	punkIndex: number
-): Promise<EthereumTransaction> {
+): Promise<EthereumTransaction | null> {
 	await checkWalletChainId()
 	if (!ethereum) {
 		throw new Error("Wallet undefined")
@@ -24,12 +24,25 @@ export async function approveForWrapper(
 		marketContractAddress
 	)
 
-	return send(marketContract.functionCall(
-		"offerPunkForSaleToAddress",
-		punkIndex,
-		0,
-		wrapperContractAddress
-	))
+	const saleState = await marketContract.functionCall(
+		"punksOfferedForSale",
+		punkIndex
+	).call()
+
+	if (
+		!saleState.isForSale ||
+		saleState.onlySellTo?.toLowerCase() !== wrapperContractAddress.toLowerCase() ||
+		saleState.minValue !== "0"
+	) {
+		return send(marketContract.functionCall(
+			"offerPunkForSaleToAddress",
+			punkIndex,
+			0,
+			wrapperContractAddress
+		))
+	}
+
+	return null
 }
 
 export async function wrapPunk(

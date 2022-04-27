@@ -33,7 +33,7 @@ describe("wrap crypto punk", () => {
 
 	const punkId = 3490
 
-	test("should wrap cryptopunk", async () => {
+	test.skip("should wrap cryptopunk", async () => {
 		console.log("market:", (it.punksMarket as any)._address)
 		console.log("wrapper:", (it.punksWrapper as any)._address)
 
@@ -51,9 +51,10 @@ describe("wrap crypto punk", () => {
 				punkId
 			)
 
-			await apTx.wait()
-			console.log(apTx.hash)
-			//expect(apTx.hash).toBeTruthy()
+			if (apTx) {
+				await apTx.wait()
+				expect(apTx.hash).toBeTruthy()
+			}
 		} catch (e) { console.log ("skip approve", e) }
 
 		const wrapTx = await wrapPunk(

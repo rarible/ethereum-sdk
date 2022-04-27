@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.66-alpha.6](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-alpha.5...v0.12.66-alpha.6) (2022-04-27)
+
+
+### Bug Fixes
+
+* rinkeby opensea config ([a63bb33](https://github.com/rarible/ethereum-sdk/commit/a63bb339b8258885c291a675a446e86834da5eeb))
+
+
+
+
+
 ## [0.12.66-alpha.5](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-alpha.4...v0.12.66-alpha.5) (2022-04-27)
 
 

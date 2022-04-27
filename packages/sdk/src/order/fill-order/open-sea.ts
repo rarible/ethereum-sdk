@@ -59,7 +59,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	getOrderMetadata() {
 		const blockchain = getBlockchainFromChainId(this.config.chainId)
 		const ethereumNetworkConfig = getEthereumNetworkConfig(blockchain, this.sdkConfig)
-
+		console.log("this.config.openSea.metadata", this.config.openSea.metadata)
 		if (ethereumNetworkConfig && ethereumNetworkConfig.openseaOrdersMetadata) {
 			return toWord(ethereumNetworkConfig.openseaOrdersMetadata)
 		}
@@ -256,7 +256,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			throw new Error("Orders cannot be matched")
 		}
 
-		const AtomicMatchFunctionCall = exchangeContract.functionCall(
+		const atomicMatchFunctionCall = exchangeContract.functionCall(
 			"atomicMatch_",
 			[...getAtomicMatchArgAddressesForOpenseaWrapper(sellOrderToSignDTO, this.config.openSea.openseaWrapper)],
 			[...getAtomicMatchArgUints(buyOrderToSignDTO), ...getAtomicMatchArgUints(sellOrderToSignDTO)],
@@ -270,7 +270,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			[buyVRS.v, sellVRS.v],
 			[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, this.getOrderMetadata()],
 		)
-
+		console.log("this.getOrderMetadata()", this.getOrderMetadata())
 		const openseaWrapperContract = createOpenseaWrapperContract(this.ethereum, initial.data.exchange)
 
 		const functionCall = openseaWrapperContract.functionCall(
@@ -278,11 +278,11 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			{
 				marketId: "1",
 				amount: buy.make.value,
-				data: AtomicMatchFunctionCall.data,
+				data: atomicMatchFunctionCall.data,
 			},
-			prepareOpenseaWrapperFees([]) //@todo handle commissions
+			[] //@todo handle commissions
 		)
-
+		console.log("await getMatchOpenseaOptions(buy)", await getMatchOpenseaOptions(buy))
 		return {
 			functionCall,
 			options: await getMatchOpenseaOptions(buy),

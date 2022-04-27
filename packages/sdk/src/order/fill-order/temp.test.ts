@@ -8,10 +8,11 @@ describe("test", () => {
 		const rrrrrr = "5dc2191ef87e392377ec08e7c08eb105ef5448eced5"
 		const feee = 1500
 
-		const resultBn = new BN("2192814502203343463184359742067940770404457211752279")
+		const resultBn = new BN("0000000000000005dc", "hex")
 		const result = new BN("1500", 10)
 		const r = new BN("627306090abaB3A6e1400e9345bC60c78a8BEf57", "hex")
-		console.log(resultBn.toString("hex"))
+		console.log(resultBn.byteLength())
+		console.log(resultBn.toNumber())
 		console.log(result.add(r))
 		console.log(prepareOpenseaWrapperFees([{account: address, value: feee}]))
 	})

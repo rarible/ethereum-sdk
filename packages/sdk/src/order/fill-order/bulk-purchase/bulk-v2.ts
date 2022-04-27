@@ -234,7 +234,7 @@ export class BulkV2OHandler {
 			},
 			[]
 		)
-
+		console.log("options", options)
 		return {
 			functionCall,
 			options,

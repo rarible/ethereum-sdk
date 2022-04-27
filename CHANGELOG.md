@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.66-alpha.15](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-alpha.14...v0.12.66-alpha.15) (2022-04-27)
+
+
+### Bug Fixes
+
+* debug ([bfe16dd](https://github.com/rarible/ethereum-sdk/commit/bfe16dd351472cf90fb622596827974fb473626e))
+
+
+
+
+
 ## [0.12.66-alpha.14](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-alpha.13...v0.12.66-alpha.14) (2022-04-27)
 
 

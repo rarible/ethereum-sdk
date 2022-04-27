@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.66-alpha.12](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-alpha.11...v0.12.66-alpha.12) (2022-04-27)
+
+
+### Bug Fixes
+
+* openseaWrapper comissions impl ([3df565c](https://github.com/rarible/ethereum-sdk/commit/3df565ca350d0fea602858abc3b21e5bdec5ee27))
+* skip opensea tests ([482b4d8](https://github.com/rarible/ethereum-sdk/commit/482b4d8cd5987437c32324d2d7f5b9028b9721e5))
+
+
+
+
+
 ## [0.12.66-alpha.11](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-alpha.10...v0.12.66-alpha.11) (2022-04-27)
 
 

@@ -2,10 +2,10 @@ import type { Address } from "@rarible/ethereum-api-client"
 import { ZERO_ADDRESS } from "@rarible/types"
 import type { OpenSeaOrderDTO } from "../open-sea-types"
 
-export function getAtomicMatchArgAddressesForBulkV2(dto: OpenSeaOrderDTO, bulkV2Address: Address) {
+export function getAtomicMatchArgAddressesForBulkV2(dto: OpenSeaOrderDTO, openseaWrapper: Address) {
 	return [
 		dto.exchange,
-		bulkV2Address,
+		openseaWrapper,
 		dto.maker,
 		ZERO_ADDRESS,
 		dto.target,

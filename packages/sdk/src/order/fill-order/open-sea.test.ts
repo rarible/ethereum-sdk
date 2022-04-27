@@ -9,6 +9,7 @@ import {
 	deployTestErc1155,
 	deployTestErc20,
 	deployTestErc721,
+	deployTestExchangeBulkV2,
 } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
@@ -62,6 +63,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 		openSea: {
 			metadata: id32("RARIBLE"),
 			proxyRegistry: ZERO_ADDRESS,
+			openseaWrapper: ZERO_ADDRESS,
 		},
 	}
 	const apis = createEthereumApis(env)
@@ -83,6 +85,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 		testErc721: deployTestErc721(web3, "Test", "TST"),
 		testErc1155: deployTestErc1155(web3, "Test"),
 		merkleValidator: deployMerkleValidator(web3),
+		openseaWrapper: deployTestExchangeBulkV2(web3),
 	})
 
 	let wyvernExchange: Contract
@@ -109,10 +112,18 @@ describe.skip("fillOrder: Opensea orders", function () {
 		)
 		console.log("deployed wyvernExchange", wyvernExchange.options.address)
 
+		await sentTx(
+			it.openseaWrapper.methods.__ExchangeWrapper_init(
+				wyvernExchange.options.address,
+				ZERO_ADDRESS,
+			),
+			{ from: sender1Address }
+		)
 		config.exchange.openseaV1 = toAddress(wyvernExchange.options.address)
 		config.openSea.proxyRegistry = toAddress(wyvernProxyRegistry.options.address)
 		config.transferProxies.openseaV1 = toAddress(wyvernTokenTransferProxy.options.address)
 		config.openSea.merkleValidator = toAddress(it.merkleValidator.options.address)
+		config.openSea.openseaWrapper = toAddress(it.openseaWrapper.options.address)
 
 		proxyRegistryEthContract = await createOpenseaProxyRegistryEthContract(
 			ethereum1,
@@ -319,7 +330,6 @@ describe.skip("fillOrder: Opensea orders", function () {
 				openseaV1: toAddress(wyvernExchange.options.address),
 				v1: ZERO_ADDRESS,
 				v2: ZERO_ADDRESS,
-				bulkV2: ZERO_ADDRESS,
 			},
 			checkChainId.bind(null, ethereum1, config),
 			{
@@ -390,6 +400,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 			openSea: {
 				metadata: id32("RARIBLE"),
 				proxyRegistry: ZERO_ADDRESS,
+				openseaWrapper: ZERO_ADDRESS,
 			},
 		}
 		const openSeaFillHandler1 = new OpenSeaOrderHandler(polygon1, send1, config, apis, getBaseOrderFee, {
@@ -410,6 +421,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 			openSea: {
 				metadata: id32("RARIBLE"),
 				proxyRegistry: ZERO_ADDRESS,
+				openseaWrapper: ZERO_ADDRESS,
 			},
 		}
 		const openSeaFillHandler1 = new OpenSeaOrderHandler(polygon1, send1, config, apis, getBaseOrderFee, {

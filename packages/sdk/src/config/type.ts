@@ -5,7 +5,6 @@ export type ExchangeAddresses = {
 	v1: Address
 	v2: Address
 	openseaV1: Address
-	bulkV2: Address
 }
 
 export type TransferProxies = {
@@ -20,6 +19,7 @@ export type TransferProxies = {
 export type OpenSeaConfig = {
 	metadata: Word
 	proxyRegistry: Address
+	openseaWrapper: Address
 	merkleValidator?: Address
 }
 

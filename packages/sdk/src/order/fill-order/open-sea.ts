@@ -1,4 +1,4 @@
-import type { Address, Asset, Binary, Erc1155AssetType, Erc721AssetType } from "@rarible/ethereum-api-client"
+import type { Address, Asset, Binary, Erc1155AssetType, Erc721AssetType, Part } from "@rarible/ethereum-api-client"
 import { OrderOpenSeaV1DataV1Side } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumContract, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
@@ -7,6 +7,7 @@ import { BigNumber, toBn } from "@rarible/utils"
 import type { OrderOpenSeaV1DataV1 } from "@rarible/ethereum-api-client/build/models/OrderData"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { BigNumberValue } from "@rarible/utils/build/bn"
+import { BN, stripHexPrefix } from "ethereumjs-util"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
 import { createOpenseaProxyRegistryEthContract } from "../contracts/proxy-registry-opensea"
@@ -28,6 +29,7 @@ import type { EVMBlockchain } from "../../common/get-blockchain-from-chain-id"
 import { getBlockchainFromChainId } from "../../common/get-blockchain-from-chain-id"
 import type { EthereumNetworkConfig, IRaribleEthereumSdkConfig } from "../../types"
 import { id32 } from "../../common/id"
+import { createOpenseaWrapperContract } from "../contracts/opensea-wrapper"
 import type { OpenSeaOrderDTO } from "./open-sea-types"
 import type { OpenSeaV1OrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
 import {
@@ -236,10 +238,10 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		const buyVRS = toVrs(buy.signature || "")
 		const sellVRS = toVrs(sell.signature || "")
 
-		const ordersCanMatchPrepare = await exchangeContract
+		const ordersCanMatch = await exchangeContract
 			.functionCall(
 				"ordersCanMatch_",
-				[...getAtomicMatchArgAddresses(buyOrderToSignDTO), ...getAtomicMatchArgAddresses(sellOrderToSignDTO)],
+				[...getAtomicMatchArgAddressesForOpenseaWrapper(sellOrderToSignDTO, this.config.openSea.openseaWrapper)],
 				[...getAtomicMatchArgUints(buyOrderToSignDTO), ...getAtomicMatchArgUints(sellOrderToSignDTO)],
 				[...getAtomicMatchArgCommonData(buyOrderToSignDTO), ...getAtomicMatchArgCommonData(sellOrderToSignDTO)],
 				buyOrderToSignDTO.calldata,
@@ -248,21 +250,15 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 				sellOrderToSignDTO.replacementPattern,
 				buyOrderToSignDTO.staticExtradata,
 				sellOrderToSignDTO.staticExtradata
-			)
-		console.log("match call data: ", await ordersCanMatchPrepare.getCallInfo())
-		const ordersCanMatch = await ordersCanMatchPrepare.call()
+			).call()
 
 		if (!ordersCanMatch) {
 			throw new Error("Orders cannot be matched")
 		}
-		console.log("Orders can match!!!!")
 
-		const functionCall = exchangeContract.functionCall(
+		const AtomicMatchFunctionCall = exchangeContract.functionCall(
 			"atomicMatch_",
-			[
-				...getAtomicMatchArgAddresses(buyOrderToSignDTO),
-				...getAtomicMatchArgAddresses(sellOrderToSignDTO),
-			],
+			[...getAtomicMatchArgAddressesForOpenseaWrapper(sellOrderToSignDTO, this.config.openSea.openseaWrapper)],
 			[...getAtomicMatchArgUints(buyOrderToSignDTO), ...getAtomicMatchArgUints(sellOrderToSignDTO)],
 			[...getAtomicMatchArgCommonData(buyOrderToSignDTO), ...getAtomicMatchArgCommonData(sellOrderToSignDTO)],
 			buyOrderToSignDTO.calldata,
@@ -273,6 +269,18 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			sellOrderToSignDTO.staticExtradata,
 			[buyVRS.v, sellVRS.v],
 			[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, this.getOrderMetadata()],
+		)
+
+		const openseaWrapperContract = createOpenseaWrapperContract(this.ethereum, initial.data.exchange)
+
+		const functionCall = openseaWrapperContract.functionCall(
+			"singlePurchase",
+			{
+				marketId: 1,
+				amount: buy.make.value,
+				data: AtomicMatchFunctionCall.data,
+			},
+			prepareOpenseaWrapperFees([{account: sell.maker, value: 250}])//todo commissions
 		)
 
 		return {
@@ -377,6 +385,26 @@ export function getAtomicMatchArgAddresses(dto: OpenSeaOrderDTO) {
 	return [dto.exchange, dto.maker, dto.taker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
 }
 
+export function getAtomicMatchArgAddressesForOpenseaWrapper(dto: OpenSeaOrderDTO, openseaWrapper: Address) {
+	return [
+		dto.exchange,
+		openseaWrapper,
+		dto.maker,
+		ZERO_ADDRESS,
+		dto.target,
+		dto.staticTarget,
+		dto.paymentToken,
+
+		dto.exchange,
+		dto.maker,
+		dto.taker,
+		dto.feeRecipient,
+		dto.target,
+		dto.staticTarget,
+		dto.paymentToken,
+	]
+}
+
 export function getAtomicMatchArgUints(dto: OpenSeaOrderDTO) {
 	return [
 		dto.makerRelayerFee,
@@ -406,6 +434,14 @@ function getEthereumNetworkConfig(
 		case "POLYGON": return sdkConfig.polygon
 		default: return
 	}
+}
+
+function prepareOpenseaWrapperFees(fees: Part[]): BN[] {
+	return fees.map(fee => {
+		const addr = new BN(stripHexPrefix(fee.account), "hex")
+		const amount = new BN(fee.value)
+		return amount.add(addr)
+	})
 }
 
 const MATCH_ERC721_SAFE_TRANSFER_SIGNATURE = "0xc5a0236e"

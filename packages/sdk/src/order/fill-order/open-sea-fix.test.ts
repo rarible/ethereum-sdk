@@ -26,21 +26,14 @@ import {
 	getOrderSignature,
 	getOrderTemplate,
 	hashOpenSeaV1Order,
-	hashToSign,
 	OPENSEA_ORDER_TEMPLATE,
 } from "../test/order-opensea"
 import { createOpenseaProxyRegistryEthContract } from "../contracts/proxy-registry-opensea"
 import { createOpenseaContract } from "../contracts/exchange-opensea-v1"
-import { cancel } from "../cancel"
 import type { SimpleOpenSeaV1Order } from "../types"
 import { createEthereumApis } from "../../common/apis"
 import { checkChainId } from "../check-chain-id"
-import {
-	getAtomicMatchArgAddresses,
-	getAtomicMatchArgCommonData,
-	getAtomicMatchArgUints,
-	OpenSeaOrderHandler,
-} from "./open-sea"
+import { getAtomicMatchArgAddresses, getAtomicMatchArgUints, OpenSeaOrderHandler } from "./open-sea"
 import { convertOpenSeaOrderToDTO } from "./open-sea-converter"
 import { OrderFiller } from "./index"
 
@@ -60,6 +53,7 @@ describe("fillOrder: Opensea orders", function () {
 		openSea: {
 			metadata: id32("RARIBLE"),
 			proxyRegistry: ZERO_ADDRESS,
+			openseaWrapper: ZERO_ADDRESS,
 		},
 	}
 	const apis = createEthereumApis(env)
@@ -243,116 +237,6 @@ describe("fillOrder: Opensea orders", function () {
 			)
 			.call()
 		expect(orderHash).toBe(contractCalculatedHash)
-	})
-
-	test("should orders be matchable", async () => {
-		const { exchangeContract, buyDTO, sellDTO } = await prepareSimpleOrdersForTest()
-
-		const ordersCanMatch = await exchangeContract
-			.functionCall(
-				"ordersCanMatch_",
-				[...getAtomicMatchArgAddresses(buyDTO), ...getAtomicMatchArgAddresses(sellDTO)],
-				[...getAtomicMatchArgUints(buyDTO), ...getAtomicMatchArgUints(sellDTO)],
-				[...getAtomicMatchArgCommonData(buyDTO), ...getAtomicMatchArgCommonData(sellDTO)],
-				buyDTO.calldata,
-				sellDTO.calldata,
-				buyDTO.replacementPattern,
-				sellDTO.replacementPattern,
-				buyDTO.staticExtradata,
-				sellDTO.staticExtradata
-			)
-			.call()
-
-		expect(ordersCanMatch).toBe(true)
-	})
-
-	test("should order price be correct", async () => {
-		const { exchangeContract, buyDTO, sellDTO } = await prepareSimpleOrdersForTest()
-
-		const orderMatchPrice = await exchangeContract
-			.functionCall(
-				"calculateMatchPrice_",
-				[...getAtomicMatchArgAddresses(buyDTO), ...getAtomicMatchArgAddresses(sellDTO)],
-				[...getAtomicMatchArgUints(buyDTO), ...getAtomicMatchArgUints(sellDTO)],
-				[...getAtomicMatchArgCommonData(buyDTO), ...getAtomicMatchArgCommonData(sellDTO)],
-				buyDTO.calldata,
-				sellDTO.calldata,
-				buyDTO.replacementPattern,
-				sellDTO.replacementPattern,
-				buyDTO.staticExtradata,
-				sellDTO.staticExtradata
-			)
-			.call()
-
-		expect(buyDTO.basePrice).toBe(orderMatchPrice)
-	})
-
-	test("should cancel order", async () => {
-		const order: SimpleOpenSeaV1Order = {
-			...OPENSEA_ORDER_TEMPLATE,
-			make: getAssetTypeBlank("ERC721"),
-			maker: toAddress(sender1Address),
-			take: getAssetTypeBlank("ETH"),
-			data: {
-				...OPENSEA_ORDER_TEMPLATE.data,
-				exchange: toAddress(wyvernExchange.options.address),
-				side: OrderOpenSeaV1DataV1Side.SELL,
-			},
-		}
-		await mintTestAsset(order.take, sender1Address)
-		await mintTestAsset(order.make, sender2Address)
-		order.make = setTestContract(order.make)
-		order.take = setTestContract(order.take)
-		await openSeaFillHandler2.approveSingle(sender2Address, order.make)
-
-		const signature = toBinary(await getOrderSignature(ethereum1, order))
-
-		const orderHash = hashOpenSeaV1Order(ethereum2, order)
-		const signedHash = hashToSign(orderHash)
-
-		const checkLazyOrder: any = async (form: any) => Promise.resolve(form)
-		const cancelledOrder = await cancel(
-			checkLazyOrder,
-			ethereum1,
-			send1,
-			{
-				openseaV1: toAddress(wyvernExchange.options.address),
-				v1: ZERO_ADDRESS,
-				v2: ZERO_ADDRESS,
-				bulkV2: ZERO_ADDRESS,
-			},
-			checkChainId.bind(null, ethereum1, config),
-			{
-				...order,
-				signature,
-			},
-		)
-
-		const tx = await cancelledOrder.wait()
-
-		const cancelEvent = tx.events.find(e => e.event === "OrderCancelled")
-
-		expect(cancelEvent).toHaveProperty("args.hash", signedHash)
-
-	})
-
-	test("get transaction data", async () => {
-		const order: SimpleOpenSeaV1Order = {
-			...OPENSEA_ORDER_TEMPLATE,
-			make: getAssetTypeBlank("ERC721"),
-			maker: toAddress(sender1Address),
-			take: getAssetTypeBlank("ETH"),
-			data: {
-				...OPENSEA_ORDER_TEMPLATE.data,
-				exchange: toAddress(wyvernExchange.options.address),
-				side: OrderOpenSeaV1DataV1Side.SELL,
-				feeRecipient: toAddress(sender2Address),
-			},
-		}
-		await mintTestAsset(order.take, sender1Address)
-		await mintTestAsset(order.make, sender2Address)
-		order.make = setTestContract(order.make)
-		order.take = setTestContract(order.take)
 	})
 
 	test("Should fill ERC721", async () => {

@@ -10,7 +10,6 @@ export const ropstenConfig: EthereumConfig = {
 		v1: toAddress("0xd782A10D023828d283f7b943Ae0fc3F07B2952d9"),
 		v2: toAddress("0x33Aef288C093Bf7b36fBe15c3190e616a993b0AD"),
 		openseaV1: toAddress("0x5206e78b21ce315ce284fb24cf05e0585a93b1d9"),
-		bulkV2: toAddress("0x46078AA283B12CEbeE235C111b2710BbEc944a10"),
 	},
 	transferProxies: {
 		nft: toAddress("0xf8e4ecac18b65fd04569ff1f0d561f74effaa206"),
@@ -25,6 +24,7 @@ export const ropstenConfig: EthereumConfig = {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: toAddress("0xADF4b557574B18EC00e19De641db4e264b2F5e20"),
 		merkleValidator: toAddress("0x50a494325f2eAd6eFf951BF02B2f3D3fC4b4b492"),
+		openseaWrapper: toAddress("0x46078AA283B12CEbeE235C111b2710BbEc944a10"),
 	},
 	factories: {
 		erc721: toAddress("0x939d0308CE4274C287E7305D381B336B77dBfcd3"),

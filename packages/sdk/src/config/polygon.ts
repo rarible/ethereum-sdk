@@ -1,4 +1,3 @@
-
 import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 import { id32 } from "../common/id"
 import type { EthereumConfig } from "./type"
@@ -11,7 +10,6 @@ export const polygonConfig: EthereumConfig = {
 		v1: ZERO_ADDRESS,
 		v2: toAddress("0x12b3897a36fDB436ddE2788C06Eff0ffD997066e"),
 		openseaV1: ZERO_ADDRESS,
-		bulkV2: ZERO_ADDRESS,
 	},
 	transferProxies: {
 		nft: toAddress("0xd47e14DD9b98411754f722B4c4074e14752Ada7C"),
@@ -25,6 +23,7 @@ export const polygonConfig: EthereumConfig = {
 	openSea: {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: ZERO_ADDRESS,
+		openseaWrapper: ZERO_ADDRESS,
 	},
 	factories: {
 		erc721: toAddress("0x16911a36a56f828f17632cD4915614Dd5c7a45e0"),

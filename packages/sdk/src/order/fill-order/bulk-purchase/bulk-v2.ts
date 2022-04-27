@@ -10,7 +10,7 @@ import type { SendFunction } from "../../../common/send-transaction"
 import type { SimpleOpenSeaV1Order, SimpleOrder, SimpleRaribleV2Order } from "../../types"
 import { isSigner } from "../../../common/is-signer"
 import type { RaribleEthereumApis } from "../../../common/apis"
-import { createExchangeBulkV2Contract } from "../../contracts/exchange-bulk-v2"
+import { createOpenseaWrapperContract } from "../../contracts/opensea-wrapper"
 import { createOpenseaContract } from "../../contracts/exchange-opensea-v1"
 import { toVrs } from "../../../common/to-vrs"
 import type {
@@ -179,7 +179,7 @@ export class BulkV2OHandler {
 				const ordersCanMatch = await exchangeContract
 					.functionCall(
 						"ordersCanMatch_",
-						[...getAtomicMatchArgAddressesForBulkV2(sellOrderToSignDTO, this.config.exchange.bulkV2)],
+						[...getAtomicMatchArgAddressesForBulkV2(sellOrderToSignDTO, this.config.openSea.openseaWrapper)],
 						[...getAtomicMatchArgUints(buyOrderToSignDTO), ...getAtomicMatchArgUints(sellOrderToSignDTO)],
 						[...getAtomicMatchArgCommonData(buyOrderToSignDTO), ...getAtomicMatchArgCommonData(sellOrderToSignDTO)],
 						buyOrderToSignDTO.calldata,
@@ -196,7 +196,7 @@ export class BulkV2OHandler {
 
 				const functionCall = exchangeContract.functionCall(
 					"atomicMatch_",
-					[...getAtomicMatchArgAddressesForBulkV2(sellOrderToSignDTO, this.config.exchange.bulkV2)],
+					[...getAtomicMatchArgAddressesForBulkV2(sellOrderToSignDTO, this.config.openSea.openseaWrapper)],
 					[...getAtomicMatchArgUints(buyOrderToSignDTO), ...getAtomicMatchArgUints(sellOrderToSignDTO)],
 					[...getAtomicMatchArgCommonData(buyOrderToSignDTO), ...getAtomicMatchArgCommonData(sellOrderToSignDTO)],
 					buyOrderToSignDTO.calldata,
@@ -223,7 +223,7 @@ export class BulkV2OHandler {
 			}
 		}))
 		console.log("tradeData", tradeData)
-		const exchangeBulkV2Contract = createExchangeBulkV2Contract(this.ethereum, this.config.exchange.bulkV2)
+		const exchangeBulkV2Contract = createOpenseaWrapperContract(this.ethereum, this.config.openSea.openseaWrapper)
 		const data = tradeData[0]
 		const functionCall = exchangeBulkV2Contract.functionCall(
 			"singlePurchase",

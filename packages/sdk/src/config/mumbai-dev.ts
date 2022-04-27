@@ -10,7 +10,6 @@ export const mumbaiDevConfig: EthereumConfig = {
 		v1: ZERO_ADDRESS,
 		v2: toAddress("0x2Fc743F5419637B93dDAC159715B902186300041"),
 		openseaV1: ZERO_ADDRESS,
-		bulkV2: ZERO_ADDRESS,
 	},
 	transferProxies: {
 		nft: toAddress("0x02e21199D043dab90248f79d6A8d0c36832734B0"),
@@ -24,6 +23,7 @@ export const mumbaiDevConfig: EthereumConfig = {
 	openSea: {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: ZERO_ADDRESS,
+		openseaWrapper: ZERO_ADDRESS,
 	},
 	factories: {
 		erc721: toAddress("0xa85180a21786bA65b0778bE1cb5CBA5E5c6cD21d"),

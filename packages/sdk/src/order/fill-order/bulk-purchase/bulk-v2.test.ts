@@ -49,6 +49,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 		openSea: {
 			metadata: id32("RARIBLE"),
 			proxyRegistry: ZERO_ADDRESS,
+			openseaWrapper: ZERO_ADDRESS,
 		},
 	}
 	const apis = createEthereumApis(env)
@@ -74,7 +75,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 		erc20TransferProxy: deployErc20TransferProxy(web3),
 		royaltiesProvider: deployTestRoyaltiesProvider(web3),
 		exchangeV2: deployTestExchangeV2(web3),
-		bulkExchange: deployTestExchangeBulkV2(web3),
+		openseaWrapper: deployTestExchangeBulkV2(web3),
 		merkleValidator: deployMerkleValidator(web3),
 	})
 
@@ -130,7 +131,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 		)
 
 		await sentTx(
-			it.bulkExchange.methods.__ExchangeWrapper_init(
+			it.openseaWrapper.methods.__ExchangeWrapper_init(
 				wyvernExchange.options.address,
 				it.exchangeV2.options.address,
 			),
@@ -147,7 +148,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 
 		config.exchange.openseaV1 = toAddress(wyvernExchange.options.address)
 		config.exchange.v2 = toAddress(it.exchangeV2.options.address)
-		config.exchange.bulkV2 = toAddress(it.bulkExchange.options.address)
+		config.openSea.openseaWrapper = toAddress(it.openseaWrapper.options.address)
 
 		console.log("config.openSea", config.openSea)
 		console.log("config.transferProxies", config.transferProxies)

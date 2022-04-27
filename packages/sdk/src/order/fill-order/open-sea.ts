@@ -59,7 +59,6 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	getOrderMetadata() {
 		const blockchain = getBlockchainFromChainId(this.config.chainId)
 		const ethereumNetworkConfig = getEthereumNetworkConfig(blockchain, this.sdkConfig)
-		console.log("this.config.openSea.metadata", this.config.openSea.metadata)
 		if (ethereumNetworkConfig && ethereumNetworkConfig.openseaOrdersMetadata) {
 			return toWord(ethereumNetworkConfig.openseaOrdersMetadata)
 		}
@@ -270,7 +269,8 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			[buyVRS.v, sellVRS.v],
 			[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, this.getOrderMetadata()],
 		)
-		console.log("this.getOrderMetadata()", this.getOrderMetadata())
+		console.log("order metadata", this.getOrderMetadata())
+		console.log("buy functionCall.request atomic", await atomicMatchFunctionCall.getCallInfo())
 		const openseaWrapperContract = createOpenseaWrapperContract(this.ethereum, initial.data.exchange)
 
 		const functionCall = openseaWrapperContract.functionCall(
@@ -282,7 +282,6 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			},
 			[] //@todo handle commissions
 		)
-		console.log("await getMatchOpenseaOptions(buy)", await getMatchOpenseaOptions(buy))
 		return {
 			functionCall,
 			options: await getMatchOpenseaOptions(buy),
@@ -291,6 +290,10 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 
 	async sendTransaction(initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order): Promise<EthereumTransaction> {
 		const {functionCall, options} = await this.getTransactionData(initial, inverted)
+		console.log("buy functionCall.request", await functionCall.getCallInfo())
+		console.log("buy functionCall.data", functionCall.data)
+		console.log("buy functionCall", functionCall)
+		console.log("buy options", options)
 		return this.send(functionCall, options)
 	}
 

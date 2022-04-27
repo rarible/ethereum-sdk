@@ -208,10 +208,9 @@ export class BulkV2OHandler {
 					[buyVRS.v, sellVRS.v],
 					[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, this.config.openSea.metadata],
 				)
+				console.log("order metadata", this.config.openSea.metadata)
+				console.log("buy functionCall.request atomic", await functionCall.getCallInfo())
 
-				console.log("functionCall.getCallInfo", await functionCall.getCallInfo())
-				console.log("eth sdk buy side: ", buy)
-				console.log("eth-sdk amount: ", (await getMatchOpenseaOptions(buy)).value?.toString()!)
 				options = await getMatchOpenseaOptions(buy)
 				return {
 					marketWyvern: "1", //1 - opensea; 0 - rarible
@@ -222,7 +221,6 @@ export class BulkV2OHandler {
 				throw new Error("Unsupported order for bulk purchase")
 			}
 		}))
-		console.log("tradeData", tradeData)
 		const exchangeBulkV2Contract = createOpenseaWrapperContract(this.ethereum, this.config.openSea.openseaWrapper)
 		const data = tradeData[0]
 		const functionCall = exchangeBulkV2Contract.functionCall(
@@ -241,10 +239,12 @@ export class BulkV2OHandler {
 		}
 	}
 
-	async sendTransaction(
-		internal: InternalBulkRequest[],
-	): Promise<EthereumTransaction> {
+	async sendTransaction(internal: InternalBulkRequest[]): Promise<EthereumTransaction> {
 		const { functionCall, options } = await this.getTransactionData(internal)
+		console.log("buy functionCall.request", await functionCall.getCallInfo())
+		console.log("buy functionCall.data", functionCall.data)
+		console.log("buy functionCall", functionCall)
+		console.log("buy options", options)
 		return this.send(functionCall, options)
 	}
 

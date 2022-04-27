@@ -280,7 +280,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 				amount: buy.make.value,
 				data: AtomicMatchFunctionCall.data,
 			},
-			prepareOpenseaWrapperFees([{account: sell.maker, value: 250}])//todo commissions
+			prepareOpenseaWrapperFees([]) //@todo handle commissions
 		)
 
 		return {

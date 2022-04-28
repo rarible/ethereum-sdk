@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.66-beta.0](https://github.com/rarible/ethereum-sdk/compare/v0.12.65...v0.12.66-beta.0) (2022-04-28)
+
+
+### Bug Fixes
+
+* fill opensea orders with exchangeWrapper contract ([e6e01e4](https://github.com/rarible/ethereum-sdk/commit/e6e01e4e0a76ef383aa4e75dcfc556d300d4cc77))
+* lerna config for bravo ([f528c27](https://github.com/rarible/ethereum-sdk/commit/f528c2716128f18e777477f2b6e278f14943f406))
+
+
+
+
+
 ## [0.12.65](https://github.com/rarible/ethereum-sdk/compare/v0.12.64...v0.12.65) (2022-04-18)
 
 

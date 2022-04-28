@@ -9,7 +9,8 @@ export const rinkebyConfig: EthereumConfig = {
 	exchange: {
 		v1: toAddress("0xda381535565b97640a6453fa7a1a7b161af78cbe"),
 		v2: toAddress("0xd4a57a3bD3657D0d46B4C5bAC12b3F156B9B886b"),
-		openseaV1: toAddress("0x5206e78b21ce315ce284fb24cf05e0585a93b1d9"),
+		openseaV1: toAddress("0xdd54d660178b28f6033a953b0e55073cfa7e3744"),
+		wrapper: toAddress("0x92CE36CEAe648d6a57316cb67bD40199737c17A4"),
 	},
 	transferProxies: {
 		nft: toAddress("0x7d47126a2600e22eab9ed6cf0e515678727779a6"),

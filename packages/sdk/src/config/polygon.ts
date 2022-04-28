@@ -1,4 +1,3 @@
-
 import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 import { id32 } from "../common/id"
 import type { EthereumConfig } from "./type"
@@ -11,6 +10,7 @@ export const polygonConfig: EthereumConfig = {
 		v1: ZERO_ADDRESS,
 		v2: toAddress("0x12b3897a36fDB436ddE2788C06Eff0ffD997066e"),
 		openseaV1: ZERO_ADDRESS,
+		wrapper: ZERO_ADDRESS,
 	},
 	transferProxies: {
 		nft: toAddress("0xd47e14DD9b98411754f722B4c4074e14752Ada7C"),

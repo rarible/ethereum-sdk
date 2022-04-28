@@ -229,6 +229,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
+		const isEth = initial.take.assetType.assetClass === "ETH"
 		const { buy, sell } = getBuySellOrders(initial, inverted)
 		const sellOrderToSignDTO = convertOpenSeaOrderToDTO(this.ethereum, sell)
 		const buyOrderToSignDTO = convertOpenSeaOrderToDTO(this.ethereum, buy)
@@ -238,10 +239,14 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		const buyVRS = toVrs(buy.signature || "")
 		const sellVRS = toVrs(sell.signature || "")
 
+		const addresses = isEth ?
+			[...getAtomicMatchArgAddressesForOpenseaWrapper(sellOrderToSignDTO, this.config.exchange.wrapper)] :
+			[...getAtomicMatchArgAddresses(buyOrderToSignDTO), ...getAtomicMatchArgAddresses(sellOrderToSignDTO)]
+
 		const ordersCanMatch = await exchangeContract
 			.functionCall(
 				"ordersCanMatch_",
-				[...getAtomicMatchArgAddressesForOpenseaWrapper(sellOrderToSignDTO, this.config.exchange.wrapper)],
+				addresses,
 				[...getAtomicMatchArgUints(buyOrderToSignDTO), ...getAtomicMatchArgUints(sellOrderToSignDTO)],
 				[...getAtomicMatchArgCommonData(buyOrderToSignDTO), ...getAtomicMatchArgCommonData(sellOrderToSignDTO)],
 				buyOrderToSignDTO.calldata,
@@ -258,7 +263,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 
 		const atomicMatchFunctionCall = exchangeContract.functionCall(
 			"atomicMatch_",
-			[...getAtomicMatchArgAddressesForOpenseaWrapper(sellOrderToSignDTO, this.config.exchange.wrapper)],
+			addresses,
 			[...getAtomicMatchArgUints(buyOrderToSignDTO), ...getAtomicMatchArgUints(sellOrderToSignDTO)],
 			[...getAtomicMatchArgCommonData(buyOrderToSignDTO), ...getAtomicMatchArgCommonData(sellOrderToSignDTO)],
 			buyOrderToSignDTO.calldata,
@@ -270,20 +275,29 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			[buyVRS.v, sellVRS.v],
 			[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, this.getOrderMetadata()],
 		)
-		const openseaWrapperContract = createExchangeWrapperContract(this.ethereum, this.config.exchange.wrapper)
-		createExchangeWrapperContract(this.ethereum, this.config.exchange.wrapper)
-		const functionCall = openseaWrapperContract.functionCall(
-			"singlePurchase",
-			{
-				marketId: "1",
-				amount: buy.make.value,
-				data: atomicMatchFunctionCall.data,
-			},
-			prepareForExchangeWrapperFees(request.originFees || []),
-		)
-		return {
-			functionCall,
-			options: await getMatchOpenseaOptions(buy, request.originFees),
+
+		const options = await getMatchOpenseaOptions(buy, request.originFees)
+
+		if (isEth) {
+			const openseaWrapperContract = createExchangeWrapperContract(this.ethereum, this.config.exchange.wrapper)
+			const functionCall = openseaWrapperContract.functionCall(
+				"singlePurchase",
+				{
+					marketId: "1",
+					amount: buy.make.value,
+					data: atomicMatchFunctionCall.data,
+				},
+				prepareForExchangeWrapperFees(request.originFees || []),
+			)
+			return {
+				functionCall,
+				options,
+			}
+		} else {
+			return {
+				functionCall: atomicMatchFunctionCall,
+				options,
+			}
 		}
 	}
 
@@ -358,8 +372,8 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 export async function getMatchOpenseaOptions(
 	buy: SimpleOpenSeaV1Order, originFees?: Part[]
 ): Promise<EthereumSendOptions> {
-	const origin = originFees?.map(f => f.value).reduce((v, acc) => v + acc, 0)
 	if (buy.make.assetType.assetClass === "ETH") {
+		const origin = originFees?.map(f => f.value).reduce((v, acc) => v + acc, 0)
 		const fee = toBn(buy.data.takerProtocolFee).plus(buy.data.takerRelayerFee).plus(origin || 0).toNumber()
 		const assetWithFee = getAssetWithFee(buy.make, fee)
 		return { value: assetWithFee.value }
@@ -390,23 +404,16 @@ export function getAtomicMatchArgAddresses(dto: OpenSeaOrderDTO) {
 	return [dto.exchange, dto.maker, dto.taker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
 }
 
-export function getAtomicMatchArgAddressesForOpenseaWrapper(dto: OpenSeaOrderDTO, openseaWrapper: Address) {
+export function getAtomicMatchArgAddressesForOpenseaWrapper(sellDto: OpenSeaOrderDTO, openseaWrapper: Address) {
 	return [
-		dto.exchange,
+		sellDto.exchange,
 		openseaWrapper,
-		dto.maker,
+		sellDto.maker,
 		ZERO_ADDRESS,
-		dto.target,
-		dto.staticTarget,
-		dto.paymentToken,
-
-		dto.exchange,
-		dto.maker,
-		dto.taker,
-		dto.feeRecipient,
-		dto.target,
-		dto.staticTarget,
-		dto.paymentToken,
+		sellDto.target,
+		sellDto.staticTarget,
+		sellDto.paymentToken,
+		...getAtomicMatchArgAddresses(sellDto),
 	]
 }
 

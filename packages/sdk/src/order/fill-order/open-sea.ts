@@ -1,4 +1,4 @@
-import type { Address, Asset, Binary, Erc1155AssetType, Erc721AssetType } from "@rarible/ethereum-api-client"
+import type { Address, Asset, Binary, Erc1155AssetType, Erc721AssetType, Part } from "@rarible/ethereum-api-client"
 import { OrderOpenSeaV1DataV1Side } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumContract, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
@@ -29,6 +29,7 @@ import { getBlockchainFromChainId } from "../../common/get-blockchain-from-chain
 import type { EthereumNetworkConfig, IRaribleEthereumSdkConfig } from "../../types"
 import { id32 } from "../../common/id"
 import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
+import { prepareForExchangeWrapperFees } from "../../common/prepare-fee-for-exchange-wrapper"
 import type { OpenSeaOrderDTO } from "./open-sea-types"
 import type { OpenSeaV1OrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
 import {
@@ -223,7 +224,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	}
 
 	async getTransactionData(
-		initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order
+		initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order, request: OpenSeaV1OrderFillRequest
 	): Promise<OrderFillSendData> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
@@ -278,16 +279,20 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 				amount: buy.make.value,
 				data: atomicMatchFunctionCall.data,
 			},
-			[] //@todo handle commissions
+			prepareForExchangeWrapperFees(request.originFees || []),
 		)
 		return {
 			functionCall,
-			options: await getMatchOpenseaOptions(buy),
+			options: await getMatchOpenseaOptions(buy, request.originFees),
 		}
 	}
 
-	async sendTransaction(initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order): Promise<EthereumTransaction> {
-		const {functionCall, options} = await this.getTransactionData(initial, inverted)
+	async sendTransaction(
+		initial: SimpleOpenSeaV1Order,
+		inverted: SimpleOpenSeaV1Order,
+		request: OpenSeaV1OrderFillRequest
+	): Promise<EthereumTransaction> {
+		const {functionCall, options} = await this.getTransactionData(initial, inverted, request)
 		return this.send(functionCall, options)
 	}
 
@@ -350,9 +355,12 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	}
 }
 
-export async function getMatchOpenseaOptions(buy: SimpleOpenSeaV1Order): Promise<EthereumSendOptions> {
+export async function getMatchOpenseaOptions(
+	buy: SimpleOpenSeaV1Order, originFees?: Part[]
+): Promise<EthereumSendOptions> {
+	const origin = originFees?.map(f => f.value).reduce((v, acc) => v + acc, 0)
 	if (buy.make.assetType.assetClass === "ETH") {
-		const fee = toBn(buy.data.takerProtocolFee).plus(buy.data.takerRelayerFee).toNumber()
+		const fee = toBn(buy.data.takerProtocolFee).plus(buy.data.takerRelayerFee).plus(origin || 0).toNumber()
 		const assetWithFee = getAssetWithFee(buy.make, fee)
 		return { value: assetWithFee.value }
 	} else {

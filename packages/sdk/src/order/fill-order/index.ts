@@ -1,9 +1,8 @@
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import { Action } from "@rarible/action"
-import type { Address } from "@rarible/ethereum-api-client"
+import type { Address, AssetType } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
-import type { AssetType } from "@rarible/ethereum-api-client"
 import type {
 	SimpleCryptoPunkOrder,
 	SimpleLegacyOrder,
@@ -23,18 +22,19 @@ import type {
 	CryptoPunksOrderFillRequest,
 	FillOrderAction,
 	FillOrderRequest,
+	FillOrderStageId,
+	GetOrderBuyTxRequest,
 	LegacyOrderFillRequest,
 	OpenSeaV1OrderFillRequest,
+	OrderFillSendData,
+	OrderFillTransactionData,
 	RaribleV2OrderFillRequest,
+	TransactionData,
 } from "./types"
 import { RaribleV1OrderHandler } from "./rarible-v1"
 import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OpenSeaOrderHandler } from "./open-sea"
 import { CryptoPunksOrderHandler } from "./crypto-punks"
-import type { OrderFillTransactionData, FillOrderStageId } from "./types"
-import type { OrderFillSendData } from "./types"
-import type { GetOrderBuyTxRequest } from "./types"
-import type { TransactionData } from "./types"
 
 export class OrderFiller {
 	v1Handler: RaribleV1OrderHandler
@@ -165,7 +165,11 @@ export class OrderFiller {
 			case "RARIBLE_V2":
 				return this.v2Handler.sendTransaction(<SimpleRaribleV2Order>request.order, inverted)
 			case "OPEN_SEA_V1":
-				return this.openSeaHandler.sendTransaction(<SimpleOpenSeaV1Order>request.order, inverted)
+				return this.openSeaHandler.sendTransaction(
+					<SimpleOpenSeaV1Order>request.order,
+					inverted,
+					<OpenSeaV1OrderFillRequest>request
+				)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.sendTransaction(<SimpleCryptoPunkOrder>request.order, inverted)
 			default:
@@ -192,6 +196,7 @@ export class OrderFiller {
 				return this.openSeaHandler.getTransactionData(
           <SimpleOpenSeaV1Order>request.order,
           <SimpleOpenSeaV1Order>inverted,
+					<OpenSeaV1OrderFillRequest>request
 				)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getTransactionData(

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.66-beta.1](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-beta.0...v0.12.66-beta.1) (2022-04-28)
+
+
+### Features
+
+* add originFee for opensea orders ([8174932](https://github.com/rarible/ethereum-sdk/commit/817493225bec9daf5ef800de2f333afe6117c894))
+
+
+
+
+
 ## [0.12.66-beta.0](https://github.com/rarible/ethereum-sdk/compare/v0.12.65...v0.12.66-beta.0) (2022-04-28)
 
 

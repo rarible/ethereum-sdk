@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.66-beta.2](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-beta.1...v0.12.66-beta.2) (2022-04-28)
+
+
+### Bug Fixes
+
+* added currency check for opensea fill ([4a17a7e](https://github.com/rarible/ethereum-sdk/commit/4a17a7e3cc423394a9ce503f3d05317aae48b627))
+
+
+
+
+
 ## [0.12.66-beta.1](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-beta.0...v0.12.66-beta.1) (2022-04-28)
 
 

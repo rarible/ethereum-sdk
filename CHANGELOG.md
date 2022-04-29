@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.66-beta.3](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-beta.2...v0.12.66-beta.3) (2022-04-29)
+
+
+### Bug Fixes
+
+* bravo-2047 opensea amount for singlePurchase ([0f61eaf](https://github.com/rarible/ethereum-sdk/commit/0f61eaf489d4d884394769b6d521ecbdf628c228))
+
+
+
+
+
 ## [0.12.66-beta.2](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-beta.1...v0.12.66-beta.2) (2022-04-28)
 
 

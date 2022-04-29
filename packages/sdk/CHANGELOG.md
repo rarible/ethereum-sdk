@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.65-beta2](https://github.com/rarible/ethereum-sdk/compare/v0.12.65-beta1...v0.12.65-beta2) (2022-04-27)
+
+
+### Features
+
+* cryptopunk wrapper, skip approve phase if unk already on sale for right address ([7f680cc](https://github.com/rarible/ethereum-sdk/commit/7f680cc2dbff4d28ac75d53010cc899734da1fd0))
+
+
+
+
+
+## [0.12.65-beta1](https://github.com/rarible/ethereum-sdk/compare/v0.12.65...v0.12.65-beta1) (2022-04-26)
+
+
+### Features
+
+* cryptopunk wrapper ([cb2bdd8](https://github.com/rarible/ethereum-sdk/commit/cb2bdd827f536b7250b50215bbc19649d4ce665f))
+
+
+
+
+
 ## [0.12.65](https://github.com/rarible/ethereum-sdk/compare/v0.12.64...v0.12.65) (2022-04-18)
 
 

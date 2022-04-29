@@ -4,10 +4,13 @@
   ],
   "npmClient": "yarn",
   "useWorkspaces": true,
-  "version": "0.12.65",
+  "version": "0.12.65-beta2",
   "command": {
     "publish": {
-      "allowBranch": "master",
+      "allowBranch": [
+        "master",
+        "beta/*"
+      ],
       "conventionalCommits": true,
       "registry": "https://registry.npmjs.org/",
       "message": "chore: bump versions after release",

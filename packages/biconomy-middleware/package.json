@@ -1,6 +1,6 @@
 {
   "name": "@rarible/biconomy-middleware",
-  "version": "0.12.64",
+  "version": "0.12.65-beta2",
   "description": "Middleware for biconomy integration",
   "keywords": [
     "ethereum",
@@ -25,7 +25,7 @@
     "json-rpc-engine": "^6.1.0"
   },
   "devDependencies": {
-    "@rarible/ethereum-sdk-test-common": "^0.12.64",
+    "@rarible/ethereum-sdk-test-common": "^0.12.65-beta2",
     "@types/jest": "^27.0.2",
     "form-data": "^4.0.0",
     "identity-obj-proxy": "^3.0.0",

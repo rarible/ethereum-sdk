@@ -229,7 +229,8 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
-		const isEth = initial.take.assetType.assetClass === "ETH"
+		const isTakeEth = initial.take.assetType.assetClass === "ETH"
+
 		const { buy, sell } = getBuySellOrders(initial, inverted)
 		const sellOrderToSignDTO = convertOpenSeaOrderToDTO(this.ethereum, sell)
 		const buyOrderToSignDTO = convertOpenSeaOrderToDTO(this.ethereum, buy)
@@ -239,7 +240,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		const buyVRS = toVrs(buy.signature || "")
 		const sellVRS = toVrs(sell.signature || "")
 
-		const addresses = isEth ?
+		const addresses = isTakeEth ?
 			[...getAtomicMatchArgAddressesForOpenseaWrapper(sellOrderToSignDTO, this.config.exchange.wrapper)] :
 			[...getAtomicMatchArgAddresses(buyOrderToSignDTO), ...getAtomicMatchArgAddresses(sellOrderToSignDTO)]
 
@@ -276,27 +277,25 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, this.getOrderMetadata()],
 		)
 
-		const options = await getMatchOpenseaOptions(buy, request.originFees)
-
-		if (isEth) {
+		if (isTakeEth) {
 			const openseaWrapperContract = createExchangeWrapperContract(this.ethereum, this.config.exchange.wrapper)
 			const functionCall = openseaWrapperContract.functionCall(
 				"singlePurchase",
 				{
 					marketId: "1",
-					amount: buy.make.value,
+					amount: (await getMatchOpenseaOptions(buy)).value,
 					data: atomicMatchFunctionCall.data,
 				},
 				prepareForExchangeWrapperFees(request.originFees || []),
 			)
 			return {
 				functionCall,
-				options,
+				options: await getMatchOpenseaOptions(buy, request.originFees),
 			}
 		} else {
 			return {
 				functionCall: atomicMatchFunctionCall,
-				options,
+				options: await getMatchOpenseaOptions(buy),
 			}
 		}
 	}

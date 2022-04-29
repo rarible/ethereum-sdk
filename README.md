@@ -1,8 +1,10 @@
-## Rarible Protocol Ethereum Software Development Kit
+# Rarible Protocol Ethereum Software Development Kit
 
 Rarible Protocol Ethereum SDK enables applications to easily interact with Rarible protocol.
 
-### Installation
+See more information about Rarible Protocol at [docs.rarible.org](https://docs.rarible.org).
+
+## Installation
 
 ```angular2html
 npm install -D @rarible/protocol-ethereum-sdk
@@ -16,7 +18,7 @@ or inject package into your web page with web3 instance
 <script src="https://unpkg.com/web3@1.6.0/dist/web3.min.js" type="text/javascript"></script>
 ```
 
-### With protocol-ethereum-sdk, you can:
+## With protocol-ethereum-sdk, you can:
 
 - Create sell orders
 - Create/accept bid on NFTs
@@ -27,11 +29,11 @@ or inject package into your web page with web3 instance
 - Transfer tokens
 - Burn tokens
 
-### API reference
+## API reference
 
 You can view the reference for the [latest version of the API](https://ethereum-api.rarible.org/v0.1/doc) or choose API on [different Ethereum networks](https://docs.rarible.org/#api-reference).
 
-### Libraries support
+## Libraries support
 
 [web3.js](https://github.com/ChainSafe/web3.js/tree/v1.4.0) and [ethers.js](https://github.com/ethers-io/ethers.js) libraries are supported.
 
@@ -43,11 +45,11 @@ You can use the following types of providers:
 
 [Signer](https://docs.ethers.io/v5/api/signer/#signers) from ethers.js is also supported.
 
-### Usage with web3.js
+## Usage with web3.js
 
 Below examples show how you can implement supported functions in you app.
 
-#### Configure and create Rarible SDK object
+### Configure and create Rarible SDK object
 
 ```typescript
 import { createRaribleSdk } from "@rarible/protocol-ethereum-sdk"
@@ -59,7 +61,7 @@ const sdk = createRaribleSdk(web3, env, { fetchApi: fetch })
 - env - environment configuration name, it should accept one of these values
   ``` 'ropsten' | 'rinkeby' | 'mainnet' | 'e2e'```
 
-#### Configure Rarible SDK in browser
+### Configure Rarible SDK in browser
 
 ```angular2html
 const web = new Web3(ethereum)
@@ -71,7 +73,7 @@ const raribleSdk = new window.raribleEthereumSdk.createRaribleSdk(web3Ethereum, 
 
 Сheck out our [**DEMO PAGE**](/packages/sdk/example/index.html)
 
-#### Create sell order
+### Create sell order
 
 ```typescript
 const order: Order = await sdk.order.sell(request)
@@ -104,7 +106,7 @@ Returns an object of created order.
 
 [Sell e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/erc721-sale.test.ts)
 
-#### Create bid
+### Create bid
 
 ```typescript
 const order: Order = await sdk.order.bid(request)
@@ -141,7 +143,7 @@ Returns an object of created bid order.
 
 [Bid e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/create-bid.test.ts)
 
-#### Purchase order or accept bid
+### Purchase order or accept bid
 
 ```typescript
 const order: SimpleOrder
@@ -155,7 +157,7 @@ For example, you can get the `order` object using our sdk api methods `sdk.apis.
 to `buy` function. You can get more information in the test
 repository [sell e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/erc721-sale.test.ts)
 
-### Auctions
+## Auctions
 
 You can create auction:
 ```typescript
@@ -222,8 +224,7 @@ sdk.auction.finish({ // You can finish auction when duration is over and made at
 })
 ```
 
-
-#### Mint NFT Tokens
+### Mint NFT Tokens
 
 You can mint ERC721 and ERC1155 tokens in two ways:
 
@@ -262,7 +263,7 @@ For more information, see [mint.md](https://github.com/rarible/protocol-ethereum
 
 [Mint e2e test](https://github.com/rariblecom/protocol-e2e-tests/blob/master/packages/tests-current/src/lazy-mint.test.ts)
 
-#### Transfer
+### Transfer
 
 ```typescript
 transfer(asset, to[, amount])
@@ -293,7 +294,7 @@ const hash = await sdk.nft.transfer(
 
 ```
 
-#### Burn
+### Burn
 
 ```typescript
 const hash = await sdk.nft.burn({
@@ -302,16 +303,22 @@ const hash = await sdk.nft.burn({
 })
 ```
 
-### Note
+## Suggestions
+
+You are welcome to [suggest features](https://github.com/rarible/protocol/discussions) and [report bugs found](https://github.com/rarible/protocol/issues)!
+
+## Contributing
+
+The codebase is maintained using the "contributor workflow" where everyone without exception contributes patch proposals using "pull requests" (PRs). This facilitates social contribution, easy testing, and peer review.
+
+See more information on [CONTRIBUTING.md](https://github.com/rarible/protocol/blob/main/CONTRIBUTING.md).
+
+## License
+
+Rarible Protocol Ethereum SDK is available under the [MIT License](LICENSE).
+
+## Note
 
 *This is a pre-release version. Backward compatibility is not fully supported before 1.0 release. Backward compatibility is only guaranteed in minor releases.*
 
 *For example, 0.2.x version may not be compatible with 0.1.x. So, it's advised to include dependencies using package versions (ex. rarible/sdk@0.2.x).*
-
-### Suggestions
-
-You are welcome to [suggest features](https://github.com/rarible/protocol/discussions) and [report bugs found](https://github.com/rarible/protocol/issues)!
-
-### License
-
-Rarible Protocol Ethereum SDK is available under the [MIT License](LICENSE).

@@ -203,7 +203,7 @@ export const proxyRegistryAbi: AbiItem[] = [
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_newOwner",
+				"name": "newOwner",
 				"type": "address",
 			},
 		],

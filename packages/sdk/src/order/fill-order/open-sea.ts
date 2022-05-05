@@ -1,4 +1,4 @@
-import type { Address, Asset, Binary, Erc1155AssetType, Erc721AssetType } from "@rarible/ethereum-api-client"
+import type { Address, Asset, Binary, Erc1155AssetType, Erc721AssetType, Part } from "@rarible/ethereum-api-client"
 import { OrderOpenSeaV1DataV1Side } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumContract, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
@@ -24,11 +24,12 @@ import { ERC721VersionEnum } from "../../nft/contracts/domain"
 import { createMerkleValidatorContract } from "../contracts/merkle-validator"
 import { createErc1155Contract } from "../contracts/erc1155"
 import type { RaribleEthereumApis } from "../../common/apis"
-import type { EVMBlockchain} from "../../common/get-blockchain-from-chain-id"
+import type { EVMBlockchain } from "../../common/get-blockchain-from-chain-id"
 import { getBlockchainFromChainId } from "../../common/get-blockchain-from-chain-id"
-import type { IRaribleEthereumSdkConfig } from "../../types"
-import type { EthereumNetworkConfig } from "../../types"
+import type { EthereumNetworkConfig, IRaribleEthereumSdkConfig } from "../../types"
 import { id32 } from "../../common/id"
+import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
+import { prepareForExchangeWrapperFees } from "../../common/prepare-fee-for-exchange-wrapper"
 import type { OpenSeaOrderDTO } from "./open-sea-types"
 import type { OpenSeaV1OrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
 import {
@@ -223,11 +224,13 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	}
 
 	async getTransactionData(
-		initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order
+		initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order, request: OpenSeaV1OrderFillRequest
 	): Promise<OrderFillSendData> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
+		const isTakeEth = initial.take.assetType.assetClass === "ETH"
+
 		const { buy, sell } = getBuySellOrders(initial, inverted)
 		const sellOrderToSignDTO = convertOpenSeaOrderToDTO(this.ethereum, sell)
 		const buyOrderToSignDTO = convertOpenSeaOrderToDTO(this.ethereum, buy)
@@ -237,10 +240,14 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		const buyVRS = toVrs(buy.signature || "")
 		const sellVRS = toVrs(sell.signature || "")
 
+		const addresses = isTakeEth ?
+			[...getAtomicMatchArgAddressesForOpenseaWrapper(sellOrderToSignDTO, this.config.exchange.wrapper)] :
+			[...getAtomicMatchArgAddresses(buyOrderToSignDTO), ...getAtomicMatchArgAddresses(sellOrderToSignDTO)]
+
 		const ordersCanMatch = await exchangeContract
 			.functionCall(
 				"ordersCanMatch_",
-				[...getAtomicMatchArgAddresses(buyOrderToSignDTO), ...getAtomicMatchArgAddresses(sellOrderToSignDTO)],
+				addresses,
 				[...getAtomicMatchArgUints(buyOrderToSignDTO), ...getAtomicMatchArgUints(sellOrderToSignDTO)],
 				[...getAtomicMatchArgCommonData(buyOrderToSignDTO), ...getAtomicMatchArgCommonData(sellOrderToSignDTO)],
 				buyOrderToSignDTO.calldata,
@@ -249,19 +256,15 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 				sellOrderToSignDTO.replacementPattern,
 				buyOrderToSignDTO.staticExtradata,
 				sellOrderToSignDTO.staticExtradata
-			)
-			.call()
+			).call()
 
 		if (!ordersCanMatch) {
 			throw new Error("Orders cannot be matched")
 		}
 
-		const functionCall = exchangeContract.functionCall(
+		const atomicMatchFunctionCall = exchangeContract.functionCall(
 			"atomicMatch_",
-			[
-				...getAtomicMatchArgAddresses(buyOrderToSignDTO),
-				...getAtomicMatchArgAddresses(sellOrderToSignDTO),
-			],
+			addresses,
 			[...getAtomicMatchArgUints(buyOrderToSignDTO), ...getAtomicMatchArgUints(sellOrderToSignDTO)],
 			[...getAtomicMatchArgCommonData(buyOrderToSignDTO), ...getAtomicMatchArgCommonData(sellOrderToSignDTO)],
 			buyOrderToSignDTO.calldata,
@@ -274,14 +277,35 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			[buyVRS.r, buyVRS.s, sellVRS.r, sellVRS.s, this.getOrderMetadata()],
 		)
 
-		return {
-			functionCall,
-			options: await getMatchOpenseaOptions(buy),
+		if (isTakeEth) {
+			const openseaWrapperContract = createExchangeWrapperContract(this.ethereum, this.config.exchange.wrapper)
+			const functionCall = openseaWrapperContract.functionCall(
+				"singlePurchase",
+				{
+					marketId: "1",
+					amount: (await getMatchOpenseaOptions(buy)).value,
+					data: atomicMatchFunctionCall.data,
+				},
+				prepareForExchangeWrapperFees(request.originFees || []),
+			)
+			return {
+				functionCall,
+				options: await getMatchOpenseaOptions(buy, request.originFees),
+			}
+		} else {
+			return {
+				functionCall: atomicMatchFunctionCall,
+				options: await getMatchOpenseaOptions(buy),
+			}
 		}
 	}
 
-	async sendTransaction(initial: SimpleOpenSeaV1Order, inverted: SimpleOpenSeaV1Order): Promise<EthereumTransaction> {
-		const {functionCall, options} = await this.getTransactionData(initial, inverted)
+	async sendTransaction(
+		initial: SimpleOpenSeaV1Order,
+		inverted: SimpleOpenSeaV1Order,
+		request: OpenSeaV1OrderFillRequest
+	): Promise<EthereumTransaction> {
+		const {functionCall, options} = await this.getTransactionData(initial, inverted, request)
 		return this.send(functionCall, options)
 	}
 
@@ -344,9 +368,12 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	}
 }
 
-async function getMatchOpenseaOptions(buy: SimpleOpenSeaV1Order): Promise<EthereumSendOptions> {
+export async function getMatchOpenseaOptions(
+	buy: SimpleOpenSeaV1Order, originFees?: Part[]
+): Promise<EthereumSendOptions> {
 	if (buy.make.assetType.assetClass === "ETH") {
-		const fee = toBn(buy.data.takerProtocolFee).plus(buy.data.takerRelayerFee).toNumber()
+		const origin = originFees?.map(f => f.value).reduce((v, acc) => v + acc, 0)
+		const fee = toBn(buy.data.takerProtocolFee).plus(buy.data.takerRelayerFee).plus(origin || 0).toNumber()
 		const assetWithFee = getAssetWithFee(buy.make, fee)
 		return { value: assetWithFee.value }
 	} else {
@@ -358,7 +385,7 @@ async function getSenderProxy(registryContract: EthereumContract, sender: Addres
 	return toAddress(await registryContract.functionCall("proxies", sender).call())
 }
 
-function getBuySellOrders(left: SimpleOpenSeaV1Order, right: SimpleOpenSeaV1Order) {
+export function getBuySellOrders(left: SimpleOpenSeaV1Order, right: SimpleOpenSeaV1Order) {
 	if (left.data.side === "SELL") {
 		return {
 			buy: right,
@@ -374,6 +401,19 @@ function getBuySellOrders(left: SimpleOpenSeaV1Order, right: SimpleOpenSeaV1Orde
 
 export function getAtomicMatchArgAddresses(dto: OpenSeaOrderDTO) {
 	return [dto.exchange, dto.maker, dto.taker, dto.feeRecipient, dto.target, dto.staticTarget, dto.paymentToken]
+}
+
+export function getAtomicMatchArgAddressesForOpenseaWrapper(sellDto: OpenSeaOrderDTO, openseaWrapper: Address) {
+	return [
+		sellDto.exchange,
+		openseaWrapper,
+		sellDto.maker,
+		ZERO_ADDRESS,
+		sellDto.target,
+		sellDto.staticTarget,
+		sellDto.paymentToken,
+		...getAtomicMatchArgAddresses(sellDto),
+	]
 }
 
 export function getAtomicMatchArgUints(dto: OpenSeaOrderDTO) {

@@ -36,6 +36,51 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [0.12.66-beta.3](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-beta.2...v0.12.66-beta.3) (2022-04-29)
+
+
+### Bug Fixes
+
+* bravo-2047 opensea amount for singlePurchase ([0f61eaf](https://github.com/rarible/ethereum-sdk/commit/0f61eaf489d4d884394769b6d521ecbdf628c228))
+
+
+
+
+
+## [0.12.66-beta.2](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-beta.1...v0.12.66-beta.2) (2022-04-28)
+
+
+### Bug Fixes
+
+* added currency check for opensea fill ([4a17a7e](https://github.com/rarible/ethereum-sdk/commit/4a17a7e3cc423394a9ce503f3d05317aae48b627))
+
+
+
+
+
+## [0.12.66-beta.1](https://github.com/rarible/ethereum-sdk/compare/v0.12.66-beta.0...v0.12.66-beta.1) (2022-04-28)
+
+
+### Features
+
+* add originFee for opensea orders ([8174932](https://github.com/rarible/ethereum-sdk/commit/817493225bec9daf5ef800de2f333afe6117c894))
+
+
+
+
+
+## [0.12.66-beta.0](https://github.com/rarible/ethereum-sdk/compare/v0.12.65...v0.12.66-beta.0) (2022-04-28)
+
+
+### Bug Fixes
+
+* fill opensea orders with exchangeWrapper contract ([e6e01e4](https://github.com/rarible/ethereum-sdk/commit/e6e01e4e0a76ef383aa4e75dcfc556d300d4cc77))
+* lerna config for bravo ([f528c27](https://github.com/rarible/ethereum-sdk/commit/f528c2716128f18e777477f2b6e278f14943f406))
+
+
+
+
+
 ## [0.12.65](https://github.com/rarible/ethereum-sdk/compare/v0.12.64...v0.12.65) (2022-04-18)
 
 

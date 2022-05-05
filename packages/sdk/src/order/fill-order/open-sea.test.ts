@@ -1,12 +1,15 @@
 import {
-	awaitAll, createE2eProvider,
+	awaitAll,
+	createE2eProvider,
 	createGanacheProvider,
+	deployMerkleValidator,
 	deployOpenSeaExchangeV1,
 	deployOpenseaProxyRegistry,
 	deployOpenseaTokenTransferProxy,
 	deployTestErc1155,
 	deployTestErc20,
 	deployTestErc721,
+	deployTestExchangeWrapper,
 } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
@@ -80,6 +83,8 @@ describe.skip("fillOrder: Opensea orders", function () {
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
 		testErc721: deployTestErc721(web3, "Test", "TST"),
 		testErc1155: deployTestErc1155(web3, "Test"),
+		merkleValidator: deployMerkleValidator(web3),
+		exchangeWrapper: deployTestExchangeWrapper(web3),
 	})
 
 	let wyvernExchange: Contract
@@ -101,21 +106,41 @@ describe.skip("fillOrder: Opensea orders", function () {
 			web3,
 			wyvernProxyRegistry.options.address,
 			wyvernTokenTransferProxy.options.address,
-			it.testErc20.options.address,
+			ZERO_ADDRESS, //ETH
+			feeRecipient
 		)
 		console.log("deployed wyvernExchange", wyvernExchange.options.address)
 
+		await sentTx(
+			it.exchangeWrapper.methods.__ExchangeWrapper_init(
+				wyvernExchange.options.address,
+				ZERO_ADDRESS,
+			),
+			{ from: sender1Address }
+		)
 		config.exchange.openseaV1 = toAddress(wyvernExchange.options.address)
 		config.openSea.proxyRegistry = toAddress(wyvernProxyRegistry.options.address)
 		config.transferProxies.openseaV1 = toAddress(wyvernTokenTransferProxy.options.address)
+		config.openSea.merkleValidator = toAddress(it.merkleValidator.options.address)
+		config.exchange.wrapper = toAddress(it.exchangeWrapper.options.address)
 
 		proxyRegistryEthContract = await createOpenseaProxyRegistryEthContract(
 			ethereum1,
 			toAddress(wyvernProxyRegistry.options.address)
 		)
 
+
+		await sentTx(
+			wyvernProxyRegistry.methods.registerProxy(),
+			{ from: sender1Address }
+		)
+		await sentTx(
+			wyvernProxyRegistry.methods.registerProxy(),
+			{ from: sender2Address }
+		)
+
 		await proxyRegistryEthContract
-			.functionCall("grantInitialAuthentication", wyvernExchange.options.address)
+			.functionCall("endGrantAuthentication", wyvernExchange.options.address)
 			.send()
 
 	})
@@ -297,6 +322,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 				openseaV1: toAddress(wyvernExchange.options.address),
 				v1: ZERO_ADDRESS,
 				v2: ZERO_ADDRESS,
+				wrapper: toAddress(it.exchangeWrapper.options.address),
 			},
 			checkChainId.bind(null, ethereum1, config),
 			{

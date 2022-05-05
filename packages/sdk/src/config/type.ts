@@ -28,6 +28,11 @@ export type FactoriesAddresses = {
 	erc1155: Address
 }
 
+export type CryptoPunksConfig = {
+	marketContract: Address
+	wrapperContract: Address
+}
+
 export type EthereumConfig = {
 	basePath: string
 	chainId: number
@@ -37,5 +42,6 @@ export type EthereumConfig = {
 	openSea: OpenSeaConfig
 	factories: FactoriesAddresses
 	weth: Address
-	auction: Address
+	auction: Address,
+	cryptoPunks: CryptoPunksConfig
 }

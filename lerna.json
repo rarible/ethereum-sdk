@@ -4,12 +4,12 @@
   ],
   "npmClient": "yarn",
   "useWorkspaces": true,
-  "version": "0.12.66-beta.3",
+  "version": "0.12.66",
   "command": {
     "publish": {
       "allowBranch": [
         "master",
-        "beta/**"
+        "beta/*"
       ],
       "conventionalCommits": true,
       "registry": "https://registry.npmjs.org/",

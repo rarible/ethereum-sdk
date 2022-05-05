@@ -1,9 +1,8 @@
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
-import type { Address, OrderForm } from "@rarible/ethereum-api-client"
+import type { Address, AssetType, OrderForm } from "@rarible/ethereum-api-client"
 import type { BigNumber } from "@rarible/types"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { BigNumberValue } from "@rarible/utils/build/bn"
-import type { AssetType } from "@rarible/ethereum-api-client"
 import { getEthereumConfig } from "./config"
 import type { UpsertOrderAction } from "./order/upsert-order"
 import { UpsertOrder } from "./order/upsert-order"
@@ -26,7 +25,7 @@ import type { RaribleEthereumApis } from "./common/apis"
 import { createEthereumApis } from "./common/apis"
 import { getSendWithInjects } from "./common/send-transaction"
 import { cancel as cancelTemplate } from "./order/cancel"
-import type { FillOrderAction, GetOrderFillTxData } from "./order/fill-order/types"
+import type { FillOrderAction, GetOrderBuyTxData, GetOrderFillTxData } from "./order/fill-order/types"
 import type { SimpleOrder } from "./order/types"
 import { OrderFiller } from "./order/fill-order"
 import { getBaseFee } from "./common/get-base-fee"
@@ -35,12 +34,11 @@ import { DeployErc1155 } from "./nft/deploy-erc1155"
 import type { DeployNft } from "./common/deploy"
 import type { BalanceRequestAssetType } from "./common/balances"
 import { Balances } from "./common/balances"
-import type { EthereumNetwork } from "./types"
-import type { IRaribleEthereumSdkConfig } from "./types"
+import type { EthereumNetwork, IRaribleEthereumSdkConfig } from "./types"
 import { LogsLevel } from "./types"
 import { ConvertWeth } from "./order/convert-weth"
 import { checkChainId } from "./order/check-chain-id"
-import type { AuctionStartAction} from "./auction/start"
+import type { AuctionStartAction } from "./auction/start"
 import { StartAuction } from "./auction/start"
 import { cancelAuction } from "./auction/cancel"
 import { finishAuction } from "./auction/finish"
@@ -50,7 +48,8 @@ import type { BuyoutAuctionAction } from "./auction/buy-out"
 import { BuyoutAuction } from "./auction/buy-out"
 import { createRemoteLogger, getEnvironment } from "./common/logger/logger"
 import { getAuctionHash } from "./auction/common"
-import type { GetOrderBuyTxData } from "./order/fill-order/types"
+import type { CryptoPunksWrapper } from "./common/crypto-punks"
+import { approveForWrapper, unwrapPunk, wrapPunk } from "./nft/cryptopunk-wrapper"
 
 export interface RaribleOrderSdk {
 	/**
@@ -150,6 +149,8 @@ export interface RaribleNftSdk {
 	burn(request: BurnRequest): Promise<EthereumTransaction | void>
 
 	deploy: DeployNft
+
+	cryptoPunks: CryptoPunksWrapper
 }
 
 export interface RaribleBalancesSdk {
@@ -312,6 +313,30 @@ export function createRaribleSdk(
 			deploy: {
 				erc721: new DeployErc721(ethereum, send, config),
 				erc1155: new DeployErc1155(ethereum, send, config),
+			},
+			cryptoPunks: {
+				approveForWrapper: partialCall(
+					approveForWrapper,
+					ethereum,
+					send,
+					checkWalletChainId,
+					config.cryptoPunks.marketContract,
+					config.cryptoPunks.wrapperContract
+				),
+				wrap: partialCall(
+					wrapPunk,
+					ethereum,
+					send,
+					checkWalletChainId,
+					config.cryptoPunks.wrapperContract
+				),
+				unwrap: partialCall(
+					unwrapPunk,
+					ethereum,
+					send,
+					checkWalletChainId,
+					config.cryptoPunks.wrapperContract
+				),
 			},
 		},
 		balances: {

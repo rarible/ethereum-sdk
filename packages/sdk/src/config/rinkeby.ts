@@ -30,6 +30,10 @@ export const rinkebyConfig: EthereumConfig = {
 		erc721: toAddress("0x62e0BDC23435321adFf249d6f41e11AEee6486Cf"),
 		erc1155: toAddress("0xB1Bcf905495AFf06e854904d7b2d6647ab00Cd1d"),
 	},
+	cryptoPunks: {
+		marketContract: toAddress("0x85252f525456d3fce3654e56f6eaf034075e231c"),
+		wrapperContract: toAddress("0x7898972f9708358acb7ea7d000ebdf28fcdf325c"),
+	},
 	weth: toAddress("0xc778417e063141139fce010982780140aa0cd5ab"),
 	auction: ZERO_ADDRESS,
 }

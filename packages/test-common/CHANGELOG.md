@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.66](https://github.com/rarible/ethereum-sdk/compare/v0.12.65...v0.12.66) (2022-04-29)
+
+**Note:** Version bump only for package @rarible/ethereum-sdk-test-common
+
+
+
+
+
+## [0.12.65-beta2](https://github.com/rarible/ethereum-sdk/compare/v0.12.65-beta1...v0.12.65-beta2) (2022-04-27)
+
+**Note:** Version bump only for package @rarible/ethereum-sdk-test-common
+
+
+
+
+
+## [0.12.65-beta1](https://github.com/rarible/ethereum-sdk/compare/v0.12.65...v0.12.65-beta1) (2022-04-26)
+
+
+### Features
+
+* cryptopunk wrapper ([cb2bdd8](https://github.com/rarible/ethereum-sdk/commit/cb2bdd827f536b7250b50215bbc19649d4ce665f))
+
+
+
+
+
 ## [0.12.66-beta.0](https://github.com/rarible/ethereum-sdk/compare/v0.12.65...v0.12.66-beta.0) (2022-04-28)
 
 

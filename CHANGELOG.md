@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.67](https://github.com/rarible/ethereum-sdk/compare/v0.12.66...v0.12.67) (2022-05-05)
+
+
+### Features
+
+* cryptopunk wrapper, check wrapper contract address ([f8ab791](https://github.com/rarible/ethereum-sdk/commit/f8ab7916f9ea14e6c160d8279b2bc8a836df1325))
+
+
+
+
+
 ## [0.12.66](https://github.com/rarible/ethereum-sdk/compare/v0.12.65...v0.12.66) (2022-04-29)
 
 

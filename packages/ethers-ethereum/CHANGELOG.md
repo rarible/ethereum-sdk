@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.69](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.68...v0.12.69) (2022-05-16)
+
+
+### Bug Fixes
+
+* ethers provider fix ([#157](https://github.com/rarible/protocol-ethereum-sdk/issues/157)) ([feae5d6](https://github.com/rarible/protocol-ethereum-sdk/commit/feae5d68e66d2de31e46e5bc44fb12baf396a872))
+
+
+
+
+
 ## [0.12.67](https://github.com/rarible/ethereum-sdk/compare/v0.12.66...v0.12.67) (2022-05-05)
 
 **Note:** Version bump only for package @rarible/ethers-ethereum

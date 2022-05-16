@@ -3,11 +3,8 @@ import { BN, stripHexPrefix } from "ethereumjs-util"
 
 export function prepareForExchangeWrapperFees(fees: Part[]): string[] {
 	return fees.map(fee => {
-		const addr = new BN(stripHexPrefix(fee.account), "hex").toString(2)
-		return new BN(toBinaryString(fee.value) + "0" + addr, 2).toString(10)
+		const addr = stripHexPrefix(fee.account)
+		const preparedFee = new BN(fee.value, 10).toString(16).padStart(24, "0")
+		return new BN(preparedFee + addr, 16).toString(10)
 	})
-}
-
-export function toBinaryString(value: number): string {
-	return new BN((value).toString(), 10).toString(2)
 }

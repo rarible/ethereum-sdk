@@ -31,8 +31,30 @@ export type FillOrderRequest =
   OpenSeaV1OrderFillRequest |
   CryptoPunksOrderFillRequest
 
+export type FillBatchSingleOrderRequest =
+	RaribleV2OrderFillRequest |
+	OpenSeaV1OrderFillRequest
+
+export type FillBatchOrderRequest = FillBatchSingleOrderRequest[]
+
+export enum ExchangeWrapperOrderType {
+	OPENSEAV1 = 1,
+	RARIBLEV2 = 0,
+}
+
+export type PreparedOrderRequestDataForExchangeWrapper = {
+	data: {
+		marketId: ExchangeWrapperOrderType,
+		amount: string | number,
+		data: string,
+	},
+	options: OrderFillSendData["options"]
+}
+
 export type FillOrderAction = Action<FillOrderStageId, FillOrderRequest, EthereumTransaction>
 export type FillOrderStageId = "approve" | "send-tx"
+
+export type FillBatchOrderAction = Action<FillOrderStageId, FillBatchOrderRequest, EthereumTransaction>
 
 export interface OrderHandler<T extends FillOrderRequest> {
 	invert: (request: T, maker: Address) => T["order"] | Promise<T["order"]>

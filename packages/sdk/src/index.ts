@@ -25,7 +25,12 @@ import type { RaribleEthereumApis } from "./common/apis"
 import { createEthereumApis } from "./common/apis"
 import { getSendWithInjects } from "./common/send-transaction"
 import { cancel as cancelTemplate } from "./order/cancel"
-import type { FillOrderAction, GetOrderBuyTxData, GetOrderFillTxData } from "./order/fill-order/types"
+import type {
+	FillBatchOrderAction,
+	FillOrderAction,
+	GetOrderBuyTxData,
+	GetOrderFillTxData,
+} from "./order/fill-order/types"
 import type { SimpleOrder } from "./order/types"
 import { OrderFiller } from "./order/fill-order"
 import { getBaseFee } from "./common/get-base-fee"
@@ -50,6 +55,7 @@ import { createRemoteLogger, getEnvironment } from "./common/logger/logger"
 import { getAuctionHash } from "./auction/common"
 import type { CryptoPunksWrapper } from "./common/crypto-punks"
 import { approveForWrapper, unwrapPunk, wrapPunk } from "./nft/cryptopunk-wrapper"
+import { BatchOrderFiller } from "./order/fill-order/batch-purchase"
 
 export interface RaribleOrderSdk {
 	/**
@@ -93,6 +99,13 @@ export interface RaribleOrderSdk {
 	 * @param request order and parameters (amount to fill, fees etc)
 	 */
 	acceptBid: FillOrderAction
+
+	/**
+	 * Purchase batch
+	 *
+	 * @param request array of order and parameters (amount to fill, fees etc)
+	 */
+	buyBatch: FillBatchOrderAction
 
 	/**
    * Get fill transaction data (for external sending)
@@ -244,6 +257,7 @@ export function createRaribleSdk(
 
 	const getBaseOrderFee = getBaseFee.bind(null, config, env)
 	const filler = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
+	const buyBatchService = new BatchOrderFiller(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
 
 	const approveFn = partialCall(approveTemplate, ethereum, send, config.transferProxies)
 
@@ -272,6 +286,7 @@ export function createRaribleSdk(
 			sellUpdate: sellService.update,
 			fill: filler.fill,
 			buy: filler.buy,
+			buyBatch: buyBatchService.buy,
 			acceptBid: filler.acceptBid,
 			getFillTxData: filler.getTransactionData,
 			getBuyTxData: filler.getBuyTx,

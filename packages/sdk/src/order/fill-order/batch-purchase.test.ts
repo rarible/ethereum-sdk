@@ -208,7 +208,7 @@ describe("fillOrder: Opensea orders", function () {
 		const beforeSellerNftBalance1 = await getBalance("ERC1155", sender2Address, tokenIds[0])
 		const beforeSellerNftBalance2 = await getBalance("ERC1155", sender2Address, tokenIds[1])
 		const beforeSellerNftBalance3 = await getBalance("ERC721", sender2Address)
-		//@todo current varsion of exchangeWrapper contract can't make partial fill for RARIBLE_V2 ERC1155 orders
+		//@todo current version of exchangeWrapper contract can't make partial fill for RARIBLE_V2 ERC1155 orders
 		const tx = await orderFiller.buy([
 			{order: order1, amount: 2, originFees},
 			{order: order2, amount: 2, originFees},

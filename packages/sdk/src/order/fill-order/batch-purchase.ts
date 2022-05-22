@@ -1,7 +1,7 @@
 import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import { Action } from "@rarible/action"
-import type { Address, AssetType, Part } from "@rarible/ethereum-api-client"
+import type { Address, AssetType } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
 import { toBn } from "@rarible/utils"
 import type { SimpleOpenSeaV1Order, SimpleOrder, SimpleRaribleV2Order } from "../types"
@@ -159,13 +159,10 @@ export class BatchOrderFiller {
 	}
 
 	private async getTransactionSingleRequestData(
-		request: FillBatchSingleOrderRequest, inverted: SimpleOrder, originFees?: Part[]
+		request: FillBatchSingleOrderRequest, inverted: SimpleOrder
 	): Promise<PreparedOrderRequestDataForExchangeWrapper> {
 		switch (request.order.type) {
 			case "RARIBLE_V2":
-				if (!this.ethereum) {
-					throw new Error("Wallet undefined")
-				}
 				return this.v2Handler.getTransactionDataForExchangeWrapper(
           <SimpleRaribleV2Order>request.order,
           <SimpleRaribleV2Order>inverted,
@@ -174,7 +171,7 @@ export class BatchOrderFiller {
 				return this.openSeaHandler.getTransactionDataForExchangeWrapper(
           <SimpleOpenSeaV1Order>request.order,
 					<SimpleOpenSeaV1Order>inverted,
-					originFees
+					request.originFees,
 				)
 			default:
 				throw new Error(`Unsupported request: ${JSON.stringify(request)}`)

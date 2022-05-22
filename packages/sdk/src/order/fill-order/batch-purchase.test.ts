@@ -48,7 +48,6 @@ describe("fillOrder: Opensea orders", function () {
 	const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
 
 	const send1 = getSimpleSendWithInjects().bind(null, checkWalletChainId1)
-	const send2 = getSimpleSendWithInjects().bind(null, checkWalletChainId2)
 
 	const orderFiller = new BatchOrderFiller(ethereum1, send1, config, apis, getBaseOrderFee)
 
@@ -208,9 +207,9 @@ describe("fillOrder: Opensea orders", function () {
 		const beforeSellerNftBalance1 = await getBalance("ERC1155", sender2Address, tokenIds[0])
 		const beforeSellerNftBalance2 = await getBalance("ERC1155", sender2Address, tokenIds[1])
 		const beforeSellerNftBalance3 = await getBalance("ERC721", sender2Address)
-		//@todo current version of exchangeWrapper contract can't make partial fill for RARIBLE_V2 ERC1155 orders
+
 		const tx = await orderFiller.buy([
-			{order: order1, amount: 2, originFees},
+			{order: order1, amount: 1, originFees}, //ERC1155 partial fill
 			{order: order2, amount: 2, originFees},
 			{order: order3, amount: 1, originFees},
 		])
@@ -218,7 +217,7 @@ describe("fillOrder: Opensea orders", function () {
 
 		//seller balances
 		expect((await getBalance("ERC1155", sender2Address, tokenIds[0])).toString()).toBe(
-			beforeSellerNftBalance1.minus(2).toFixed()
+			beforeSellerNftBalance1.minus(1).toFixed()
 		)
 		expect((await getBalance("ERC1155", sender2Address, tokenIds[1])).toString()).toBe(
 			beforeSellerNftBalance2.minus(2).toFixed()
@@ -229,9 +228,9 @@ describe("fillOrder: Opensea orders", function () {
 
 		//buyer balances
 		expect((await getBalance("ERC1155", sender1Address, tokenIds[0])).toString()).toBe(
-			beforeBuyerNftBalance1.plus(2).toFixed()
+			beforeBuyerNftBalance1.plus(1).toFixed()
 		)
-		expect((await getBalance("ERC1155", sender1Address, tokenIds[0])).toString()).toBe(
+		expect((await getBalance("ERC1155", sender1Address, tokenIds[1])).toString()).toBe(
 			beforeBuyerNftBalance2.plus(2).toFixed()
 		)
 		expect((await getBalance("ERC721", sender1Address)).toString()).toBe(

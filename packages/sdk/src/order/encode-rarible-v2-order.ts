@@ -1,10 +1,13 @@
 import type { Ethereum } from "@rarible/ethereum-provider"
+import type { BigNumber } from "@rarible/types"
 import type { SimpleRaribleV2Order } from "./types"
 
 export function encodeRaribleV2OrderAndSignature(
-	ethereum: Ethereum, order: SimpleRaribleV2Order, signature: string
+	ethereum: Ethereum, order: SimpleRaribleV2Order, signature: string, purchaseAmount: BigNumber
 ): string {
-	const encoded = ethereum.encodeParameter(ORDER_AND_SIG, { orderLeft: order, signatureLeft: signature })
+	const encoded = ethereum.encodeParameter(
+		ORDER_AND_SIG, { orderLeft: order, signatureLeft: signature, purchaseAmount }
+	)
 	return `0x${encoded.slice(66)}`
 }
 
@@ -100,6 +103,10 @@ const ORDER_AND_SIG = {
 	components: [
 		RARIBLEV2_LEFT_ORDER_TYPE,
 		RARIBLEV2_LEFT_SIGNATURE_TYPE,
+		{
+			name: "purchaseAmount",
+			type: "uint256",
+		},
 	],
 	name: "data",
 	type: "tuple",

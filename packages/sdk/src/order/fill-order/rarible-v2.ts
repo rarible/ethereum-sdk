@@ -99,7 +99,7 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		}
 		const fixed = await this.fixForTx(initial)
 		const signature = fixSignature(initial.signature) || "0x"
-		const callData = encodeRaribleV2OrderAndSignature(this.ethereum, fixed, signature)
+		const callData = encodeRaribleV2OrderAndSignature(this.ethereum, fixed, signature, inverted.take.value)
 		const options = await this.getMatchV2Options(initial, inverted)
 		return {
 			data: {

@@ -21,6 +21,7 @@ export type LegacyOrderFillRequest =
   CommonFillRequest<SimpleLegacyOrder> & { payout?: Address, originFee: number }
 export type RaribleV2OrderFillRequest =
   CommonFillRequest<SimpleRaribleV2Order> & { payouts?: Part[], originFees?: Part[] }
+
 export type OpenSeaV1OrderFillRequest =
   Omit<CommonFillRequest<SimpleOpenSeaV1Order>, "amount"> & { originFees?: Part[] }
 export type CryptoPunksOrderFillRequest = CommonFillRequest<SimpleCryptoPunkOrder>

@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.69](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.68...v0.12.69) (2022-05-16)
+
+
+### Bug Fixes
+
+* ethers provider fix ([#157](https://github.com/rarible/protocol-ethereum-sdk/issues/157)) ([feae5d6](https://github.com/rarible/protocol-ethereum-sdk/commit/feae5d68e66d2de31e46e5bc44fb12baf396a872))
+
+
+
+
+
+## [0.12.68](https://github.com/rarible/ethereum-sdk/compare/v0.12.67...v0.12.68) (2022-05-15)
+
+
+### Bug Fixes
+
+* fixed fee encoding for exchangeWrapper ([#156](https://github.com/rarible/ethereum-sdk/issues/156)) ([3130a5e](https://github.com/rarible/ethereum-sdk/commit/3130a5e9a23e7fd6f37a7c0315c7fd59832c8bb0))
+
+
+
+
+
+## [0.12.67](https://github.com/rarible/ethereum-sdk/compare/v0.12.66...v0.12.67) (2022-05-05)
+
+
+### Features
+
+* cryptopunk wrapper, check wrapper contract address ([f8ab791](https://github.com/rarible/ethereum-sdk/commit/f8ab7916f9ea14e6c160d8279b2bc8a836df1325))
+
+
+
+
+
 ## [0.12.66](https://github.com/rarible/ethereum-sdk/compare/v0.12.65...v0.12.66) (2022-04-29)
 
 

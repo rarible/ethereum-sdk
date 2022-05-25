@@ -12,6 +12,7 @@ import { getSendWithInjects, sentTx } from "../common/send-transaction"
 import { getEthereumConfig } from "../config"
 import { approveErc20 as approveErc20Template } from "./approve-erc20"
 import { checkChainId } from "./check-chain-id"
+import { prependProviderName } from "./test/prepend-provider-name"
 
 const pk = "d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469"
 const { provider, addresses } = createGanacheProvider(pk)
@@ -23,10 +24,6 @@ const providers = [
 	new EthersEthereum(new ethers.Wallet(pk, ethersWeb3Provider)),
 	new EthersWeb3ProviderEthereum(ethersWeb3Provider),
 ]
-
-function name(ethereum: Ethereum, test: string) {
-	return `${ethereum.constructor.name}: ${test}`
-}
 
 describe.each(providers)("approveErc20", (ethereum: Ethereum) => {
 	const [testAddress] = addresses
@@ -45,7 +42,7 @@ describe.each(providers)("approveErc20", (ethereum: Ethereum) => {
 		await it.testErc20.methods.mint(testAddress, 100).send({ from: testAddress, gas: 200000 })
 	})
 
-	test(name(ethereum, "should approve exact value if not infinite"), async () => {
+	test(prependProviderName(ethereum, "should approve exact value if not infinite"), async () => {
 		const operator = randomAddress()
 		const tx = await approveErc20(toAddress(it.testErc20.options.address), testAddress, operator, toBn(100), false)
 		await tx?.wait()
@@ -53,7 +50,7 @@ describe.each(providers)("approveErc20", (ethereum: Ethereum) => {
 		expect(result.eq(100)).toBeTruthy()
 	})
 
-	test(name(ethereum, "should approve if value infinite"), async () => {
+	test(prependProviderName(ethereum, "should approve if value infinite"), async () => {
 		const infiniteBn = toBn(2).pow(256).minus(1)
 
 		const operator = randomAddress()
@@ -64,7 +61,7 @@ describe.each(providers)("approveErc20", (ethereum: Ethereum) => {
 		expect(result.toString()).toBe(infiniteBn.toString())
 	})
 
-	test(name(ethereum, "should not approve if already approved"), async () => {
+	test(prependProviderName(ethereum, "should not approve if already approved"), async () => {
 		const operator = randomAddress()
 		const testBnValue = toBn(200)
 

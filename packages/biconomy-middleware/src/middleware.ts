@@ -3,7 +3,7 @@ import { Biconomy } from "@biconomy/mexa"
 import type { JsonRpcMiddleware } from "json-rpc-engine"
 import { createAsyncMiddleware } from "json-rpc-engine"
 import type { Block } from "eth-json-rpc-middleware/dist/utils/cache"
-import type { IBiconomyConfig, IContractRegistry } from "./types"
+import type { IBiconomyConfig, IContractRegistry, ILimitsRegistry } from "./types"
 import { MetaContractAbi } from "./abi/methods-abi"
 import { providerRequest } from "./utils/provider-request"
 import { signTypedData } from "./sign-typed-data"
@@ -11,6 +11,7 @@ import { signTypedData } from "./sign-typed-data"
 export function biconomyMiddleware(
 	provider: any,
 	registry: IContractRegistry,
+	limitsRegistry: ILimitsRegistry,
 	biconomyConfig: IBiconomyConfig
 ): JsonRpcMiddleware<string[], Block> {
 	const biconomy = new Biconomy(getBiconomySupportedProvider(provider), biconomyConfig)
@@ -29,6 +30,10 @@ export function biconomyMiddleware(
 					const metadata = await registry.getMetadata(tx.to, tx.data)
 					if (metadata) {
 						await biconomyState
+						const limits = await limitsRegistry.checkLimits(tx.from)
+						if (!limits.allowed) {
+							return next()
+						}
 						const contract = new ethers.Contract(tx.to, MetaContractAbi, signer)
 						const interfaceHelper = new ethers.utils.Interface(MetaContractAbi)
 

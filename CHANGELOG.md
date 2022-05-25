@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.70](https://github.com/rarible/ethereum-sdk/compare/v0.12.69...v0.12.70) (2022-05-25)
+
+
+### Features
+
+* check limits before send meta transaction ([5ad69be](https://github.com/rarible/ethereum-sdk/commit/5ad69befd29c3ae0eef8128b1b601d712ce79c01))
+
+
+
+
+
 ## [0.12.69](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.68...v0.12.69) (2022-05-16)
 
 

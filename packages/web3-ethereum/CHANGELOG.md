@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.71](https://github.com/rarible/ethereum-sdk/compare/v0.12.70...v0.12.71) (2022-05-31)
+
+**Note:** Version bump only for package @rarible/web3-ethereum
+
+
+
+
+
 ## [0.12.67](https://github.com/rarible/ethereum-sdk/compare/v0.12.66...v0.12.67) (2022-05-05)
 
 **Note:** Version bump only for package @rarible/web3-ethereum

@@ -23,7 +23,7 @@ export type RaribleV2OrderFillRequest =
   CommonFillRequest<SimpleRaribleV2Order> & { payouts?: Part[], originFees?: Part[] }
 
 export type OpenSeaV1OrderFillRequest =
-  Omit<CommonFillRequest<SimpleOpenSeaV1Order>, "amount"> & { originFees?: Part[] }
+  Omit<CommonFillRequest<SimpleOpenSeaV1Order>, "amount"> & { payouts?: Part[], originFees?: Part[] }
 export type CryptoPunksOrderFillRequest = CommonFillRequest<SimpleCryptoPunkOrder>
 
 export type FillOrderRequest =

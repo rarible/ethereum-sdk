@@ -78,7 +78,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		return this.config.openSea.metadata || id32("RARIBLE")
 	}
 
-	async invert({ order }: OpenSeaV1OrderFillRequest, maker: Address): Promise<SimpleOpenSeaV1Order> {
+	async invert({ order, payouts }: OpenSeaV1OrderFillRequest, maker: Address): Promise<SimpleOpenSeaV1Order> {
 		if (order.data.side === "BUY") {
 			throw new Error("Bid opensea orders is not supported yet")
 		}
@@ -100,7 +100,11 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			take: {
 				...order.make,
 			},
-			maker,
+			/**
+			 * if orders is not bid(for now opensea orders can be only regular sell type) - payouts(for nft asset)
+			 * should have single recipient
+			 */
+			maker: payouts ? payouts[0].account : maker,
 			taker: order.maker,
 			signature: undefined,
 			data,
@@ -112,6 +116,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 
 		return invertedOrder
 	}
+
 
 	async encodeOrder(order: SimpleOpenSeaV1Order): Promise<EncodedOrderCallData> {
 		const makeAssetType = order.make.assetType

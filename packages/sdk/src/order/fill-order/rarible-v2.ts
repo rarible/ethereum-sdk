@@ -2,20 +2,25 @@ import type { Address } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { ZERO_WORD } from "@rarible/types"
 import type { Maybe } from "@rarible/types/build/maybe"
-import { hashToSign, orderToStruct } from "../sign-order"
+import { hashToSign, orderToStruct, signOrder } from "../sign-order"
 import { getAssetWithFee } from "../get-asset-with-fee"
 import type { EthereumConfig } from "../../config/type"
 import { approve } from "../approve"
 import type { SendFunction } from "../../common/send-transaction"
 import { createExchangeV2Contract } from "../contracts/exchange-v2"
 import { waitTx } from "../../common/wait-tx"
-import type { SimpleRaribleV2Order } from "../types"
+import type { SimpleOrder, SimpleRaribleV2Order } from "../types"
 import { isSigner } from "../../common/is-signer"
 import { fixSignature } from "../../common/fix-signature"
-import type { SimpleOrder } from "../types"
+import { encodeRaribleV2OrderAndSignature } from "../encode-rarible-v2-order"
 import { invertOrder } from "./invert-order"
-import type { OrderHandler, RaribleV2OrderFillRequest } from "./types"
-import type { OrderFillSendData } from "./types"
+import type {
+	OrderFillSendData,
+	OrderHandler,
+	PreparedOrderRequestDataForExchangeWrapper,
+	RaribleV2OrderFillRequest,
+} from "./types"
+import { ExchangeWrapperOrderType } from "./types"
 
 export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillRequest> {
 
@@ -77,6 +82,32 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		return {
 			functionCall,
 			options: await this.getMatchV2Options(initial, inverted),
+		}
+	}
+
+	async getTransactionDataForExchangeWrapper(
+		initial: SimpleRaribleV2Order, inverted: SimpleRaribleV2Order
+	): Promise<PreparedOrderRequestDataForExchangeWrapper> {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
+		if (initial.take.assetType.assetClass !== "ETH") {
+			throw new Error("Batch purchase only available for ETH currency")
+		}
+		if (!initial.signature) {
+			initial.signature = await signOrder(this.ethereum, this.config, initial)
+		}
+		const fixed = await this.fixForTx(initial)
+		const signature = fixSignature(initial.signature) || "0x"
+		const callData = encodeRaribleV2OrderAndSignature(this.ethereum, fixed, signature, inverted.take.value)
+		const options = await this.getMatchV2Options(initial, inverted)
+		return {
+			data: {
+				marketId: ExchangeWrapperOrderType.RARIBLEV2,
+				amount: options?.value!,
+				data: callData,
+			},
+			options,
 		}
 	}
 

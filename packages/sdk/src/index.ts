@@ -31,6 +31,7 @@ import type {
 	GetOrderBuyTxData,
 	GetOrderFillTxData,
 } from "./order/fill-order/types"
+import type { GetOrderBuyBatchTxData } from "./order/fill-order/types"
 import type { SimpleOrder } from "./order/types"
 import { OrderFiller } from "./order/fill-order"
 import { getBaseFee } from "./common/get-base-fee"
@@ -110,9 +111,13 @@ export interface RaribleOrderSdk {
 	/**
    * Get fill transaction data (for external sending)
    *
-   * @param request order and parameters (amount to fill, fees etc)
+   * @param request array of orders and parameters (amount to fill, fees etc)
    */
 	getFillTxData: GetOrderFillTxData
+	/**
+	 * Get buyBatch transaction data (for external sending)
+	 */
+	getBuyBatchTxData: GetOrderBuyBatchTxData,
 
 	/**
    * Get buy transaction data (for external sending)
@@ -287,6 +292,7 @@ export function createRaribleSdk(
 			fill: filler.fill,
 			buy: filler.buy,
 			buyBatch: buyBatchService.buy,
+			getBuyBatchTxData: buyBatchService.getTransactionData,
 			acceptBid: filler.acceptBid,
 			getFillTxData: filler.getTransactionData,
 			getBuyTxData: filler.getBuyTx,

@@ -28,10 +28,10 @@ import { cancel as cancelTemplate } from "./order/cancel"
 import type {
 	FillBatchOrderAction,
 	FillOrderAction,
+	GetOrderBuyBatchTxData,
 	GetOrderBuyTxData,
 	GetOrderFillTxData,
 } from "./order/fill-order/types"
-import type { GetOrderBuyBatchTxData } from "./order/fill-order/types"
 import type { SimpleOrder } from "./order/types"
 import { OrderFiller } from "./order/fill-order"
 import { getBaseFee } from "./common/get-base-fee"
@@ -114,9 +114,10 @@ export interface RaribleOrderSdk {
    * @param request order and parameters (amount to fill, fees etc)
    */
 	getFillTxData: GetOrderFillTxData
+
 	/**
 	 * Get buyBatch transaction data (for external sending)
-	 * @param request order and parameters (amount to fill, fees etc)
+	 * @param request array of orders and parameters (amount to fill, fees etc)
 	 */
 	getBuyBatchTxData: GetOrderBuyBatchTxData,
 

@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.71](https://github.com/rarible/ethereum-sdk/compare/v0.12.70...v0.12.71) (2022-05-31)
+
+**Note:** Version bump only for package @rarible/biconomy-middleware
+
+
+
+
+
+## [0.12.70](https://github.com/rarible/ethereum-sdk/compare/v0.12.69...v0.12.70) (2022-05-25)
+
+
+### Features
+
+* check limits before send meta transaction ([5ad69be](https://github.com/rarible/ethereum-sdk/commit/5ad69befd29c3ae0eef8128b1b601d712ce79c01))
+
+
+
+
+
 ## [0.12.67](https://github.com/rarible/ethereum-sdk/compare/v0.12.66...v0.12.67) (2022-05-05)
 
 **Note:** Version bump only for package @rarible/biconomy-middleware

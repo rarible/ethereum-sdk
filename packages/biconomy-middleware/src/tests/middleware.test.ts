@@ -2,7 +2,7 @@ import Web3 from "web3"
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { withBiconomyMiddleware } from "../biconomy"
-import type { ContractMetadata, IContractRegistry } from "../types"
+import type {BiconomyApiLimitResponse, ContractMetadata, IContractRegistry, ILimitsRegistry} from "../types"
 import { rinkebyMetaTxContract, rinkebyMetaTxContractMetadata } from "./metaTxContract/contract"
 
 const testRegistry: IContractRegistry = {
@@ -16,6 +16,22 @@ const testRegistry: IContractRegistry = {
 	},
 }
 
+const testLimitsRegistry: ILimitsRegistry = {
+	checkLimits(userAddress: string): Promise<BiconomyApiLimitResponse> {
+		return Promise.resolve({
+			limit: {
+				allowed: true,
+				limitLeft: 100,
+				type: 0,
+				resetTime: 99999,
+			},
+			allowed: true,
+			message: "Allowed",
+			code: 200,
+		})
+	},
+}
+
 describe("middleware test", () => {
 	const {provider, wallet} = createE2eProvider(undefined, {
 		networkId: 4,
@@ -23,7 +39,7 @@ describe("middleware test", () => {
 	})
 
 	test.skip("Should use biconomy middleware", async () => {
-		const biconomyProvider = withBiconomyMiddleware(provider as any, testRegistry, {
+		const biconomyProvider = withBiconomyMiddleware(provider as any, testRegistry, testLimitsRegistry, {
 			apiKey: "",
 		})
 		const web3 = new Web3(biconomyProvider as any)

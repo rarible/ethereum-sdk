@@ -111,11 +111,12 @@ export interface RaribleOrderSdk {
 	/**
    * Get fill transaction data (for external sending)
    *
-   * @param request array of orders and parameters (amount to fill, fees etc)
+   * @param request order and parameters (amount to fill, fees etc)
    */
 	getFillTxData: GetOrderFillTxData
 	/**
 	 * Get buyBatch transaction data (for external sending)
+	 * @param request order and parameters (amount to fill, fees etc)
 	 */
 	getBuyBatchTxData: GetOrderBuyBatchTxData,
 

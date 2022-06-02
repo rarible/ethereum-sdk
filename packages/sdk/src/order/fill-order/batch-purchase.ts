@@ -25,6 +25,7 @@ import type {
 	PreparedOrderRequestDataForExchangeWrapper,
 	RaribleV2OrderFillRequest,
 } from "./types"
+import type { OrderFillTransactionData } from "./types"
 import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OpenSeaOrderHandler } from "./open-sea"
 
@@ -46,6 +47,8 @@ export class BatchOrderFiller {
 		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
+		this.getTransactionData = this.getTransactionData.bind(this)
+		this.getTransactionRequestData = this.getTransactionRequestData.bind(this)
 	}
 
 	private getFillAction<Request extends FillBatchOrderRequest>()
@@ -126,6 +129,20 @@ export class BatchOrderFiller {
 	) {
 		const { functionCall, options } = await this.getTransactionRequestData(orders)
 		return this.send(functionCall, options)
+	}
+
+	async getTransactionData(request: FillBatchSingleOrderRequest[]): Promise<OrderFillTransactionData> {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
+		const response = await Promise.all(request.map(async initial => {
+			return {
+				initial,
+				inverted: await this.invertOrder(initial, toAddress(await this?.ethereum?.getFrom()!)),
+			}
+		}))
+		const {functionCall, options} = await this.getTransactionRequestData(response)
+		return {data: functionCall.data, options}
 	}
 
 	async getTransactionRequestData(

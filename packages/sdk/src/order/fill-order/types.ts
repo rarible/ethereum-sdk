@@ -69,6 +69,7 @@ export interface OrderHandler<T extends FillOrderRequest> {
 }
 
 export type GetOrderFillTxData = (request: FillOrderRequest) => Promise<OrderFillTransactionData>
+export type GetOrderBuyBatchTxData = (request: FillBatchSingleOrderRequest[]) => Promise<OrderFillTransactionData>
 
 export type OrderFillTransactionData = {
 	data: string

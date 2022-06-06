@@ -3,24 +3,37 @@ import { awaitAll, deployTestErc1155, createGanacheProvider } from "@rarible/eth
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
+import { ethers } from "ethers"
+import { EthersEthereum, EthersWeb3ProviderEthereum } from "@rarible/ethers-ethereum"
+import type { Ethereum } from "@rarible/ethereum-provider"
 import { getApiConfig } from "../config/api-config"
 import { isError } from "../common/is-error"
 import { getSendWithInjects, sentTx } from "../common/send-transaction"
 import { getEthereumConfig } from "../config"
 import { checkChainId } from "../order/check-chain-id"
+import { prependProviderName } from "../order/test/prepend-provider-name"
 import { transferErc1155 } from "./transfer-erc1155"
 
-describe("transfer Erc1155", () => {
-	const { provider, addresses } = createGanacheProvider()
-	const web3 = new Web3(provider as any)
-	const ethereum = new Web3Ethereum({ web3, gas: 500000 })
+const { provider, addresses, accounts } = createGanacheProvider()
+const ethersWeb3Provider = new ethers.providers.Web3Provider(provider as any)
+const web3 = new Web3(provider as any)
+const [account1] = accounts
+
+const providers = [
+	new Web3Ethereum({ web3, gas: 500000 }),
+	new EthersEthereum(new ethers.Wallet(account1.secretKey, ethersWeb3Provider)),
+	new EthersWeb3ProviderEthereum(ethersWeb3Provider),
+]
+
+describe.each(providers)("transfer Erc1155", (ethereum: Ethereum) => {
 	const [from] = addresses
 	const to = randomAddress()
 
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const env = "e2e"
+	const configuration = new Configuration(getApiConfig(env))
 	const gatewayApi = new GatewayControllerApi(configuration)
 
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig(env)
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 
@@ -28,7 +41,7 @@ describe("transfer Erc1155", () => {
 		testErc1155: deployTestErc1155(web3, "TST"),
 	})
 
-	test("should transfer erc1155 token", async () => {
+	test(prependProviderName(ethereum, "should transfer erc1155 token"), async () => {
 		const token1Id = from + "b00000000000000000000001"
 		const token1Balance = "10"
 		await sentTx(it.testErc1155.methods.mint(from, token1Id, token1Balance, "123"), { from, gas: 200000 })
@@ -36,9 +49,12 @@ describe("transfer Erc1155", () => {
 		const senderBalance: string = await it.testErc1155.methods.balanceOf(from, token1Id).call()
 		expect(senderBalance === token1Balance).toBeTruthy()
 
+		console.log("before transfer")
 		const hash = await transferErc1155(ethereum, send, toAddress(it.testErc1155.options.address), from, to, token1Id, "5")
+		await hash.wait()
 		expect(!!hash).toBeTruthy()
 
+		console.log("after transfer")
 		const senderResultBalance: string = await it.testErc1155.methods.balanceOf(from, token1Id).call()
 		expect(senderResultBalance === "5").toBeTruthy()
 
@@ -46,7 +62,7 @@ describe("transfer Erc1155", () => {
 		expect(receiverBalance === "5").toBeTruthy()
 	})
 
-	test("should transfer batch of erc1177", async () => {
+	test(prependProviderName(ethereum, "should transfer batch of erc1177"), async () => {
 		const [token2Id, token3Id, token4Id]: string[] = [
 			from + "b00000000000000000000002",
 			from + "b00000000000000000000003",
@@ -96,7 +112,7 @@ describe("transfer Erc1155", () => {
 		expect(resultToken4Balances).toEqual(["0", "300"])
 	})
 
-	test("the transferErc1155 should throw error, because the length of identifiers and quantities, the parameters of the sum do not match",
+	test(prependProviderName(ethereum, "the transferErc1155 should throw error, because the length of identifiers and quantities, the parameters of the sum do not match"),
 		async () => {
 			const [token2Id, token3Id]: string[] = [
 				from + "b00000000000000000000005",

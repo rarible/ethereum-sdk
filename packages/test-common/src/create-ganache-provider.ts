@@ -31,5 +31,6 @@ export function createGanacheProvider(...pk: string[]) {
 		provider: provider as any,
 		wallets,
 		addresses: wallets.map(w => toAddress(w.getAddressString())),
+		accounts,
 	}
 }

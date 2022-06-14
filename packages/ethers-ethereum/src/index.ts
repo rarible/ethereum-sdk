@@ -143,6 +143,7 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 	}
 
 	async send(options?: EthereumProvider.EthereumSendOptions): Promise<EthereumProvider.EthereumTransaction> {
+		console.log("send method: name", this.name, "this.contract", this.contract, "bind", this.contract[this.name])
 		const func = this.contract[this.name].bind(null, ...this.args)
 		if (options) {
 			return new EthersTransaction(await func(options))

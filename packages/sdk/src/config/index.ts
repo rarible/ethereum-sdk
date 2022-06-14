@@ -9,9 +9,9 @@ import { polygonConfig } from "./polygon"
 import { mumbaiDevConfig } from "./mumbai-dev"
 import { devEthereumConfig } from "./dev"
 import { devPolygonConfig } from "./polygon-dev"
+import { testnetEthereumConfig } from "./testnet"
 
 export const configDictionary: Record<EthereumNetwork, EthereumConfig> = {
-	e2e: e2eConfig,
 	ropsten: ropstenConfig,
 	rinkeby: rinkebyConfig,
 	mainnet: mainnetConfig,
@@ -20,6 +20,7 @@ export const configDictionary: Record<EthereumNetwork, EthereumConfig> = {
 	polygon: polygonConfig,
 	"dev-ethereum": devEthereumConfig,
 	"dev-polygon": devPolygonConfig,
+	testnet: testnetEthereumConfig,
 }
 
 export function getEthereumConfig(env: EthereumNetwork): EthereumConfig {

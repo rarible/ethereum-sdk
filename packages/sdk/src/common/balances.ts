@@ -25,6 +25,7 @@ export class Balances {
 					contract: assetType.contract,
 					owner: address,
 				})
+				console.log("balance", balance)
 				return toBn(balance.decimalBalance)
 			}
 			default: throw new Error("Asset class is not supported")

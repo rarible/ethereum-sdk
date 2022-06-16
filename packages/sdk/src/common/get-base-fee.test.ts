@@ -2,7 +2,7 @@ import { getEthereumConfig } from "../config"
 import { getBaseFee } from "./get-base-fee"
 
 describe("get base fee", () => {
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig("testnet")
 
 	test("get base fee from mainnet", async () => {
 	  const fee = await getBaseFee(config, "mainnet")

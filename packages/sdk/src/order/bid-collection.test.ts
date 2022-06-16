@@ -36,7 +36,7 @@ describe("bid", () => {
 	const web32 = new Web3(provider2)
 	const ethereum2 = new Web3Ethereum({ web3: web32 })
 
-	const env = "e2e" as const
+	const env = "testnet" as const
 	const configuration = new Configuration(getApiConfig(env))
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const orderApi = new OrderControllerApi(configuration)

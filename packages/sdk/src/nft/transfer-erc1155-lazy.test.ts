@@ -22,7 +22,7 @@ describe("transfer Erc721 lazy", () => {
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
 
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const configuration = new Configuration(getApiConfig("testnet"))
 	const nftOwnershipApi = new NftOwnershipControllerApi(configuration)
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(configuration)
@@ -30,7 +30,7 @@ describe("transfer Erc721 lazy", () => {
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
 	const sign = signNft.bind(null, ethereum, 17)
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig("testnet")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 

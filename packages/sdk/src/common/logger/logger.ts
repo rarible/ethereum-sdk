@@ -4,7 +4,7 @@ import type { Maybe } from "@rarible/types/build/maybe"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { EthereumNetwork } from "../../types"
 
-type Environment = "prod" | "e2e" | "dev" | "staging"
+type Environment = "prod" | "testnet" | "dev" | "staging"
 
 /**
  * Convert network name to stage environment name
@@ -22,9 +22,9 @@ export function getEnvironment(network: EthereumNetwork): Environment {
 		case "mumbai":
 		case "rinkeby":
 			return "staging"
-		case "e2e":
+		case "testnet":
 		default:
-			return "e2e"
+			return "testnet"
 	}
 }
 

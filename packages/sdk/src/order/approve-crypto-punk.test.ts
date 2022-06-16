@@ -22,10 +22,10 @@ describe("approve crypto punks", () => {
 		punksMarket: deployCryptoPunks(web3),
 	})
 
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const configuration = new Configuration(getApiConfig("testnet"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig("testnet")
 	const checkWalletChainId = checkChainId.bind(null, ethereumSeller, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 	const approve = approveCryptoPunk.bind(null, ethereumSeller, send)

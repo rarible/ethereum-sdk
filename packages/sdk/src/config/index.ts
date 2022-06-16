@@ -1,5 +1,4 @@
 import type { EthereumNetwork } from "../types"
-import { e2eConfig } from "./e2e"
 import { ropstenConfig } from "./ropsten"
 import { rinkebyConfig } from "./rinkeby"
 import { mainnetConfig } from "./mainnet"

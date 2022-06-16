@@ -23,9 +23,9 @@ describe("buy out auction", () => {
 	const feeAddress = feeWallet.getAddressString()
 	const web3Seller = new Web3(providerSeller as any)
 	const web3Buyer = new Web3(providerBuyer as any)
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig("testnet")
 
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const configuration = new Configuration(getApiConfig("testnet"))
 	const auctionApi = new AuctionControllerApi(configuration)
 
 	const ethereum1 = new Web3Ethereum({web3: web3Seller, from: sender1Address, gas: 1000000})
@@ -37,9 +37,9 @@ describe("buy out auction", () => {
 	const approve1 = approveTemplate.bind(null, ethereum1, send1, config.transferProxies)
 	const approve2 = approveTemplate.bind(null, ethereum2, send2, config.transferProxies)
 
-	const apis = createEthereumApis("e2e")
-	const auctionService1 = new StartAuction(ethereum1, send1, config, "e2e", approve1, apis)
-	const buyoutService2 = new BuyoutAuction(ethereum2, send1, config, "e2e", approve2, apis)
+	const apis = createEthereumApis("testnet")
+	const auctionService1 = new StartAuction(ethereum1, send1, config, "testnet", approve1, apis)
+	const buyoutService2 = new BuyoutAuction(ethereum2, send1, config, "testnet", approve2, apis)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3Seller, "TST"),

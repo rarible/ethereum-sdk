@@ -33,7 +33,7 @@ describe("buy & acceptBid orders", () => {
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
-	const env = "e2e" as const
+	const env = "testnet" as const
 	const config = getEthereumConfig(env)
 	const apis = createEthereumApis(env)
 

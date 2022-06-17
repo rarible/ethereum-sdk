@@ -14,9 +14,9 @@ describe("approveErc721", () => {
 	const web3 = new Web3(provider as any)
 	const ethereum = new Web3Ethereum({ web3 })
 	const [from] = addresses
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const configuration = new Configuration(getApiConfig("testnet"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig("testnet")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 

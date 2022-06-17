@@ -29,7 +29,7 @@ describe.each(providers)("transfer Erc1155", (ethereum: Ethereum) => {
 	const [from] = addresses
 	const to = randomAddress()
 
-	const env = "e2e"
+	const env = "testnet"
 	const configuration = new Configuration(getApiConfig(env))
 	const gatewayApi = new GatewayControllerApi(configuration)
 

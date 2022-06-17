@@ -13,7 +13,7 @@ describe("test encodeRaribleV2OrderAndSignature function", () => {
 	const [senderAddress] = addresses
 	const web3 = new Web3(provider as any)
 	const ethereum = new Web3Ethereum({ web3, from: senderAddress, gas: 1000000 })
-	const config: EthereumConfig = getEthereumConfig("e2e")
+	const config: EthereumConfig = getEthereumConfig("testnet")
 	const order: SimpleOrder = {
 		make: {
 			assetType: {

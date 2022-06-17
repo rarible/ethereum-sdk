@@ -15,10 +15,10 @@ import { approveForWrapper, unwrapPunk, wrapPunk } from "./cryptopunk-wrapper"
 
 describe("wrap crypto punk", () => {
 	const { provider, addresses } = createGanacheProvider()
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const configuration = new Configuration(getApiConfig("testnet"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig("testnet")
 
 	// @ts-ignore
 	const web3 = new Web3(provider)

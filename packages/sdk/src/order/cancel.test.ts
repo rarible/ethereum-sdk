@@ -23,7 +23,7 @@ describe("cancel order", () => {
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
 	const approve = () => Promise.resolve(undefined)
-	const env = "e2e" as const
+	const env = "testnet" as const
 	const config = getEthereumConfig(env)
 	const sign = signOrder.bind(null, ethereum, config)
 	const configuration = new Configuration(getApiConfig(env))

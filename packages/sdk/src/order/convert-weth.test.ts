@@ -14,7 +14,7 @@ describe("convert weth test", () => {
 	const [sender1Address] = addresses
 	const web3 = new Web3(provider as any)
 	const ethereum = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig("testnet")
 
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)

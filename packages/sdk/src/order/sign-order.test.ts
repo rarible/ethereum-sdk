@@ -11,7 +11,7 @@ describe("signOrder", () => {
 	const { provider } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig("testnet")
 	const signOrderE2e = signOrder.bind(null, ethereum, config)
 
 	test("should sign legacy orders", async () => {

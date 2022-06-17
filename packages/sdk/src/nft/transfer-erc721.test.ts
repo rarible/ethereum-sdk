@@ -17,9 +17,9 @@ describe("transfer Erc721", () => {
 	const [from] = addresses
 	const to = randomAddress()
 
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const configuration = new Configuration(getApiConfig("testnet"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig("testnet")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 

@@ -183,7 +183,7 @@ export class StartAuction {
 		if (duration.isNaN() || duration.isNegative() || duration.isGreaterThan(this.MAX_DURATION_SECONDS)) {
 			throw new Error("Incorrect duration value")
 		}
-		if (this.env !== "e2e" && duration.isLessThan(this.MIN_DURATION_SECONDS)) {
+		if (this.env !== "testnet" && duration.isLessThan(this.MIN_DURATION_SECONDS)) {
 			throw new Error("Auction duration should be greater than minimal duration time")
 		}
 

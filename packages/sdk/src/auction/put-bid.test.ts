@@ -25,10 +25,10 @@ describe("put auction bid", () => {
 
 	const web3 = new Web3(provider as any)
 	const web3Buyer = new Web3(providerBuyer as any)
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig("testnet")
 
-	const configuration = new Configuration(getApiConfig("e2e"))
-	const apis = createEthereumApis("e2e")
+	const configuration = new Configuration(getApiConfig("testnet"))
+	const apis = createEthereumApis("testnet")
 	const auctionApi = new AuctionControllerApi(configuration)
 
 	const ethereum1 = new Web3Ethereum({web3, from: sender1Address, gas: 1000000})
@@ -42,9 +42,9 @@ describe("put auction bid", () => {
 	const approve1 = approveTemplate.bind(null, ethereum1, send1, config.transferProxies)
 	const approve2 = approveTemplate.bind(null, ethereum2, send2, config.transferProxies)
 
-	const bidService = new PutAuctionBid(ethereum2, send2, config, "e2e", approve2, apis)
+	const bidService = new PutAuctionBid(ethereum2, send2, config, "testnet", approve2, apis)
 
-	const auctionStartService1 = new StartAuction(ethereum1, send1, config, "e2e", approve1, apis)
+	const auctionStartService1 = new StartAuction(ethereum1, send1, config, "testnet", approve1, apis)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3, "TST"),

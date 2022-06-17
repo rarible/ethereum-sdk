@@ -22,15 +22,15 @@ describe("start auction", () => {
 	const sender1Address = wallet.getAddressString()
 	const feeWalletAddress = feeWallet.getAddressString()
 	const web3 = new Web3(provider as any)
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig("testnet")
 
 	const ethereum1 = new Web3Ethereum({web3, from: sender1Address, gas: 1000000})
 	const checkWalletChainId = checkChainId.bind(null, ethereum1, config)
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
 
 	const approve1 = approveTemplate.bind(null, ethereum1, send, config.transferProxies)
-	const apis = createEthereumApis("e2e")
-	const auctionService = new StartAuction(ethereum1, send, config, "e2e", approve1, apis)
+	const apis = createEthereumApis("testnet")
+	const auctionService = new StartAuction(ethereum1, send, config, "testnet", approve1, apis)
 
 	const it = awaitAll({
 		testErc721: deployTestErc721ForAuction(web3, "TST", "TST"),

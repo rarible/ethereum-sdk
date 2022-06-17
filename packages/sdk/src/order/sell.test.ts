@@ -33,7 +33,7 @@ const { provider, wallet } = createE2eProvider(
 const { providers } = createTestProviders(provider, wallet)
 
 describe.each(providers)("sell", (ethereum) => {
-	const env = "e2e" as const
+	const env = "testnet" as const
 	const configuration = new Configuration(getApiConfig(env))
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
@@ -48,7 +48,7 @@ describe.each(providers)("sell", (ethereum) => {
 	const mint = mintTemplate
 		.bind(null, ethereum, send, signNft, nftCollectionApi)
 		.bind(null, nftLazyMintApi, checkWalletChainId)
-	const apis = createEthereumApis("e2e")
+	const apis = createEthereumApis("testnet")
 
 	const getBaseOrderFee = async () => 0
 	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)

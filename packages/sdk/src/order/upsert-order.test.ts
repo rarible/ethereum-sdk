@@ -21,7 +21,7 @@ const it = awaitAll({
 })
 
 describe.each(providers)("upsertOrder", (ethereum) => {
-	const env = "e2e" as const
+	const env = "testnet" as const
 	const config = getEthereumConfig(env)
 	const sign = signOrder.bind(null, ethereum, config)
 	const apis = createEthereumApis(env)
@@ -32,7 +32,7 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
 
 	const approve = () => Promise.resolve(undefined)
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const configuration = new Configuration(getApiConfig("testnet"))
 	const orderApi = new OrderControllerApi(configuration)
 	const checkLazyOrder: any = async (form: any) => Promise.resolve(form)
 

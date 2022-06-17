@@ -15,9 +15,9 @@ describe("deploy token test", () => {
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3 })
 
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig("testnet")
 	config.factories.erc1155 = e2eConfig.factories.erc1155
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const configuration = new Configuration(getApiConfig("testnet"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const checkWalletChainId = checkChainId.bind(null, ethereum1, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)

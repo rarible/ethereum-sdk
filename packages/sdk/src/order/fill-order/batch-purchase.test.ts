@@ -28,12 +28,12 @@ import { BatchOrderFiller } from "./batch-purchase"
 
 describe("fillOrder: Opensea orders", function () {
 	const { addresses, provider } = createGanacheProvider()
-	const [sender1Address, sender2Address, feeRecipient] = addresses
+	const [sender1Address, sender2Address] = addresses
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
-	const env = "e2e" as const
+	const env = "testnet" as const
 	const config: EthereumConfig = {
 		...getEthereumConfig(env),
 		openSea: {
@@ -45,7 +45,7 @@ describe("fillOrder: Opensea orders", function () {
 
 	const getBaseOrderFee = async () => 100
 	const checkWalletChainId1 = checkChainId.bind(null, ethereum1, config)
-	const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
+	// const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
 
 	const send1 = getSimpleSendWithInjects().bind(null, checkWalletChainId1)
 

@@ -23,12 +23,12 @@ describe("test exchange v1 order", () => {
 	const ethereum1 = new Web3Ethereum({ web3: web31 })
 	const ethereum2 = new Web3Ethereum({ web3: web32 })
 
-	const e2eConfig = getEthereumConfig("e2e")
-	const configuration = new Configuration(getApiConfig("e2e"))
+	const e2eConfig = getEthereumConfig("testnet")
+	const configuration = new Configuration(getApiConfig("testnet"))
 	const ownershipApi = new NftOwnershipControllerApi(configuration)
 
-	const apis = createEthereumApis("e2e")
-	const config = getEthereumConfig("e2e")
+	const apis = createEthereumApis("testnet")
+	const config = getEthereumConfig("testnet")
 
 	const getBaseOrderFee = async () => 0
 	const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)

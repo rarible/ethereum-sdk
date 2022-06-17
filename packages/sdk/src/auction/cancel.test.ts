@@ -15,13 +15,13 @@ describe("cancel auction", () => {
 	const { provider, wallet } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a")
 	const sender1Address = wallet.getAddressString()
 	const web3 = new Web3(provider as any)
-	const config = getEthereumConfig("e2e")
+	const config = getEthereumConfig("testnet")
 	const ethereum1 = new Web3Ethereum({web3, from: sender1Address, gas: 1000000})
 	const checkWalletChainId = checkChainId.bind(null, ethereum1, config)
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
 	const approve1 = approveTemplate.bind(null, ethereum1, send, config.transferProxies)
-	const apis = createEthereumApis("e2e")
-	const auctionService = new StartAuction(ethereum1, send, config, "e2e", approve1, apis)
+	const apis = createEthereumApis("testnet")
+	const auctionService = new StartAuction(ethereum1, send, config, "testnet", approve1, apis)
 
 	const it = awaitAll({
 		testErc1155: deployTestErc1155(web3, "TST"),

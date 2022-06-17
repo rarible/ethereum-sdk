@@ -30,7 +30,7 @@ describe("fillOrder", () => {
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 
-	const env = "e2e" as const
+	const env = "testnet" as const
 	const apis = createEthereumApis(env)
 	const config = getEthereumConfig(env)
 	const checkWalletChainId = checkChainId.bind(null, ethereum1, config)

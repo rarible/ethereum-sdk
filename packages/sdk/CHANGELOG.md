@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.73](https://github.com/rarible/ethereum-sdk/compare/v0.12.72...v0.12.73) (2022-06-17)
+
+
+### Bug Fixes
+
+* transfer with ethers ([da9818a](https://github.com/rarible/ethereum-sdk/commit/da9818a7e684ed43a94eeb1a8c499bec725cf192))
+
+
+### Features
+
+* added testnet env ([ce33dcc](https://github.com/rarible/ethereum-sdk/commit/ce33dcc3cfb5044ef6e07139a456273c5ec56b28))
+* added testnet env ([ace046e](https://github.com/rarible/ethereum-sdk/commit/ace046ed8d9faf7ce86577f5b3e5a4736dd414f0))
+* testnet support ([9df338d](https://github.com/rarible/ethereum-sdk/commit/9df338d97861ea75af1d359f662f4487fffa93f9))
+
+
+
+
+
 ## [0.12.72](https://github.com/rarible/ethereum-sdk/compare/v0.12.71...v0.12.72) (2022-06-02)
 
 **Note:** Version bump only for package @rarible/protocol-ethereum-sdk

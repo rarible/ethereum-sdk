@@ -19,7 +19,6 @@ export const configDictionary: Record<EthereumNetwork, EthereumConfig> = {
 	polygon: polygonConfig,
 	"dev-ethereum": devEthereumConfig,
 	"dev-polygon": devPolygonConfig,
-	e2e: e2eConfig, // todo: remove when tests are fixed
 	testnet: testnetEthereumConfig,
 }
 

@@ -10,6 +10,7 @@ export type EthereumNetwork =
   | "polygon"
   | "dev-ethereum"
   | "dev-polygon"
+  | "e2e"
   | "testnet"
 
 export enum LogsLevel {

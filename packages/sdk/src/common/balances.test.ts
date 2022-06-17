@@ -2,10 +2,6 @@ import { awaitAll, createE2eProvider, deployTestErc20 } from "@rarible/ethereum-
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
-import { Ethereum } from "@rarible/ethereum-provider"
-import { configDictionary } from "../config"
-import type { EthereumNetwork } from "../types"
-import type { EthereumConfig } from "../config/type"
 import { Balances } from "./balances"
 import { retry } from "./retry"
 import { createEthereumApis } from "./apis"
@@ -21,19 +17,6 @@ describe("getBalance test", () => {
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
-	})
-
-	console.log("Object.keys(configDictionary)", Object.keys(configDictionary))
-	test.each(Object.keys(configDictionary) as Array<EthereumNetwork>)
-	("check ETH balance in %p network", async (network) => {
-		console.log("network", network)
-		const senderAddress = toAddress("0xa14FC5C72222FAce8A1BcFb416aE2571fA1a7a91")
-
-		const apis = createEthereumApis(network)
-		const balances = new Balances(apis)
-		const balance = await balances.getBalance(senderAddress, { assetClass: "ETH" })
-		expect(balance).toBeTruthy()
-		console.log("balance", balance)
 	})
 
 	test("get eth balance", async () => {

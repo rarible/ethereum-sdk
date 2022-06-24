@@ -14,13 +14,13 @@ export async function getBaseFee(
 	try {
 	  const commonFeeConfigResponse: AxiosResponse<CommonFeeConfig> = await axios.get(config.feeConfigUrl)
 		envFeeConfig = commonFeeConfigResponse.data[env]
+
+		if (!envFeeConfig) {
+			throw new Error(`Fee config not found for ${env}`)
+		}
 	} catch (e) {
 		console.error(e)
 		throw new Error("Config with fee variables cannot be loaded")
-	}
-
-	if (!envFeeConfig) {
-		throw new Error(`Fee config not found for ${env}`)
 	}
 
 	if (!(type in envFeeConfig)) {

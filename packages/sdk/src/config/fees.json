@@ -34,6 +34,13 @@
     "CRYPTO_PUNK": 0,
     "AUCTION": 0
   },
+  "testnet": {
+    "RARIBLE_V1": 0,
+    "RARIBLE_V2": 0,
+    "OPEN_SEA_V1": 0,
+    "CRYPTO_PUNK": 0,
+    "AUCTION": 0
+  },
   "ropsten": {
     "RARIBLE_V1": 0,
     "RARIBLE_V2": 0,

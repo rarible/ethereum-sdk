@@ -19,6 +19,10 @@ export async function getBaseFee(
 		throw new Error("Config with fee variables cannot be loaded")
 	}
 
+	if (!envFeeConfig) {
+		throw new Error(`Fee config not found for ${env}`)
+	}
+
 	if (!(type in envFeeConfig)) {
 		throw new Error(`Unsupported fee type ${type}`)
 	}

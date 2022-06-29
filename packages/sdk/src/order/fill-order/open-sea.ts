@@ -104,7 +104,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			 * if orders is not bid(for now opensea orders can be only regular sell type) - payouts(for nft asset)
 			 * should have single recipient
 			 */
-			maker: payouts ? payouts[0].account : maker,
+			maker: payouts && payouts[0]?.account ? payouts[0].account : maker,
 			taker: order.maker,
 			signature: undefined,
 			data,

@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.73-hotfix.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.73...v0.12.73-hotfix.0) (2022-06-29)
+
+
+### Bug Fixes
+
+* add fee config for testnet, add condition check ([23f82a7](https://github.com/rarible/protocol-ethereum-sdk/commit/23f82a7a3d098bb5dcb57745d4b9e05b8c78f428))
+* add fee config for testnet, add condition check ([65640b8](https://github.com/rarible/protocol-ethereum-sdk/commit/65640b83fc604d2dd1d86c6580c34e835835d496))
+* opensea payouts fix ([6c7e708](https://github.com/rarible/protocol-ethereum-sdk/commit/6c7e7086b34fa6dcefef66510c2a4c041700e52c))
+
+
+
+
+
 ## [0.12.73](https://github.com/rarible/ethereum-sdk/compare/v0.12.72...v0.12.73) (2022-06-17)
 
 

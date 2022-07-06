@@ -24,11 +24,13 @@
     "verify": "tsc --noEmit"
   },
   "dependencies": {
+    "@opensea/seaport-js": "^1.0.2",
     "@rarible/action": "~0.5.0",
-    "@rarible/ethereum-api-client": "^0.1.21",
+    "@rarible/ethereum-api-client": "~0.1.22",
     "@rarible/ethereum-provider": "^0.12.64",
     "@rarible/logger": "~0.6.2",
     "@rarible/utils": "~0.5.0",
+    "ethers": "~5.6.7",
     "axios": "^0.25.0",
     "eth-sig-util": "^3.0.0",
     "ethereumjs-util": "^7.1.0",

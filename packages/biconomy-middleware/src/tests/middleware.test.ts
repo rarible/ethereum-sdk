@@ -17,7 +17,7 @@ const testRegistry: IContractRegistry = {
 }
 
 const testLimitsRegistry: ILimitsRegistry = {
-	checkLimits(userAddress: string): Promise<BiconomyApiLimitResponse> {
+	checkLimits(): Promise<BiconomyApiLimitResponse> {
 		return Promise.resolve({
 			limit: {
 				allowed: true,

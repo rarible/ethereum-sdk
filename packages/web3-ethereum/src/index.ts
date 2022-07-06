@@ -49,6 +49,10 @@ export class Web3Ethereum implements EthereumProvider.Ethereum {
 	async getChainId(): Promise<number> {
 		return this.config.web3.eth.getChainId()
 	}
+
+	getWeb3Instance(): Web3 {
+		return this.config.web3
+	}
 }
 
 export class Web3Contract implements EthereumProvider.EthereumContract {

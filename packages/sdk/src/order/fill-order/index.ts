@@ -8,7 +8,7 @@ import type {
 	SimpleLegacyOrder,
 	SimpleOpenSeaV1Order,
 	SimpleOrder,
-	SimpleRaribleV2Order,
+	SimpleRaribleV2Order, SimpleSeaportV1Order,
 } from "../types"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
@@ -28,19 +28,21 @@ import type {
 	OpenSeaV1OrderFillRequest,
 	OrderFillSendData,
 	OrderFillTransactionData,
-	RaribleV2OrderFillRequest,
+	RaribleV2OrderFillRequest, SeaportV1OrderFillRequest,
 	TransactionData,
 } from "./types"
 import { RaribleV1OrderHandler } from "./rarible-v1"
 import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OpenSeaOrderHandler } from "./open-sea"
 import { CryptoPunksOrderHandler } from "./crypto-punks"
+import { SeaportOrderHandler } from "./seaport"
 
 export class OrderFiller {
 	v1Handler: RaribleV1OrderHandler
 	v2Handler: RaribleV2OrderHandler
 	openSeaHandler: OpenSeaOrderHandler
 	punkHandler: CryptoPunksOrderHandler
+	seaportHandler: SeaportOrderHandler
 	private checkAssetType: CheckAssetTypeFunction
 	private checkLazyAssetType: (type: AssetType) => Promise<AssetType>
 
@@ -59,6 +61,7 @@ export class OrderFiller {
 		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config, getBaseOrderFee)
 		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
 		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config, getBaseOrderFee)
+		this.seaportHandler = new SeaportOrderHandler(ethereum)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 	}
@@ -71,8 +74,12 @@ export class OrderFiller {
 					if (!this.ethereum) {
 						throw new Error("Wallet undefined")
 					}
+					if (request.order.type === "SEAPORT_V1") {
+						return { request, inverted: request.order }
+					}
 					const from = toAddress(await this.ethereum.getFrom())
 					const inverted = await this.invertOrder(request, from)
+
 					if (request.assetType && inverted.make.assetType.assetClass === "COLLECTION") {
 						inverted.make.assetType = await this.checkAssetType(request.assetType)
 						inverted.make.assetType = await this.checkLazyAssetType(inverted.make.assetType)
@@ -169,6 +176,11 @@ export class OrderFiller {
 					<SimpleOpenSeaV1Order>request.order,
 					inverted,
 					<OpenSeaV1OrderFillRequest>request
+				)
+			case "SEAPORT_V1":
+				return this.seaportHandler.fillSeaportOrder(
+					<SimpleSeaportV1Order>request.order,
+					<SeaportV1OrderFillRequest>request
 				)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.sendTransaction(<SimpleCryptoPunkOrder>request.order, inverted)

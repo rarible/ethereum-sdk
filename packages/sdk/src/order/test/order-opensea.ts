@@ -222,8 +222,6 @@ export async function createSeaportOrder(
 		const {data} = await axios.post("https://testnets-api.opensea.io/v2/orders/rinkeby/seaport/listings", createdOrder)
 		orderHash = data.order.order_hash
 	} catch (e: any) {
-		console.error(e)
-		console.log("e.response", e.response.data)
 		throw e
 	}
 	return orderHash

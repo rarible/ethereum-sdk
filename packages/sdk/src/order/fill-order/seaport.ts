@@ -1,6 +1,5 @@
 import { providers } from "ethers"
-import { Seaport } from "@opensea/seaport-js"
-import { CROSS_CHAIN_SEAPORT_ADDRESS, ItemType, OrderType } from "@opensea/seaport-js/lib/constants"
+// import { Seaport } from "@opensea/seaport-js"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { Web3Ethereum } from "@rarible/web3-ethereum"
@@ -10,23 +9,17 @@ import { SeaportOrderType } from "@rarible/ethereum-api-client/build/models/Seap
 import { SeaportItemType } from "@rarible/ethereum-api-client/build/models/SeaportItemType"
 import type { EthereumTransaction } from "@rarible/ethereum-provider/src"
 import { ZERO_ADDRESS } from "@rarible/types"
-import type { OrderWithCounter } from "@opensea/seaport-js/lib/types"
+// import type { OrderWithCounter } from "@opensea/seaport-js/lib/types"
 import { toBn } from "@rarible/utils/build/bn"
-import type { TipInputItem } from "@opensea/seaport-js/lib/types"
+// import type { TipInputItem } from "@opensea/seaport-js/lib/types"
 import type { AssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
 import type { SimpleSeaportV1Order } from "../types"
 import { isNft } from "../is-nft"
 import { addFee } from "../add-fee"
+import { CROSS_CHAIN_SEAPORT_ADDRESS, ItemType, OrderType } from "./seaport-utils/constants"
 import type { SeaportV1OrderFillRequest } from "./types"
-
-const CROSS_CHAIN_DEFAULT_CONDUIT_KEY =
-  "0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000"
-const CROSS_CHAIN_DEFAULT_CONDUIT =
-  "0x1e0049783f008a0085193e00003d00cd54003c71"
-
-const CONDUIT_KEYS_TO_CONDUIT = {
-	[CROSS_CHAIN_DEFAULT_CONDUIT_KEY]: CROSS_CHAIN_DEFAULT_CONDUIT,
-}
+import type { OrderWithCounter, TipInputItem } from "./seaport-utils/types"
+import { fulfillOrder } from "./seaport-utils/seaport-utils"
 
 export class SeaportOrderHandler {
 	constructor(
@@ -41,12 +34,6 @@ export class SeaportOrderHandler {
 		}
 
 		const ethersProvider = getSeaportProvider(this.ethereum)
-		const seaport = new Seaport(ethersProvider, {
-			conduitKeyToConduit: CONDUIT_KEYS_TO_CONDUIT,
-			overrides: {
-				defaultConduitKey: CROSS_CHAIN_DEFAULT_CONDUIT_KEY,
-			},
-		})
 
 		if (order.data.protocol !== CROSS_CHAIN_SEAPORT_ADDRESS) {
 			throw new Error("Unsupported protocol")
@@ -75,13 +62,15 @@ export class SeaportOrderHandler {
 			}))
 		}
 
-		const {executeAllActions} = await seaport.fulfillOrder({
-			order: orderData,
-			unitsToFill,
-			accountAddress: await this.ethereum.getFrom(),
-			recipientAddress: undefined,
-			tips,
-		})
+		const {executeAllActions} = await fulfillOrder(
+			ethersProvider,
+			{
+				order: orderData,
+				unitsToFill,
+				accountAddress: await this.ethereum.getFrom(),
+				recipientAddress: undefined,
+				tips,
+			})
 		const tx = await executeAllActions()
 
 		return new EthersTransaction(tx)
@@ -154,7 +143,7 @@ export function convertItemType(type: SeaportItemType): ItemType {
 	}
 }
 
-export function getSeaportProvider(ethereum: Ethereum): providers.JsonRpcProvider {
+export function getSeaportProvider(ethereum: Ethereum): any {
 	if (!ethereum) {
 		throw new Error("Wallet undefined")
 	}

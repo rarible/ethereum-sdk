@@ -6,7 +6,7 @@ export function createErc20Contract(ethereum: Ethereum, address?: Address): Ethe
 	return ethereum.createContract(erc20Abi, address)
 }
 
-const erc20Abi: AbiItem[] = [
+export const erc20Abi: AbiItem[] = [
 	{
 		inputs: [
 			{

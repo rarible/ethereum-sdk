@@ -5,8 +5,7 @@ import type { SeaportV1Order } from "@rarible/ethereum-api-client/build/models/O
 import { ethers } from "ethers"
 import { EthersWeb3ProviderEthereum } from "@rarible/ethers-ethereum"
 import { toAddress } from "@rarible/types"
-import { ItemType } from "@opensea/seaport-js/lib/constants"
-import type { CreateInputItem } from "@opensea/seaport-js/lib/types"
+// import type { CreateInputItem } from "@opensea/seaport-js/lib/types"
 import type { BigNumberValue} from "@rarible/utils/build/bn"
 import { toBn } from "@rarible/utils/build/bn"
 import { createRaribleSdk } from "../../index"
@@ -16,6 +15,8 @@ import { MintResponseTypeEnum } from "../../nft/mint"
 import { delay } from "../../common/retry"
 import { awaitOrder } from "../test/await-order"
 import { awaitOwnership } from "../test/await-ownership"
+import { ItemType } from "./seaport-utils/constants"
+import type { CreateInputItem } from "./seaport-utils/types"
 
 describe("seaport", () => {
 	const { provider: providerBuyer } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a", {

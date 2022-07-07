@@ -8,13 +8,15 @@ import {
 import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import { ethers } from "ethers"
-import { Seaport } from "@opensea/seaport-js"
-import type { ConsiderationInputItem, CreateInputItem } from "@opensea/seaport-js/lib/types"
+// import { Seaport } from "@opensea/seaport-js"
+// import type { ConsiderationInputItem, CreateInputItem } from "@opensea/seaport-js/lib/types"
 import axios from "axios"
 import type { OpenSeaOrderDTO } from "../fill-order/open-sea-types"
 import type { SimpleOpenSeaV1Order } from "../types"
 import { convertOpenSeaOrderToDTO } from "../fill-order/open-sea-converter"
 import { getSeaportProvider } from "../fill-order/seaport"
+import type { ConsiderationInputItem, CreateInputItem } from "../fill-order/seaport-utils/types"
+import { createOrder } from "../fill-order/seaport-utils/seaport-utils"
 
 function getRandomTokenId(): string {
 	return Math.floor(Math.random() * 300000000).toString()
@@ -187,33 +189,20 @@ export function hashOpenSeaV1Order(ethereum: Ethereum, order: SimpleOpenSeaV1Ord
 export async function createSeaportOrder(
 	provider: Ethereum, make: CreateInputItem, take: ConsiderationInputItem[]
 ) {
-	const CROSS_CHAIN_DEFAULT_CONDUIT_KEY =
-    "0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000"
-	const CROSS_CHAIN_DEFAULT_CONDUIT =
-    "0x1e0049783f008a0085193e00003d00cd54003c71"
-
-	const CONDUIT_KEYS_TO_CONDUIT = {
-		[CROSS_CHAIN_DEFAULT_CONDUIT_KEY]: CROSS_CHAIN_DEFAULT_CONDUIT,
-	}
 	const ethersProvider = getSeaportProvider(provider)
-	const seaport = new Seaport(ethersProvider, {
-		conduitKeyToConduit: CONDUIT_KEYS_TO_CONDUIT,
-		overrides: {
-			defaultConduitKey: CROSS_CHAIN_DEFAULT_CONDUIT_KEY,
-		},
-	})
 
-
-	 const {executeAllActions} = await seaport.createOrder({
-		"offer": [make],
-		"consideration": take,
-		startTime: undefined,
-		endTime: getMaxOrderExpirationTimestamp().toString(),
-		//rinkeby
-		zone: "0x00000000e88fe2628ebc5da81d2b3cead633e89e",
-		restrictedByZone: true,
-		allowPartialFills: true,
-	})
+	 const {executeAllActions} = await createOrder(
+		ethersProvider,
+		{
+			"offer": [make],
+			"consideration": take,
+			startTime: undefined,
+			endTime: getMaxOrderExpirationTimestamp().toString(),
+			//rinkeby
+			zone: "0x00000000e88fe2628ebc5da81d2b3cead633e89e",
+			restrictedByZone: true,
+			allowPartialFills: true,
+		})
 
 	const createdOrder = await executeAllActions()
 

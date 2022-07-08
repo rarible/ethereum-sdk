@@ -56,6 +56,7 @@ import {
 	ERC721_VALIDATOR_TAKE_REPLACEMENT,
 } from "./open-sea-converter"
 
+
 export type EncodedOrderCallData = { callData: Binary, replacementPattern: Binary, target: Address }
 
 export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillRequest> {

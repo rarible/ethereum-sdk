@@ -8,9 +8,15 @@ import {
 import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import { ethers } from "ethers"
+// import { Seaport } from "@opensea/seaport-js"
+// import type { ConsiderationInputItem, CreateInputItem } from "@opensea/seaport-js/lib/types"
+import axios from "axios"
 import type { OpenSeaOrderDTO } from "../fill-order/open-sea-types"
 import type { SimpleOpenSeaV1Order } from "../types"
 import { convertOpenSeaOrderToDTO } from "../fill-order/open-sea-converter"
+import { getSeaportProvider } from "../fill-order/seaport"
+import type { ConsiderationInputItem, CreateInputItem } from "../fill-order/seaport-utils/types"
+import { createOrder } from "../fill-order/seaport-utils/seaport-utils"
 
 function getRandomTokenId(): string {
 	return Math.floor(Math.random() * 300000000).toString()
@@ -178,4 +184,45 @@ export function hashToSign(hash: string): string {
 
 export function hashOpenSeaV1Order(ethereum: Ethereum, order: SimpleOpenSeaV1Order): string {
 	return hashOrder(convertOpenSeaOrderToDTO(ethereum, order))
+}
+
+export async function createSeaportOrder(
+	provider: Ethereum, make: CreateInputItem, take: ConsiderationInputItem[]
+) {
+	const ethersProvider = getSeaportProvider(provider)
+
+	 const {executeAllActions} = await createOrder(
+		ethersProvider,
+		{
+			"offer": [make],
+			"consideration": take,
+			startTime: undefined,
+			endTime: getMaxOrderExpirationTimestamp().toString(),
+			//rinkeby
+			zone: "0x00000000e88fe2628ebc5da81d2b3cead633e89e",
+			restrictedByZone: true,
+			allowPartialFills: true,
+		})
+
+	const createdOrder = await executeAllActions()
+
+	let orderHash = ""
+	try {
+		const {data} = await axios.post("https://testnets-api.opensea.io/v2/orders/rinkeby/seaport/listings", createdOrder)
+		orderHash = data.order.order_hash
+	} catch (e: any) {
+		throw e
+	}
+	return orderHash
+}
+
+export const getMaxOrderExpirationTimestamp = () => {
+	const maxExpirationDate = new Date()
+
+	maxExpirationDate.setMonth(
+		maxExpirationDate.getMonth() + 1
+	)
+	maxExpirationDate.setDate(maxExpirationDate.getDate() - 1)
+
+	return Math.round(maxExpirationDate.getTime() / 1000)
 }

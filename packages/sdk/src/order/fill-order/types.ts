@@ -3,6 +3,7 @@ import type { CryptoPunksAssetType, Erc1155AssetType, Erc721AssetType, Part } fr
 import type { Action } from "@rarible/action"
 import type { EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Erc1155LazyAssetType, Erc721LazyAssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
+import type { SeaportV1Order } from "@rarible/ethereum-api-client/build/models/Order"
 import type { SimpleCryptoPunkOrder, SimpleLegacyOrder, SimpleOpenSeaV1Order, SimpleRaribleV2Order } from "../types"
 import type { NftAssetType } from "../check-asset-type"
 
@@ -19,17 +20,22 @@ export type CommonFillRequest<T> = {
 
 export type LegacyOrderFillRequest =
   CommonFillRequest<SimpleLegacyOrder> & { payout?: Address, originFee: number }
+
 export type RaribleV2OrderFillRequest =
   CommonFillRequest<SimpleRaribleV2Order> & { payouts?: Part[], originFees?: Part[] }
 
 export type OpenSeaV1OrderFillRequest =
   Omit<CommonFillRequest<SimpleOpenSeaV1Order>, "amount"> & { payouts?: Part[], originFees?: Part[] }
+
+export type SeaportV1OrderFillRequest = CommonFillRequest<SeaportV1Order> & { originFees?: Part[] }
+
 export type CryptoPunksOrderFillRequest = CommonFillRequest<SimpleCryptoPunkOrder>
 
 export type FillOrderRequest =
   LegacyOrderFillRequest |
   RaribleV2OrderFillRequest |
   OpenSeaV1OrderFillRequest |
+  SeaportV1OrderFillRequest |
   CryptoPunksOrderFillRequest
 
 export type FillBatchSingleOrderRequest =

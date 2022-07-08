@@ -10,9 +10,11 @@ import type { EthereumTransaction } from "@rarible/ethereum-provider/src"
 import { ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
 import type { AssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
+import { BigNumber } from "@rarible/utils"
 import type { SimpleSeaportV1Order } from "../types"
 import { isNft } from "../is-nft"
 import { addFee } from "../add-fee"
+import type { SimpleOrder } from "../types"
 import { CROSS_CHAIN_SEAPORT_ADDRESS, ItemType, OrderType } from "./seaport-utils/constants"
 import type { SeaportV1OrderFillRequest } from "./types"
 import type { OrderWithCounter, TipInputItem } from "./seaport-utils/types"
@@ -21,6 +23,7 @@ import { fulfillOrder } from "./seaport-utils/seaport-utils"
 export class SeaportOrderHandler {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
+		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 	) {}
 
 	async fillSeaportOrder(
@@ -42,8 +45,23 @@ export class SeaportOrderHandler {
 			throw new Error("Order should includes start/end fields")
 		}
 
+		const takeIsNft = isNft(order.take.assetType)
+		const makeIsNft = isNft(order.make.assetType)
 		const unitsToFill = order.make.assetType.assetClass === "ERC1155" || order.take.assetType.assetClass === "ERC1155" ? request.amount : undefined
+		const isSupportedPartialFill = order.data.orderType === "PARTIAL_RESTRICTED" || order.data.orderType === "PARTIAL_OPEN"
 
+		let isPartialFill: boolean
+		if (takeIsNft) {
+			isPartialFill = unitsToFill ? unitsToFill.toString() !== order.take.value.toString() : false
+		} else if (makeIsNft) {
+			isPartialFill = unitsToFill ? unitsToFill.toString() !== order.make.value.toString() : false
+		} else {
+			throw new Error("Make/take asset in order is non-nft asset")
+		}
+
+		if (!isSupportedPartialFill && isPartialFill) {
+			throw new Error("Order is not supported partial fill")
+		}
 		const orderData = convertAPIOrderToSeaport(order)
 
 		if (order.taker) {
@@ -51,7 +69,7 @@ export class SeaportOrderHandler {
 		}
 
 		let tips: TipInputItem[] | undefined
-		if (!isNft(order.take.assetType)) {
+		if (!takeIsNft) {
 			tips = request.originFees?.map(fee => ({
 				token: getSeaportToken(order.take.assetType),
 				amount: toBn(addFee(order.take, fee.value).value).minus(order.take.value).toString(),
@@ -71,6 +89,24 @@ export class SeaportOrderHandler {
 		const tx = await executeAllActions()
 
 		return new EthersTransaction(tx)
+	}
+
+	getBaseOrderFee() {
+		return this.getBaseOrderFeeConfig("SEAPORT_V1")
+	}
+
+	getOrderFee(order: SimpleSeaportV1Order): number {
+		const fees = order.data.consideration.reduce((acc, item) => {
+			if (item.recipient !== order.maker) {
+				acc = acc.plus(item.endAmount)
+			}
+			return acc
+		}, toBn(0))
+
+		return fees.div(order.take.value)
+			.multipliedBy(10000)
+			.integerValue(BigNumber.ROUND_FLOOR)
+			.toNumber()
 	}
 }
 

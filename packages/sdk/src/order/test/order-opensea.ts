@@ -187,9 +187,16 @@ export function hashOpenSeaV1Order(ethereum: Ethereum, order: SimpleOpenSeaV1Ord
 }
 
 export async function createSeaportOrder(
-	provider: Ethereum, make: CreateInputItem, take: ConsiderationInputItem[]
+	provider: Ethereum,
+	make: CreateInputItem,
+	take: ConsiderationInputItem[],
+	options?: {allowPartialFills: boolean}
 ) {
 	const ethersProvider = getSeaportProvider(provider)
+
+	const o = {
+		...(options || {}),
+	}
 
 	 const {executeAllActions} = await createOrder(
 		ethersProvider,
@@ -201,7 +208,7 @@ export async function createSeaportOrder(
 			//rinkeby
 			zone: "0x00000000e88fe2628ebc5da81d2b3cead633e89e",
 			restrictedByZone: true,
-			allowPartialFills: true,
+			allowPartialFills: o.allowPartialFills !== undefined ? o.allowPartialFills : true,
 		})
 
 	const createdOrder = await executeAllActions()

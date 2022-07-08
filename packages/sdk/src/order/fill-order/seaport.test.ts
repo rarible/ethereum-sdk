@@ -14,8 +14,10 @@ import { MintResponseTypeEnum } from "../../nft/mint"
 import { delay } from "../../common/retry"
 import { awaitOrder } from "../test/await-order"
 import { awaitOwnership } from "../test/await-ownership"
+import type { SimpleSeaportV1Order } from "../types"
 import { ItemType } from "./seaport-utils/constants"
 import type { CreateInputItem } from "./seaport-utils/types"
+import { SeaportOrderHandler } from "./seaport"
 
 describe("seaport", () => {
 	const { provider: providerBuyer } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a", {
@@ -42,6 +44,8 @@ describe("seaport", () => {
 	const rinkebyErc1155V2ContractAddress = toAddress("0x1af7a7555263f275433c6bb0b8fdcd231f89b1d7")
 	const originFeeAddress = toAddress("0xe954de45ec23bF47078db77f34ef0d905F4D3051")
 
+	const seaportBuyerOrderHandler = new SeaportOrderHandler(buyerEthersWeb3ProviderWallet, async () => 0
+	)
 	test("fill order ERC-721 <-> ETH", async () => {
 		const accountAddressBuyer = toAddress(await ethereum.getFrom())
 		console.log("accountAddressBuyer", accountAddressBuyer)
@@ -73,6 +77,9 @@ describe("seaport", () => {
 		})
 		await tx.wait()
 		await awaitOwnership(sdkBuyer, sellItem.itemId, accountAddressBuyer, "1")
+
+		const fee = seaportBuyerOrderHandler.getOrderFee(order as SimpleSeaportV1Order)
+		expect(fee).toBe(250)
 	})
 
 	test("fill order ERC-1155 <-> ETH", async () => {
@@ -109,6 +116,39 @@ describe("seaport", () => {
 		await tx.wait()
 
 		await awaitOwnership(sdkBuyer, sellItem.itemId, accountAddressBuyer, "2")
+	})
+
+	test("fill order ERC-1155 <-> ETH with restricted partial fill", async () => {
+		const accountAddress = await ethereumSeller.getFrom()
+
+		const sellItem = await sdkSeller.nft.mint({
+			collection: createErc1155V2Collection(rinkebyErc1155V2ContractAddress),
+			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
+			royalties: [],
+			supply: 100,
+			creators: [{ account: toAddress(accountAddress), value: 10000 }],
+			lazy: false,
+		})
+		if (sellItem.type === MintResponseTypeEnum.ON_CHAIN) {
+			await sellItem.transaction.wait()
+		}
+
+		await delay(10000)
+		const make: CreateInputItem = {
+			itemType: ItemType.ERC1155,
+			token: sellItem.contract,
+			identifier: sellItem.tokenId,
+			amount: "10",
+		} as const
+		const take = getOpenseaEthTakeData("10000000000")
+		const orderHash = await createSeaportOrder(ethereumSeller, make, take, {allowPartialFills: false})
+
+		const order = await awaitOrder(sdkBuyer, orderHash)
+		const buyResponse = sdkBuyer.order.buy({
+			order: order as SeaportV1Order,
+			amount: 2,
+		})
+		await expect(buyResponse).rejects.toThrow("Order is not supported partial fill")
 	})
 
 	test("fill order ERC-1155 <-> ETH with origin fees", async () => {

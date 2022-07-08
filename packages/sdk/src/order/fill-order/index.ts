@@ -61,7 +61,7 @@ export class OrderFiller {
 		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config, getBaseOrderFee)
 		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
 		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config, getBaseOrderFee)
-		this.seaportHandler = new SeaportOrderHandler(ethereum)
+		this.seaportHandler = new SeaportOrderHandler(ethereum, getBaseOrderFee)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 	}
@@ -139,6 +139,8 @@ export class OrderFiller {
 				return this.v2Handler.invert(<RaribleV2OrderFillRequest>request, from)
 			case "OPEN_SEA_V1":
 				return this.openSeaHandler.invert(<OpenSeaV1OrderFillRequest>request, from)
+			case "SEAPORT_V1":
+				throw new Error("Approve for Seaport orders is not implemented yet")
 			case "CRYPTO_PUNK":
 				return this.punkHandler.invert(<CryptoPunksOrderFillRequest>request, from)
 			default:
@@ -154,6 +156,8 @@ export class OrderFiller {
 				return this.v2Handler.approve(inverted, isInfinite)
 			case "OPEN_SEA_V1":
 				return this.openSeaHandler.approve(inverted, isInfinite)
+			case "SEAPORT_V1":
+				throw new Error("Approve for Seaport orders is not implemented yet")
 			case "CRYPTO_PUNK":
 				return this.punkHandler.approve(inverted, isInfinite)
 			default:
@@ -210,6 +214,8 @@ export class OrderFiller {
           <SimpleOpenSeaV1Order>inverted,
 					<OpenSeaV1OrderFillRequest>request
 				)
+			case "SEAPORT_V1":
+				throw new Error("Getting transaction data for Seaport orders is not implemented yet")
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getTransactionData(
           <SimpleCryptoPunkOrder>request.order,
@@ -248,6 +254,8 @@ export class OrderFiller {
 				return this.v2Handler.getOrderFee(order)
 			case "OPEN_SEA_V1":
 				return this.openSeaHandler.getOrderFee(order)
+			case "SEAPORT_V1":
+				return this.seaportHandler.getOrderFee(order)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getOrderFee()
 			default:
@@ -263,6 +271,8 @@ export class OrderFiller {
 				return this.v2Handler.getBaseOrderFee()
 			case "OPEN_SEA_V1":
 				return this.openSeaHandler.getBaseOrderFee()
+			case "SEAPORT_V1":
+				return this.seaportHandler.getBaseOrderFee()
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getBaseOrderFee()
 			default:

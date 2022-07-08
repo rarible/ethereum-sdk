@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.74](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.73...v0.12.74) (2022-07-08)
+
+
+### Features
+
+* seaport orders ([#166](https://github.com/rarible/protocol-ethereum-sdk/issues/166)) ([acd0d32](https://github.com/rarible/protocol-ethereum-sdk/commit/acd0d32a14612b13d7ad6218b61330bc3868cc9e))
+
+
+
+
+
 ## [0.12.73](https://github.com/rarible/ethereum-sdk/compare/v0.12.72...v0.12.73) (2022-06-17)
 
 **Note:** Version bump only for package @rarible/web3-ethereum

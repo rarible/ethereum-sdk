@@ -3,9 +3,6 @@ import type { ContractInterface } from "ethers"
 import { BigNumber, Contract } from "ethers"
 import { erc20Abi } from "../../contracts/erc20"
 import { erc721Abi } from "../../contracts/erc721"
-// import { ERC1155ABI } from "./abi/ERC1155"
-// import { ERC20ABI } from "./abi/ERC20"
-// import { ERC721ABI } from "./abi/ERC721"
 import { erc1155Abi } from "../../contracts/erc1155"
 import { ItemType } from "./constants"
 import type { InputCriteria, Item } from "./types"
@@ -50,8 +47,6 @@ export const balanceOf = async (
 
 		if (item.itemType === ItemType.ERC1155_WITH_CRITERIA) {
 			if (!criteria) {
-				// We don't have a good way to determine the balance of an erc1155 criteria item unless explicit
-				// identifiers are provided, so just assume the offerer has sufficient balance
 				const startAmount = BigNumber.from(item.startAmount)
 				const endAmount = BigNumber.from(item.endAmount)
 

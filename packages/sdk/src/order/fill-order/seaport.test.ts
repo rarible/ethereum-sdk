@@ -5,7 +5,6 @@ import type { SeaportV1Order } from "@rarible/ethereum-api-client/build/models/O
 import { ethers } from "ethers"
 import { EthersWeb3ProviderEthereum } from "@rarible/ethers-ethereum"
 import { toAddress } from "@rarible/types"
-// import type { CreateInputItem } from "@opensea/seaport-js/lib/types"
 import type { BigNumberValue} from "@rarible/utils/build/bn"
 import { toBn } from "@rarible/utils/build/bn"
 import { createRaribleSdk } from "../../index"

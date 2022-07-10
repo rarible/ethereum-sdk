@@ -9,7 +9,7 @@ import { e2eConfig } from "../config/e2e"
 import { checkChainId } from "../order/check-chain-id"
 import { DeployErc721 } from "./deploy-erc721"
 
-describe("deploy erc-721 token test", () => {
+describe.skip("deploy erc-721 token test", () => {
 	const { provider } = createE2eProvider()
 	const web3 = new Web3(provider)
 	const ethereum1 = new Web3Ethereum({ web3, gas: 2000000 })

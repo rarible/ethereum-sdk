@@ -22,7 +22,9 @@ const { provider, wallet } = createE2eProvider()
 const { providers } = createTestProviders(provider, wallet)
 const from = toAddress(wallet.getAddressString())
 
-describe.each(providers)("check-asset-type test", ethereum => {
+// describe.each(providers)("check-asset-type test", ethereum => {
+describe.skip("check-asset-type test", () => {
+	const ethereum = providers[0]
 	const e2eErc721ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
 	const configuration = new Configuration(getApiConfig("testnet"))
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)

@@ -48,7 +48,10 @@ const gatewayApi = new GatewayControllerApi(configuration)
 const e2eErc721V3ContractAddress = toAddress("0x96CE5b00c75e28d7b15F25eA392Cbb513ce1DE9E")
 const e2eErc1155V2ContractAddress = toAddress("0xda75B20cCFf4F86d2E8Ef00Da61A166edb7a233a")
 
-describe.each(providers)("mint test", ethereum => {
+// describe.each(providers)("mint test", ethereum => {
+describe.skip("mint test", () => {
+	//todo remove and uncomment describe.each
+	const ethereum = providers[0]
 	let minter: Address
 	const config = getEthereumConfig("dev-ethereum")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
@@ -82,7 +85,7 @@ describe.each(providers)("mint test", ethereum => {
 		}
 	})
 
-	test("mint ERC-721 v2", async () => {
+	test.skip("mint ERC-721 v2", async () => {
 		const mintableTokenE2eAddress = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
 		const result = await mint({
 			uri: "ipfs://ipfs/hash",

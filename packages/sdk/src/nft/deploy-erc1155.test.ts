@@ -9,7 +9,7 @@ import { e2eConfig } from "../config/e2e"
 import { checkChainId } from "../order/check-chain-id"
 import { DeployErc1155 } from "./deploy-erc1155"
 
-describe("deploy token test", () => {
+describe.skip("deploy token test", () => {
 	const { provider } = createE2eProvider()
 
 	const web3 = new Web3(provider as any)

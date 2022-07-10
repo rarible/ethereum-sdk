@@ -37,7 +37,10 @@ const { provider, wallet } = createE2eProvider(
 )
 const { providers } = createTestProviders(provider, wallet)
 
-describe.each(providers)("bid", (ethereum) => {
+// describe.each(providers)("bid", (ethereum) => {
+describe.skip("bid", () => {
+	//todo remove and uncomment describe.each
+	const ethereum = providers[0]
 	const configuration = new Configuration(getApiConfig("testnet"))
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)

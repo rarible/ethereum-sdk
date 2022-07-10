@@ -12,7 +12,7 @@ import { checkChainId } from "../order/check-chain-id"
 import { getEthereumConfig } from "../config"
 import { createPendingLogs, getSendWithInjects } from "./send-transaction"
 
-describe("sendTransaction", () => {
+describe.skip("sendTransaction", () => {
 	const { provider, wallet } = createE2eProvider()
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })

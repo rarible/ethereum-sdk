@@ -8,6 +8,7 @@ import type {
 	EthereumTransaction,
 } from "@rarible/ethereum-provider"
 import type { AbstractLogger } from "@rarible/logger/build/domain"
+import type { TransactionReceipt } from "web3-core"
 import { LogsLevel } from "../types"
 import { getErrorMessageString } from "./logger/logger"
 
@@ -147,6 +148,12 @@ export async function sentTx(source: ContractSendMethod, options: SendOptions): 
 export async function waitForHash<T>(promiEvent: PromiEvent<T>): Promise<string> {
 	return new Promise((resolve, reject) => {
 		promiEvent.on("transactionHash", hash => resolve(hash))
+		promiEvent.on("error", error => reject(error))
+	})
+}
+export async function waitForReceipt<T>(promiEvent: PromiEvent<T>): Promise<TransactionReceipt> {
+	return new Promise((resolve, reject) => {
+		promiEvent.on("receipt", receipt => resolve(receipt))
 		promiEvent.on("error", error => reject(error))
 	})
 }

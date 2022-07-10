@@ -10,7 +10,7 @@ import { getEthereumConfig } from "../config"
 import { checkChainId } from "../order/check-chain-id"
 import { transferErc721 } from "./transfer-erc721"
 
-describe("transfer Erc721", () => {
+describe.skip("transfer Erc721", () => {
 	const { provider, addresses } = createGanacheProvider()
 	const web3 = new Web3(provider as any)
 	const ethereum = new Web3Ethereum({ web3, gas: 200000 })

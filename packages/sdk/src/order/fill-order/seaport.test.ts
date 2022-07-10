@@ -44,8 +44,8 @@ describe("seaport", () => {
 	const rinkebyErc1155V2ContractAddress = toAddress("0x1af7a7555263f275433c6bb0b8fdcd231f89b1d7")
 	const originFeeAddress = toAddress("0xe954de45ec23bF47078db77f34ef0d905F4D3051")
 
-	const seaportBuyerOrderHandler = new SeaportOrderHandler(buyerEthersWeb3ProviderWallet, async () => 0
-	)
+	const seaportBuyerOrderHandler = new SeaportOrderHandler(buyerEthersWeb3ProviderWallet, async () => 0)
+
 	test("fill order ERC-721 <-> ETH", async () => {
 		const accountAddressBuyer = toAddress(await ethereum.getFrom())
 		console.log("accountAddressBuyer", accountAddressBuyer)

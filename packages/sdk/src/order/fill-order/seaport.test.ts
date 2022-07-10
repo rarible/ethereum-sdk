@@ -19,7 +19,7 @@ import { ItemType } from "./seaport-utils/constants"
 import type { CreateInputItem } from "./seaport-utils/types"
 import { SeaportOrderHandler } from "./seaport"
 
-describe("seaport", () => {
+describe.skip("seaport", () => {
 	const { provider: providerBuyer } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a", {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",

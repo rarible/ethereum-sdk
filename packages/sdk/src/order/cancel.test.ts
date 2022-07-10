@@ -18,7 +18,7 @@ import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { OrderFiller } from "./fill-order"
 import { checkChainId } from "./check-chain-id"
 
-describe("cancel order", () => {
+describe.skip("cancel order", () => {
 	const { provider, wallet } = createE2eProvider()
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })

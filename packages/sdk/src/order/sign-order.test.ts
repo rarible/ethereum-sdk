@@ -11,7 +11,7 @@ describe("signOrder", () => {
 	const { provider } = createE2eProvider("d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469")
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
-	const config = getEthereumConfig("testnet")
+	const config = getEthereumConfig("dev-ethereum")
 	const signOrderE2e = signOrder.bind(null, ethereum, config)
 
 	test("should sign legacy orders", async () => {
@@ -46,7 +46,7 @@ describe("signOrder", () => {
 			maker: toAddress(signer),
 		})
 		expect(signature).toEqual(
-			"0xcbaf8914c5da5efea1c8d3afa70d93147ec842632b4db1f62475c9ed107b07220496c37efa66fcfac2a54caa252ecbf77db79428d53b48ea39b89d8211bfa8151c"
+			"0xf2f467bd5cd30de2cd6a2b83b8d3b8405a730a0453589ce252b2f25a38b19052236e0a18d0f44023617f4055822b5f4fbf54dd091e87cf71c4f8f9a133136cf51c"
 		)
 	})
 })

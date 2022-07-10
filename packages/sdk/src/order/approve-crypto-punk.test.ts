@@ -9,7 +9,7 @@ import { getEthereumConfig } from "../config"
 import { approveCryptoPunk } from "./approve-crypto-punk"
 import { checkChainId } from "./check-chain-id"
 
-describe("approve crypto punks", () => {
+describe.skip("approve crypto punks", () => {
 	const {
 		addresses,
 		provider,

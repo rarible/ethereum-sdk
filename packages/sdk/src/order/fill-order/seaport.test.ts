@@ -19,7 +19,7 @@ import { ItemType } from "./seaport-utils/constants"
 import type { CreateInputItem } from "./seaport-utils/types"
 import { SeaportOrderHandler } from "./seaport"
 
-describe("seaport", () => {
+describe.skip("seaport", () => {
 	const { provider: providerBuyer } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a", {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",
@@ -44,8 +44,8 @@ describe("seaport", () => {
 	const rinkebyErc1155V2ContractAddress = toAddress("0x1af7a7555263f275433c6bb0b8fdcd231f89b1d7")
 	const originFeeAddress = toAddress("0xe954de45ec23bF47078db77f34ef0d905F4D3051")
 
-	const seaportBuyerOrderHandler = new SeaportOrderHandler(buyerEthersWeb3ProviderWallet, async () => 0
-	)
+	const seaportBuyerOrderHandler = new SeaportOrderHandler(buyerEthersWeb3ProviderWallet, async () => 0)
+
 	test("fill order ERC-721 <-> ETH", async () => {
 		const accountAddressBuyer = toAddress(await ethereum.getFrom())
 		console.log("accountAddressBuyer", accountAddressBuyer)

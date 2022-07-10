@@ -17,7 +17,7 @@ import { transfer } from "./transfer"
 import { ERC721VersionEnum } from "./contracts/domain"
 import { getErc721Contract } from "./contracts/erc721"
 
-describe("transfer Erc721 lazy", () => {
+describe.skip("transfer Erc721 lazy", () => {
 	const { provider, wallet } = createE2eProvider()
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })

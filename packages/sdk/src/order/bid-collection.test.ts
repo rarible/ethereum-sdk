@@ -27,7 +27,7 @@ import { checkChainId } from "./check-chain-id"
 import type { SimpleRaribleV2Order } from "./types"
 import { approve as approveTemplate } from "./approve"
 
-describe("bid", () => {
+describe.skip("bid", () => {
 	const { provider: provider1 } = createE2eProvider()
 	const web31 = new Web3(provider1)
 	const ethereum1 = new Web3Ethereum({ web3: web31 })

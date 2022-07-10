@@ -9,7 +9,7 @@ import { getEthereumConfig } from "../config"
 import { approveErc721 as approveErc721Template } from "./approve-erc721"
 import { checkChainId } from "./check-chain-id"
 
-describe("approveErc721", () => {
+describe.skip("approveErc721", () => {
 	const { provider, addresses } = createGanacheProvider()
 	const web3 = new Web3(provider as any)
 	const ethereum = new Web3Ethereum({ web3 })

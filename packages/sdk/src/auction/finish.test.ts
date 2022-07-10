@@ -15,7 +15,7 @@ import { PutAuctionBid } from "./put-bid"
 import { awaitForAuction, awaitForAuctionBid } from "./test"
 
 
-describe("finish auction auction", () => {
+describe.skip("finish auction auction", () => {
 	const { provider: providerSeller, wallet: walletSeller } = createE2eProvider("0xded057615d97f0f1c751ea2795bc4b03bbf44844c13ab4f5e6fd976506c276b9")
 	const { provider: providerBuyer, wallet: walletBuyer } = createE2eProvider("0xa0d2baba419896add0b6e638ba4e50190f331db18e3271760b12ce87fa853dcb")
 	const { wallet: feeWallet } = createE2eProvider()

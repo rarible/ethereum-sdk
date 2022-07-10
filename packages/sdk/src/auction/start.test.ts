@@ -15,7 +15,7 @@ import { createEthereumApis } from "../common/apis"
 import { checkChainId } from "../order/check-chain-id"
 import { StartAuction } from "./start"
 
-describe("start auction", () => {
+describe.skip("start auction", () => {
 	const { provider, wallet } = createE2eProvider("0xa0d2baba419896add0b6e638ba4e50190f331db18e3271760b12ce87fa853dcb")
 	const { wallet: feeWallet } = createE2eProvider()
 

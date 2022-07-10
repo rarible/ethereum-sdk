@@ -6,7 +6,7 @@ import { checkLazyAsset } from "./check-lazy-asset"
 const client = new NftItemControllerApi(new Configuration({ basePath: "https://ethereum-api-dev.rarible.org" }))
 const partial = checkLazyAssetType.bind(null, client)
 
-describe("checkLazyAsset", () => {
+describe.skip("checkLazyAsset", () => {
 	test("if not found", async () => {
 		const result = await checkLazyAsset(partial, {
 			assetType: {

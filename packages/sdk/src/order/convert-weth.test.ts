@@ -9,7 +9,7 @@ import { ConvertWeth } from "./convert-weth"
 import { createWethContract } from "./contracts/weth"
 import { checkChainId } from "./check-chain-id"
 
-describe("convert weth test", () => {
+describe.skip("convert weth test", () => {
 	const { addresses, provider } = createGanacheProvider()
 	const [sender1Address] = addresses
 	const web3 = new Web3(provider as any)

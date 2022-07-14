@@ -7,8 +7,7 @@ import { createSeaportContract } from "../../contracts/seaport"
 import type { SimpleSeaportV1Order } from "../../types"
 import type { SendFunction } from "../../../common/send-transaction"
 import { getOrderHash } from "./get-order-hash"
-import type {
-	BalancesAndApprovals} from "./balance-and-approval-check"
+import type { BalancesAndApprovals} from "./balance-and-approval-check"
 import {
 	validateBasicFulfillBalancesAndApprovals, validateStandardFulfillBalancesAndApprovals,
 } from "./balance-and-approval-check"

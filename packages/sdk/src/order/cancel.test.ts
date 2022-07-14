@@ -122,7 +122,7 @@ describe.skip("cancel order", () => {
 	}
 })
 
-describe("test seaport rinkeby order", () => {
+describe.skip("test seaport rinkeby order", () => {
 	const { provider: providerSeller } = createE2eProvider("0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c", {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",

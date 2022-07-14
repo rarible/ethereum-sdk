@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.77](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.76...v0.12.77) (2022-07-14)
+
+
+### Features
+
+* improve seaport ([#169](https://github.com/rarible/protocol-ethereum-sdk/issues/169)) ([a405164](https://github.com/rarible/protocol-ethereum-sdk/commit/a405164bfed67cd81b43d42745a9218319b23bf9))
+
+
+
+
+
 ## [0.12.76](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.75...v0.12.76) (2022-07-10)
 
 

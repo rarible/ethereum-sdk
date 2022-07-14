@@ -8,15 +8,22 @@ import { deployTestErc20 } from "@rarible/ethereum-sdk-test-common"
 import { deployTestErc721 } from "@rarible/ethereum-sdk-test-common"
 import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
-import { retry } from "../common/retry"
+import { delay, retry } from "../common/retry"
 import { getSimpleSendWithInjects } from "../common/send-transaction"
 import { createEthereumApis } from "../common/apis"
+import { createRaribleSdk } from "../index"
+import { createErc721V3Collection } from "../common/mint"
+import { MintResponseTypeEnum } from "../nft/mint"
 import { cancel } from "./cancel"
 import { signOrder } from "./sign-order"
 import { UpsertOrder } from "./upsert-order"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { OrderFiller } from "./fill-order"
 import { checkChainId } from "./check-chain-id"
+import { ItemType } from "./fill-order/seaport-utils/constants"
+import { createSeaportOrder } from "./test/order-opensea"
+import { awaitOrder } from "./test/await-order"
+import { getOpenseaEthTakeData } from "./test/get-opensea-take-data"
 
 describe.skip("cancel order", () => {
 	const { provider, wallet } = createE2eProvider()
@@ -113,4 +120,58 @@ describe.skip("cancel order", () => {
 
 		expect(cancelledOrder.cancelled).toEqual(true)
 	}
+})
+
+describe.skip("test seaport rinkeby order", () => {
+	const { provider: providerSeller } = createE2eProvider("0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c", {
+		networkId: 4,
+		rpcUrl: "https://node-rinkeby.rarible.com",
+	})
+	const web3Seller = new Web3(providerSeller as any)
+	const ethereumSeller = new Web3Ethereum({ web3: web3Seller, gas: 1000000 })
+	const sdkSeller = createRaribleSdk(ethereumSeller, "testnet")
+
+	const rinkebyErc721V3ContractAddress = toAddress("0x6ede7f3c26975aad32a475e1021d8f6f39c89d82")
+
+	const config = getEthereumConfig("testnet")
+
+	const checkWalletChainId = checkChainId.bind(null, ethereumSeller, config)
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+
+	test("cancel seaport order", async () => {
+		const accountAddressBuyer = toAddress(await ethereumSeller.getFrom())
+		console.log("accountAddressBuyer", accountAddressBuyer)
+		console.log("seller", await ethereumSeller.getFrom())
+
+		const sellItem = await sdkSeller.nft.mint({
+			collection: createErc721V3Collection(rinkebyErc721V3ContractAddress),
+			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
+			royalties: [],
+			lazy: false,
+		})
+		if (sellItem.type === MintResponseTypeEnum.ON_CHAIN) {
+			await sellItem.transaction.wait()
+		}
+
+		await delay(10000)
+		const make = {
+			itemType: ItemType.ERC721,
+			token: sellItem.contract,
+			identifier: sellItem.tokenId,
+		} as const
+		const take = getOpenseaEthTakeData("10000000000")
+		const orderHash = await createSeaportOrder(ethereumSeller, send, make, take)
+
+		const order = await awaitOrder(sdkSeller, orderHash)
+
+		const cancelTx = await sdkSeller.order.cancel(order)
+		await cancelTx.wait()
+
+		await retry(10, 3000, async () => {
+			const order = await sdkSeller.apis.order.getOrderByHash({hash: orderHash})
+			if (order.status !== "CANCELLED") {
+				throw new Error("Order has not been cancelled")
+			}
+		})
+	})
 })

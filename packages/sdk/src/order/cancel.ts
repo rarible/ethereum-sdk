@@ -1,6 +1,7 @@
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Address, CryptoPunksAssetType } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
+import { toAddress } from "@rarible/types"
 import type { ExchangeAddresses } from "../config/type"
 import { toVrs } from "../common/to-vrs"
 import { createCryptoPunksMarketContract } from "../nft/contracts/cryptoPunks"
@@ -15,11 +16,14 @@ import type {
 	SimpleLegacyOrder,
 	SimpleOpenSeaV1Order,
 	SimpleOrder,
-	SimpleRaribleV2Order,
+	SimpleRaribleV2Order, SimpleSeaportV1Order,
 } from "./types"
 import { orderToStruct } from "./sign-order"
 import { convertOpenSeaOrderToDTO } from "./fill-order/open-sea-converter"
 import type { CheckLazyOrderPart } from "./check-lazy-order"
+import { createSeaportContract } from "./contracts/seaport"
+import { CROSS_CHAIN_SEAPORT_ADDRESS } from "./fill-order/seaport-utils/constants"
+import { convertAPIOrderToSeaport } from "./fill-order/seaport-utils/convert-to-seaport-order"
 
 export async function cancel(
 	checkLazyOrder: (form: CheckLazyOrderPart) => Promise<CheckLazyOrderPart>,
@@ -39,6 +43,8 @@ export async function cancel(
 				return cancelV2Order(ethereum, send, config.v2, order)
 			case "OPEN_SEA_V1":
 				return cancelOpenseaOrderV1(ethereum, send, order)
+			case "SEAPORT_V1":
+				return cancelSeaportOrder(ethereum, send, order)
 			case "CRYPTO_PUNK":
 				return cancelCryptoPunksOrder(ethereum, send, order)
 			default:
@@ -100,4 +106,27 @@ export function cancelCryptoPunkOrderByAsset(
 ) {
 	const ethContract = createCryptoPunksMarketContract(ethereum, assetType.contract)
 	return send(ethContract.functionCall(methodName, assetType.tokenId))
+}
+
+export async function cancelSeaportOrder(
+	ethereum: Ethereum, send: SendFunction, order: SimpleSeaportV1Order
+) {
+	// const accountAddress = await ethereum.getFrom()
+	// const provider = getSeaportProvider(ethereum)
+	// const signer = provider.getSigner(accountAddress)
+	// const multicallProvider = new multicallProviders.MulticallProvider(provider)
+
+	const orderParams = convertAPIOrderToSeaport(order).parameters
+
+	const seaport = createSeaportContract(ethereum, toAddress(CROSS_CHAIN_SEAPORT_ADDRESS))
+	return send(seaport.functionCall("cancel", [orderParams]))
+	// const contract = new Contract(
+	// 	CROSS_CHAIN_SEAPORT_ADDRESS,
+	// 	SeaportABI,
+	// 	multicallProvider
+	// ) as SeaportContract
+	// const methods = await getTransactionMethods(contract.connect(signer), "cancel", [
+	// 	[orderParams],
+	// ])
+	// return new EthersTransaction(await methods.transact())
 }

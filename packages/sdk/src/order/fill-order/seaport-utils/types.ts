@@ -1,12 +1,6 @@
-import type {
-	BigNumber,
-	BigNumberish,
-	Contract,
-	ContractTransaction,
-	Overrides,
-	PayableOverrides,
-	PopulatedTransaction,
-} from "ethers"
+import type { BigNumberValue } from "@rarible/utils"
+import type { BigNumber } from "@rarible/utils"
+import type { SendFunction } from "../../../common/send-transaction"
 import type { ItemType, OrderType } from "./constants"
 
 export type OfferItem = {
@@ -32,13 +26,13 @@ export type OrderParameters = {
 	offerer: string;
 	zone: string;
 	orderType: OrderType;
-	startTime: BigNumberish;
-	endTime: BigNumberish;
+	startTime: BigNumberValue;
+	endTime: BigNumberValue;
 	zoneHash: string;
 	salt: string;
 	offer: OfferItem[];
 	consideration: ConsiderationItem[];
-	totalOriginalConsiderationItems: BigNumberish;
+	totalOriginalConsiderationItems: BigNumberValue;
 	conduitKey: string;
 }
 
@@ -107,6 +101,7 @@ export type Fee = {
 }
 
 export type CreateOrderInput = {
+	send: SendFunction
 	conduitKey?: string;
 	zone?: string;
 	startTime?: string;
@@ -129,69 +124,13 @@ export type InputCriteria = {
 export type OrderStatus = {
 	isValidated: boolean;
 	isCancelled: boolean;
-	totalFilled: BigNumber;
-	totalSize: BigNumber;
+	totalFilled: string;
+	totalSize: string;
 }
 
 export type OrderWithCounter = {
 	parameters: OrderComponents;
 	signature: string;
-}
-
-export type ContractMethodReturnType<
-	T extends Contract,
-	U extends keyof T["callStatic"]
-	// eslint-disable-next-line no-undef
-> = Awaited<ReturnType<T["callStatic"][U]>>
-
-export type TransactionMethods<T = unknown> = {
-	buildTransaction: (overrides?: Overrides) => Promise<PopulatedTransaction>;
-	callStatic: (overrides?: Overrides) => Promise<T>;
-	estimateGas: (overrides?: Overrides) => Promise<BigNumber>;
-	transact: (overrides?: Overrides) => Promise<ContractTransaction>;
-}
-
-export type ApprovalAction = {
-	type: "approval";
-	token: string;
-	identifierOrCriteria: string;
-	itemType: ItemType;
-	operator: string;
-	transactionMethods:
-	| TransactionMethods<ContractMethodReturnType<Contract, "setApprovalForAll">>
-	| TransactionMethods<ContractMethodReturnType<Contract, "approve">>;
-}
-
-export type ExchangeAction<T = unknown> = {
-	type: "exchange";
-	transactionMethods: TransactionMethods<T>;
-}
-
-export type CreateOrderAction = {
-	type: "create";
-	getMessageToSign: () => Promise<string>;
-	createOrder: () => Promise<OrderWithCounter>;
-}
-
-export type TransactionAction = ApprovalAction | ExchangeAction
-
-export type CreateOrderActions = readonly [
-	...ApprovalAction[],
-	CreateOrderAction
-]
-
-export type OrderExchangeActions<T> = readonly [
-	...ApprovalAction[],
-	ExchangeAction<T>
-]
-
-export type OrderUseCase<T extends CreateOrderAction | ExchangeAction> = {
-	actions: T extends CreateOrderAction
-		? CreateOrderActions
-		: OrderExchangeActions<T extends ExchangeAction<infer U> ? U : never>;
-	executeAllActions: () => Promise<
-	T extends CreateOrderAction ? OrderWithCounter : ContractTransaction
-	>;
 }
 
 export type FulfillmentComponent = {
@@ -214,56 +153,8 @@ export type MatchOrdersFulfillment = {
 	considerationComponents: MatchOrdersFulfillmentComponent[];
 }
 
-// Overrides matchOrders types to fix fulfillments type which is generated
-// by TypeChain incorrectly
-export type SeaportContract = Contract & {
-	encodeFunctionData(
-		functionFragment: "matchOrders",
-		values: [OrderStruct[], MatchOrdersFulfillment[]]
-	): string;
-
-	matchOrders(
-		orders: OrderStruct[],
-		fulfillments: MatchOrdersFulfillment[],
-		overrides?: PayableOverrides & { from?: string | Promise<string> }
-	): Promise<ContractTransaction>;
-
-	functions: Contract["functions"] & {
-		matchOrders(
-			orders: OrderStruct[],
-			fulfillments: MatchOrdersFulfillment[],
-			overrides?: PayableOverrides & { from?: string | Promise<string> }
-		): Promise<ContractTransaction>;
-	};
-
-	callStatic: Contract["callStatic"] & {
-		matchOrders(
-			orders: OrderStruct[],
-			fulfillments: MatchOrdersFulfillment[],
-			overrides?: PayableOverrides & { from?: string | Promise<string> }
-		): Promise<ContractTransaction>;
-	};
-
-	estimateGas: Contract["estimateGas"] & {
-		matchOrders(
-			orders: OrderStruct[],
-			fulfillments: MatchOrdersFulfillment[],
-			overrides?: PayableOverrides & { from?: string | Promise<string> }
-		): Promise<BigNumber>;
-	};
-
-	populateTranscation: Contract["populateTransaction"] & {
-		matchOrders(
-			orders: OrderStruct[],
-			fulfillments: MatchOrdersFulfillment[],
-			overrides?: PayableOverrides & { from?: string | Promise<string> }
-		): Promise<PopulatedTransaction>;
-	};
-}
-
-
 export type AdditionalRecipientStruct = {
-	amount: BigNumberish;
+	amount: BigNumberValue;
 	recipient: string;
 }
 
@@ -276,28 +167,28 @@ export type BytesLike = ArrayLike<number> | string
 
 export type BasicOrderParametersStruct = {
 	considerationToken: string;
-	considerationIdentifier: BigNumberish;
-	considerationAmount: BigNumberish;
+	considerationIdentifier: BigNumberValue;
+	considerationAmount: BigNumberValue;
 	offerer: string;
 	zone: string;
 	offerToken: string;
-	offerIdentifier: BigNumberish;
-	offerAmount: BigNumberish;
-	basicOrderType: BigNumberish;
-	startTime: BigNumberish;
-	endTime: BigNumberish;
+	offerIdentifier: BigNumberValue;
+	offerAmount: BigNumberValue;
+	basicOrderType: BigNumberValue;
+	startTime: BigNumberValue;
+	endTime: BigNumberValue;
 	zoneHash: BytesLike;
-	salt: BigNumberish;
+	salt: BigNumberValue;
 	offererConduitKey: BytesLike;
 	fulfillerConduitKey: BytesLike;
-	totalOriginalAdditionalRecipients: BigNumberish;
+	totalOriginalAdditionalRecipients: BigNumberValue;
 	additionalRecipients: AdditionalRecipientStruct[];
 	signature: BytesLike;
 }
 
 export type FulfillmentComponentStruct = {
-	orderIndex: BigNumberish;
-	itemIndex: BigNumberish;
+	orderIndex: BigNumberValue;
+	itemIndex: BigNumberValue;
 }[]
 
 export type OrderParametersStruct = {
@@ -305,30 +196,30 @@ export type OrderParametersStruct = {
 	zone: string;
 	offer: OfferItemStruct[];
 	consideration: ConsiderationItemStruct[];
-	orderType: BigNumberish;
-	startTime: BigNumberish;
-	endTime: BigNumberish;
+	orderType: BigNumberValue;
+	startTime: BigNumberValue;
+	endTime: BigNumberValue;
 	zoneHash: BytesLike;
-	salt: BigNumberish;
+	salt: BigNumberValue;
 	conduitKey: BytesLike;
-	totalOriginalConsiderationItems: BigNumberish;
+	totalOriginalConsiderationItems: BigNumberValue;
 }
 export type OrderStruct = {
 	parameters: OrderParametersStruct;
 	signature: BytesLike;
 }
 export type OfferItemStruct = {
-	itemType: BigNumberish;
+	itemType: BigNumberValue;
 	token: string;
-	identifierOrCriteria: BigNumberish;
-	startAmount: BigNumberish;
-	endAmount: BigNumberish;
+	identifierOrCriteria: BigNumberValue;
+	startAmount: BigNumberValue;
+	endAmount: BigNumberValue;
 }
 export type ConsiderationItemStruct = {
-	itemType: BigNumberish;
+	itemType: BigNumberValue;
 	token: string;
-	identifierOrCriteria: BigNumberish;
-	startAmount: BigNumberish;
-	endAmount: BigNumberish;
+	identifierOrCriteria: BigNumberValue;
+	startAmount: BigNumberValue;
+	endAmount: BigNumberValue;
 	recipient: string;
 }

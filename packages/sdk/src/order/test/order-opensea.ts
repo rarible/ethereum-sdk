@@ -14,9 +14,9 @@ import axios from "axios"
 import type { OpenSeaOrderDTO } from "../fill-order/open-sea-types"
 import type { SimpleOpenSeaV1Order } from "../types"
 import { convertOpenSeaOrderToDTO } from "../fill-order/open-sea-converter"
-import { getSeaportProvider } from "../fill-order/seaport"
 import type { ConsiderationInputItem, CreateInputItem } from "../fill-order/seaport-utils/types"
-import { createOrder } from "../fill-order/seaport-utils/seaport-utils"
+import { createOrder } from "../fill-order/seaport-utils/create-order"
+import type { SendFunction } from "../../common/send-transaction"
 
 function getRandomTokenId(): string {
 	return Math.floor(Math.random() * 300000000).toString()
@@ -188,30 +188,30 @@ export function hashOpenSeaV1Order(ethereum: Ethereum, order: SimpleOpenSeaV1Ord
 
 export async function createSeaportOrder(
 	provider: Ethereum,
+	send: SendFunction,
 	make: CreateInputItem,
 	take: ConsiderationInputItem[],
 	options?: {allowPartialFills: boolean}
 ) {
-	const ethersProvider = getSeaportProvider(provider)
 
 	const o = {
 		...(options || {}),
 	}
 
-	 const {executeAllActions} = await createOrder(
-		ethersProvider,
+	const endTime = getMaxOrderExpirationTimestamp().toString()
+	 const createdOrder = await createOrder(
+		provider,
 		{
+			send,
 			"offer": [make],
 			"consideration": take,
 			startTime: undefined,
-			endTime: getMaxOrderExpirationTimestamp().toString(),
+			endTime,
 			//rinkeby
 			zone: "0x00000000e88fe2628ebc5da81d2b3cead633e89e",
 			restrictedByZone: true,
 			allowPartialFills: o.allowPartialFills !== undefined ? o.allowPartialFills : true,
 		})
-
-	const createdOrder = await executeAllActions()
 
 	let orderHash = ""
 	try {

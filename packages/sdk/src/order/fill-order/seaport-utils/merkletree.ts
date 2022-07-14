@@ -1,11 +1,11 @@
-import { BigNumber } from "ethers"
-import { keccak256 } from "ethers/lib/utils"
 import MerkleTreeJS from "merkletreejs"
+import { keccak256 } from "ethereumjs-util"
+import { toBn } from "@rarible/utils"
 
-const hashIdentifier = (identifier: string) =>
+export const hashIdentifier = (identifier: string) =>
 	keccak256(
 		Buffer.from(
-			BigNumber.from(identifier).toHexString().slice(2).padStart(64, "0"),
+			toBn(identifier).toString(16).padStart(64, "0"),
 			"hex"
 		)
 	)

@@ -1,18 +1,19 @@
-import type { providers as multicallProviders } from "@0xsequence/multicall"
-import { BigNumber } from "ethers"
-import type { ItemType} from "./constants"
-import { MAX_INT } from "./constants"
-import type { InputCriteria, Item, OrderParameters } from "./types"
-import { approvedItemAmount } from "./approval"
-import { balanceOf } from "./balance"
+import type { Ethereum } from "@rarible/ethereum-provider"
+import { toAddress } from "@rarible/types"
+import { toBn } from "@rarible/utils"
+import type { BigNumber } from "@rarible/utils"
+import { createErc721Contract } from "../../contracts/erc721"
+import { createErc20Contract } from "../../contracts/erc20"
+import type { TimeBasedItemParams } from "./item"
+import { getSummedTokenAndIdentifierAmounts } from "./item"
+import type { OrderParameters } from "./types"
 import { getItemToCriteriaMap } from "./criteria"
-import type { TimeBasedItemParams} from "./item"
-import {
-	getSummedTokenAndIdentifierAmounts,
-	isErc1155Item,
-	isErc20Item,
-	isErc721Item,
-} from "./item"
+import type { InputCriteria, Item } from "./types"
+import { isErc1155Item, isErc20Item, isErc721Item } from "./item"
+import { balanceOf } from "./balance"
+import { MAX_INT } from "./constants"
+import type { ItemType} from "./constants"
+
 
 export type BalancesAndApprovals = {
 	token: string;
@@ -39,65 +40,34 @@ export type InsufficientApprovals = {
 	itemType: ItemType;
 }[]
 
-const findBalanceAndApproval = (
-	balancesAndApprovals: BalancesAndApprovals,
-	token: string,
-	identifierOrCriteria: string
-) => {
-	const balanceAndApproval = balancesAndApprovals.find(
-		({
-			token: checkedToken,
-			identifierOrCriteria: checkedIdentifierOrCriteria,
-		}) =>
-			token.toLowerCase() === checkedToken.toLowerCase() &&
-      checkedIdentifierOrCriteria.toLowerCase() ===
-        identifierOrCriteria.toLowerCase()
-	)
-
-	if (!balanceAndApproval) {
-		throw new Error(
-			"Balances and approvals didn't contain all tokens and identifiers"
-		)
-	}
-
-	return balanceAndApproval
-}
-
 export const getBalancesAndApprovals = async ({
+	ethereum,
 	owner,
 	items,
 	criterias,
 	operator,
-	multicallProvider,
 }: {
+	ethereum: Ethereum;
 	owner: string;
 	items: Item[];
 	criterias: InputCriteria[];
 	operator: string;
-	multicallProvider: multicallProviders.MulticallProvider;
 }): Promise<BalancesAndApprovals> => {
 	const itemToCriteria = getItemToCriteriaMap(items, criterias)
 
 	return Promise.all(
 		items.map(async (item) => {
-			let approvedAmountPromise = Promise.resolve(BigNumber.from(0))
+			let approvedAmountPromise = toBn(0)
 
 			if (isErc721Item(item.itemType) || isErc1155Item(item.itemType)) {
-				approvedAmountPromise = approvedItemAmount(
-					owner,
-					item,
-					operator,
-					multicallProvider
-				)
+				const erc721 = createErc721Contract(ethereum, toAddress(item.token))
+				const allowance: boolean = await erc721.functionCall("isApprovedForAll", owner, operator).call()
+				approvedAmountPromise = allowance ? toBn(MAX_INT) : toBn(0)
 			} else if (isErc20Item(item.itemType)) {
-				approvedAmountPromise = approvedItemAmount(
-					owner,
-					item,
-					operator,
-					multicallProvider
-				)
+				const erc20 = createErc20Contract(ethereum, toAddress(item.token))
+				approvedAmountPromise = toBn(await erc20.functionCall("allowance", owner, operator).call())
 			} else {
-				approvedAmountPromise = Promise.resolve(MAX_INT)
+				approvedAmountPromise = toBn(MAX_INT)
 			}
 
 			return {
@@ -105,12 +75,12 @@ export const getBalancesAndApprovals = async ({
 				identifierOrCriteria:
           itemToCriteria.get(item)?.identifier ?? item.identifierOrCriteria,
 				balance: await balanceOf(
+					ethereum,
 					owner,
 					item,
-					multicallProvider,
 					itemToCriteria.get(item)
 				),
-				approvedAmount: await approvedAmountPromise,
+				approvedAmount: approvedAmountPromise,
 				itemType: item.itemType,
 			}
 		})
@@ -330,7 +300,7 @@ export const validateStandardFulfillBalancesAndApprovals = ({
 	const { insufficientBalances, insufficientApprovals } =
     getInsufficientBalanceAndApprovalAmounts({
     	balancesAndApprovals:
-        fulfillerBalancesAndApprovalsAfterReceivingOfferedItems,
+      fulfillerBalancesAndApprovalsAfterReceivingOfferedItems,
     	tokenAndIdentifierAmounts: getSummedTokenAndIdentifierAmounts({
     		items: consideration,
     		criterias: considerationCriteria,
@@ -392,10 +362,35 @@ const addToExistingBalances = ({
 					].balance =
             balancesAndApprovalsAfterReceivingItems[
             	balanceAndApprovalIndex
-            ].balance.add(amount)
+            ].balance.plus(amount)
 				}
 			)
 	)
 
 	return balancesAndApprovalsAfterReceivingItems
+}
+
+
+function findBalanceAndApproval(
+	balancesAndApprovals: BalancesAndApprovals,
+	token: string,
+	identifierOrCriteria: string
+) {
+	const balanceAndApproval = balancesAndApprovals.find(
+		({
+			token: checkedToken,
+			identifierOrCriteria: checkedIdentifierOrCriteria,
+		}) =>
+			token.toLowerCase() === checkedToken.toLowerCase() &&
+      checkedIdentifierOrCriteria.toLowerCase() ===
+      identifierOrCriteria.toLowerCase()
+	)
+
+	if (!balanceAndApproval) {
+		throw new Error(
+			"Balances and approvals didn't contain all tokens and identifiers"
+		)
+	}
+
+	return balanceAndApproval
 }

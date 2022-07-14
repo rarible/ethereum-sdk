@@ -1,9 +1,7 @@
-import type {
-	BigNumberish,
-	ContractTransaction,
-	providers, Contract} from "ethers"
-import { BigNumber, ethers } from "ethers"
-import { BasicOrderRouteType, ItemType, NO_CONDUIT } from "./constants"
+import type { BigNumberValue } from "@rarible/utils"
+import { toBn } from "@rarible/utils"
+import { ZERO_ADDRESS } from "@rarible/types"
+import { ItemType } from "./constants"
 import type {
 	ConsiderationItem,
 	InputCriteria,
@@ -11,19 +9,12 @@ import type {
 	OrderParameters,
 	OrderStatus,
 } from "./types"
-import { getApprovalActions } from "./approval"
 import type {
 	BalancesAndApprovals,
 } from "./balance-and-approval-check"
-import {
-	validateBasicFulfillBalancesAndApprovals,
-} from "./balance-and-approval-check"
 import { getItemToCriteriaMap } from "./criteria"
-import type {
-	TimeBasedItemParams} from "./item"
 import {
 	getMaximumSizeForOrder,
-	getSummedTokenAndIdentifierAmounts,
 	isCriteriaItem,
 	isCurrencyItem,
 	isErc721Item,
@@ -33,8 +24,6 @@ import {
 	areAllCurrenciesSame,
 	totalItemsAmount,
 } from "./order"
-import { executeAllActions, getTransactionMethods } from "./usecase"
-import type { BasicOrderParametersStruct } from "./types"
 import type { FulfillmentComponentStruct } from "./types"
 import { gcd } from "./gcd"
 
@@ -59,7 +48,7 @@ export const shouldUseBasicFulfill = (
 	totalFilled: OrderStatus["totalFilled"]
 ) => {
 	// 1. The order must not be partially filled
-	if (!totalFilled.eq(0)) {
+	if (!toBn(totalFilled).eq(0)) {
 		return false
 	}
 
@@ -132,10 +121,10 @@ export const shouldUseBasicFulfill = (
 	//  currencies needs to be zero, and the amounts on the 721 item need to be 1
 	const nativeCurrencyIsZeroAddress = currencies
 		.filter(({ itemType }) => itemType === ItemType.NATIVE)
-		.every(({ token }) => token === ethers.constants.AddressZero)
+		.every(({ token }) => token === ZERO_ADDRESS)
 
 	const currencyIdentifiersAreZero = currencies.every(
-		({ identifierOrCriteria }) => BigNumber.from(identifierOrCriteria).eq(0)
+		({ identifierOrCriteria }) => toBn(identifierOrCriteria).eq(0)
 	)
 
 	const erc721sAreSingleAmount = nfts
@@ -149,152 +138,13 @@ export const shouldUseBasicFulfill = (
 	)
 }
 
-const offerAndConsiderationFulfillmentMapping: {
-	[_key in ItemType]?: { [_key in ItemType]?: BasicOrderRouteType };
-} = {
-	[ItemType.ERC20]: {
-		[ItemType.ERC721]: BasicOrderRouteType.ERC721_TO_ERC20,
-		[ItemType.ERC1155]: BasicOrderRouteType.ERC1155_TO_ERC20,
-	},
-	[ItemType.ERC721]: {
-		[ItemType.NATIVE]: BasicOrderRouteType.ETH_TO_ERC721,
-		[ItemType.ERC20]: BasicOrderRouteType.ERC20_TO_ERC721,
-	},
-	[ItemType.ERC1155]: {
-		[ItemType.NATIVE]: BasicOrderRouteType.ETH_TO_ERC1155,
-		[ItemType.ERC20]: BasicOrderRouteType.ERC20_TO_ERC1155,
-	},
-} as const
-
-export async function fulfillBasicOrder({
-	order,
-	seaportContract,
-	offererBalancesAndApprovals,
-	fulfillerBalancesAndApprovals,
-	timeBasedItemParams,
-	offererOperator,
-	fulfillerOperator,
-	signer,
-	tips = [],
-	conduitKey = NO_CONDUIT,
-}: {
-	order: Order;
-	seaportContract: Contract;
-	offererBalancesAndApprovals: BalancesAndApprovals;
-	fulfillerBalancesAndApprovals: BalancesAndApprovals;
-	timeBasedItemParams: TimeBasedItemParams;
-	offererOperator: string;
-	fulfillerOperator: string;
-	signer: providers.JsonRpcSigner;
-	tips?: ConsiderationItem[];
-	conduitKey: string;
-}) {
-	const { offer, consideration } = order.parameters
-	const considerationIncludingTips = [...consideration, ...tips]
-
-	const offerItem = offer[0]
-	const [forOfferer, ...forAdditionalRecipients] = considerationIncludingTips
-
-	const basicOrderRouteType =
-    offerAndConsiderationFulfillmentMapping[offerItem.itemType]?.[
-    	forOfferer.itemType
-    ]
-
-	if (basicOrderRouteType === undefined) {
-		throw new Error(
-			"Order parameters did not result in a valid basic fulfillment"
-		)
-	}
-
-	const additionalRecipients = forAdditionalRecipients.map(
-		({ startAmount, recipient }) => ({
-			amount: startAmount,
-			recipient,
-		})
-	)
-
-	const considerationWithoutOfferItemType = considerationIncludingTips.filter(
-		(item) => item.itemType !== offer[0].itemType
-	)
-
-	const totalNativeAmount = getSummedTokenAndIdentifierAmounts({
-		items: considerationWithoutOfferItemType,
-		criterias: [],
-		timeBasedItemParams: {
-			...timeBasedItemParams,
-			isConsiderationItem: true,
-		},
-	})[ethers.constants.AddressZero]?.["0"]
-
-	const insufficientApprovals = validateBasicFulfillBalancesAndApprovals({
-		offer,
-		consideration: considerationIncludingTips,
-		offererBalancesAndApprovals,
-		fulfillerBalancesAndApprovals,
-		timeBasedItemParams,
-		offererOperator,
-		fulfillerOperator,
-	})
-
-	const basicOrderParameters: BasicOrderParametersStruct = {
-		offerer: order.parameters.offerer,
-		offererConduitKey: order.parameters.conduitKey,
-		zone: order.parameters.zone,
-		//  Note the use of a "basicOrderType" enum;
-		//  this represents both the usual order type as well as the "route"
-		//  of the basic order (a simple derivation function for the basic order
-		//  type is `basicOrderType = orderType + (4 * basicOrderRoute)`.)
-		basicOrderType: order.parameters.orderType + 4 * basicOrderRouteType,
-		offerToken: offerItem.token,
-		offerIdentifier: offerItem.identifierOrCriteria,
-		offerAmount: offerItem.endAmount,
-		considerationToken: forOfferer.token,
-		considerationIdentifier: forOfferer.identifierOrCriteria,
-		considerationAmount: forOfferer.endAmount,
-		startTime: order.parameters.startTime,
-		endTime: order.parameters.endTime,
-		salt: order.parameters.salt,
-		totalOriginalAdditionalRecipients:
-      order.parameters.consideration.length - 1,
-		signature: order.signature,
-		fulfillerConduitKey: conduitKey,
-		additionalRecipients,
-		zoneHash: order.parameters.zoneHash,
-	}
-
-	const payableOverrides = { value: totalNativeAmount }
-
-	//approve
-	const approvalActions = await getApprovalActions(
-		insufficientApprovals,
-		signer
-	)
-
-	const exchangeAction = {
-		type: "exchange",
-		transactionMethods: getTransactionMethods(
-			seaportContract.connect(signer),
-			"fulfillBasicOrder",
-			[basicOrderParameters, payableOverrides]
-		),
-	} as const
-
-	const actions = [...approvalActions, exchangeAction] as const
-
-	return {
-		actions,
-		executeAllActions: () =>
-			executeAllActions(actions) as Promise<ContractTransaction>,
-	}
-}
-
 export function validateAndSanitizeFromOrderStatus(
 	order: Order,
 	orderStatus: OrderStatus
 ): Order {
 	const { isValidated, isCancelled, totalFilled, totalSize } = orderStatus
 
-	if (totalSize.gt(0) && totalFilled.div(totalSize).eq(1)) {
+	if (toBn(totalSize).gt(0) && toBn(totalFilled).div(totalSize).eq(1)) {
 		throw new Error("The order you are trying to fulfill is already filled")
 	}
 
@@ -312,7 +162,7 @@ export function validateAndSanitizeFromOrderStatus(
 
 export type FulfillOrdersMetadata = {
 	order: Order;
-	unitsToFill?: BigNumberish;
+	unitsToFill?: BigNumberValue;
 	orderStatus: OrderStatus;
 	offerCriteria: InputCriteria[];
 	considerationCriteria: InputCriteria[];
@@ -403,19 +253,22 @@ export function generateFulfillOrdersFulfillments(
 
 export const getAdvancedOrderNumeratorDenominator = (
 	order: Order,
-	unitsToFill?: BigNumberish
+	unitsToFill: BigNumberValue
 ) => {
 	// Used for advanced order cases
 	const maxUnits = getMaximumSizeForOrder(order)
-	const unitsToFillBn = BigNumber.from(unitsToFill)
+	const unitsToFillBn = toBn(unitsToFill)
 
 	// Reduce the numerator/denominator as optimization
 	const unitsGcd = gcd(unitsToFillBn, maxUnits)
 
 	const numerator = unitsToFill
 		? unitsToFillBn.div(unitsGcd)
-		: BigNumber.from(1)
-	const denominator = unitsToFill ? maxUnits.div(unitsGcd) : BigNumber.from(1)
+		: toBn(1)
+	const denominator = unitsToFill ? maxUnits.div(unitsGcd) : toBn(1)
 
-	return { numerator, denominator }
+	return {
+		numerator: `0x${numerator.toString(16)}`,
+		denominator: `0x${denominator.toString(16)}`,
+	}
 }

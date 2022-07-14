@@ -1,8 +1,9 @@
-import { BigNumber } from "ethers"
-import { ItemType } from "./constants"
-import type { InputCriteria, Item, Order, OrderParameters } from "./types"
-import { getItemToCriteriaMap } from "./criteria"
+import { BigNumber } from "@rarible/utils"
+import { toBn } from "@rarible/utils"
 import { findGcd } from "./gcd"
+import { getItemToCriteriaMap } from "./criteria"
+import type { InputCriteria, Item, Order, OrderParameters } from "./types"
+import { ItemType } from "./constants"
 
 export const isCurrencyItem = ({ itemType }: Item) =>
 	[ItemType.NATIVE, ItemType.ERC20].includes(itemType)
@@ -37,8 +38,8 @@ export const getPresentItemAmount = ({
 }: Pick<Item, "startAmount" | "endAmount"> & {
 	timeBasedItemParams?: TimeBasedItemParams;
 }): BigNumber => {
-	const startAmountBn = BigNumber.from(startAmount)
-	const endAmountBn = BigNumber.from(endAmount)
+	const startAmountBn = toBn(startAmount)
+	const endAmountBn = toBn(endAmount)
 
 	if (!timeBasedItemParams) {
 		return startAmountBn.gt(endAmountBn) ? startAmountBn : endAmountBn
@@ -52,9 +53,9 @@ export const getPresentItemAmount = ({
 		endTime,
 	} = timeBasedItemParams
 
-	const duration = BigNumber.from(endTime).sub(startTime)
+	const duration = toBn(endTime).minus(startTime)
 	const isAscending = endAmountBn.gt(startAmount)
-	const adjustedBlockTimestamp = BigNumber.from(
+	const adjustedBlockTimestamp = toBn(
 		isAscending
 			? currentBlockTimestamp + ascendingAmountTimestampBuffer
 			: currentBlockTimestamp
@@ -66,19 +67,19 @@ export const getPresentItemAmount = ({
 
 	const elapsed = (
 		adjustedBlockTimestamp.gt(endTime)
-			? BigNumber.from(endTime)
+			? toBn(endTime)
 			: adjustedBlockTimestamp
-	).sub(startTime)
+	).minus(startTime)
 
-	const remaining = duration.sub(elapsed)
+	const remaining = duration.minus(elapsed)
 
 	// Adjust amounts based on current time
 	// For offer items, we round down
 	// For consideration items, we round up
 	return startAmountBn
-		.mul(remaining)
-		.add(endAmountBn.mul(elapsed))
-		.add(isConsiderationItem ? duration.sub(1) : 0)
+		.multipliedBy(remaining)
+		.plus(endAmountBn.multipliedBy(elapsed))
+		.plus(isConsiderationItem ? duration.minus(1) : 0)
 		.div(duration)
 }
 
@@ -104,10 +105,10 @@ export const getSummedTokenAndIdentifierAmounts = ({
 			[item.token]: {
 				...map[item.token],
 				// Being explicit about the undefined type as it's possible for it to be undefined at first iteration
-				[identifierOrCriteria]: (
+				[identifierOrCriteria]: toBn(
 					(map[item.token]?.[identifierOrCriteria] as BigNumber | undefined) ??
-          BigNumber.from(0)
-				).add(
+          toBn(0)
+				).plus(
 					getPresentItemAmount({
 						startAmount: item.startAmount,
 						endAmount: item.endAmount,
@@ -118,6 +119,12 @@ export const getSummedTokenAndIdentifierAmounts = ({
 		}
 	}, {})
 
+	Object.keys(tokenAndIdentifierToSummedAmount).forEach(itemToken => {
+		Object.keys(tokenAndIdentifierToSummedAmount[itemToken]).forEach(id => {
+			tokenAndIdentifierToSummedAmount[itemToken][id] =
+        tokenAndIdentifierToSummedAmount[itemToken][id]?.integerValue(BigNumber.ROUND_CEIL)
+		})
+	})
 	return tokenAndIdentifierToSummedAmount
 }
 

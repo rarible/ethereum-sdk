@@ -1,5 +1,8 @@
-import type { BigNumberish} from "ethers"
-import { BigNumber, ethers } from "ethers"
+import type { BigNumberValue} from "@rarible/utils"
+import { toBn } from "@rarible/utils"
+import type { BigNumber } from "@rarible/utils"
+import { ZERO_ADDRESS } from "@rarible/types"
+import { MerkleTree } from "./merkletree"
 import type {
 	ConsiderationItem,
 	CreateInputItem,
@@ -9,13 +12,12 @@ import type {
 	Order,
 	OrderParameters,
 } from "./types"
-import { ItemType, ONE_HUNDRED_PERCENT_BP } from "./constants"
 import { getMaximumSizeForOrder, isCurrencyItem } from "./item"
-import { MerkleTree } from "./merkletree"
+import { ItemType, ONE_HUNDRED_PERCENT_BP } from "./constants"
 
-const multiplyBasisPoints = (amount: BigNumberish, basisPoints: BigNumberish) =>
-	BigNumber.from(amount)
-		.mul(BigNumber.from(basisPoints))
+const multiplyBasisPoints = (amount: BigNumberValue, basisPoints: BigNumberValue) =>
+	toBn(amount)
+		.multipliedBy(toBn(basisPoints))
 		.div(ONE_HUNDRED_PERCENT_BP)
 
 export const feeToConsiderationItem = ({
@@ -26,12 +28,12 @@ export const feeToConsiderationItem = ({
 }: {
 	fee: Fee;
 	token: string;
-	baseAmount: BigNumberish;
-	baseEndAmount?: BigNumberish;
+	baseAmount: BigNumberValue;
+	baseEndAmount?: BigNumberValue;
 }): ConsiderationItem => {
 	return {
 		itemType:
-      token === ethers.constants.AddressZero ? ItemType.NATIVE : ItemType.ERC20,
+      token === ZERO_ADDRESS ? ItemType.NATIVE : ItemType.ERC20,
 		token,
 		identifierOrCriteria: "0",
 		startAmount: multiplyBasisPoints(baseAmount, fee.basisPoints).toString(),
@@ -56,13 +58,13 @@ export const deductFees = <T extends Item>(
 	return items.map((item) => ({
 		...item,
 		startAmount: isCurrencyItem(item)
-			? BigNumber.from(item.startAmount)
-				.sub(multiplyBasisPoints(item.startAmount, totalBasisPoints))
+			? toBn(item.startAmount)
+				.minus(multiplyBasisPoints(item.startAmount, totalBasisPoints))
 				.toString()
 			: item.startAmount,
 		endAmount: isCurrencyItem(item)
-			? BigNumber.from(item.endAmount)
-				.sub(multiplyBasisPoints(item.endAmount, totalBasisPoints))
+			? toBn(item.endAmount)
+				.minus(multiplyBasisPoints(item.endAmount, totalBasisPoints))
 				.toString()
 			: item.endAmount,
 	}))
@@ -109,10 +111,10 @@ export const mapInputItemToOfferItem = (item: CreateInputItem): OfferItem => {
 	// Item is a currency
 	return {
 		itemType:
-      item.token && item.token !== ethers.constants.AddressZero
+      item.token && item.token !== ZERO_ADDRESS
       	? ItemType.ERC20
       	: ItemType.NATIVE,
-		token: item.token ?? ethers.constants.AddressZero,
+		token: item.token ?? ZERO_ADDRESS,
 		identifierOrCriteria: "0",
 		startAmount: item.amount,
 		endAmount: item.endAmount ?? item.amount,
@@ -135,8 +137,8 @@ export const areAllCurrenciesSame = ({
 
 export const totalItemsAmount = <T extends OfferItem>(items: T[]) => {
 	const initialValues = {
-		startAmount: BigNumber.from(0),
-		endAmount: BigNumber.from(0),
+		startAmount: toBn(0),
+		endAmount: toBn(0),
 	}
 
 	return items
@@ -149,12 +151,12 @@ export const totalItemsAmount = <T extends OfferItem>(items: T[]) => {
 			{ startAmount: totalStartAmount, endAmount: totalEndAmount },
 			{ startAmount, endAmount }
 		) => ({
-			startAmount: totalStartAmount.add(startAmount),
-			endAmount: totalEndAmount.add(endAmount),
+			startAmount: totalStartAmount.plus(startAmount),
+			endAmount: totalEndAmount.plus(endAmount),
 		}),
 		{
-			startAmount: BigNumber.from(0),
-			endAmount: BigNumber.from(0),
+			startAmount: toBn(0),
+			endAmount: toBn(0),
 		}
 	)
 }
@@ -174,8 +176,8 @@ export const mapOrderAmountsFromFilledStatus = (
 
 	// i.e if totalFilled is 3 and totalSize is 4, there are 1 / 4 order amounts left to fill.
 	const basisPoints = totalSize
-		.sub(totalFilled)
-		.mul(ONE_HUNDRED_PERCENT_BP)
+		.minus(totalFilled)
+		.multipliedBy(ONE_HUNDRED_PERCENT_BP)
 		.div(totalSize)
 
 	return {
@@ -214,9 +216,9 @@ export const mapOrderAmountsFromUnitsToFill = (
 		unitsToFill,
 		totalFilled,
 		totalSize,
-	}: { unitsToFill: BigNumberish; totalFilled: BigNumber; totalSize: BigNumber }
+	}: { unitsToFill: BigNumberValue; totalFilled: BigNumber; totalSize: BigNumber }
 ): Order => {
-	const unitsToFillBn = BigNumber.from(unitsToFill)
+	const unitsToFillBn = toBn(unitsToFill)
 
 	if (unitsToFillBn.lte(0)) {
 		throw new Error("Units to fill must be greater than 1")
@@ -230,13 +232,13 @@ export const mapOrderAmountsFromUnitsToFill = (
 
 	// This is the percentage of the order that is left to be fulfilled, and therefore we can't fill more than that.
 	const remainingOrderPercentageToBeFilled = totalSize
-		.sub(totalFilled)
-		.mul(ONE_HUNDRED_PERCENT_BP)
+		.minus(totalFilled)
+		.multipliedBy(ONE_HUNDRED_PERCENT_BP)
 		.div(totalSize)
 
 	// i.e if totalSize is 8 and unitsToFill is 3, then we multiply every amount by 3 / 8
 	const unitsToFillBasisPoints = unitsToFillBn
-		.mul(ONE_HUNDRED_PERCENT_BP)
+		.multipliedBy(ONE_HUNDRED_PERCENT_BP)
 		.div(maxUnits)
 
 	const basisPoints = remainingOrderPercentageToBeFilled.gt(
@@ -267,10 +269,6 @@ export const mapOrderAmountsFromUnitsToFill = (
 		},
 		signature: order.signature,
 	}
-}
-
-export const generateRandomSalt = () => {
-	return `0x${Buffer.from(ethers.utils.randomBytes(16)).toString("hex")}`
 }
 
 export const shouldUseMatchForFulfill = () => true

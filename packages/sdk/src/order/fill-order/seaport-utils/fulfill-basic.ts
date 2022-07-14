@@ -1,6 +1,5 @@
 import type { Ethereum } from "@rarible/ethereum-provider"
 import { toAddress, ZERO_ADDRESS } from "@rarible/types"
-import { BigNumber } from "@rarible/utils"
 import { createSeaportContract } from "../../contracts/seaport"
 import type { SendFunction } from "../../../common/send-transaction"
 import type { BasicOrderParametersStruct, ConsiderationItem, Order } from "./types"

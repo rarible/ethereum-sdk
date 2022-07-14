@@ -1,9 +1,9 @@
-import type { BigNumberish } from "ethers"
-import { BigNumber } from "ethers"
+import { toBn } from "@rarible/utils"
+import type { BigNumber, BigNumberValue } from "@rarible/utils"
 
-export const gcd = (a: BigNumberish, b: BigNumberish): BigNumber => {
-	const bnA = BigNumber.from(a)
-	const bnB = BigNumber.from(b)
+export const gcd = (a: BigNumberValue, b: BigNumberValue): BigNumber => {
+	const bnA = toBn(a)
+	const bnB = toBn(b)
 
 	if (bnA.eq(0)) {
 		return bnB
@@ -12,8 +12,8 @@ export const gcd = (a: BigNumberish, b: BigNumberish): BigNumber => {
 	return gcd(bnB.mod(a), bnA)
 }
 
-export const findGcd = (elements: BigNumberish[]) => {
-	let result = BigNumber.from(elements[0])
+export const findGcd = (elements: BigNumberValue[]) => {
+	let result = toBn(elements[0])
 
 	for (let i = 1; i < elements.length; i++) {
 		result = gcd(elements[i], result)

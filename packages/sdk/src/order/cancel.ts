@@ -22,8 +22,8 @@ import { orderToStruct } from "./sign-order"
 import { convertOpenSeaOrderToDTO } from "./fill-order/open-sea-converter"
 import type { CheckLazyOrderPart } from "./check-lazy-order"
 import { createSeaportContract } from "./contracts/seaport"
-import { CROSS_CHAIN_SEAPORT_ADDRESS } from "./fill-order/seaport-utils/seaport-utils"
-import { convertAPIOrderToSeaport } from "./fill-order/seaport-updated/convert-to-seaport-order"
+import { CROSS_CHAIN_SEAPORT_ADDRESS } from "./fill-order/seaport-utils/constants"
+import { convertAPIOrderToSeaport } from "./fill-order/seaport-utils/convert-to-seaport-order"
 
 export async function cancel(
 	checkLazyOrder: (form: CheckLazyOrderPart) => Promise<CheckLazyOrderPart>,

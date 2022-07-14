@@ -1,71 +1,58 @@
-import type { providers as multicallProviders } from "@0xsequence/multicall"
-import type { ContractInterface } from "ethers"
-import { BigNumber, Contract } from "ethers"
-import { erc20Abi } from "../../contracts/erc20"
-import { erc721Abi } from "../../contracts/erc721"
-import { erc1155Abi } from "../../contracts/erc1155"
-import { ItemType } from "./constants"
+import type { Ethereum } from "@rarible/ethereum-provider"
+import { toAddress } from "@rarible/types"
+import { toBn } from "@rarible/utils"
+import type { BigNumber } from "@rarible/utils"
+import { createErc20Contract } from "../../contracts/erc20"
+import { createErc721Contract } from "../../contracts/erc721"
+import { createErc1155Contract } from "../../contracts/erc1155"
 import type { InputCriteria, Item } from "./types"
 import { isErc1155Item, isErc20Item, isErc721Item } from "./item"
+import { ItemType } from "./constants"
 
 export const balanceOf = async (
+	ethereum: Ethereum,
 	owner: string,
 	item: Item,
-	multicallProvider: multicallProviders.MulticallProvider,
 	criteria?: InputCriteria
 ): Promise<BigNumber> => {
 	if (isErc721Item(item.itemType)) {
-		const contract = new Contract(
-			item.token,
-			erc721Abi as ContractInterface,
-			multicallProvider
-		)
+		const erc721 = createErc721Contract(ethereum, toAddress(item.token))
 
 		if (item.itemType === ItemType.ERC721_WITH_CRITERIA) {
-			return criteria
-				? contract
-					.ownerOf(criteria.identifier)
-					.then((ownerOf: string) =>
-						BigNumber.from(
-							Number(ownerOf.toLowerCase() === owner.toLowerCase())
-						)
-					)
-				: contract.balanceOf(owner)
+			if (criteria) {
+				const ownerOf = await erc721.functionCall("ownerOf", criteria.identifier).call()
+				return toBn(
+					Number(ownerOf.toLowerCase() === owner.toLowerCase())
+				)
+			}
+			return toBn(await erc721.functionCall("balanceOf", owner).call())
 		}
 
-		return contract
-			.ownerOf(item.identifierOrCriteria)
-			.then((ownerOf: string) =>
-				BigNumber.from(Number(ownerOf.toLowerCase() === owner.toLowerCase()))
-			)
+		const ownerOf = await erc721.functionCall("ownerOf", item.identifierOrCriteria).call()
+		return toBn(Number(ownerOf.toLowerCase() === owner.toLowerCase()))
+
 	} else if (isErc1155Item(item.itemType)) {
-		const contract = new Contract(
-			item.token,
-			erc1155Abi as ContractInterface,
-			multicallProvider
-		)
+		const erc1155 = createErc1155Contract(ethereum, toAddress(item.token))
 
 		if (item.itemType === ItemType.ERC1155_WITH_CRITERIA) {
 			if (!criteria) {
-				const startAmount = BigNumber.from(item.startAmount)
-				const endAmount = BigNumber.from(item.endAmount)
+				const startAmount = toBn(item.startAmount)
+				const endAmount = toBn(item.endAmount)
 
 				return startAmount.gt(endAmount) ? startAmount : endAmount
 			}
-			return contract.balanceOf(owner, criteria.identifier)
+			return toBn(await erc1155.functionCall("balanceOf", owner, criteria.identifier).call())
 		}
 
-		return contract.balanceOf(owner, item.identifierOrCriteria)
+		return toBn(await erc1155.functionCall("balanceOf", owner, item.identifierOrCriteria).call())
 	}
 
 	if (isErc20Item(item.itemType)) {
-		const contract = new Contract(
-			item.token,
-			erc20Abi as ContractInterface,
-			multicallProvider
-		)
-		return contract.balanceOf(owner)
+		const erc20 = createErc20Contract(ethereum, toAddress(item.token))
+		return toBn(await erc20.functionCall("balanceOf", owner).call())
 	}
 
-	return multicallProvider.getBalance(owner)
+	return toBn(
+		await ethereum.getBalance(toAddress(owner))
+	)
 }

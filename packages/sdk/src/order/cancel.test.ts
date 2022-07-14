@@ -133,6 +133,11 @@ describe("test seaport rinkeby order", () => {
 
 	const rinkebyErc721V3ContractAddress = toAddress("0x6ede7f3c26975aad32a475e1021d8f6f39c89d82")
 
+	const config = getEthereumConfig("testnet")
+
+	const checkWalletChainId = checkChainId.bind(null, ethereumSeller, config)
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+
 	test("cancel seaport order", async () => {
 		const accountAddressBuyer = toAddress(await ethereumSeller.getFrom())
 		console.log("accountAddressBuyer", accountAddressBuyer)
@@ -155,9 +160,8 @@ describe("test seaport rinkeby order", () => {
 			identifier: sellItem.tokenId,
 		} as const
 		const take = getOpenseaEthTakeData("10000000000")
-		const orderHash = await createSeaportOrder(ethereumSeller, make, take)
+		const orderHash = await createSeaportOrder(ethereumSeller, send, make, take)
 
-		console.log("order", orderHash)
 		const order = await awaitOrder(sdkSeller, orderHash)
 
 		const cancelTx = await sdkSeller.order.cancel(order)

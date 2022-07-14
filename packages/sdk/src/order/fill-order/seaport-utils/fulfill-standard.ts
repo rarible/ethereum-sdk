@@ -89,7 +89,6 @@ export async function fulfillStandardOrder({
 			isConsiderationItem: true,
 		},
 	})[ZERO_ADDRESS]?.["0"]
-	console.log("fulfillStandardOrder: after getSummedTokenAndIdentifierAmounts", totalNativeAmount?.toString())
 
 	const isGift = recipientAddress !== ZERO_ADDRESS
 
@@ -104,7 +103,6 @@ export async function fulfillStandardOrder({
 		},
 	}
 
-	console.log("before fulfillStandardOrder: getAdvancedOrderNumeratorDenominator")
 	const { numerator, denominator } = getAdvancedOrderNumeratorDenominator(
 		order,
 		unitsToFill
@@ -113,22 +111,6 @@ export async function fulfillStandardOrder({
 	const seaportContract = createSeaportContract(ethereum, toAddress(CROSS_CHAIN_SEAPORT_ADDRESS))
 
 	if (useAdvanced) {
-		const ara = [{
-			...orderAccountingForTips,
-			numerator,
-			denominator,
-			extraData: extraData ?? "0x",
-		},
-		hasCriteriaItems
-			? generateCriteriaResolvers({
-				orders: [order],
-				offerCriterias: [offerCriteria],
-				considerationCriterias: [considerationCriteria],
-			})
-			: [],
-		conduitKey,
-		recipientAddress]
-		console.log("before fulfillStandardOrder: fulfillAdvancedOrder, args=", JSON.stringify(ara, null, "  "))
 		const tx = await seaportContract.functionCall("fulfillAdvancedOrder",
 			{
 				...orderAccountingForTips,
@@ -149,7 +131,6 @@ export async function fulfillStandardOrder({
 		return send(tx, { value: totalNativeAmount?.toString() })
 	}
 
-	console.log("before fulfillStandardOrder: fulfillOrder")
 	const tx = await seaportContract.functionCall(
 		"fulfillOrder",
 		orderAccountingForTips, conduitKey

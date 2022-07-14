@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers"
+import { toBn } from "@rarible/utils"
 
 export const SEAPORT_CONTRACT_NAME = "Seaport"
 export const SEAPORT_CONTRACT_VERSION = "1.1"
@@ -6,6 +6,12 @@ export const OPENSEA_CONDUIT_KEY =
   "0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000"
 export const OPENSEA_CONDUIT_ADDRESS =
   "0x1e0049783f008a0085193e00003d00cd54003c71"
+export const EIP712Domain = [
+	{ type: "string", name: "name" },
+	{ type: "string", name: "version" },
+	{ type: "uint256", name: "chainId" },
+	{ type: "address", name: "verifyingContract" },
+]
 export const EIP_712_ORDER_TYPE = {
 	OrderComponents: [
 		{ name: "offerer", type: "address" },
@@ -73,7 +79,7 @@ export enum BasicOrderRouteType {
 	ERC1155_TO_ERC20,
 }
 
-export const MAX_INT = BigNumber.from(
+export const MAX_INT = toBn(
 	"0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 )
 export const ONE_HUNDRED_PERCENT_BP = 10000
@@ -87,3 +93,13 @@ export const KNOWN_CONDUIT_KEYS_TO_CONDUIT = {
 
 export const CROSS_CHAIN_SEAPORT_ADDRESS =
   "0x00000000006c3852cbef3e08e8df289169ede581"
+
+export const CROSS_CHAIN_DEFAULT_CONDUIT_KEY =
+  "0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000"
+const CROSS_CHAIN_DEFAULT_CONDUIT =
+  "0x1e0049783f008a0085193e00003d00cd54003c71"
+
+export const CONDUIT_KEYS_TO_CONDUIT: Record<string, string> = {
+	[CROSS_CHAIN_DEFAULT_CONDUIT_KEY]: CROSS_CHAIN_DEFAULT_CONDUIT,
+	[NO_CONDUIT]: CROSS_CHAIN_SEAPORT_ADDRESS,
+}

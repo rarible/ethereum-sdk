@@ -1,8 +1,8 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
-import { Web3Ethereum } from "@rarible/web3-ethereum"
+import { Web3Ethereum } from "@rarible/web3-ethereum/build"
 import type { SeaportV1Order } from "@rarible/ethereum-api-client/build/models/Order"
-import { ethers } from "ethers"
+import { BigNumber, ethers } from "ethers"
 import { EthersWeb3ProviderEthereum } from "@rarible/ethers-ethereum"
 import { toAddress } from "@rarible/types"
 import type { BigNumberValue} from "@rarible/utils/build/bn"
@@ -11,15 +11,19 @@ import { createRaribleSdk } from "../../index"
 import { createSeaportOrder } from "../test/order-opensea"
 import { createErc1155V2Collection, createErc721V3Collection } from "../../common/mint"
 import { MintResponseTypeEnum } from "../../nft/mint"
-import { delay } from "../../common/retry"
+import { delay, retry } from "../../common/retry"
 import { awaitOrder } from "../test/await-order"
 import { awaitOwnership } from "../test/await-ownership"
 import type { SimpleSeaportV1Order } from "../types"
+import { getOpenseaEthTakeData } from "../test/get-opensea-take-data"
+import { getEthereumConfig } from "../../config"
+import { checkChainId } from "../check-chain-id"
+import { getSimpleSendWithInjects } from "../../common/send-transaction"
 import { ItemType } from "./seaport-utils/constants"
 import type { CreateInputItem } from "./seaport-utils/types"
 import { SeaportOrderHandler } from "./seaport"
 
-describe.skip("seaport", () => {
+describe("seaport", () => {
 	const { provider: providerBuyer } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a", {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",
@@ -36,17 +40,27 @@ describe.skip("seaport", () => {
 	const ethersWeb3Provider = new ethers.providers.Web3Provider(providerBuyer as any)
 
 	const buyerEthersWeb3ProviderWallet = new EthersWeb3ProviderEthereum(ethersWeb3Provider)
+	const buyerWeb3 = new Web3Ethereum({ web3: new Web3(providerBuyer as any), gas: 1000000})
 
-	const sdkBuyer = createRaribleSdk(buyerEthersWeb3ProviderWallet, "testnet")
+	const sdkBuyer = createRaribleSdk(buyerWeb3, "testnet")
 	const sdkSeller = createRaribleSdk(ethereumSeller, "testnet")
 
 	const rinkebyErc721V3ContractAddress = toAddress("0x6ede7f3c26975aad32a475e1021d8f6f39c89d82")
 	const rinkebyErc1155V2ContractAddress = toAddress("0x1af7a7555263f275433c6bb0b8fdcd231f89b1d7")
 	const originFeeAddress = toAddress("0xe954de45ec23bF47078db77f34ef0d905F4D3051")
 
-	const seaportBuyerOrderHandler = new SeaportOrderHandler(buyerEthersWeb3ProviderWallet, async () => 0)
+	const config = getEthereumConfig("testnet")
 
-	test("fill order ERC-721 <-> ETH", async () => {
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+
+	const seaportBuyerOrderHandler = new SeaportOrderHandler(
+		buyerEthersWeb3ProviderWallet,
+		send,
+		async () => 0,
+	)
+
+	test.skip("fill order ERC-721 <-> ETH", async () => {
 		const accountAddressBuyer = toAddress(await ethereum.getFrom())
 		console.log("accountAddressBuyer", accountAddressBuyer)
 		console.log("seller", await ethereumSeller.getFrom())
@@ -70,7 +84,10 @@ describe.skip("seaport", () => {
 		const take = getOpenseaEthTakeData("10000000000")
 		const orderHash = await createSeaportOrder(ethereumSeller, make, take)
 
+		console.log("after creating order")
 		const order = await awaitOrder(sdkBuyer, orderHash)
+		console.log("after awaiting order")
+
 		const tx = await sdkBuyer.order.buy({
 			order: order as SeaportV1Order,
 			amount: 1,
@@ -108,6 +125,7 @@ describe.skip("seaport", () => {
 		const take = getOpenseaEthTakeData("10000000000")
 		const orderHash = await createSeaportOrder(ethereumSeller, make, take)
 
+		console.log("order", `https://testnet-api.rarible.org/v0.1/orders/ETHEREUM:${orderHash}`)
 		const order = await awaitOrder(sdkBuyer, orderHash)
 		const tx = await sdkBuyer.order.buy({
 			order: order as SeaportV1Order,
@@ -116,6 +134,17 @@ describe.skip("seaport", () => {
 		await tx.wait()
 
 		await awaitOwnership(sdkBuyer, sellItem.itemId, accountAddressBuyer, "2")
+	})
+
+	test("only buy", async () => {
+		const orderHash = "0x207044a162a83a59307f3f9d25a9812f0eb6c3f62678186017a00543400dfcc8"
+
+		const order = await awaitOrder(sdkBuyer, orderHash)
+		const tx = await sdkBuyer.order.buy({
+			order: order as SeaportV1Order,
+			amount: 2,
+		})
+		await tx.wait()
 	})
 
 	test("fill order ERC-1155 <-> ETH with restricted partial fill", async () => {
@@ -272,24 +301,6 @@ describe.skip("seaport", () => {
 
 	})
 })
-
-function getOpenseaEthTakeData(amount: BigNumberValue) {
-	const sellerAmount = toBn(amount).multipliedBy("0.975")
-	const feeRecipientAmount = toBn(amount).multipliedBy("0.025")
-	return [
-		{
-			"token": "0x0000000000000000000000000000000000000000",
-			"amount": sellerAmount.toString(),
-			"endAmount": sellerAmount.toString(),
-		},
-		{
-			"token": "0x0000000000000000000000000000000000000000",
-			"amount": feeRecipientAmount.toString(),
-			"endAmount": feeRecipientAmount.toString(),
-			"recipient": "0x8de9c5a032463c561423387a9648c5c7bcc5bc90",
-		},
-	]
-}
 
 function getOpenseaWethTakeData(amount: BigNumberValue) {
 	const weth = "0xc778417e063141139fce010982780140aa0cd5ab"

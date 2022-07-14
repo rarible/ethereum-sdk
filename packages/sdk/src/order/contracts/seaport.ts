@@ -1,3 +1,10 @@
+import type { Ethereum, EthereumContract } from "@rarible/ethereum-provider"
+import type { Address } from "@rarible/ethereum-api-client"
+
+export function createSeaportContract(ethereum: Ethereum, address?: Address): EthereumContract {
+	return ethereum.createContract(SeaportABI, address)
+}
+
 export const SeaportABI = [
 	{
 		inputs: [

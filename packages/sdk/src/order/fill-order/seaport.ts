@@ -15,14 +15,18 @@ import type { SimpleSeaportV1Order } from "../types"
 import { isNft } from "../is-nft"
 import { addFee } from "../add-fee"
 import type { SimpleOrder } from "../types"
+import type { SendFunction } from "../../common/send-transaction"
 import { CROSS_CHAIN_SEAPORT_ADDRESS, ItemType, OrderType } from "./seaport-utils/constants"
 import type { SeaportV1OrderFillRequest } from "./types"
 import type { OrderWithCounter, TipInputItem } from "./seaport-utils/types"
-import { fulfillOrder } from "./seaport-utils/seaport-utils"
+import { fulfillOrder } from "./seaport-updated/seaport-utils"
+import { fulfillOrder as fulfillOrderLegacy } from "./seaport-utils/seaport-utils"
+// import { convertAPIOrderToSeaport } from "./seaport-updated/convert-to-seaport-order"
 
 export class SeaportOrderHandler {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
+		private readonly send: SendFunction,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 	) {}
 
@@ -62,13 +66,12 @@ export class SeaportOrderHandler {
 		if (!isSupportedPartialFill && isPartialFill) {
 			throw new Error("Order is not supported partial fill")
 		}
-		const orderData = convertAPIOrderToSeaport(order)
 
 		if (order.taker) {
 			throw new Error("You can't fill private orders")
 		}
 
-		let tips: TipInputItem[] | undefined
+		let tips: TipInputItem[] | undefined = []
 		if (!takeIsNft) {
 			tips = request.originFees?.map(fee => ({
 				token: getSeaportToken(order.take.assetType),
@@ -77,18 +80,29 @@ export class SeaportOrderHandler {
 			}))
 		}
 
-		const {executeAllActions} = await fulfillOrder(
-			ethersProvider,
+		return fulfillOrder(
+			this.ethereum,
+			this.send,
+			order,
 			{
-				order: orderData,
 				unitsToFill,
-				accountAddress: await this.ethereum.getFrom(),
-				recipientAddress: undefined,
 				tips,
 			})
-		const tx = await executeAllActions()
 
-		return new EthersTransaction(tx)
+
+		// const orderData = convertAPIOrderToSeaport(order)
+		// console.log("orderData", JSON.stringify(orderData, null, "  "))
+		// const {executeAllActions} = await fulfillOrderLegacy(
+		// 	ethersProvider,
+		// 	{
+		// 		order: orderData,
+		// 		unitsToFill,
+		// 		accountAddress: await this.ethereum.getFrom(),
+		// 		recipientAddress: undefined,
+		// 		tips,
+		// 	})
+		// const tx = await executeAllActions()
+		// return new EthersTransaction(tx)
 	}
 
 	getBaseOrderFee() {

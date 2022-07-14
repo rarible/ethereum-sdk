@@ -1,4 +1,4 @@
-import { ZERO_ADDRESS } from "@rarible/types"
+import { randomWord, ZERO_ADDRESS } from "@rarible/types"
 import { providers as multicallProviders } from "@0xsequence/multicall"
 import type { providers, BigNumberish} from "ethers"
 import { Contract, ethers } from "ethers"
@@ -102,6 +102,8 @@ export async function fulfillOrder(
 		contract.getOrderStatus(getOrderHash(orderParameters)),
 	])
 
+	console.log("currentBlock", currentBlock)
+	console.log("orderStatus", orderStatus)
 	const currentBlockTimestamp = currentBlock.timestamp
 
 	const { totalFilled, totalSize } = orderStatus
@@ -110,6 +112,8 @@ export async function fulfillOrder(
 		order,
 		orderStatus
 	)
+
+	console.log("fulfill: sanitized order", JSON.stringify(sanitizedOrder, null, "  "))
 
 	const timeBasedItemParams = {
 		startTime: sanitizedOrder.parameters.startTime,
@@ -170,7 +174,7 @@ export async function fulfillOrder(
 	})
 }
 
-const CROSS_CHAIN_DEFAULT_CONDUIT_KEY =
+export const CROSS_CHAIN_DEFAULT_CONDUIT_KEY =
   "0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000"
 const CROSS_CHAIN_DEFAULT_CONDUIT =
   "0x1e0049783f008a0085193e00003d00cd54003c71"
@@ -181,7 +185,7 @@ export const CROSS_CHAIN_SEAPORT_ADDRESS =
 export const NO_CONDUIT =
   "0x0000000000000000000000000000000000000000000000000000000000000000"
 
-const CONDUIT_KEYS_TO_CONDUIT: Record<string, string> = {
+export const CONDUIT_KEYS_TO_CONDUIT: Record<string, string> = {
 	[CROSS_CHAIN_DEFAULT_CONDUIT_KEY]: CROSS_CHAIN_DEFAULT_CONDUIT,
 	[NO_CONDUIT]: CROSS_CHAIN_SEAPORT_ADDRESS,
 }
@@ -200,7 +204,7 @@ export async function createOrder(
 		allowPartialFills,
 		restrictedByZone,
 		fees,
-		salt = generateRandomSalt(),
+		salt = randomWord(),
 	}: CreateOrderInput,
 	accountAddress?: string
 ): Promise<OrderUseCase<CreateOrderAction>> {

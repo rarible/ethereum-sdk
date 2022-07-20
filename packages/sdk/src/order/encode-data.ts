@@ -38,7 +38,6 @@ export function encodeData(ethereum: Ethereum, data: OrderData, wrongEncode: Boo
 				maxFeesBasePoint: data.maxFeesBasePoint,
 				marketplaceMarker: data.marketplaceMarker || ZERO_WORD,
 			})
-			console.log(encoded)
 			return ["0x2fa3cfd3", encoded]
 		}
 		case "RARIBLE_V2_DATA_V2": {

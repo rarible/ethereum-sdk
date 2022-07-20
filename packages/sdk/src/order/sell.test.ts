@@ -84,6 +84,7 @@ describe.skip("sell", () => {
 		} as ERC721RequestV3)
 
 		const order = await orderSell.sell({
+			type: "DATA_V2",
 			maker: toAddress(wallet.getAddressString()),
 			makeAssetType: {
 				assetClass: "ERC721",

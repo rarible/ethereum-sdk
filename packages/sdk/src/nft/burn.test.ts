@@ -7,7 +7,6 @@ import {
 	NftLazyMintControllerApi,
 } from "@rarible/ethereum-api-client"
 import { toBn } from "@rarible/utils"
-import type { Ethereum } from "@rarible/ethereum-provider"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { getSendWithInjects } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"

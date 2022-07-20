@@ -27,7 +27,7 @@
   "dependencies": {
     "@0xsequence/multicall": "^0.39.0",
     "@rarible/action": "~0.5.0",
-    "@rarible/ethereum-api-client": "~0.1.22",
+    "@rarible/ethereum-api-client": "^0.1.23-beta1",
     "@rarible/ethereum-provider": "^0.12.64",
     "@rarible/ethers-ethereum": "^0.12.73",
     "@rarible/logger": "~0.6.2",

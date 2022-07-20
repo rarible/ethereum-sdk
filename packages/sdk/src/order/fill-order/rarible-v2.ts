@@ -19,6 +19,9 @@ import type {
 	OrderHandler,
 	PreparedOrderRequestDataForExchangeWrapper,
 	RaribleV2OrderFillRequest,
+	RaribleV2OrderFillRequestV2,
+	RaribleV2OrderFillRequestV3Buy,
+	RaribleV2OrderFillRequestV3Sell,
 } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
 
@@ -37,17 +40,38 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 			case "RARIBLE_V2_DATA_V1": {
 				inverted.data = {
 					dataType: "RARIBLE_V2_DATA_V1",
-					originFees: request.originFees || [],
-					payouts: request.payouts || [],
+					originFees: (request as RaribleV2OrderFillRequestV2).originFees || [],
+					payouts: (request as RaribleV2OrderFillRequestV2).payouts || [],
 				}
 				break
 			}
 			case "RARIBLE_V2_DATA_V2": {
 				inverted.data = {
 					dataType: "RARIBLE_V2_DATA_V2",
-					originFees: request.originFees || [],
-					payouts: request.payouts || [],
+					originFees: (request as RaribleV2OrderFillRequestV2).originFees || [],
+					payouts: (request as RaribleV2OrderFillRequestV2).payouts || [],
 					isMakeFill: !request.order.data.isMakeFill,
+				}
+				break
+			}
+			case "RARIBLE_V2_DATA_V3_BUY": {
+				inverted.data = {
+					dataType: "RARIBLE_V2_DATA_V3_SELL",
+					payout: (request as RaribleV2OrderFillRequestV3Sell).payout,
+					originFeeFirst: (request as RaribleV2OrderFillRequestV3Sell).originFeeFirst,
+					originFeeSecond: (request as RaribleV2OrderFillRequestV3Sell).originFeeSecond,
+					maxFeesBasePoint: (request as RaribleV2OrderFillRequestV3Sell).maxFeesBasePoint,
+					marketplaceMarker: (request as RaribleV2OrderFillRequestV3Sell).marketplaceMarker,
+				}
+				break
+			}
+			case "RARIBLE_V2_DATA_V3_SELL": {
+				inverted.data = {
+					dataType: "RARIBLE_V2_DATA_V3_BUY",
+					payout: (request as RaribleV2OrderFillRequestV3Buy).payout,
+					originFeeFirst: (request as RaribleV2OrderFillRequestV3Buy).originFeeFirst,
+					originFeeSecond: (request as RaribleV2OrderFillRequestV3Buy).originFeeSecond,
+					marketplaceMarker: (request as RaribleV2OrderFillRequestV3Buy).marketplaceMarker,
 				}
 				break
 			}
@@ -146,7 +170,18 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 	}
 
 	async getOrderFee(order: SimpleRaribleV2Order): Promise<number> {
-		return order.data.originFees.map(f => f.value).reduce((v, acc) => v + acc, 0) + await this.getBaseOrderFee()
+		switch (order.data.dataType) {
+			case "RARIBLE_V2_DATA_V1":
+			case "RARIBLE_V2_DATA_V2":
+				return order.data.originFees.map(f => f.value).reduce((v, acc) => v + acc, 0) + await this.getBaseOrderFee()
+			case "RARIBLE_V2_DATA_V3_BUY":
+			case "RARIBLE_V2_DATA_V3_SELL":
+				return (order.data.originFeeFirst?.value ?? 0) +
+					(order.data.originFeeSecond?.value ?? 0) +
+					await this.getBaseOrderFee()
+			default:
+				throw new Error("Unsupported order dataType")
+		}
 	}
 
 	async getBaseOrderFee(): Promise<number> {

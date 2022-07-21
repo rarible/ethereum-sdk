@@ -8,7 +8,8 @@ import type {
 	SimpleLegacyOrder,
 	SimpleOpenSeaV1Order,
 	SimpleOrder,
-	SimpleRaribleV2Order, SimpleSeaportV1Order,
+	SimpleRaribleV2Order,
+	SimpleSeaportV1Order,
 } from "../types"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
@@ -28,8 +29,13 @@ import type {
 	OpenSeaV1OrderFillRequest,
 	OrderFillSendData,
 	OrderFillTransactionData,
-	RaribleV2OrderFillRequest, SeaportV1OrderFillRequest,
+	RaribleV2OrderFillRequest,
+	BuyOrderRequest,
+	SellOrderRequest,
 	TransactionData,
+	SeaportV1OrderFillRequest,
+	SellOrderAction,
+	BuyOrderAction,
 } from "./types"
 import { RaribleV1OrderHandler } from "./rarible-v1"
 import { RaribleV2OrderHandler } from "./rarible-v2"
@@ -108,12 +114,12 @@ export class OrderFiller {
 	/**
 	 * Buy order
 	 */
-	buy: FillOrderAction = this.getFillAction()
+	public buy: BuyOrderAction = this.getFillAction<BuyOrderRequest>()
 
 	/**
 	 * Accept bid order
 	 */
-	acceptBid: FillOrderAction = this.getFillAction()
+	public acceptBid: SellOrderAction = this.getFillAction<SellOrderRequest>()
 
 	async getBuyTx({request, from}: GetOrderBuyTxRequest): Promise<TransactionData> {
 		const inverted = await this.invertOrder(request, from)

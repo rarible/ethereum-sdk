@@ -145,9 +145,21 @@ export async function sentTx(source: ContractSendMethod, options: SendOptions): 
 	return waitForHash(event)
 }
 
+export async function sentTxConfirm(source: ContractSendMethod, options: SendOptions): Promise<string> {
+	const event = source.send({ ...options, gas: 3000000 })
+	return waitForConfirmation(event)
+}
+
 export async function waitForHash<T>(promiEvent: PromiEvent<T>): Promise<string> {
 	return new Promise((resolve, reject) => {
 		promiEvent.on("transactionHash", hash => resolve(hash))
+		promiEvent.on("error", error => reject(error))
+	})
+}
+
+export async function waitForConfirmation<T>(promiEvent: PromiEvent<T>): Promise<string> {
+	return new Promise((resolve, reject) => {
+		promiEvent.on("confirmation", (confNumber: number, receipt: TransactionReceipt) => resolve(receipt.transactionHash))
 		promiEvent.on("error", error => reject(error))
 	})
 }

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.78](https://github.com/rarible/ethereum-sdk/compare/v0.12.77...v0.12.78) (2022-07-21)
+
+
+### Features
+
+* support order data v3 ([#170](https://github.com/rarible/ethereum-sdk/issues/170)) ([bac48a7](https://github.com/rarible/ethereum-sdk/commit/bac48a7086de9edc352160ab5428b754be2870ba))
+
+
+
+
+
 
 
 **Note:** Version bump only for package @rarible/ethereum-sdk-test-common

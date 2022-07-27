@@ -1,7 +1,8 @@
 import type { Ethereum } from "@rarible/ethereum-provider"
-import { toAddress, ZERO_ADDRESS } from "@rarible/types"
+import { ZERO_ADDRESS } from "@rarible/types"
 import type { BigNumber} from "@rarible/utils"
 import type { BigNumberValue } from "@rarible/utils"
+import type { Address } from "@rarible/ethereum-api-client"
 import { createSeaportContract } from "../../contracts/seaport"
 import type { SendFunction } from "../../../common/send-transaction"
 import { getAdvancedOrderNumeratorDenominator } from "./fulfill"
@@ -10,9 +11,8 @@ import type { ConsiderationItem, InputCriteria, Order, OrderStruct } from "./typ
 import { getSummedTokenAndIdentifierAmounts, isCriteriaItem } from "./item"
 import type { TimeBasedItemParams } from "./item"
 import { mapOrderAmountsFromFilledStatus, mapOrderAmountsFromUnitsToFill } from "./order"
-import { CROSS_CHAIN_SEAPORT_ADDRESS } from "./constants"
 
-export async function fulfillStandardOrder({
+export async function fulfillStandardOrderWithWrapper({
 	ethereum,
 	send,
 	order,
@@ -26,10 +26,12 @@ export async function fulfillStandardOrder({
 	timeBasedItemParams,
 	conduitKey,
 	recipientAddress,
+	seaportWrapper,
 }: {
 	ethereum: Ethereum;
 	send: SendFunction;
 	order: Order;
+	seaportWrapper: Address,
 	unitsToFill?: BigNumberValue;
 	totalFilled: BigNumber;
 	totalSize: BigNumber;
@@ -108,25 +110,9 @@ export async function fulfillStandardOrder({
 		unitsToFill
 	)
 
-	const seaportContract = createSeaportContract(ethereum, toAddress(CROSS_CHAIN_SEAPORT_ADDRESS))
+	const seaportContract = createSeaportContract(ethereum, seaportWrapper)
 
 	if (useAdvanced) {
-		console.log("fulfillAdvancedOrder", JSON.stringify([{
-			...orderAccountingForTips,
-			numerator,
-			denominator,
-			extraData: extraData ?? "0x",
-		},
-		hasCriteriaItems
-			? generateCriteriaResolvers({
-				orders: [order],
-				offerCriterias: [offerCriteria],
-				considerationCriterias: [considerationCriteria],
-			})
-			: [],
-		conduitKey,
-		recipientAddress], null, " "))
-
 		const tx = await seaportContract.functionCall("fulfillAdvancedOrder",
 			{
 				...orderAccountingForTips,
@@ -147,7 +133,6 @@ export async function fulfillStandardOrder({
 		return send(tx, { value: totalNativeAmount?.toString() })
 	}
 
-	console.log("fulfillOrder", JSON.stringify(orderAccountingForTips, null, "  "))
 	const tx = await seaportContract.functionCall(
 		"fulfillOrder",
 		orderAccountingForTips, conduitKey

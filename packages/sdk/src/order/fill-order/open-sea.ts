@@ -283,7 +283,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		const { buy } = getBuySellOrders(initial, inverted)
 		return {
 			data: {
-				marketId: ExchangeWrapperOrderType.OPENSEAV1,
+				marketId: ExchangeWrapperOrderType.OPENSEA_V1,
 				amount: (await getMatchOpenseaOptions(buy)).value!,
 				data: atomicMatchFunctionCall.data,
 			},

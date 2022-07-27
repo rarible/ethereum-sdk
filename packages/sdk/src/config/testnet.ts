@@ -25,6 +25,7 @@ export const testnetEthereumConfig: EthereumConfig = {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: toAddress("0x1e525eeaf261ca41b809884cbde9dd9e1619573a"),
 		merkleValidator: toAddress("0x45b594792a5cdc008d0de1c1d69faa3d16b3ddc1"),
+		seaportWrapper: toAddress("0xBa1a8691Ac46b9F622765cdD18AC54aF745bb87C"),
 	},
 	factories: {
 		erc721: toAddress("0x62e0BDC23435321adFf249d6f41e11AEee6486Cf"),

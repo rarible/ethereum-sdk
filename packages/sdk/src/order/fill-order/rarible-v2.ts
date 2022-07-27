@@ -103,7 +103,7 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		const options = await this.getMatchV2Options(initial, inverted)
 		return {
 			data: {
-				marketId: ExchangeWrapperOrderType.RARIBLEV2,
+				marketId: ExchangeWrapperOrderType.RARIBLE_V2,
 				amount: options?.value!,
 				data: callData,
 			},

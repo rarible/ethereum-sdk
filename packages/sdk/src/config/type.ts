@@ -21,6 +21,7 @@ export type OpenSeaConfig = {
 	metadata: Word
 	proxyRegistry: Address
 	merkleValidator?: Address
+	seaportWrapper?: Address
 }
 
 export type FactoriesAddresses = {

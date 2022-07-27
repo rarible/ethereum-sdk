@@ -12,15 +12,19 @@ import { isNft } from "../is-nft"
 import { addFee } from "../add-fee"
 import type { SimpleOrder } from "../types"
 import type { SendFunction } from "../../common/send-transaction"
+import type { EthereumConfig } from "../../config/type"
+import { prepareForExchangeWrapperFees } from "../../common/prepare-fee-for-exchange-wrapper"
 import { CROSS_CHAIN_SEAPORT_ADDRESS, ItemType, OrderType } from "./seaport-utils/constants"
 import type { SeaportV1OrderFillRequest } from "./types"
 import type { TipInputItem } from "./seaport-utils/types"
+import { fulfillOrderWithWrapper } from "./seaport-utils/seaport-wrapper-utils"
 import { fulfillOrder } from "./seaport-utils/seaport-utils"
 
 export class SeaportOrderHandler {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
+		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 	) {}
 
@@ -63,6 +67,24 @@ export class SeaportOrderHandler {
 			throw new Error("You can't fill private orders")
 		}
 
+		if (order.take.assetType.assetClass === "ETH") {
+			const {seaportWrapper} = this.config.openSea
+			if (!seaportWrapper || seaportWrapper === ZERO_ADDRESS) {
+				throw new Error("Seaport wrapper address has not been set. Change address in config")
+			}
+
+			return fulfillOrderWithWrapper(
+				this.ethereum,
+				this.send.bind(this),
+				order,
+				{
+					unitsToFill,
+					tips: [],
+					originFees: request.originFees,
+					seaportWrapper,
+				})
+		}
+
 		let tips: TipInputItem[] | undefined = []
 		if (!takeIsNft) {
 			tips = request.originFees?.map(fee => ({
@@ -71,7 +93,6 @@ export class SeaportOrderHandler {
 				recipient: fee.account,
 			}))
 		}
-
 		return fulfillOrder(
 			this.ethereum,
 			this.send,

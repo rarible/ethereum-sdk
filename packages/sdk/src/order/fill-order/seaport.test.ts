@@ -23,7 +23,7 @@ import { SeaportOrderHandler } from "./seaport"
 
 
 //createSeaportOrder may return 400 error, try again
-describe.skip("seaport", () => {
+describe("seaport", () => {
 	const { provider: providerBuyer } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a", {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",
@@ -54,6 +54,7 @@ describe.skip("seaport", () => {
 	const seaportBuyerOrderHandler = new SeaportOrderHandler(
 		buyerWeb3,
 		send,
+		config,
 		async () => 0,
 	)
 
@@ -78,6 +79,7 @@ describe.skip("seaport", () => {
 			token: sellItem.contract,
 			identifier: sellItem.tokenId,
 		} as const
+		console.log("sellItem", sellItem, make)
 		const take = getOpenseaEthTakeData("10000000000")
 		const orderHash = await createSeaportOrder(ethereumSeller, send, make, take)
 
@@ -90,6 +92,7 @@ describe.skip("seaport", () => {
 			amount: 1,
 		})
 		await tx.wait()
+		console.log("tx", tx)
 		await awaitOwnership(sdkBuyer, sellItem.itemId, accountAddressBuyer, "1")
 
 		const fee = seaportBuyerOrderHandler.getOrderFee(order as SimpleSeaportV1Order)

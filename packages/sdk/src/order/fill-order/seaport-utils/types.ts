@@ -44,8 +44,8 @@ export type Order = {
 }
 
 export type AdvancedOrder = Order & {
-	numerator: BigNumber;
-	denominator: BigNumber;
+	numerator: string;
+	denominator: string;
 	extraData: string;
 }
 

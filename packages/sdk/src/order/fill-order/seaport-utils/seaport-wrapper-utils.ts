@@ -5,10 +5,10 @@ import { toAddress } from "@rarible/types"
 import type { Address, Part } from "@rarible/ethereum-api-client"
 import type { SendFunction } from "../../../common/send-transaction"
 import type { SimpleSeaportV1Order } from "../../types"
-import { createSeaportWrapper } from "../../contracts/seaport-wrapper"
 import { createSeaportContract } from "../../contracts/seaport"
 import { ExchangeWrapperOrderType } from "../types"
 import { prepareForExchangeWrapperFees } from "../../../common/prepare-fee-for-exchange-wrapper"
+import { createExchangeWrapperContract } from "../../contracts/exchange-wrapper"
 import type { InputCriteria } from "./types"
 import { CONDUIT_KEYS_TO_CONDUIT, CROSS_CHAIN_DEFAULT_CONDUIT_KEY, CROSS_CHAIN_SEAPORT_ADDRESS } from "./constants"
 import { convertAPIOrderToSeaport } from "./convert-to-seaport-order"
@@ -112,7 +112,7 @@ export async function fulfillOrderWithWrapper(
 		data: fulfillOrdersData.data,
 	}
 
-	const seaportWrapperContract = createSeaportWrapper(ethereum, seaportWrapper)
+	const seaportWrapperContract = createExchangeWrapperContract(ethereum, seaportWrapper)
 	const originFeesPrepared = prepareForExchangeWrapperFees(originFees || [])
 	const feesValueInBasisPoints = originFees?.reduce((acc, part) => {
 		return acc += part.value

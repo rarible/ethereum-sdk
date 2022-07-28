@@ -86,6 +86,11 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 		"type": "function",
 	},
 	{
+		"stateMutability": "payable",
+		// @ts-ignore
+		"type": "receive",
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "contract IWyvernExchange",

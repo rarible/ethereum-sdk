@@ -6,7 +6,7 @@ import type { RaribleSdk } from "../../index"
 export async function awaitOwnership(
 	sdk: RaribleSdk, itemId: string, owner: Address, amount: BigNumberValue
 ) {
-	return retry(10, 3000, async () => {
+	return retry(20, 3000, async () => {
 		const ownership = await sdk.apis.nftOwnership.getNftOwnershipById({
 			ownershipId: `${itemId}:${owner}`,
 		})

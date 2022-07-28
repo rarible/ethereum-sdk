@@ -37,6 +37,10 @@ import { cancel } from "../cancel"
 import type { SimpleOpenSeaV1Order } from "../types"
 import { createEthereumApis } from "../../common/apis"
 import { checkChainId } from "../check-chain-id"
+import { createRaribleSdk } from "../../index"
+import { createErc721V3Collection } from "../../common/mint"
+import type { ERC721RequestV3 } from "../../nft/mint"
+import { MintResponseTypeEnum } from "../../nft/mint"
 import {
 	getAtomicMatchArgAddresses,
 	getAtomicMatchArgCommonData,
@@ -211,6 +215,34 @@ describe.skip("fillOrder: Opensea orders", function () {
 			default: return side
 		}
 	}
+
+	test("mint polygon", async () => {
+		const buyerWeb3 = new Web3Ethereum({ web3: new Web3(polygonProvider as any), gas: 1000000})
+
+		const sdkBuyer = createRaribleSdk(buyerWeb3, "polygon")
+
+		const collection = toAddress("0x35f8aee672cdE8e5FD09C93D2BfE4FF5a9cF0756")
+		const minter = toAddress("0xEE5DA6b5cDd5b5A22ECEB75b84C7864573EB4FeC")
+		const nftTokenId = await sdkBuyer.apis.nftCollection.generateNftTokenId({ collection, minter })
+
+		const tx = await sdkBuyer.nft.mint({
+			collection: createErc721V3Collection(collection),
+			uri: "ipfs://ipfs/hash",
+			creators: [{
+				account: minter,
+				value: 10000,
+			}],
+			royalties: [],
+			lazy: false,
+			nftTokenId,
+		} as ERC721RequestV3)
+
+		console.log("tx", tx)
+		if (tx.type === MintResponseTypeEnum.ON_CHAIN) {
+			await tx.transaction.wait()
+		}
+
+	})
 
 	test("should calculate valid hash", async () => {
 		const exchangeContract = createOpenseaContract(ethereum1, toAddress(wyvernExchange.options.address))

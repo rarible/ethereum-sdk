@@ -24,27 +24,32 @@ import { SeaportOrderHandler } from "./seaport"
 
 //createSeaportOrder may return 400 error, try again
 describe.skip("seaport", () => {
-	const { provider: providerBuyer } = createE2eProvider("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a", {
+	const providerConfig = {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",
-	})
-	const { provider: providerSeller } = createE2eProvider("0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c", {
-		networkId: 4,
-		rpcUrl: "https://node-rinkeby.rarible.com",
-	})
+	}
+	const { provider: providerBuyer } = createE2eProvider(
+		"0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a",
+		providerConfig
+	)
+	const { provider: providerSeller } = createE2eProvider(
+		"0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c",
+		providerConfig
+	)
+	const { wallet: feeWallet } = createE2eProvider(undefined, providerConfig)
 	const web3Seller = new Web3(providerSeller as any)
-	const ethereumSeller = new Web3Ethereum({ web3: web3Seller, gas: 1000000 })
+	const ethereumSeller = new Web3Ethereum({ web3: web3Seller, gas: 3000000 })
 	const web3 = new Web3(providerBuyer as any)
-	const ethereum = new Web3Ethereum({ web3, gas: 1000000 })
+	const ethereum = new Web3Ethereum({ web3, gas: 3000000 })
 
-	const buyerWeb3 = new Web3Ethereum({ web3: new Web3(providerBuyer as any), gas: 1000000})
+	const buyerWeb3 = new Web3Ethereum({ web3: new Web3(providerBuyer as any), gas: 3000000})
 
 	const sdkBuyer = createRaribleSdk(buyerWeb3, "testnet")
 	const sdkSeller = createRaribleSdk(ethereumSeller, "testnet")
 
 	const rinkebyErc721V3ContractAddress = toAddress("0x6ede7f3c26975aad32a475e1021d8f6f39c89d82")
 	const rinkebyErc1155V2ContractAddress = toAddress("0x1af7a7555263f275433c6bb0b8fdcd231f89b1d7")
-	const originFeeAddress = toAddress("0xe954de45ec23bF47078db77f34ef0d905F4D3051")
+	const originFeeAddress = toAddress(feeWallet.getAddressString())
 
 	const config = getEthereumConfig("testnet")
 
@@ -54,6 +59,7 @@ describe.skip("seaport", () => {
 	const seaportBuyerOrderHandler = new SeaportOrderHandler(
 		buyerWeb3,
 		send,
+		config,
 		async () => 0,
 	)
 
@@ -81,9 +87,7 @@ describe.skip("seaport", () => {
 		const take = getOpenseaEthTakeData("10000000000")
 		const orderHash = await createSeaportOrder(ethereumSeller, send, make, take)
 
-		console.log("after creating order")
 		const order = await awaitOrder(sdkBuyer, orderHash)
-		console.log("after awaiting order", order.signature, make)
 
 		const tx = await sdkBuyer.order.buy({
 			order: order as SeaportV1Order,
@@ -122,7 +126,6 @@ describe.skip("seaport", () => {
 		const take = getOpenseaEthTakeData("10000000000")
 		const orderHash = await createSeaportOrder(ethereumSeller, send, make, take)
 
-		console.log("order", `https://testnet-api.rarible.org/v0.1/orders/ETHEREUM:${orderHash}`)
 		const order = await awaitOrder(sdkBuyer, orderHash)
 		const tx = await sdkBuyer.order.buy({
 			order: order as SeaportV1Order,
@@ -182,7 +185,7 @@ describe.skip("seaport", () => {
 			await sellItem.transaction.wait()
 		}
 
-		await delay(20000)
+		await delay(10000)
 		const make: CreateInputItem = {
 			itemType: ItemType.ERC1155,
 			token: sellItem.contract,
@@ -194,17 +197,26 @@ describe.skip("seaport", () => {
 		const orderHash = await createSeaportOrder(ethereumSeller, send, make, take)
 		const order = await awaitOrder(sdkBuyer, orderHash)
 
+		const feeAddressBalanceStart = await sdkSeller.balances.getBalance(originFeeAddress, {assetClass: "ETH"})
+
 		const tx = await sdkBuyer.order.buy({
 			order: order as SeaportV1Order,
 			amount: 5,
 			originFees: [{
 				account: originFeeAddress,
-				value: 1000,
+				value: 500,
+			}, {
+				account: originFeeAddress,
+				value: 500,
 			}],
 		})
 		await tx.wait()
 
 		await awaitOwnership(sdkBuyer, sellItem.itemId, accountAddressBuyer, "5")
+		const feeAddressBalanceFinish = await sdkSeller.balances.getBalance(originFeeAddress, {assetClass: "ETH"})
+
+		expect(toBn(feeAddressBalanceFinish).minus(feeAddressBalanceStart).toString()).toBe("0.0000000005")
+
 	})
 
 	test("fill order ERC-1155 <-> ERC-20 (WETH) with origin fees", async () => {
@@ -258,6 +270,8 @@ describe.skip("seaport", () => {
 	})
 
 	test("fill order ERC-721 <-> ERC-20 (WETH)", async () => {
+		const accountAddressBuyer = toAddress(await ethereum.getFrom())
+
 		const sellItem = await sdkSeller.nft.mint({
 			collection: createErc721V3Collection(rinkebyErc721V3ContractAddress),
 			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
@@ -285,6 +299,7 @@ describe.skip("seaport", () => {
 		})
 		await tx.wait()
 
+		await awaitOwnership(sdkBuyer, sellItem.itemId, accountAddressBuyer, "1")
 	})
 })
 

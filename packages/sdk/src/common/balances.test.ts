@@ -2,6 +2,9 @@ import { awaitAll, createE2eProvider, deployTestErc20 } from "@rarible/ethereum-
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
+import { configDictionary } from "../config"
+import { createRaribleSdk } from "../index"
+import type { EthereumNetwork } from "../types"
 import { Balances } from "./balances"
 import { retry } from "./retry"
 import { createEthereumApis } from "./apis"
@@ -51,5 +54,18 @@ describe("getBalance test", () => {
 		})
 
 		expect(balance.toString()).toBe(nextBalance)
+	})
+
+})
+
+const envs = Object.keys(configDictionary) as EthereumNetwork[]
+
+describe.each(envs)("get balances each of environments", (env: EthereumNetwork) => {
+	const senderAddress = toAddress("0xc8f35463Ea36aEE234fe7EFB86373A78BF37e2A1")
+	const sdk = createRaribleSdk(undefined, env)
+
+	test(`get balance on ${env}`, async () => {
+		const balance = await sdk.balances.getBalance(senderAddress, {assetClass: "ETH"})
+		console.log("balance", env, balance.toString())
 	})
 })

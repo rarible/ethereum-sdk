@@ -43,8 +43,8 @@ describe.skip("sendTransaction", () => {
 	})
 
 	test("throw error if config.chainId is make a difference with chainId of wallet", async () => {
-		const config = getEthereumConfig("rinkeby")
-		const configuration = new Configuration(getApiConfig("rinkeby"))
+		const config = getEthereumConfig("testnet")
+		const configuration = new Configuration(getApiConfig("testnet"))
 		const gatewayApi = new GatewayControllerApi(configuration)
 		const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 

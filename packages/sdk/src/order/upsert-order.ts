@@ -15,6 +15,7 @@ import { Action } from "@rarible/action"
 import type { Address, Word } from "@rarible/types"
 import { randomWord, toAddress, toBigNumber, toBinary, toWord } from "@rarible/types"
 import type { BigNumberValue } from "@rarible/utils/build/bn"
+import type { OrderRaribleV2Data } from "@rarible/ethereum-api-client/build/models/OrderData"
 import { toBn } from "@rarible/utils/build/bn"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { Maybe } from "@rarible/types/build/maybe"
@@ -41,13 +42,39 @@ export type UpsertOrderAction = Action<UpsertOrderStageId, UpsertOrderActionArg,
 export type HasOrder = { orderHash: Word } | { order: SimpleOrder }
 export type HasPrice = { price: BigNumberValue } | { priceDecimal: BigNumberValue }
 
-export type OrderRequest = {
+export type OrderRequestV2 = {
+	type: "DATA_V2"
 	maker?: Address
 	payouts: Part[]
 	originFees: Part[]
 	start?: number
 	end?: number
 }
+
+export type OrderRequestV3Sell = {
+	type: "DATA_V3_SELL"
+	maker?: Address
+	payout: Part
+	originFeeFirst?: Part
+	originFeeSecond?: Part
+	marketplaceMarker?: Word
+	maxFeesBasePoint: number
+	start?: number
+	end?: number
+}
+
+export type OrderRequestV3Buy = {
+	type: "DATA_V3_BUY"
+	maker?: Address
+	payout?: Part
+	originFeeFirst?: Part
+	originFeeSecond?: Part
+	marketplaceMarker?: Word
+	start?: number
+	end?: number
+}
+
+export type OrderRequest = OrderRequestV2 | OrderRequestV3Buy | OrderRequestV3Sell
 
 export class UpsertOrder {
 	constructor(
@@ -126,15 +153,43 @@ export class UpsertOrder {
 	}
 
 	async prepareOrderForm(request: OrderRequest, isMakeFill: boolean): Promise<Omit<RaribleV2OrderForm, "take" | "make">> {
+		let data: OrderRaribleV2Data
+		switch (request.type) {
+			case "DATA_V2":
+				data = {
+					dataType: "RARIBLE_V2_DATA_V2",
+					payouts: request.payouts,
+					originFees: request.originFees,
+					isMakeFill,
+				}
+				break
+			case "DATA_V3_BUY":
+				data = {
+					dataType: "RARIBLE_V2_DATA_V3_BUY",
+					payout: request.payout,
+					originFeeFirst: request.originFeeFirst,
+					originFeeSecond: request.originFeeSecond,
+					marketplaceMarker: request.marketplaceMarker,
+				}
+				break
+			case "DATA_V3_SELL":
+				data = {
+					dataType: "RARIBLE_V2_DATA_V3_SELL",
+					payout: request.payout,
+					originFeeFirst: request.originFeeFirst,
+					originFeeSecond: request.originFeeSecond,
+					marketplaceMarker: request.marketplaceMarker,
+					maxFeesBasePoint: request.maxFeesBasePoint,
+				}
+				break
+			default:
+				throw new Error("Unknown OrderRequest type")
+		}
+
 		return {
 			maker: await this.getOrderMaker(request),
 			type: "RARIBLE_V2",
-			data: {
-				dataType: "RARIBLE_V2_DATA_V2",
-				payouts: request.payouts,
-				originFees: request.originFees,
-				isMakeFill,
-			},
+			data: data,
 			salt: toBigNumber(toBn(randomWord(), 16).toString(10)),
 			signature: toBinary("0x"),
 			start: request.start,

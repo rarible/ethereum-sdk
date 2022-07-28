@@ -1,4 +1,4 @@
-import { randomAddress, randomWord, toAddress, toBigNumber } from "@rarible/types"
+import { randomAddress, randomWord, toAddress, toBigNumber, toWord } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { toBn } from "@rarible/utils/build/bn"
@@ -26,7 +26,7 @@ import { createEthereumApis } from "../../common/apis"
 import { checkChainId } from "../check-chain-id"
 import { OrderFiller } from "./index"
 
-describe.skip("buy & acceptBid orders", () => {
+describe("buy & acceptBid orders", () => {
 	const { addresses, provider } = createGanacheProvider()
 	const [sender1Address, sender2Address] = addresses
 	const web3 = new Web3(provider as any)
@@ -292,6 +292,70 @@ describe.skip("buy & acceptBid orders", () => {
 			value: 100,
 		}]
 		await filler.buy({ order: finalOrder, amount: 2, originFees })
+
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString()).toBe(
+			before2.minus(2).toFixed()
+		)
+		expect(toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call()).toString()).toBe(
+			before1.plus(2).toFixed()
+		)
+	})
+
+	test("should match order(buy erc1155 for eth) with dataType=V3", async () => {
+		await sentTx(it.testErc1155.methods.mint(sender2Address, 4, 10, "0x"), { from: sender1Address })
+
+		const left: SimpleOrder = {
+			make: {
+				assetType: {
+					assetClass: "ERC1155",
+					contract: toAddress(it.testErc1155.options.address),
+					tokenId: toBigNumber("1"),
+				},
+				value: toBigNumber("5"),
+			},
+			maker: sender2Address,
+			take: {
+				assetType: {
+					assetClass: "ETH",
+				},
+				value: toBigNumber("1000000"),
+			},
+			salt: randomWord(),
+			type: "RARIBLE_V2",
+			data: {
+				dataType: "RARIBLE_V2_DATA_V3_SELL",
+				payout: {
+					value: 10000,
+					account: sender2Address,
+				},
+				originFeeFirst: undefined,
+				originFeeSecond: undefined,
+				maxFeesBasePoint: 200,
+				marketplaceMarker: toWord("0x000000000000000000000000000000000000000000000000000000000000face"),
+			},
+		}
+
+		await sentTx(it.testErc1155.methods.setApprovalForAll(it.transferProxy.options.address, true), {
+			from: sender2Address,
+		})
+
+		const signature = await signOrder(ethereum2, config, left)
+
+		const before1 = toBn(await it.testErc1155.methods.balanceOf(sender1Address, 1).call())
+		const before2 = toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call())
+
+		console.log(before1.toString())
+		console.log(before2.toString())
+
+		const finalOrder = { ...left, signature }
+		await filler.buy({
+			order: finalOrder,
+			amount: 2,
+			originFeeFirst: {
+				account: randomAddress(),
+				value: 100,
+			},
+		})
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sender2Address, 1).call()).toString()).toBe(
 			before2.minus(2).toFixed()

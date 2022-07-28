@@ -100,6 +100,7 @@ describe.skip("bid", () => {
 		const erc20Contract = toAddress(it.testErc20.options.address)
 
 		const order = await orderBid.bid({
+			type: "DATA_V2",
 			maker: bidderAddress,
 			makeAssetType: {
 				assetClass: "ERC20",
@@ -150,6 +151,7 @@ describe.skip("bid", () => {
 		const erc20Contract = toAddress(it.testErc20.options.address)
 
 		const order = await orderBid.bid({
+			type: "DATA_V2",
 			maker: bidderAddress,
 			makeAssetType: {
 				assetClass: "ERC20",

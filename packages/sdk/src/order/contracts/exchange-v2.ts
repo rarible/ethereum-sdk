@@ -16,48 +16,6 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 				"name": "hash",
 				"type": "bytes32",
 			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "maker",
-				"type": "address",
-			},
-			{
-				"components": [
-					{
-						"internalType": "bytes4",
-						"name": "assetClass",
-						"type": "bytes4",
-					},
-					{
-						"internalType": "bytes",
-						"name": "data",
-						"type": "bytes",
-					},
-				],
-				"indexed": false,
-				"internalType": "struct LibAsset.AssetType",
-				"name": "makeAssetType",
-				"type": "tuple",
-			},
-			{
-				"components": [
-					{
-						"internalType": "bytes4",
-						"name": "assetClass",
-						"type": "bytes4",
-					},
-					{
-						"internalType": "bytes",
-						"name": "data",
-						"type": "bytes",
-					},
-				],
-				"indexed": false,
-				"internalType": "struct LibAsset.AssetType",
-				"name": "takeAssetType",
-				"type": "tuple",
-			},
 		],
 		"name": "Cancel",
 		"type": "event",
@@ -79,18 +37,6 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 			},
 			{
 				"indexed": false,
-				"internalType": "address",
-				"name": "leftMaker",
-				"type": "address",
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "rightMaker",
-				"type": "address",
-			},
-			{
-				"indexed": false,
 				"internalType": "uint256",
 				"name": "newLeftFill",
 				"type": "uint256",
@@ -100,42 +46,6 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 				"internalType": "uint256",
 				"name": "newRightFill",
 				"type": "uint256",
-			},
-			{
-				"components": [
-					{
-						"internalType": "bytes4",
-						"name": "assetClass",
-						"type": "bytes4",
-					},
-					{
-						"internalType": "bytes",
-						"name": "data",
-						"type": "bytes",
-					},
-				],
-				"indexed": false,
-				"internalType": "struct LibAsset.AssetType",
-				"name": "leftAsset",
-				"type": "tuple",
-			},
-			{
-				"components": [
-					{
-						"internalType": "bytes4",
-						"name": "assetClass",
-						"type": "bytes4",
-					},
-					{
-						"internalType": "bytes",
-						"name": "data",
-						"type": "bytes",
-					},
-				],
-				"indexed": false,
-				"internalType": "struct LibAsset.AssetType",
-				"name": "rightAsset",
-				"type": "tuple",
 			},
 		],
 		"name": "Match",
@@ -183,6 +93,25 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 		"anonymous": false,
 		"inputs": [
 			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "oldValue",
+				"type": "uint256",
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newValue",
+				"type": "uint256",
+			},
+		],
+		"name": "ProtocolFeeChanged",
+		"type": "event",
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
 				"indexed": true,
 				"internalType": "bytes4",
 				"name": "assetType",
@@ -196,67 +125,6 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 			},
 		],
 		"name": "ProxyChange",
-		"type": "event",
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"components": [
-					{
-						"components": [
-							{
-								"internalType": "bytes4",
-								"name": "assetClass",
-								"type": "bytes4",
-							},
-							{
-								"internalType": "bytes",
-								"name": "data",
-								"type": "bytes",
-							},
-						],
-						"internalType": "struct LibAsset.AssetType",
-						"name": "assetType",
-						"type": "tuple",
-					},
-					{
-						"internalType": "uint256",
-						"name": "value",
-						"type": "uint256",
-					},
-				],
-				"indexed": false,
-				"internalType": "struct LibAsset.Asset",
-				"name": "asset",
-				"type": "tuple",
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "from",
-				"type": "address",
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "to",
-				"type": "address",
-			},
-			{
-				"indexed": false,
-				"internalType": "bytes4",
-				"name": "transferDirection",
-				"type": "bytes4",
-			},
-			{
-				"indexed": false,
-				"internalType": "bytes4",
-				"name": "transferType",
-				"type": "bytes4",
-			},
-		],
-		"name": "Transfer",
 		"type": "event",
 	},
 	{
@@ -380,6 +248,163 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 		"stateMutability": "view",
 		"type": "function",
 		"constant": true,
+	},
+	{
+		"inputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "tokenBidAmount",
+						"type": "uint256",
+					},
+					{
+						"internalType": "uint256",
+						"name": "tokenAcceptAmount",
+						"type": "uint256",
+					},
+					{
+						"internalType": "uint256",
+						"name": "priceBid",
+						"type": "uint256",
+					},
+					{
+						"internalType": "uint256",
+						"name": "priceAccept",
+						"type": "uint256",
+					},
+					{
+						"internalType": "uint256",
+						"name": "salt",
+						"type": "uint256",
+					},
+					{
+						"internalType": "address",
+						"name": "buyer",
+						"type": "address",
+					},
+					{
+						"internalType": "bytes4",
+						"name": "nftClass",
+						"type": "bytes4",
+					},
+					{
+						"internalType": "bytes",
+						"name": "nftData",
+						"type": "bytes",
+					},
+					{
+						"internalType": "bytes",
+						"name": "paymentData",
+						"type": "bytes",
+					},
+					{
+						"internalType": "bytes",
+						"name": "bidOrderData",
+						"type": "bytes",
+					},
+					{
+						"internalType": "bytes",
+						"name": "acceptOrderData",
+						"type": "bytes",
+					},
+					{
+						"internalType": "bytes",
+						"name": "signature",
+						"type": "bytes",
+					},
+				],
+				"internalType": "struct LibDirectTransfer.AcceptBid",
+				"name": "direct",
+				"type": "tuple",
+			},
+		],
+		"name": "directAcceptBid",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function",
+		"payable": true,
+	},
+	{
+		"inputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "tokenSellAmount",
+						"type": "uint256",
+					},
+					{
+						"internalType": "uint256",
+						"name": "tokenPurchaseAmount",
+						"type": "uint256",
+					},
+					{
+						"internalType": "uint256",
+						"name": "priceSell",
+						"type": "uint256",
+					},
+					{
+						"internalType": "uint256",
+						"name": "pricePurchase",
+						"type": "uint256",
+					},
+					{
+						"internalType": "uint256",
+						"name": "salt",
+						"type": "uint256",
+					},
+					{
+						"internalType": "address",
+						"name": "seller",
+						"type": "address",
+					},
+					{
+						"internalType": "bytes4",
+						"name": "nftClass",
+						"type": "bytes4",
+					},
+					{
+						"internalType": "bytes4",
+						"name": "paymentClass",
+						"type": "bytes4",
+					},
+					{
+						"internalType": "bytes",
+						"name": "nftData",
+						"type": "bytes",
+					},
+					{
+						"internalType": "bytes",
+						"name": "paymentData",
+						"type": "bytes",
+					},
+					{
+						"internalType": "bytes",
+						"name": "sellOrderData",
+						"type": "bytes",
+					},
+					{
+						"internalType": "bytes",
+						"name": "purchaseOrderData",
+						"type": "bytes",
+					},
+					{
+						"internalType": "bytes",
+						"name": "signature",
+						"type": "bytes",
+					},
+				],
+				"internalType": "struct LibDirectTransfer.Purchase",
+				"name": "direct",
+				"type": "tuple",
+			},
+		],
+		"name": "directPurchase",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function",
+		"payable": true,
 	},
 	{
 		"inputs": [
@@ -741,9 +766,9 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "newProtocolFee",
-				"type": "uint256",
+				"internalType": "uint64",
+				"name": "_protocolFee",
+				"type": "uint64",
 			},
 		],
 		"name": "setProtocolFee",
@@ -798,12 +823,12 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 	{
 		"inputs": [
 			{
-				"internalType": "contract INftTransferProxy",
+				"internalType": "address",
 				"name": "_transferProxy",
 				"type": "address",
 			},
 			{
-				"internalType": "contract IERC20TransferProxy",
+				"internalType": "address",
 				"name": "_erc20TransferProxy",
 				"type": "address",
 			},

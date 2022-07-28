@@ -5,7 +5,7 @@ import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-clien
 import { getSendWithInjects } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { getEthereumConfig } from "../config"
-import { e2eConfig } from "../config/e2e"
+import { testnetEthereumConfig } from "../config/testnet"
 import { checkChainId } from "../order/check-chain-id"
 import { DeployErc721 } from "./deploy-erc721"
 
@@ -15,7 +15,7 @@ describe.skip("deploy erc-721 token test", () => {
 	const ethereum1 = new Web3Ethereum({ web3, gas: 2000000 })
 
 	const config = getEthereumConfig("testnet")
-	config.factories.erc721 = e2eConfig.factories.erc721
+	config.factories.erc721 = testnetEthereumConfig.factories.erc721
 	const configuration = new Configuration(getApiConfig("testnet"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const checkWalletChainId = checkChainId.bind(null, ethereum1, config)

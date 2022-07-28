@@ -3,7 +3,6 @@ import { toBn } from "@rarible/utils/build/bn"
 import { ZERO_ADDRESS } from "@rarible/types"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { Address } from "@rarible/ethereum-api-client"
-import { getTransactionMethods } from "../../../../build/order/fill-order/seaport-utils/usecase"
 import { createSeaportContract } from "../../contracts/seaport"
 import type { SendFunction } from "../../../common/send-transaction"
 import type { AdvancedOrder, ConsiderationItem, InputCriteria, Order, OrderStatus } from "./types"
@@ -31,7 +30,7 @@ export type FulfillOrdersMetadata = {
 	offererOperator: string;
 }[]
 
-export async function fulfillAvailableOrders({
+export async function getFulfillAvailableOrdersData({
 	ethereum,
 	send,
 	ordersMetadata,
@@ -166,14 +165,12 @@ export async function fulfillAvailableOrders({
 		}
 	)
 
-	console.log("before getApprovalActions")
 	const approvalActions = await getApprovalActions(
 		ethereum,
 		send,
 		totalInsufficientApprovals,
 	)
 	await Promise.all(approvalActions)
-	console.log("after getApprovalActions")
 
 	const advancedOrdersWithTips: AdvancedOrder[] = sanitizedOrdersMetadata.map(
 		({ order, unitsToFill = 0, tips, extraData }) => {
@@ -204,22 +201,6 @@ export async function fulfillAvailableOrders({
 	const { offerFulfillments, considerationFulfillments } =
     generateFulfillOrdersFulfillments(ordersMetadata)
 
-	// const exchangeAction = {
-	// 	type: "exchange",
-	// 	transactionMethods: getTransactionMethods(
-	// 		seaportContract.connect(signer),
-	// 		"fulfillAvailableAdvancedOrders",
-	//
-	// 	),
-	// } as const
-
-	// const actions = [...approvalActions, exchangeAction] as const
-
-	// return {
-	// 	actions,
-	// 	executeAllActions: () =>
-	// 		executeAllActions(actions) as Promise<ContractTransaction>,
-	// }
 	const fulfillArguments = [
 		advancedOrdersWithTips,
 		hasCriteriaItems
@@ -239,14 +220,9 @@ export async function fulfillAvailableOrders({
 		recipientAddress,
 		`0x${advancedOrdersWithTips.length.toString(16)}`,
 	]
-	console.log("fulfillArguments", JSON.stringify(fulfillArguments, null, "  "))
 
 	return {
 		data: seaportContract.functionCall("fulfillAvailableAdvancedOrders", ...fulfillArguments).data,
 		value: totalNativeAmount.toString(),
 	}
-	// return send(
-	// 	seaportContract.functionCall("fulfillAvailableAdvancedOrders", ...fulfillArguments),
-	// 	{ value: totalNativeAmount.toString() }
-	// )
 }

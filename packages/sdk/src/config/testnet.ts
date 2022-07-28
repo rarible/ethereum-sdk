@@ -10,7 +10,7 @@ export const testnetEthereumConfig: EthereumConfig = {
 		v1: toAddress("0xda381535565b97640a6453fa7a1a7b161af78cbe"),
 		v2: toAddress("0xd4a57a3bD3657D0d46B4C5bAC12b3F156B9B886b"),
 		openseaV1: toAddress("0xdd54d660178b28f6033a953b0e55073cfa7e3744"),
-		wrapper: toAddress("0x92CE36CEAe648d6a57316cb67bD40199737c17A4"),
+		wrapper: toAddress("0xBa1a8691Ac46b9F622765cdD18AC54aF745bb87C"),
 	},
 	transferProxies: {
 		nft: toAddress("0x7d47126a2600e22eab9ed6cf0e515678727779a6"),
@@ -25,7 +25,6 @@ export const testnetEthereumConfig: EthereumConfig = {
 		metadata: id32("RARIBLE"),
 		proxyRegistry: toAddress("0x1e525eeaf261ca41b809884cbde9dd9e1619573a"),
 		merkleValidator: toAddress("0x45b594792a5cdc008d0de1c1d69faa3d16b3ddc1"),
-		seaportWrapper: toAddress("0xBa1a8691Ac46b9F622765cdD18AC54aF745bb87C"),
 	},
 	factories: {
 		erc721: toAddress("0x62e0BDC23435321adFf249d6f41e11AEee6486Cf"),

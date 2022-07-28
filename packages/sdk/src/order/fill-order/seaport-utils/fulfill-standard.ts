@@ -111,22 +111,6 @@ export async function fulfillStandardOrder({
 	const seaportContract = createSeaportContract(ethereum, toAddress(CROSS_CHAIN_SEAPORT_ADDRESS))
 
 	if (useAdvanced) {
-		console.log("fulfillAdvancedOrder", JSON.stringify([{
-			...orderAccountingForTips,
-			numerator,
-			denominator,
-			extraData: extraData ?? "0x",
-		},
-		hasCriteriaItems
-			? generateCriteriaResolvers({
-				orders: [order],
-				offerCriterias: [offerCriteria],
-				considerationCriterias: [considerationCriteria],
-			})
-			: [],
-		conduitKey,
-		recipientAddress], null, " "))
-
 		const tx = await seaportContract.functionCall("fulfillAdvancedOrder",
 			{
 				...orderAccountingForTips,
@@ -147,7 +131,6 @@ export async function fulfillStandardOrder({
 		return send(tx, { value: totalNativeAmount?.toString() })
 	}
 
-	console.log("fulfillOrder", JSON.stringify(orderAccountingForTips, null, "  "))
 	const tx = await seaportContract.functionCall(
 		"fulfillOrder",
 		orderAccountingForTips, conduitKey

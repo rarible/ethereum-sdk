@@ -13,7 +13,6 @@ import { addFee } from "../add-fee"
 import type { SimpleOrder } from "../types"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
-import { prepareForExchangeWrapperFees } from "../../common/prepare-fee-for-exchange-wrapper"
 import { CROSS_CHAIN_SEAPORT_ADDRESS, ItemType, OrderType } from "./seaport-utils/constants"
 import type { SeaportV1OrderFillRequest } from "./types"
 import type { TipInputItem } from "./seaport-utils/types"
@@ -68,8 +67,8 @@ export class SeaportOrderHandler {
 		}
 
 		if (order.take.assetType.assetClass === "ETH") {
-			const {seaportWrapper} = this.config.openSea
-			if (!seaportWrapper || seaportWrapper === ZERO_ADDRESS) {
+			const {wrapper} = this.config.exchange
+			if (!wrapper || wrapper === ZERO_ADDRESS) {
 				throw new Error("Seaport wrapper address has not been set. Change address in config")
 			}
 
@@ -79,9 +78,8 @@ export class SeaportOrderHandler {
 				order,
 				{
 					unitsToFill,
-					tips: [],
 					originFees: request.originFees,
-					seaportWrapper,
+					seaportWrapper: wrapper,
 				})
 		}
 

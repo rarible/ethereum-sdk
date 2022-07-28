@@ -1,7 +1,7 @@
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { BigNumberValue} from "@rarible/utils"
-import { toBn } from "@rarible/utils"
-import { toAddress, ZERO_ADDRESS } from "@rarible/types"
+import { BigNumber, toBn } from "@rarible/utils"
+import { toAddress } from "@rarible/types"
 import type { Address, Part } from "@rarible/ethereum-api-client"
 import type { SendFunction } from "../../../common/send-transaction"
 import type { SimpleSeaportV1Order } from "../../types"
@@ -9,27 +9,19 @@ import { createSeaportWrapper } from "../../contracts/seaport-wrapper"
 import { createSeaportContract } from "../../contracts/seaport"
 import { ExchangeWrapperOrderType } from "../types"
 import { prepareForExchangeWrapperFees } from "../../../common/prepare-fee-for-exchange-wrapper"
-import type { InputCriteria, TipInputItem } from "./types"
+import type { InputCriteria } from "./types"
 import { CONDUIT_KEYS_TO_CONDUIT, CROSS_CHAIN_DEFAULT_CONDUIT_KEY, CROSS_CHAIN_SEAPORT_ADDRESS } from "./constants"
 import { convertAPIOrderToSeaport } from "./convert-to-seaport-order"
 import { getBalancesAndApprovals } from "./balance-and-approval-check"
 import { getOrderHash } from "./get-order-hash"
-import { shouldUseBasicFulfill, validateAndSanitizeFromOrderStatus } from "./fulfill"
-import { mapInputItemToOfferItem } from "./order"
-import { fulfillBasicOrder } from "./fulfill-basic"
-import { getMaximumSizeForOrder } from "./item"
-import { fulfillStandardOrder } from "./fulfill-standard"
-import { approveBeforeBasicFulfillOrder, approveBeforeStandardFulfillOrder } from "./seaport-utils"
-import { fulfillBasicOrderWithWrapper } from "./fulfill-basic-wrapper"
-import { fulfillStandardOrderWithWrapper } from "./fulfill-standard-wrapper"
-import { fulfillAvailableOrders } from "./fulfill-available-orders"
+import { validateAndSanitizeFromOrderStatus } from "./fulfill"
+import { getFulfillAvailableOrdersData } from "./fulfill-available-orders"
 
 export async function fulfillOrderWithWrapper(
 	ethereum: Ethereum,
 	send: SendFunction,
 	simpleOrder: SimpleSeaportV1Order,
-	{tips, unitsToFill, seaportWrapper, originFees}: {
-		tips?: TipInputItem[],
+	{unitsToFill, seaportWrapper, originFees}: {
 		unitsToFill?: BigNumberValue,
 		seaportWrapper: Address,
 		originFees?: Part[]
@@ -79,7 +71,6 @@ export async function fulfillOrderWithWrapper(
 	orderStatus.totalFilled = toBn(orderStatus.totalFilled)
 	orderStatus.totalSize = toBn(orderStatus.totalSize)
 
-	const { totalFilled, totalSize } = orderStatus
 	const sanitizedOrder = validateAndSanitizeFromOrderStatus(
 		order,
 		orderStatus
@@ -92,12 +83,7 @@ export async function fulfillOrderWithWrapper(
 		ascendingAmountTimestampBuffer: 300,
 	}
 
-	const tipConsiderationItems = tips?.map((tip) => ({
-		...mapInputItemToOfferItem(tip),
-		recipient: tip.recipient,
-	})) || []
-
-	const fulfillOrdersData = await fulfillAvailableOrders({
+	const fulfillOrdersData = await getFulfillAvailableOrdersData({
 		ethereum,
 		send,
 		ordersMetadata: [{
@@ -106,7 +92,7 @@ export async function fulfillOrderWithWrapper(
 			orderStatus,
 			offerCriteria,
 			considerationCriteria,
-			tips: tipConsiderationItems,
+			tips: [],
 			extraData,
 			offererBalancesAndApprovals,
 			offererOperator,
@@ -128,9 +114,17 @@ export async function fulfillOrderWithWrapper(
 
 	const seaportWrapperContract = createSeaportWrapper(ethereum, seaportWrapper)
 	const originFeesPrepared = prepareForExchangeWrapperFees(originFees || [])
+	const feesValueInBasisPoints = originFees?.reduce((acc, part) => {
+		return acc += part.value
+	}, 0) || 0
+	const feesValue = toBn(feesValueInBasisPoints)
+		.dividedBy(10000)
+		.multipliedBy(data.amount)
+		.integerValue(BigNumber.ROUND_FLOOR)
+	const valueForSending = feesValue.plus(data.amount)
 
 	return send(
 		seaportWrapperContract.functionCall("singlePurchase", data, originFeesPrepared),
-		{ value: data.amount }
+		{ value: valueForSending.toString() }
 	)
 }

@@ -50,13 +50,13 @@ import {
 import { convertOpenSeaOrderToDTO } from "./open-sea-converter"
 import { OrderFiller } from "./index"
 
-describe("fillOrder: Opensea orders", function () {
+describe.skip("fillOrder: Opensea orders", function () {
 	const { addresses, provider } = createGanacheProvider()
 	const [sender1Address, sender2Address, feeRecipient] = addresses
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
-	const { provider: polygonProvider } = createE2eProvider("98f2bbb2542a2bb3e18ca70c4c0bc7f5d408f02ef6f96d20106547e8a7196cf0", {
+	const { provider: polygonProvider } = createE2eProvider(undefined, {
 		networkId: 137,
 		rpcUrl: "https://polygon-rpc.com",
 	})

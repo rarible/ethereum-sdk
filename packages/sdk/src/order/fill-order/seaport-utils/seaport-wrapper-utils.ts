@@ -15,7 +15,7 @@ import { convertAPIOrderToSeaport } from "./convert-to-seaport-order"
 import { getBalancesAndApprovals } from "./balance-and-approval-check"
 import { getOrderHash } from "./get-order-hash"
 import { validateAndSanitizeFromOrderStatus } from "./fulfill"
-import { getFulfillAvailableOrdersData } from "./fulfill-available-orders"
+import { getFulfillAdvancedOrderData } from "./fulfill-advance"
 
 export async function fulfillOrderWithWrapper(
 	ethereum: Ethereum,
@@ -83,25 +83,23 @@ export async function fulfillOrderWithWrapper(
 		ascendingAmountTimestampBuffer: 300,
 	}
 
-	const fulfillOrdersData = await getFulfillAvailableOrdersData({
+	const fulfillOrdersData = await getFulfillAdvancedOrderData({
 		ethereum,
 		send,
-		ordersMetadata: [{
-			order: sanitizedOrder,
-			unitsToFill,
-			orderStatus,
-			offerCriteria,
-			considerationCriteria,
-			tips: [],
-			extraData,
-			offererBalancesAndApprovals,
-			offererOperator,
-		}],
+		order: sanitizedOrder,
+		unitsToFill,
+		totalSize: orderStatus.totalSize,
+		totalFilled: orderStatus.totalFilled,
+		offerCriteria,
+		considerationCriteria,
+		tips: [],
+		extraData,
 		seaportAddress: toAddress(CROSS_CHAIN_SEAPORT_ADDRESS),
+		offererBalancesAndApprovals,
 		fulfillerBalancesAndApprovals,
+		offererOperator,
 		fulfillerOperator,
-		currentBlockTimestamp: timeBasedItemParams.currentBlockTimestamp,
-		ascendingAmountTimestampBuffer: timeBasedItemParams.ascendingAmountTimestampBuffer,
+		timeBasedItemParams,
 		conduitKey,
 		recipientAddress,
 	})

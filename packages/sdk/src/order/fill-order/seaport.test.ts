@@ -23,7 +23,7 @@ import { SeaportOrderHandler } from "./seaport"
 
 
 //createSeaportOrder may return 400 error, try again
-describe.skip("seaport", () => {
+describe("seaport", () => {
 	const providerConfig = {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",

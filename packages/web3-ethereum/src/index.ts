@@ -7,6 +7,7 @@ import { toAddress, toBigNumber, toBinary, toWord } from "@rarible/types"
 import { backOff } from "exponential-backoff"
 import type * as EthereumProvider from "@rarible/ethereum-provider"
 import type { MessageTypes, TypedMessage } from "@rarible/ethereum-provider/src/domain"
+import type { BlockNumber } from "web3-core"
 import type { Web3EthereumConfig } from "./domain"
 import { providerRequest } from "./utils/provider-request"
 import { toPromises } from "./utils/to-promises"
@@ -52,6 +53,10 @@ export class Web3Ethereum implements EthereumProvider.Ethereum {
 
 	getWeb3Instance(): Web3 {
 		return this.config.web3
+	}
+
+	async getTransactionCount(tag?: "earliest" | "latest" | "pending"): Promise<number> {
+		return this.config.web3.eth.getTransactionCount(await this.getFrom(), tag as BlockNumber)
 	}
 }
 

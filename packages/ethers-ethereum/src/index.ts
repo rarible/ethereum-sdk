@@ -55,6 +55,10 @@ export class EthersWeb3ProviderEthereum implements EthereumProvider.Ethereum {
 		const { chainId } = await this.web3Provider.getNetwork()
 		return chainId
 	}
+
+	async getTransactionCount(tag?: "earliest" | "latest" | "pending"): Promise<number> {
+		return this.web3Provider.getTransactionCount(await this.getFrom(), tag)
+	}
 }
 
 export class EthersEthereum implements EthereumProvider.Ethereum {
@@ -95,6 +99,10 @@ export class EthersEthereum implements EthereumProvider.Ethereum {
 
 	async getChainId(): Promise<number> {
 		return this.signer.getChainId()
+	}
+
+	async getTransactionCount(tag?: "earliest" | "latest" | "pending"): Promise<number> {
+		return this.signer.getTransactionCount(tag)
 	}
 }
 

@@ -52,6 +52,9 @@ export type OpenSeaV1OrderFillRequest =
 
 export type SeaportV1OrderFillRequest = CommonFillRequest<SimpleSeaportV1Order> & { originFees?: Part[] }
 
+//todo
+export type LooksrareV1OrderFillRequest = CommonFillRequest<{}> & { originFees?: Part[] }
+
 export type CryptoPunksOrderFillRequest = CommonFillRequest<SimpleCryptoPunkOrder>
 
 export type SellOrderRequest =
@@ -85,7 +88,9 @@ export enum ExchangeWrapperOrderType {
 	RARIBLE_V2 = 0,
 	OPENSEA_V1 = 1,
 	SEAPORT_ADVANCED_ORDERS = 2,
-	SEAPORT_BASIC_ORDERS = 3
+	SEAPORT_BASIC_ORDERS = 3,
+	X2Y2,
+	LOOKSRARE_ORDERS
 }
 
 export type PreparedOrderRequestDataForExchangeWrapper = {

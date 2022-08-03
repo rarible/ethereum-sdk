@@ -71,6 +71,7 @@ export interface Ethereum {
 	encodeParameter(type: any, parameter: any): string
 	getBalance(address: Address): Promise<BigNumber>
 	getChainId(): Promise<number>
+	getTransactionCount(tag?: "earliest" | "latest" | "pending"): Promise<number>
 }
 
 export { signTypedData } from "./sign-typed-data"

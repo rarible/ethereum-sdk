@@ -85,7 +85,6 @@ export enum ExchangeWrapperOrderType {
 	RARIBLE_V2 = 0,
 	OPENSEA_V1 = 1,
 	SEAPORT_ADVANCED_ORDERS = 2,
-	SEAPORT_BASIC_ORDERS = 3
 }
 
 export type PreparedOrderRequestDataForExchangeWrapper = {

@@ -111,22 +111,7 @@ export function cancelCryptoPunkOrderByAsset(
 export async function cancelSeaportOrder(
 	ethereum: Ethereum, send: SendFunction, order: SimpleSeaportV1Order
 ) {
-	// const accountAddress = await ethereum.getFrom()
-	// const provider = getSeaportProvider(ethereum)
-	// const signer = provider.getSigner(accountAddress)
-	// const multicallProvider = new multicallProviders.MulticallProvider(provider)
-
 	const orderParams = convertAPIOrderToSeaport(order).parameters
-
 	const seaport = createSeaportContract(ethereum, toAddress(CROSS_CHAIN_SEAPORT_ADDRESS))
 	return send(seaport.functionCall("cancel", [orderParams]))
-	// const contract = new Contract(
-	// 	CROSS_CHAIN_SEAPORT_ADDRESS,
-	// 	SeaportABI,
-	// 	multicallProvider
-	// ) as SeaportContract
-	// const methods = await getTransactionMethods(contract.connect(signer), "cancel", [
-	// 	[orderParams],
-	// ])
-	// return new EthersTransaction(await methods.transact())
 }

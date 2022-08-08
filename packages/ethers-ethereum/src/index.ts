@@ -5,7 +5,7 @@ import type * as EthereumProvider from "@rarible/ethereum-provider"
 import { signTypedData } from "@rarible/ethereum-provider"
 import type { Address, Binary, BigNumber, Word } from "@rarible/types"
 import { toAddress, toBigNumber, toBinary, toWord } from "@rarible/types"
-import type { MessageTypes, TypedMessage } from "@rarible/ethereum-provider/src/domain"
+import type { MessageTypes, TypedMessage } from "@rarible/ethereum-provider"
 import type { TypedDataSigner } from "@ethersproject/abstract-signer"
 import { encodeParameters } from "./abi-coder"
 

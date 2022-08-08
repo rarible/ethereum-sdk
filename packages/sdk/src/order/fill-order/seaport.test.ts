@@ -21,7 +21,6 @@ import { ItemType } from "./seaport-utils/constants"
 import type { CreateInputItem } from "./seaport-utils/types"
 import { SeaportOrderHandler } from "./seaport"
 
-
 //createSeaportOrder may return 400 error, try again
 describe.skip("seaport", () => {
 	const providerConfig = {
@@ -92,6 +91,13 @@ describe.skip("seaport", () => {
 		const tx = await sdkBuyer.order.buy({
 			order: order as SeaportV1Order,
 			amount: 1,
+			originFees: [{
+				account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
+				value: 20,
+			}, {
+				account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
+				value: 50,
+			}],
 		})
 		await tx.wait()
 		await awaitOwnership(sdkBuyer, sellItem.itemId, accountAddressBuyer, "1")

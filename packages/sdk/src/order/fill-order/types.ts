@@ -10,6 +10,7 @@ import type {
 	SimpleOpenSeaV1Order,
 	SimpleRaribleV2Order,
 	SimpleSeaportV1Order,
+	SimpleX2Y2Order,
 } from "../types"
 import type { NftAssetType } from "../check-asset-type"
 
@@ -51,6 +52,7 @@ export type OpenSeaV1OrderFillRequest =
   Omit<CommonFillRequest<SimpleOpenSeaV1Order>, "amount"> & { payouts?: Part[], originFees?: Part[] }
 
 export type SeaportV1OrderFillRequest = CommonFillRequest<SimpleSeaportV1Order> & { originFees?: Part[] }
+export type X2Y2OrderFillRequest = CommonFillRequest<SimpleX2Y2Order> & { originFees?: Part[] }
 
 export type CryptoPunksOrderFillRequest = CommonFillRequest<SimpleCryptoPunkOrder>
 
@@ -60,7 +62,8 @@ export type SellOrderRequest =
 	RaribleV2OrderFillRequestV3Sell |
 	OpenSeaV1OrderFillRequest |
 	SeaportV1OrderFillRequest |
-	CryptoPunksOrderFillRequest
+	CryptoPunksOrderFillRequest |
+	X2Y2OrderFillRequest
 
 export type BuyOrderRequest =
 	LegacyOrderFillRequest |
@@ -68,7 +71,8 @@ export type BuyOrderRequest =
 	RaribleV2OrderFillRequestV3Buy |
 	OpenSeaV1OrderFillRequest |
 	SeaportV1OrderFillRequest |
-	CryptoPunksOrderFillRequest
+	CryptoPunksOrderFillRequest |
+	X2Y2OrderFillRequest
 
 export type FillOrderRequest =
 	SellOrderRequest | BuyOrderRequest
@@ -85,6 +89,7 @@ export enum ExchangeWrapperOrderType {
 	RARIBLE_V2 = 0,
 	OPENSEA_V1 = 1,
 	SEAPORT_ADVANCED_ORDERS = 2,
+	X2Y2 = 3,
 }
 
 export type PreparedOrderRequestDataForExchangeWrapper = {

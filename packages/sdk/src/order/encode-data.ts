@@ -5,7 +5,11 @@ import { toBigNumber, toWord } from "@rarible/types"
 
 const ZERO_WORD = toWord("0x0000000000000000000000000000000000000000000000000000000000000000")
 
-function encodePartToBuffer(part: Part | undefined): BigNumber {
+/**
+ * Function encoded Part struct to single uint256
+ * @param part
+ */
+export function encodePartToBuffer(part: Part | undefined): BigNumber {
 	if (!part) {
 		return toBigNumber(ZERO_WORD)
 	}

@@ -2,6 +2,7 @@ import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
+import type { LooksRareOrder } from "@rarible/ethereum-api-client"
 import { createRaribleSdk } from "../../index"
 import { getEthereumConfig } from "../../config"
 import { checkChainId } from "../check-chain-id"
@@ -10,6 +11,7 @@ import { createErc721V3Collection } from "../../common/mint"
 import { MintResponseTypeEnum } from "../../nft/mint"
 import { SeaportOrderHandler } from "./seaport"
 import { LooksrareOrderHandler } from "./looksrare"
+import { makeSellOrder } from "./looksrare-utils/create-order"
 
 describe("seaport", () => {
 	const providerConfig = {
@@ -57,6 +59,10 @@ describe("seaport", () => {
 	const looksrareOrderHandlerBuyer = new LooksrareOrderHandler(buyerWeb3, send, config)
 
 	test("fill", async () => {
+		if (!config.exchange.looksrare) {
+			throw new Error("Looksrare contract has not been set")
+		}
+
 		console.log("seller", await ethereumSeller.getFrom(), "buyer", await buyerWeb3.getFrom())
 		const sellItem = await sdkSeller.nft.mint({
 			collection: createErc721V3Collection(rinkebyErc721V3ContractAddress),
@@ -68,12 +74,31 @@ describe("seaport", () => {
 			await sellItem.transaction.wait()
 		}
 
-		const sellOrder = await looksrareOrderHandlerSeller.makeSellOrder(sellItem.contract, sellItem.tokenId)
+		const sellOrder = await makeSellOrder(
+			ethereumSeller,
+			sellItem.contract,
+			sellItem.tokenId,
+			send,
+			toAddress(config.exchange.looksrare)
+		)
 
 		console.log("before fulfill")
+		//
+		// const tx = await looksrareOrderHandlerBuyer.fulfillOrder(sellOrder, {order: {}, amount: 1})
+		// console.log("tx", tx)
+		// await tx.wait()
+	})
 
-		const tx = await looksrareOrderHandlerBuyer.fulfillOrder(sellOrder, {order: {}, amount: 1})
-		console.log("tx", tx)
+	test("fill API order", async () => {
+		const order = await sdkBuyer.apis.order.getOrderByHash({
+			hash: "0x634e16b1af60c0a55f9f2cc07286052613a97afde27076ce948b199241416381",
+		}) as LooksRareOrder
+
+		const tx = await sdkBuyer.order.buy({
+			order,
+			amount: 1,
+		})
 		await tx.wait()
+
 	})
 })

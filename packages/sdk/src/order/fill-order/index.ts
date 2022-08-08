@@ -5,7 +5,7 @@ import type { Address, AssetType } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type {
 	SimpleCryptoPunkOrder,
-	SimpleLegacyOrder,
+	SimpleLegacyOrder, SimpleLooksrareOrder,
 	SimpleOpenSeaV1Order,
 	SimpleOrder,
 	SimpleRaribleV2Order,
@@ -35,13 +35,14 @@ import type {
 	TransactionData,
 	SeaportV1OrderFillRequest,
 	SellOrderAction,
-	BuyOrderAction,
+	BuyOrderAction, LooksrareOrderFillRequest,
 } from "./types"
 import { RaribleV1OrderHandler } from "./rarible-v1"
 import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OpenSeaOrderHandler } from "./open-sea"
 import { CryptoPunksOrderHandler } from "./crypto-punks"
 import { SeaportOrderHandler } from "./seaport"
+import { LooksrareOrderHandler } from "./looksrare"
 
 export class OrderFiller {
 	v1Handler: RaribleV1OrderHandler
@@ -49,6 +50,7 @@ export class OrderFiller {
 	openSeaHandler: OpenSeaOrderHandler
 	punkHandler: CryptoPunksOrderHandler
 	seaportHandler: SeaportOrderHandler
+	looksrareHandler: LooksrareOrderHandler
 	private checkAssetType: CheckAssetTypeFunction
 	private checkLazyAssetType: (type: AssetType) => Promise<AssetType>
 
@@ -68,6 +70,7 @@ export class OrderFiller {
 		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
 		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config, getBaseOrderFee)
 		this.seaportHandler = new SeaportOrderHandler(ethereum, send, config, getBaseOrderFee)
+		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, config)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 	}
@@ -80,7 +83,7 @@ export class OrderFiller {
 					if (!this.ethereum) {
 						throw new Error("Wallet undefined")
 					}
-					if (request.order.type === "SEAPORT_V1") {
+					if (request.order.type === "SEAPORT_V1" || request.order.type === "LOOKSRARE") {
 						return { request, inverted: request.order }
 					}
 					const from = toAddress(await this.ethereum.getFrom())
@@ -192,6 +195,8 @@ export class OrderFiller {
 					<SimpleSeaportV1Order>request.order,
 					<SeaportV1OrderFillRequest>request
 				)
+			case "LOOKSRARE":
+				return this.looksrareHandler.fulfillOrder(<LooksrareOrderFillRequest>request)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.sendTransaction(<SimpleCryptoPunkOrder>request.order, inverted)
 			default:

@@ -6,7 +6,7 @@ import type { EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } f
 import type { Erc1155LazyAssetType, Erc721LazyAssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
 import type {
 	SimpleCryptoPunkOrder,
-	SimpleLegacyOrder,
+	SimpleLegacyOrder, SimpleLooksrareOrder,
 	SimpleOpenSeaV1Order,
 	SimpleRaribleV2Order,
 	SimpleSeaportV1Order,
@@ -52,8 +52,7 @@ export type OpenSeaV1OrderFillRequest =
 
 export type SeaportV1OrderFillRequest = CommonFillRequest<SimpleSeaportV1Order> & { originFees?: Part[] }
 
-//todo
-export type LooksrareV1OrderFillRequest = CommonFillRequest<{}> & { originFees?: Part[] }
+export type LooksrareOrderFillRequest = CommonFillRequest<SimpleLooksrareOrder> & { originFees?: Part[] }
 
 export type CryptoPunksOrderFillRequest = CommonFillRequest<SimpleCryptoPunkOrder>
 
@@ -63,6 +62,7 @@ export type SellOrderRequest =
 	RaribleV2OrderFillRequestV3Sell |
 	OpenSeaV1OrderFillRequest |
 	SeaportV1OrderFillRequest |
+	LooksrareOrderFillRequest |
 	CryptoPunksOrderFillRequest
 
 export type BuyOrderRequest =
@@ -71,6 +71,7 @@ export type BuyOrderRequest =
 	RaribleV2OrderFillRequestV3Buy |
 	OpenSeaV1OrderFillRequest |
 	SeaportV1OrderFillRequest |
+	LooksrareOrderFillRequest |
 	CryptoPunksOrderFillRequest
 
 export type FillOrderRequest =

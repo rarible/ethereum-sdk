@@ -33,7 +33,7 @@ import { isNft } from "../is-nft"
 import { addressesByNetwork } from "./looksrare-utils/constants"
 import type { MakerOrder, MakerOrderWithVRS, TakerOrder } from "./looksrare-utils/types"
 import type { SupportedChainId } from "./looksrare-utils/types"
-import type { LooksrareV1OrderFillRequest } from "./types"
+import type { LooksrareOrderFillRequest } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
 import type { TakerOrderWithEncodedParams } from "./looksrare-utils/types"
 
@@ -106,13 +106,13 @@ export class LooksrareOrderHandler {
 			...vrs,
 		}
 	}
-	// async fulfillOrder(makerOrder: MakerOrder & { signature: string }, request: LooksrareV1OrderFillRequest) {
-	async fulfillOrder(makerOrder: SimpleLooksrareOrder, request: LooksrareV1OrderFillRequest) {
+	// async fulfillOrder(makerOrder: MakerOrder & { signature: string }, request: LooksrareOrderFillRequest) {
+	async fulfillOrder(request: LooksrareOrderFillRequest) {
 		// if (makerOrder.currency !== ZERO_ADDRESS) {
 		// 	throw new Error("Order has non-ETH currency")
 		// }
+		const makerOrder = request.order
 		const provider = getRequiredWallet(this.ethereum)
-
 
 		const askWithoutHash = this.convertMakerOrderToLooksrare(makerOrder)
 
@@ -178,107 +178,6 @@ export class LooksrareOrderHandler {
 			typeNft
 		)
 	}
-
-	async makeSellOrder(contract: Address, tokenId: string) {
-		const provider = getRequiredWallet(this.ethereum)
-		const signerAddress = toAddress(await provider.getFrom())
-		const chainId = await provider.getChainId()
-		const addresses = addressesByNetwork[chainId as SupportedChainId]
-		const nonce = await provider.getTransactionCount("pending")
-
-		const now = Math.floor(Date.now() / 1000)
-
-		const protocolFees = toBn(0)
-		const creatorFees = toBn(0)
-		const netPriceRatio = toBn(10000).minus(protocolFees.plus(creatorFees)).toNumber()
-		const minNetPriceRatio = 7500
-
-		const makerOrder: MakerOrder = {
-			isOrderAsk: true,
-			signer: signerAddress,
-			collection: contract,
-			price: "100000000", // :warning: PRICE IS ALWAYS IN WEI :warning:
-			tokenId: tokenId, // Token id is 0 if you use the STRATEGY_COLLECTION_SALE strategy
-			amount: "1",
-			strategy: addresses.STRATEGY_STANDARD_SALE,
-			currency: addresses.WETH,
-			// currency: ZERO_ADDRESS,
-			nonce: nonce,
-			startTime: now,
-			endTime: now + 86400, // 1 day validity
-			// minPercentageToAsk: Math.max(netPriceRatio, minNetPriceRatio),
-			minPercentageToAsk: minNetPriceRatio,
-			params: [],
-		}
-
-		await waitTx(
-			approveErc721(provider, this.send, contract, signerAddress, toAddress(addresses.TRANSFER_MANAGER_ERC721))
-		)
-		return {
-			...makerOrder,
-			signature: await this.getOrderSignature(makerOrder),
-		}
-	}
-
-	async getOrderSignature(order: MakerOrder): Promise<string> {
-		const provider = getRequiredWallet(this.ethereum)
-
-		if (!this.config.exchange.looksrare) {
-			throw new Error("Looksrare order cannot be signed without exchange address in config")
-		}
-		const ethereum = getRequiredWallet(this.ethereum)
-
-		const domain = {
-			name: "LooksRareExchange",
-			version: "1",
-			chainId: await ethereum.getChainId(),
-			verifyingContract: this.config.exchange.looksrare,
-		}
-
-		const type = {
-			MakerOrder: [
-				{ name: "isOrderAsk", type: "bool" },
-				{ name: "signer", type: "address" },
-				{ name: "collection", type: "address" },
-				{ name: "price", type: "uint256" },
-				{ name: "tokenId", type: "uint256" },
-				{ name: "amount", type: "uint256" },
-				{ name: "strategy", type: "address" },
-				{ name: "currency", type: "address" },
-				{ name: "nonce", type: "uint256" },
-				{ name: "startTime", type: "uint256" },
-				{ name: "endTime", type: "uint256" },
-				{ name: "minPercentageToAsk", type: "uint256" },
-				{ name: "params", type: "bytes" },
-			],
-		}
-
-		const signature = await provider.signTypedData({
-			primaryType: "MakerOrder",
-			domain,
-			types: {
-				...EIP712_ORDER_TYPES,
-				...type,
-			},
-			message: {
-				isOrderAsk: order.isOrderAsk,
-				signer: order.signer,
-				collection: order.collection,
-				price: order.price,
-				tokenId: order.tokenId,
-				amount: order.amount,
-				strategy: order.strategy,
-				currency: order.currency,
-				nonce: order.nonce,
-				startTime: order.startTime,
-				endTime: order.endTime,
-				minPercentageToAsk: order.minPercentageToAsk,
-				params: order.params,
-			},
-		})
-		return signature
-	}
-
 }
 
 export function encodeLooksRareData(

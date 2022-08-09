@@ -1,14 +1,15 @@
 import type { Ethereum } from "@rarible/ethereum-provider"
-import type { BigNumberValue} from "@rarible/utils"
-import { BigNumber, toBn } from "@rarible/utils"
+import type { BigNumberValue } from "@rarible/utils"
+import { toBn } from "@rarible/utils"
 import { toAddress } from "@rarible/types"
 import type { Address, Part } from "@rarible/ethereum-api-client"
+import { toBigNumber } from "@rarible/types/build/big-number"
 import type { SendFunction } from "../../../common/send-transaction"
 import type { SimpleSeaportV1Order } from "../../types"
 import { createSeaportContract } from "../../contracts/seaport"
 import { ExchangeWrapperOrderType } from "../types"
-import { prepareForExchangeWrapperFees } from "../../../common/prepare-fee-for-exchange-wrapper"
 import { createExchangeWrapperContract } from "../../contracts/exchange-wrapper"
+import { calcValueWithFees, originFeeValueConvert } from "../common/origin-fees-utils"
 import type { InputCriteria } from "./types"
 import { CONDUIT_KEYS_TO_CONDUIT, CROSS_CHAIN_DEFAULT_CONDUIT_KEY, CROSS_CHAIN_SEAPORT_ADDRESS } from "./constants"
 import { convertAPIOrderToSeaport } from "./convert-to-seaport-order"
@@ -104,25 +105,20 @@ export async function fulfillOrderWithWrapper(
 		recipientAddress,
 	})
 
+	const {originFeeConverted, totalFeeBasisPoints} = originFeeValueConvert(originFees)
+
 	const data = {
 		marketId: ExchangeWrapperOrderType.SEAPORT_ADVANCED_ORDERS,
 		amount: fulfillOrdersData.value,
+		addFee: totalFeeBasisPoints > 0,
 		data: fulfillOrdersData.data,
 	}
 
 	const seaportWrapperContract = createExchangeWrapperContract(ethereum, seaportWrapper)
-	const originFeesPrepared = prepareForExchangeWrapperFees(originFees || [])
-	const feesValueInBasisPoints = originFees?.reduce((acc, part) => {
-		return acc += part.value
-	}, 0) || 0
-	const feesValue = toBn(feesValueInBasisPoints)
-		.dividedBy(10000)
-		.multipliedBy(data.amount)
-		.integerValue(BigNumber.ROUND_FLOOR)
-	const valueForSending = feesValue.plus(data.amount)
+	const valueForSending = calcValueWithFees(toBigNumber(data.amount), totalFeeBasisPoints)
 
 	return send(
-		seaportWrapperContract.functionCall("singlePurchase", data, originFeesPrepared),
+		seaportWrapperContract.functionCall("singlePurchase", data, originFeeConverted[0], originFeeConverted[1]),
 		{ value: valueForSending.toString() }
 	)
 }

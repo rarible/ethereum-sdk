@@ -96,6 +96,7 @@ export type PreparedOrderRequestDataForExchangeWrapper = {
 	data: {
 		marketId: ExchangeWrapperOrderType,
 		amount: string | number,
+		addFee: boolean,
 		data: string,
 	},
 	options: OrderFillSendData["options"]

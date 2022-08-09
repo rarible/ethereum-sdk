@@ -34,7 +34,7 @@ export function originFeeValueConvert(originFees?: Part[]): {
  * @param value
  * @param feesBasisPoints
  */
-export function calcValueWithFees(value: BigNumber, feesBasisPoints: number): BigNum {
+export function calcValueWithFees(value: BigNumber | BigNum, feesBasisPoints: number): BigNum {
 	const feesValue = toBn(feesBasisPoints)
 		.dividedBy(10000)
 		.multipliedBy(value)

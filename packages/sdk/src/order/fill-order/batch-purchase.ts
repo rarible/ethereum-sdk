@@ -1,9 +1,10 @@
-import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
-import { toAddress } from "@rarible/types"
+import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { Action } from "@rarible/action"
 import type { Address, AssetType } from "@rarible/ethereum-api-client"
+import type { Part } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
 import { toBn } from "@rarible/utils"
+import { toAddress } from "@rarible/types"
 import type { SimpleOpenSeaV1Order, SimpleOrder, SimpleRaribleV2Order } from "../types"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
@@ -21,13 +22,13 @@ import type {
 	FillOrderStageId,
 	OpenSeaV1OrderFillRequest,
 	OrderFillSendData,
+	OrderFillTransactionData,
 	PreparedOrderRequestDataForExchangeWrapper,
 	RaribleV2OrderFillRequest,
 } from "./types"
-import type { OrderFillTransactionData } from "./types"
 import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OpenSeaOrderHandler } from "./open-sea"
-import { originFeeValueConvert } from "./common/origin-fees-utils"
+import { calcValueWithFees, originFeeValueConvert } from "./common/origin-fees-utils"
 
 export class BatchOrderFiller {
 	v2Handler: RaribleV2OrderHandler
@@ -51,6 +52,13 @@ export class BatchOrderFiller {
 		this.getTransactionRequestData = this.getTransactionRequestData.bind(this)
 	}
 
+	/**
+	 * Buy batch of orders
+	 *
+	 * Note: Additional origin fees applied only for opensea orders
+	 */
+	buy: FillBatchOrderAction = this.getFillAction()
+
 	private getFillAction<Request extends FillBatchOrderRequest>()
 	: Action<FillOrderStageId, Request, EthereumTransaction> {
 		return Action
@@ -60,12 +68,12 @@ export class BatchOrderFiller {
 					if (!this.ethereum) {
 						throw new Error("Wallet undefined")
 					}
-					if (!request.length) {
+					if (!request.requests.length) {
 						throw new Error("Request is empty")
 					}
 					const from = toAddress(await this.ethereum.getFrom())
 
-					const preparedOrders = await Promise.all(request.map( async requestSingle => {
+					const preparedOrders = await Promise.all(request.requests.map( async requestSingle => {
 						if (requestSingle.order.take.assetType.assetClass !== "ETH") {
 							throw new Error("Batch purchase only available for ETH currency")
 						}
@@ -80,15 +88,16 @@ export class BatchOrderFiller {
 						await this.approveOrder(inverted, Boolean(requestSingle.infinite))
 						return {initial: requestSingle, inverted}
 					}))
-					return {orders: preparedOrders}
+					return {orders: preparedOrders, originFees: request.originFees}
 				},
 			})
 			.thenStep({
 				id: "send-tx" as const,
-				run: async ({orders}: {
+				run: async ({orders, originFees}: {
 					orders: { initial: FillBatchSingleOrderRequest, inverted: SimpleOrder }[],
+					originFees?: Part[]
 				}) => {
-					return this.sendTransaction(orders)
+					return this.sendTransaction(orders, originFees)
 				},
 			})
 			.before(async (input: Request) => {
@@ -96,11 +105,6 @@ export class BatchOrderFiller {
 				return input
 			})
 	}
-
-	/**
-	 * Buy batch of orders
-	 */
-	buy: FillBatchOrderAction = this.getFillAction()
 
 	private async invertOrder(request: FillBatchSingleOrderRequest, from: Address) {
 		switch (request.order.type) {
@@ -125,13 +129,17 @@ export class BatchOrderFiller {
 	}
 
 	private async sendTransaction(
-		orders: { initial: FillBatchSingleOrderRequest, inverted: SimpleOrder }[]
+		orders: { initial: FillBatchSingleOrderRequest, inverted: SimpleOrder }[],
+		originFees: Part[] | undefined
 	) {
-		const { functionCall, options } = await this.getTransactionRequestData(orders)
+		const { functionCall, options } = await this.getTransactionRequestData(orders, originFees)
 		return this.send(functionCall, options)
 	}
 
-	async getTransactionData(request: FillBatchSingleOrderRequest[]): Promise<OrderFillTransactionData> {
+	async getTransactionData(
+		request: FillBatchSingleOrderRequest[],
+		originFees: Part[] | undefined
+	): Promise<OrderFillTransactionData> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
@@ -141,49 +149,42 @@ export class BatchOrderFiller {
 				inverted: await this.invertOrder(initial, toAddress(await this?.ethereum?.getFrom()!)),
 			}
 		}))
-		const {functionCall, options} = await this.getTransactionRequestData(response)
+		const {functionCall, options} = await this.getTransactionRequestData(response, originFees)
 		return {data: functionCall.data, options}
 	}
 
-	async getTransactionRequestData(
-		orders: { initial: FillBatchSingleOrderRequest, inverted: SimpleOrder }[]
+	private async getTransactionRequestData(
+		orders: { initial: FillBatchSingleOrderRequest, inverted: SimpleOrder }[],
+		originFees: Part[] | undefined
 	): Promise<OrderFillSendData> {
-		throw new Error("This method not supported yet")
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
 
-		// if (!this.ethereum) {
-		// 	throw new Error("Wallet undefined")
-		// }
-		//
-		// let optionsArray: EthereumSendOptions[] = []
-		// let encodedFees: string[] = []
-		//
-		// // todo: resolve situation when there may be several orders with different fees, can we use fees from first one?
-		// const { originFeeConverted, totalFeeBasisPoints } = originFeeValueConvert([])
-		//
-		// const ordersCallData: PreparedOrderRequestDataForExchangeWrapper["data"][] =
-		// 	await Promise.all(orders.map( async ({initial, inverted}) => {
-		// 		const { originFeeConverted, totalFeeBasisPoints } = originFeeValueConvert(initial.originFees)
-		//
-		// 		const requestData = await this.getTransactionSingleRequestData(initial, inverted, totalFeeBasisPoints > 0)
-		//
-		// 		optionsArray.push(requestData.options)
-		// 		return { ...requestData.data }
-		// 	}))
-		//
-		// const wrapperContract = createExchangeWrapperContract(this.ethereum, this.config.exchange.wrapper)
-		// const functionCall = wrapperContract.functionCall(
-		// 	"bulkPurchase",
-		// 	ordersCallData,
-		// 	originFeeConverted[0],
-		// 	originFeeConverted[1]
-		// )
-		// return {functionCall, options: this.calculateOptionsFromArray(optionsArray)}
-	}
+		const { originFeeConverted, totalFeeBasisPoints } = originFeeValueConvert(originFees)
+		let totalValue = toBn(0)
+		const ordersCallData: PreparedOrderRequestDataForExchangeWrapper["data"][] =
+			await Promise.all(orders.map( async ({initial, inverted}) => {
+				const requestData = await this.getTransactionSingleRequestData(initial, inverted, totalFeeBasisPoints > 0)
 
-	private calculateOptionsFromArray(options: EthereumSendOptions[]): EthereumSendOptions {
-		return  options.reduce((v, c) => (
-			{value: toBn(v.value || 0).plus(c.value || 0).toString()}
-		), {value: 0})
+				if (initial.order.type === "OPEN_SEA_V1" && initial.originFees?.length) {
+					throw new Error("Origin fees in order request are not supported for batch purchase")
+				}
+
+				totalValue = totalValue.plus(requestData.options?.value || 0)
+
+				return { ...requestData.data }
+			}))
+
+		const wrapperContract = createExchangeWrapperContract(this.ethereum, this.config.exchange.wrapper)
+		const functionCall = wrapperContract.functionCall(
+			"bulkPurchase",
+			ordersCallData,
+			originFeeConverted[0],
+			originFeeConverted[1]
+		)
+
+		return {functionCall, options: { value: calcValueWithFees(totalValue, totalFeeBasisPoints).toString() }}
 	}
 
 	private async getTransactionSingleRequestData(

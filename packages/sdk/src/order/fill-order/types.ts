@@ -79,7 +79,10 @@ export type FillBatchSingleOrderRequest =
 	//RaribleV2OrderFillRequestV3Sell |
 	OpenSeaV1OrderFillRequest
 
-export type FillBatchOrderRequest = FillBatchSingleOrderRequest[]
+export type FillBatchOrderRequest = {
+	requests: FillBatchSingleOrderRequest[],
+	originFees?: Part[]
+}
 
 export enum ExchangeWrapperOrderType {
 	RARIBLE_V2 = 0,
@@ -116,7 +119,8 @@ export interface OrderHandler<T extends FillOrderRequest> {
 }
 
 export type GetOrderFillTxData = (request: FillOrderRequest) => Promise<OrderFillTransactionData>
-export type GetOrderBuyBatchTxData = (request: FillBatchSingleOrderRequest[]) => Promise<OrderFillTransactionData>
+export type GetOrderBuyBatchTxData =
+	(request: FillBatchSingleOrderRequest[], originFees: Part[] | undefined) => Promise<OrderFillTransactionData>
 
 export type OrderFillTransactionData = {
 	data: string

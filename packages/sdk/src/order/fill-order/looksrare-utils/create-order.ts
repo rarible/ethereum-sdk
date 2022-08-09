@@ -1,20 +1,19 @@
-import type { Address } from "@rarible/ethereum-api-client"
-import { toAddress } from "@rarible/types"
-import { toBn } from "@rarible/utils/build/bn"
-import type Web3 from "web3"
+import type { Address, Erc1155AssetType } from "@rarible/ethereum-api-client"
+import { toAddress, toBigNumber, toBinary, ZERO_WORD } from "@rarible/types"
 import type { Ethereum } from "@rarible/ethereum-provider"
+import type { Erc721AssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
 import { getRequiredWallet } from "../../../common/get-required-wallet"
 import { waitTx } from "../../../common/wait-tx"
 import { approveErc721 } from "../../approve-erc721"
 import type { SendFunction } from "../../../common/send-transaction"
 import { EIP712_ORDER_TYPES } from "../../eip712"
+import type { SimpleLooksrareOrder } from "../../types"
 import type { MakerOrder, SupportedChainId } from "./types"
 import { addressesByNetwork } from "./constants"
 
 export async function makeSellOrder(
 	ethereum: Ethereum,
-	contract: Address,
-	tokenId: string,
+	assetType: Erc721AssetType | Erc1155AssetType,
 	send: SendFunction,
 	exchangeAddress: Address
 ) {
@@ -26,35 +25,62 @@ export async function makeSellOrder(
 
 	const now = Math.floor(Date.now() / 1000)
 
-	const protocolFees = toBn(0)
-	const creatorFees = toBn(0)
-	const netPriceRatio = toBn(10000).minus(protocolFees.plus(creatorFees)).toNumber()
 	const minNetPriceRatio = 7500
 
 	const makerOrder: MakerOrder = {
 		isOrderAsk: true,
 		signer: signerAddress,
-		collection: contract,
-		price: "100000000", // :warning: PRICE IS ALWAYS IN WEI :warning:
-		tokenId: tokenId, // Token id is 0 if you use the STRATEGY_COLLECTION_SALE strategy
+		collection: assetType.contract,
+		price: "100000000",
+		tokenId: assetType.tokenId,
 		amount: "1",
 		strategy: addresses.STRATEGY_STANDARD_SALE,
 		currency: addresses.WETH,
-		// currency: ZERO_ADDRESS,
 		nonce: nonce,
 		startTime: now,
-		endTime: now + 86400, // 1 day validity
-		// minPercentageToAsk: Math.max(netPriceRatio, minNetPriceRatio),
+		endTime: now + 86400,
 		minPercentageToAsk: minNetPriceRatio,
 		params: [],
 	}
 
 	await waitTx(
-		approveErc721(provider, send, contract, signerAddress, toAddress(addresses.TRANSFER_MANAGER_ERC721))
+		approveErc721(provider, send, assetType.contract, signerAddress, toAddress(addresses.TRANSFER_MANAGER_ERC721))
 	)
 	return {
 		...makerOrder,
 		signature: await getOrderSignature(makerOrder, ethereum, exchangeAddress),
+	}
+}
+
+export async function makeRaribleSellOrder(
+	ethereum: Ethereum,
+	assetType: Erc721AssetType | Erc1155AssetType,
+	send: SendFunction,
+	exchangeAddress: Address
+): Promise<SimpleLooksrareOrder> {
+	const order = await makeSellOrder(ethereum, assetType, send, exchangeAddress)
+
+	return {
+		type: "LOOKSRARE",
+		maker: toAddress(order.signer),
+		make: {
+			assetType,
+			value: toBigNumber(order.amount.toString()),
+		},
+		take: {
+			assetType: {assetClass: "ETH"},
+			value: toBigNumber(order.price.toString()),
+		},
+		salt: ZERO_WORD,
+		start: parseInt(order.startTime.toString()),
+		end: parseInt(order.endTime.toString()),
+		data: {
+			dataType: "LOOKSRARE_DATA_V1",
+			minPercentageToAsk: parseInt(order.minPercentageToAsk.toString()),
+			strategy: toAddress(order.strategy),
+			nonce: parseInt(order.nonce.toString()),
+		},
+		signature: toBinary(order.signature),
 	}
 }
 

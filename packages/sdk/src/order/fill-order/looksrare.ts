@@ -1,39 +1,22 @@
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { Ethereum } from "@rarible/ethereum-provider"
-import type { TypedDataDomain, TypedDataField } from "@ethersproject/abstract-signer"
-import type { MessageTypeProperty } from "@rarible/ethereum-provider/src"
 import { toBn } from "@rarible/utils/build/bn"
-import type { Address, Asset, AssetType } from "@rarible/ethereum-api-client"
-import { encodeOrderParams } from "@looksrare/sdk"
-import { ethers } from "ethers"
-import { toAddress, ZERO_ADDRESS } from "@rarible/types"
-import { BigNumber, BigNumberValue } from "@rarible/utils"
-import {
-	Erc1155AssetType,
-	Erc1155LazyAssetType,
-	Erc721AssetType,
-	Erc721LazyAssetType,
-} from "@rarible/ethereum-api-client"
+import type { Address, AssetType } from "@rarible/ethereum-api-client"
+import { ZERO_ADDRESS } from "@rarible/types"
+import type { BigNumberValue } from "@rarible/utils"
+import { BigNumber } from "@rarible/utils"
+import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
 import { getRequiredWallet } from "../../common/get-required-wallet"
-import { EIP712_ORDER_TYPES } from "../eip712"
-import { createLooksrareExchange } from "../contracts/looksrare-exchange"
-import { waitTx } from "../../common/wait-tx"
-import { approve } from "../approve"
-import { approveErc721 } from "../approve-erc721"
-import { approveErc20 } from "../approve-erc20"
 import { toVrs } from "../../common/to-vrs"
 import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
-import { prepareForExchangeWrapperFees } from "../../common/prepare-fee-for-exchange-wrapper"
 import { id32 } from "../../common/id"
-import type { SimpleOrder } from "../types"
-import type { SimpleLooksrareOrder } from "../types"
+import type { SimpleLooksrareOrder, SimpleOrder} from "../types"
 import { isNft } from "../is-nft"
-import { addressesByNetwork } from "./looksrare-utils/constants"
-import type { MakerOrder, MakerOrderWithVRS, TakerOrder } from "./looksrare-utils/types"
-import type { SupportedChainId } from "./looksrare-utils/types"
-import type { LooksrareOrderFillRequest } from "./types"
+import { encodePartToBuffer } from "../encode-data"
+import type { MakerOrderWithVRS } from "./looksrare-utils/types"
+import type { LooksrareOrderFillRequest, OrderFillSendData } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
 import type { TakerOrderWithEncodedParams } from "./looksrare-utils/types"
 
@@ -42,28 +25,14 @@ export class LooksrareOrderHandler {
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
+		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 	) {}
 
-	cancelOrder(nonce: number) {
-		const provider = getRequiredWallet(this.ethereum)
-
-		if (!this.config.exchange.looksrare) {
-			throw new Error(`Looksrare contract did not specified for chainId=${this.config.chainId}`)
-		}
-
-		const contract = createLooksrareExchange(provider, this.config.exchange.looksrare)
-
-		return this.send(
-			contract.functionCall("cancelMultipleMakerOrders", [nonce])
-		)
-	}
-
-	isMakeNft(make: AssetType) {
-		return isNft(make) || isNft(make)
-	}
-
-	convertMakerOrderToLooksrare(makerOrder: SimpleLooksrareOrder): MakerOrderWithVRS {
+	convertMakerOrderToLooksrare(makerOrder: SimpleLooksrareOrder, amount: BigNumberValue): MakerOrderWithVRS {
 		const {take, make} = makerOrder
+		if (toBn(amount).gt(make.value)) {
+			throw new Error(`Amount should be less or equal to ${make.value.toString()}`)
+		}
 		let isOrderAsk: boolean
 		let contract: Address
 		let tokenId: string
@@ -95,7 +64,7 @@ export class LooksrareOrderHandler {
 			collection: contract,
 			price: take.value,
 			tokenId: tokenId,
-			amount: make.value,
+			amount,
 			strategy: makerOrder.data.strategy,
 			currency,
 			nonce: makerOrder.data.nonce,
@@ -106,39 +75,32 @@ export class LooksrareOrderHandler {
 			...vrs,
 		}
 	}
-	// async fulfillOrder(makerOrder: MakerOrder & { signature: string }, request: LooksrareOrderFillRequest) {
-	async fulfillOrder(request: LooksrareOrderFillRequest) {
-		// if (makerOrder.currency !== ZERO_ADDRESS) {
-		// 	throw new Error("Order has non-ETH currency")
-		// }
+
+	async sendTransaction(request: LooksrareOrderFillRequest): Promise<EthereumTransaction> {
+		const {functionCall, options} = await this.getTransactionData(request)
+		return this.send(functionCall, options)
+	}
+
+	async getTransactionData(request: LooksrareOrderFillRequest): Promise<OrderFillSendData> {
+		if (request.originFees && request.originFees.length > 2) {
+			throw new Error("Origin fees recipients shouldn't be greater than 2")
+		}
 		const makerOrder = request.order
 		const provider = getRequiredWallet(this.ethereum)
 
-		const askWithoutHash = this.convertMakerOrderToLooksrare(makerOrder)
+		const askWithoutHash = this.convertMakerOrderToLooksrare(makerOrder, request.amount)
 
-		const takerOrder: TakerOrderWithEncodedParams = {
-			isOrderAsk: false,
-			taker: await provider.getFrom(),
-			price: askWithoutHash.price,
-			tokenId: askWithoutHash.tokenId,
-			minPercentageToAsk: askWithoutHash.minPercentageToAsk,
-			params: askWithoutHash.params,
-		}
+		askWithoutHash.currency = this.config.weth
 
-		const chainId = await provider.getChainId()
-		const addresses = addressesByNetwork[chainId as SupportedChainId]
 		const contract = createExchangeWrapperContract(provider, this.config.exchange.wrapper)
 
-		const originFeesPrepared = prepareForExchangeWrapperFees(request.originFees || [])
-
-		const fulfillData = this.getFulfillWrapperData(askWithoutHash, takerOrder)
+		const fulfillData = this.getFulfillWrapperData(askWithoutHash, request.order.make.assetType.assetClass)
 
 		const data = {
 			marketId: ExchangeWrapperOrderType.LOOKSRARE_ORDERS,
 			amount: askWithoutHash.price,
 			data: fulfillData,
 		}
-		console.log("end data", JSON.stringify(data, null, "  "))
 		const feesValueInBasisPoints = request.originFees?.reduce((acc, part) => {
 			return acc += part.value
 		}, 0) || 0
@@ -147,29 +109,32 @@ export class LooksrareOrderHandler {
 			.multipliedBy(data.amount)
 			.integerValue(BigNumber.ROUND_FLOOR)
 		const valueForSending = feesValue.plus(data.amount)
-		console.log("before fulfill tx", valueForSending.toString())
-		return this.send(
-			contract.functionCall("singlePurchase", data, originFeesPrepared),
-			{ value: valueForSending.toString() }
+
+		const functionCall = contract.functionCall(
+			"singlePurchase",
+			data,
+			encodePartToBuffer(request.originFees?.[0]),
+			encodePartToBuffer(request.originFees?.[1])
 		)
+		return {
+			functionCall,
+			options: { value: valueForSending.toString() },
+		}
 	}
 
-	getFulfillWrapperData(makerOrder: MakerOrderWithVRS, takerOrder: TakerOrderWithEncodedParams) {
+	getFulfillWrapperData(makerOrder: MakerOrderWithVRS, assetClass: AssetType["assetClass"]) {
 		const provider = getRequiredWallet(this.ethereum)
 
 		const takerOrderData = {
-			isOrderAsk: takerOrder.isOrderAsk,
-			// taker: takerOrder.taker,
+			isOrderAsk: false,
 			taker: this.config.exchange.wrapper,
-			price: takerOrder.price,
-			tokenId: takerOrder.tokenId,
-			minPercentageToAsk: takerOrder.minPercentageToAsk,
-			// params: "0x",
-			params: takerOrder.params,
+			price: makerOrder.price,
+			tokenId: makerOrder.tokenId,
+			minPercentageToAsk: makerOrder.minPercentageToAsk,
+			params: makerOrder.params,
 		}
-		console.log("takerOrderData", JSON.stringify(takerOrderData, null, "  "))
 
-		const typeNft = id32("ERC721").substring(0, 10)
+		const typeNft = id32(assetClass).substring(0, 10)
 
 		return encodeLooksRareData(
 			provider,
@@ -177,6 +142,14 @@ export class LooksrareOrderHandler {
 			takerOrderData,
 			typeNft
 		)
+	}
+
+	getBaseOrderFee() {
+		return this.getBaseOrderFeeConfig("LOOKSRARE")
+	}
+
+	getOrderFee(order: SimpleLooksrareOrder): number {
+		return 10000 - order.data.minPercentageToAsk
 	}
 }
 

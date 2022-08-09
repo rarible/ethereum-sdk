@@ -2,16 +2,15 @@ import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress } from "@rarible/types"
-import type { LooksRareOrder } from "@rarible/ethereum-api-client"
+import type { Erc1155AssetType, LooksRareOrder } from "@rarible/ethereum-api-client"
 import { createRaribleSdk } from "../../index"
 import { getEthereumConfig } from "../../config"
 import { checkChainId } from "../check-chain-id"
 import { getSimpleSendWithInjects } from "../../common/send-transaction"
-import { createErc721V3Collection } from "../../common/mint"
+import { createErc1155V2Collection, createErc721V3Collection } from "../../common/mint"
 import { MintResponseTypeEnum } from "../../nft/mint"
-import { SeaportOrderHandler } from "./seaport"
-import { LooksrareOrderHandler } from "./looksrare"
-import { makeSellOrder } from "./looksrare-utils/create-order"
+import { awaitOwnership } from "../test/await-ownership"
+import { makeRaribleSellOrder } from "./looksrare-utils/create-order"
 
 describe("seaport", () => {
 	const providerConfig = {
@@ -55,15 +54,11 @@ describe("seaport", () => {
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
 
-	const looksrareOrderHandlerSeller = new LooksrareOrderHandler(ethereumSeller, send, config)
-	const looksrareOrderHandlerBuyer = new LooksrareOrderHandler(buyerWeb3, send, config)
-
-	test("fill", async () => {
+	test("fill erc 721", async () => {
 		if (!config.exchange.looksrare) {
 			throw new Error("Looksrare contract has not been set")
 		}
 
-		console.log("seller", await ethereumSeller.getFrom(), "buyer", await buyerWeb3.getFrom())
 		const sellItem = await sdkSeller.nft.mint({
 			collection: createErc721V3Collection(rinkebyErc721V3ContractAddress),
 			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
@@ -74,31 +69,91 @@ describe("seaport", () => {
 			await sellItem.transaction.wait()
 		}
 
-		const sellOrder = await makeSellOrder(
+		const sellOrder = await makeRaribleSellOrder(
 			ethereumSeller,
-			sellItem.contract,
-			sellItem.tokenId,
+			{
+				assetClass: "ERC721",
+				contract: sellItem.contract,
+				tokenId: sellItem.tokenId,
+			},
+			send,
+			toAddress(config.exchange.looksrare)
+		)
+		console.log("sellOrder", sellOrder)
+
+		const tx = await sdkBuyer.order.buy({
+			order: sellOrder,
+			amount: 1,
+		})
+		await tx.wait()
+	})
+
+	test("fill erc 1155", async () => {
+		if (!config.exchange.looksrare) {
+			throw new Error("Looksrare contract has not been set")
+		}
+
+		const sellItem = await sdkSeller.nft.mint({
+			collection: createErc1155V2Collection(rinkebyErc1155V2ContractAddress),
+			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
+			royalties: [],
+			lazy: false,
+			supply: 10,
+		})
+		if (sellItem.type === MintResponseTypeEnum.ON_CHAIN) {
+			await sellItem.transaction.wait()
+		}
+
+		const sellOrder = await makeRaribleSellOrder(
+			ethereumSeller,
+			{
+				assetClass: "ERC1155",
+				contract: sellItem.contract,
+				tokenId: sellItem.tokenId,
+			},
 			send,
 			toAddress(config.exchange.looksrare)
 		)
 
-		console.log("before fulfill")
-		//
-		// const tx = await looksrareOrderHandlerBuyer.fulfillOrder(sellOrder, {order: {}, amount: 1})
-		// console.log("tx", tx)
-		// await tx.wait()
+		const seller = toAddress(await ethereumSeller.getFrom())
+		const tx = await sdkBuyer.order.buy({
+			order: sellOrder,
+			amount: 1,
+			originFees: [
+				{
+					account: seller,
+					value: 1000,
+				},
+				{
+					account: seller,
+					value: 1000,
+				},
+			],
+		})
+		await tx.wait()
 	})
 
-	test("fill API order", async () => {
+	test.skip("fill API order", async () => {
 		const order = await sdkBuyer.apis.order.getOrderByHash({
-			hash: "0x634e16b1af60c0a55f9f2cc07286052613a97afde27076ce948b199241416381",
+			hash: "0x3a7ff5ea8769b18d220f962d215bca2d2667131c2dde5593bb7302a12cd2dda4",
 		}) as LooksRareOrder
 
 		const tx = await sdkBuyer.order.buy({
 			order,
 			amount: 1,
+			originFees: [
+				{
+					account: originFeeAddress,
+					value: 1000,
+				},
+			],
 		})
+		console.log("tx", tx)
 		await tx.wait()
 
+		const assetType = order.make.assetType as Erc1155AssetType
+		const itemId = `${assetType.contract}:${assetType.tokenId}`
+		await awaitOwnership(sdkBuyer, itemId, toAddress(await buyerWeb3.getFrom()), "1")
 	})
+
 })

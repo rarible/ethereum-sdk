@@ -10,7 +10,7 @@ export const testnetEthereumConfig: EthereumConfig = {
 		v1: toAddress("0xda381535565b97640a6453fa7a1a7b161af78cbe"),
 		v2: toAddress("0xd4a57a3bD3657D0d46B4C5bAC12b3F156B9B886b"),
 		openseaV1: toAddress("0xdd54d660178b28f6033a953b0e55073cfa7e3744"),
-		wrapper: toAddress("0x3AeC309533cb0D5516540FF7d1C9eB26e595a6fd"),
+		wrapper: toAddress("0xa82471938f61bFC5fF361874ca5A4e4f1C2524d7"),
 		looksrare: toAddress("0x1AA777972073Ff66DCFDeD85749bDD555C0665dA"),
 	},
 	transferProxies: {

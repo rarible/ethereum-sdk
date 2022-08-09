@@ -6,6 +6,7 @@ import type { ExchangeAddresses } from "../config/type"
 import { toVrs } from "../common/to-vrs"
 import { createCryptoPunksMarketContract } from "../nft/contracts/cryptoPunks"
 import type { SendFunction } from "../common/send-transaction"
+import { getRequiredWallet } from "../common/get-required-wallet"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
 import { createOpenseaContract } from "./contracts/exchange-opensea-v1"
@@ -13,7 +14,7 @@ import { toStructLegacyOrderKey } from "./fill-order/rarible-v1"
 import { getAtomicMatchArgAddresses, getAtomicMatchArgUints } from "./fill-order/open-sea"
 import type {
 	SimpleCryptoPunkOrder,
-	SimpleLegacyOrder,
+	SimpleLegacyOrder, SimpleLooksrareOrder,
 	SimpleOpenSeaV1Order,
 	SimpleOrder,
 	SimpleRaribleV2Order, SimpleSeaportV1Order,
@@ -24,6 +25,7 @@ import type { CheckLazyOrderPart } from "./check-lazy-order"
 import { createSeaportContract } from "./contracts/seaport"
 import { CROSS_CHAIN_SEAPORT_ADDRESS } from "./fill-order/seaport-utils/constants"
 import { convertAPIOrderToSeaport } from "./fill-order/seaport-utils/convert-to-seaport-order"
+import { createLooksrareExchange } from "./contracts/looksrare-exchange"
 
 export async function cancel(
 	checkLazyOrder: (form: CheckLazyOrderPart) => Promise<CheckLazyOrderPart>,
@@ -45,6 +47,8 @@ export async function cancel(
 				return cancelOpenseaOrderV1(ethereum, send, order)
 			case "SEAPORT_V1":
 				return cancelSeaportOrder(ethereum, send, order)
+			case "LOOKSRARE":
+				return cancelLooksRareOrder(ethereum, send, config, order)
 			case "CRYPTO_PUNK":
 				return cancelCryptoPunksOrder(ethereum, send, order)
 			default:
@@ -114,4 +118,23 @@ export async function cancelSeaportOrder(
 	const orderParams = convertAPIOrderToSeaport(order).parameters
 	const seaport = createSeaportContract(ethereum, toAddress(CROSS_CHAIN_SEAPORT_ADDRESS))
 	return send(seaport.functionCall("cancel", [orderParams]))
+}
+
+export async function cancelLooksRareOrder(
+	ethereum: Ethereum,
+	send: SendFunction,
+	config: ExchangeAddresses,
+	order: SimpleLooksrareOrder,
+) {
+	const provider = getRequiredWallet(ethereum)
+
+	if (!config.looksrare) {
+		throw new Error("Looksrare contract did not specified")
+	}
+
+	const contract = createLooksrareExchange(provider, config.looksrare)
+
+	return send(
+		contract.functionCall("cancelMultipleMakerOrders", [order.data.nonce])
+	)
 }

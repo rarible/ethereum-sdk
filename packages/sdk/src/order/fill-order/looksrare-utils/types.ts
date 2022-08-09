@@ -20,7 +20,7 @@ export interface MakerOrder {
 	amount: BigNumberValue; // amount of tokens to sell/purchase (must be 1 for ERC721, 1+ for ERC1155)
 	strategy: string; // strategy for trade execution (e.g., DutchAuction, StandardSaleForFixedPrice)
 	currency: string; // currency address
-	nonce: BigNumberValue; // order nonce (must be unique unless new maker order is meant to override existing one e.g., lower ask price)
+	nonce: BigNumberValue;
 	startTime: BigNumberValue; // startTime in timestamp
 	endTime: BigNumberValue; // endTime in timestamp
 	minPercentageToAsk: BigNumberValue;

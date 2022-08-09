@@ -5,7 +5,7 @@ import type { Address, AssetType } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type {
 	SimpleCryptoPunkOrder,
-	SimpleLegacyOrder, SimpleLooksrareOrder,
+	SimpleLegacyOrder,
 	SimpleOpenSeaV1Order,
 	SimpleOrder,
 	SimpleRaribleV2Order,
@@ -70,7 +70,7 @@ export class OrderFiller {
 		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
 		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config, getBaseOrderFee)
 		this.seaportHandler = new SeaportOrderHandler(ethereum, send, config, getBaseOrderFee)
-		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, config)
+		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, config, getBaseOrderFee)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 	}
@@ -100,6 +100,7 @@ export class OrderFiller {
 			.thenStep({
 				id: "send-tx" as const,
 				run: async ({ inverted, request }: { inverted: SimpleOrder, request: Request }) => {
+					this.checkStartEndDates(request.order)
 					return this.sendTransaction(request, inverted)
 				},
 			})
@@ -196,7 +197,7 @@ export class OrderFiller {
 					<SeaportV1OrderFillRequest>request
 				)
 			case "LOOKSRARE":
-				return this.looksrareHandler.fulfillOrder(<LooksrareOrderFillRequest>request)
+				return this.looksrareHandler.sendTransaction(<LooksrareOrderFillRequest>request)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.sendTransaction(<SimpleCryptoPunkOrder>request.order, inverted)
 			default:
@@ -227,6 +228,8 @@ export class OrderFiller {
 				)
 			case "SEAPORT_V1":
 				throw new Error("Getting transaction data for Seaport orders is not implemented yet")
+			case "LOOKSRARE":
+				return this.looksrareHandler.getTransactionData(<LooksrareOrderFillRequest>request)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getTransactionData(
           <SimpleCryptoPunkOrder>request.order,
@@ -267,6 +270,8 @@ export class OrderFiller {
 				return this.openSeaHandler.getOrderFee(order)
 			case "SEAPORT_V1":
 				return this.seaportHandler.getOrderFee(order)
+			case "LOOKSRARE":
+				return this.looksrareHandler.getOrderFee(order)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getOrderFee()
 			default:
@@ -284,10 +289,22 @@ export class OrderFiller {
 				return this.openSeaHandler.getBaseOrderFee()
 			case "SEAPORT_V1":
 				return this.seaportHandler.getBaseOrderFee()
+			case "LOOKSRARE":
+				return this.looksrareHandler.getBaseOrderFee()
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getBaseOrderFee()
 			default:
 				throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
+		}
+	}
+
+	checkStartEndDates(order: SimpleOrder) {
+		const now = Date.now()
+		if (order.start !== undefined && new Date(order.start * 1000).getTime() > now) {
+			throw new Error(`Order will be actual since ${new Date(order.start * 1000)}, now ${new Date()}`)
+		}
+		if (order.end !== undefined && new Date(order.end * 1000).getTime() < now) {
+			throw new Error(`Order was actual until ${new Date(order.end * 1000)}, now ${new Date()}`)
 		}
 	}
 }

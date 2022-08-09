@@ -6,7 +6,8 @@ import type { EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } f
 import type { Erc1155LazyAssetType, Erc721LazyAssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
 import type {
 	SimpleCryptoPunkOrder,
-	SimpleLegacyOrder, SimpleLooksrareOrder,
+	SimpleLegacyOrder,
+	SimpleLooksrareOrder,
 	SimpleOpenSeaV1Order,
 	SimpleRaribleV2Order,
 	SimpleSeaportV1Order,
@@ -75,7 +76,14 @@ export type BuyOrderRequest =
 	CryptoPunksOrderFillRequest
 
 export type FillOrderRequest =
-	SellOrderRequest | BuyOrderRequest
+  LegacyOrderFillRequest |
+  RaribleV2OrderFillRequestV2 |
+  RaribleV2OrderFillRequestV3Sell |
+  RaribleV2OrderFillRequestV3Buy |
+  OpenSeaV1OrderFillRequest |
+  SeaportV1OrderFillRequest |
+  LooksrareOrderFillRequest |
+  CryptoPunksOrderFillRequest
 
 export type FillBatchSingleOrderRequest =
 	RaribleV2OrderFillRequestV2 |
@@ -97,6 +105,7 @@ export type PreparedOrderRequestDataForExchangeWrapper = {
 	data: {
 		marketId: ExchangeWrapperOrderType,
 		amount: string | number,
+		addFee: boolean,
 		data: string,
 	},
 	options: OrderFillSendData["options"]
@@ -104,6 +113,7 @@ export type PreparedOrderRequestDataForExchangeWrapper = {
 
 export type FillOrderAction = Action<FillOrderStageId, FillOrderRequest, EthereumTransaction>
 export type SellOrderAction = Action<FillOrderStageId, SellOrderRequest, EthereumTransaction>
+export type AcceptBidOrderAction = Action<FillOrderStageId, SellOrderRequest, EthereumTransaction>
 export type BuyOrderAction = Action<FillOrderStageId, BuyOrderRequest, EthereumTransaction>
 export type FillOrderStageId = "approve" | "send-tx"
 

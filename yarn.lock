@@ -2171,11 +2171,6 @@
     npmlog "^4.1.2"
     write-file-atomic "^3.0.3"
 
-"@looksrare/sdk@0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@looksrare/sdk/-/sdk-0.8.0.tgz#37c0a739157281683f06a2c28e3cce741937df0d"
-  integrity sha512-xN6upnb8pmeZDXBsvgRQjnticRtpcJE4ptGnNrqIFXJv33A4x3E8b9XE+liF9jAKQ1+KIJdh+286vaQL/cJtiA==
-
 "@metamask/safe-event-emitter@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@metamask/safe-event-emitter/-/safe-event-emitter-2.0.0.tgz#af577b477c683fad17c619a78208cede06f9605c"

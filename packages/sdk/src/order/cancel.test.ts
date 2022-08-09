@@ -122,7 +122,7 @@ describe.skip("cancel order", () => {
 	}
 })
 
-describe.skip("test seaport rinkeby order", () => {
+describe.skip("test of cancelling seaport rinkeby order", () => {
 	const { provider: providerSeller } = createE2eProvider("0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c", {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",
@@ -164,6 +164,30 @@ describe.skip("test seaport rinkeby order", () => {
 
 		const order = await awaitOrder(sdkSeller, orderHash)
 
+		const cancelTx = await sdkSeller.order.cancel(order)
+		await cancelTx.wait()
+
+		await retry(10, 3000, async () => {
+			const order = await sdkSeller.apis.order.getOrderByHash({hash: orderHash})
+			if (order.status !== "CANCELLED") {
+				throw new Error("Order has not been cancelled")
+			}
+		})
+	})
+})
+
+describe.skip("test of cancelling looksrare rinkeby order", () => {
+	const { provider: providerSeller } = createE2eProvider("0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c", {
+		networkId: 4,
+		rpcUrl: "https://node-rinkeby.rarible.com",
+	})
+	const web3Seller = new Web3(providerSeller as any)
+	const ethereumSeller = new Web3Ethereum({ web3: web3Seller, gas: 1000000 })
+	const sdkSeller = createRaribleSdk(ethereumSeller, "testnet")
+
+	test("cancel seaport order", async () => {
+		const orderHash = "0x924dd3b3421099ff58eefda2505c7ac8f33b3d579640198dea09dd4c4f5993e4"
+		const order = await awaitOrder(sdkSeller, orderHash)
 		const cancelTx = await sdkSeller.order.cancel(order)
 		await cancelTx.wait()
 

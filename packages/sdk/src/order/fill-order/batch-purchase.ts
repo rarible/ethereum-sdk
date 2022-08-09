@@ -13,8 +13,6 @@ import { checkAssetType } from "../check-asset-type"
 import { checkLazyAssetType } from "../check-lazy-asset-type"
 import { checkChainId } from "../check-chain-id"
 import type { IRaribleEthereumSdkConfig } from "../../types"
-import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
-import { prepareForExchangeWrapperFees } from "../../common/prepare-fee-for-exchange-wrapper"
 import type {
 	FillBatchOrderAction,
 	FillBatchOrderRequest,
@@ -146,27 +144,39 @@ export class BatchOrderFiller {
 	}
 
 	async getTransactionRequestData(
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		orders: { initial: FillBatchSingleOrderRequest, inverted: SimpleOrder }[]
 	): Promise<OrderFillSendData> {
-		if (!this.ethereum) {
-			throw new Error("Wallet undefined")
-		}
+		throw new Error("This method not supported yet")
 
-		let optionsArray: EthereumSendOptions[] = []
-		let encodedFees: string[] = []
-		const ordersCallData: PreparedOrderRequestDataForExchangeWrapper["data"][] =
-			await Promise.all(orders.map( async ({initial, inverted}) => {
-				const requestData = await this.getTransactionSingleRequestData(initial, inverted)
-				if (initial.order.type === "OPEN_SEA_V1") {
-					encodedFees = encodedFees.concat(prepareForExchangeWrapperFees(initial.originFees || []))
-				}
-				optionsArray.push(requestData.options)
-				return { ...requestData.data }
-			}))
-
-		const wrapperContract = createExchangeWrapperContract(this.ethereum, this.config.exchange.wrapper)
-		const functionCall = wrapperContract.functionCall("bulkPurchase", ordersCallData, encodedFees)
-		return {functionCall, options: this.calculateOptionsFromArray(optionsArray)}
+		// if (!this.ethereum) {
+		// 	throw new Error("Wallet undefined")
+		// }
+		//
+		// let optionsArray: EthereumSendOptions[] = []
+		// let encodedFees: string[] = []
+		//
+		// // todo: resolve situation when there may be several orders with different fees, can we use fees from first one?
+		// const { originFeeConverted, totalFeeBasisPoints } = originFeeValueConvert([])
+		//
+		// const ordersCallData: PreparedOrderRequestDataForExchangeWrapper["data"][] =
+		// 	await Promise.all(orders.map( async ({initial, inverted}) => {
+		// 		const { originFeeConverted, totalFeeBasisPoints } = originFeeValueConvert(initial.originFees)
+		//
+		// 		const requestData = await this.getTransactionSingleRequestData(initial, inverted, totalFeeBasisPoints > 0)
+		//
+		// 		optionsArray.push(requestData.options)
+		// 		return { ...requestData.data }
+		// 	}))
+		//
+		// const wrapperContract = createExchangeWrapperContract(this.ethereum, this.config.exchange.wrapper)
+		// const functionCall = wrapperContract.functionCall(
+		// 	"bulkPurchase",
+		// 	ordersCallData,
+		// 	originFeeConverted[0],
+		// 	originFeeConverted[1]
+		// )
+		// return {functionCall, options: this.calculateOptionsFromArray(optionsArray)}
 	}
 
 	private calculateOptionsFromArray(options: EthereumSendOptions[]): EthereumSendOptions {
@@ -176,7 +186,9 @@ export class BatchOrderFiller {
 	}
 
 	private async getTransactionSingleRequestData(
-		request: FillBatchSingleOrderRequest, inverted: SimpleOrder
+		request: FillBatchSingleOrderRequest,
+		inverted: SimpleOrder,
+		addFee: boolean
 	): Promise<PreparedOrderRequestDataForExchangeWrapper> {
 		switch (request.order.type) {
 			case "RARIBLE_V2":
@@ -189,6 +201,7 @@ export class BatchOrderFiller {
           <SimpleOpenSeaV1Order>request.order,
 					<SimpleOpenSeaV1Order>inverted,
 					request.originFees,
+					addFee
 				)
 			default:
 				throw new Error(`Unsupported request: ${JSON.stringify(request)}`)

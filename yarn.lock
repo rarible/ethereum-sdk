@@ -2513,10 +2513,10 @@
     eslint-plugin-jest "^25.2.3"
     eslint-plugin-unicorn "^38.0.0"
 
-"@rarible/ethereum-api-client@^0.1.23-beta1":
-  version "0.1.23-beta1"
-  resolved "https://registry.yarnpkg.com/@rarible/ethereum-api-client/-/ethereum-api-client-0.1.23-beta1.tgz#ae85fe714545e89d1cb79a85b7cdec4f5b12468d"
-  integrity sha512-UO2hcfgOGjR+Y7R9H5Z8tRZj/F+BxU2bc/t5YqqxalXTOHnI8OjRSAmLLRk4SZs7uPy97tCFADoQksn4xP0vDg==
+"@rarible/ethereum-api-client@^0.1.23-beta5":
+  version "0.1.23-beta5"
+  resolved "https://registry.yarnpkg.com/@rarible/ethereum-api-client/-/ethereum-api-client-0.1.23-beta5.tgz#d273937f62822055e529410e3c17d65ad63b2ef4"
+  integrity sha512-sz97idysPM+ClJ8lfZOb6IAmXHfWcw/6GqLuWFwe1HhbrWpX/eUHc1p2YIKPrtMCAFRbGHx1yx4qZgDz1uc4gA==
   dependencies:
     "@rarible/types" "~0.9.2"
 

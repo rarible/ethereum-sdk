@@ -27,8 +27,13 @@ import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { checkChainId } from "./check-chain-id"
 
+const providerConfig = {
+	networkId: 4,
+	rpcUrl: "https://node-rinkeby.rarible.com",
+}
 const { provider, wallet } = createE2eProvider(
-	"d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469"
+	"0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a",
+	providerConfig
 )
 const { providers } = createTestProviders(provider, wallet)
 
@@ -66,7 +71,7 @@ describe.skip("sell", () => {
 		checkWalletChainId
 	)
 	const orderSell = new OrderSell(upserter, checkAssetType, checkWalletChainId)
-	const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
+	const e2eErc721V3ContractAddress = toAddress("0x6ede7f3c26975aad32a475e1021d8f6f39c89d82")
 	const treasury = createE2eWallet()
 	const treasuryAddress = toAddress(treasury.getAddressString())
 

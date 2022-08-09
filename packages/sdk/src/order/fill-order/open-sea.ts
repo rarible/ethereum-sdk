@@ -35,7 +35,6 @@ import { getBlockchainFromChainId } from "../../common/get-blockchain-from-chain
 import type { EthereumNetworkConfig, IRaribleEthereumSdkConfig } from "../../types"
 import { id32 } from "../../common/id"
 import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
-import { prepareForExchangeWrapperFees } from "../../common/prepare-fee-for-exchange-wrapper"
 import type { OpenSeaOrderDTO } from "./open-sea-types"
 import type {
 	OpenSeaV1OrderFillRequest,
@@ -55,6 +54,7 @@ import {
 	ERC721_VALIDATOR_MAKE_REPLACEMENT,
 	ERC721_VALIDATOR_TAKE_REPLACEMENT,
 } from "./open-sea-converter"
+import { originFeeValueConvert } from "./common/origin-fees-utils"
 
 
 export type EncodedOrderCallData = { callData: Binary, replacementPattern: Binary, target: Address }
@@ -255,11 +255,18 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 
 		if (isTakeEth) {
 			const openseaWrapperContract = createExchangeWrapperContract(this.ethereum, this.config.exchange.wrapper)
-			const {data, options} = await this.getTransactionDataForExchangeWrapper(initial, inverted, request.originFees)
+			const { originFeeConverted, totalFeeBasisPoints } = originFeeValueConvert(request.originFees)
+			const { data, options } = await this.getTransactionDataForExchangeWrapper(
+				initial,
+				inverted,
+				request.originFees,
+				totalFeeBasisPoints > 0,
+			)
+
 			const functionCall = openseaWrapperContract.functionCall(
 				"singlePurchase",
 				data,
-				prepareForExchangeWrapperFees(request.originFees || []),
+				originFeeConverted[0], originFeeConverted[1],
 			)
 			return {
 				functionCall,
@@ -276,15 +283,16 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	async getTransactionDataForExchangeWrapper(
 		initial: SimpleOpenSeaV1Order,
 		inverted: SimpleOpenSeaV1Order,
-		originFees?: Part[],
-	)
-		: Promise<PreparedOrderRequestDataForExchangeWrapper> {
+		originFees: Part[] | undefined,
+		addFee: boolean
+	): Promise<PreparedOrderRequestDataForExchangeWrapper> {
 		const atomicMatchFunctionCall = await this.getAtomicMatchFunctionCall(initial, inverted)
 		const { buy } = getBuySellOrders(initial, inverted)
 		return {
 			data: {
 				marketId: ExchangeWrapperOrderType.OPENSEA_V1,
 				amount: (await getMatchOpenseaOptions(buy)).value!,
+				addFee,
 				data: atomicMatchFunctionCall.data,
 			},
 			options: await getMatchOpenseaOptions(buy, originFees),

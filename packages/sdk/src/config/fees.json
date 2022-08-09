@@ -4,6 +4,7 @@
     "RARIBLE_V2": 0,
     "OPEN_SEA_V1": 0,
     "SEAPORT_V1": 0,
+    "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
     "AUCTION": 0
   },
@@ -12,6 +13,7 @@
     "RARIBLE_V2": 0,
     "OPEN_SEA_V1": 0,
     "SEAPORT_V1": 0,
+    "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
     "AUCTION": 0
   },
@@ -20,6 +22,7 @@
     "RARIBLE_V2": 0,
     "OPEN_SEA_V1": 0,
     "SEAPORT_V1": 0,
+    "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
     "AUCTION": 0
   },
@@ -28,6 +31,7 @@
     "RARIBLE_V2": 0,
     "OPEN_SEA_V1": 0,
     "SEAPORT_V1": 0,
+    "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
     "AUCTION": 0
   },
@@ -36,6 +40,7 @@
     "RARIBLE_V2": 0,
     "OPEN_SEA_V1": 0,
     "SEAPORT_V1": 0,
+    "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
     "AUCTION": 0
   },
@@ -44,22 +49,7 @@
     "RARIBLE_V2": 0,
     "OPEN_SEA_V1": 0,
     "SEAPORT_V1": 0,
-    "CRYPTO_PUNK": 0,
-    "AUCTION": 0
-  },
-  "ropsten": {
-    "RARIBLE_V1": 0,
-    "RARIBLE_V2": 0,
-    "OPEN_SEA_V1": 0,
-    "SEAPORT_V1": 0,
-    "CRYPTO_PUNK": 0,
-    "AUCTION": 0
-  },
-  "e2e": {
-    "RARIBLE_V1": 0,
-    "RARIBLE_V2": 0,
-    "OPEN_SEA_V1": 0,
-    "SEAPORT_V1": 0,
+    "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
     "AUCTION": 0
   },
@@ -68,6 +58,7 @@
     "RARIBLE_V2": 0,
     "OPEN_SEA_V1": 0,
     "SEAPORT_V1": 0,
+    "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
     "AUCTION": 0
   },
@@ -76,6 +67,7 @@
     "RARIBLE_V2": 0,
     "OPEN_SEA_V1": 0,
     "SEAPORT_V1": 0,
+    "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
     "AUCTION": 0
   }

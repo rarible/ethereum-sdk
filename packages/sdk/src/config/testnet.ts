@@ -11,6 +11,7 @@ export const testnetEthereumConfig: EthereumConfig = {
 		v2: toAddress("0xd4a57a3bD3657D0d46B4C5bAC12b3F156B9B886b"),
 		openseaV1: toAddress("0xdd54d660178b28f6033a953b0e55073cfa7e3744"),
 		wrapper: toAddress("0xa82471938f61bFC5fF361874ca5A4e4f1C2524d7"),
+		looksrare: toAddress("0x1AA777972073Ff66DCFDeD85749bDD555C0665dA"),
 	},
 	transferProxies: {
 		nft: toAddress("0x7d47126a2600e22eab9ed6cf0e515678727779a6"),

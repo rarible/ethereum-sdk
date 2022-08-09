@@ -12,7 +12,7 @@ import { MintResponseTypeEnum } from "../../nft/mint"
 import { awaitOwnership } from "../test/await-ownership"
 import { makeRaribleSellOrder } from "./looksrare-utils/create-order"
 
-describe("seaport", () => {
+describe.skip("looksrare fill", () => {
 	const providerConfig = {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",

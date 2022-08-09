@@ -26,7 +26,6 @@ export async function signOrder(
 		}
 		case "RARIBLE_V2": {
 			const domain = createEIP712Domain(config.chainId, config.exchange.v2)
-			console.log("order on sign", JSON.stringify(order, null, "  "))
 			const signature = await ethereum.signTypedData({
 				primaryType: EIP712_ORDER_TYPE,
 				domain,

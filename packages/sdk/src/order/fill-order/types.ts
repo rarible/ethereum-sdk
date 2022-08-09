@@ -57,6 +57,7 @@ export type LooksrareOrderFillRequest = CommonFillRequest<SimpleLooksrareOrder> 
 
 export type CryptoPunksOrderFillRequest = CommonFillRequest<SimpleCryptoPunkOrder>
 
+
 export type SellOrderRequest =
 	LegacyOrderFillRequest |
 	RaribleV2OrderFillRequestV2 |
@@ -76,14 +77,7 @@ export type BuyOrderRequest =
 	CryptoPunksOrderFillRequest
 
 export type FillOrderRequest =
-  LegacyOrderFillRequest |
-  RaribleV2OrderFillRequestV2 |
-  RaribleV2OrderFillRequestV3Sell |
-  RaribleV2OrderFillRequestV3Buy |
-  OpenSeaV1OrderFillRequest |
-  SeaportV1OrderFillRequest |
-  LooksrareOrderFillRequest |
-  CryptoPunksOrderFillRequest
+  SellOrderRequest | BuyOrderRequest
 
 export type FillBatchSingleOrderRequest =
 	RaribleV2OrderFillRequestV2 |

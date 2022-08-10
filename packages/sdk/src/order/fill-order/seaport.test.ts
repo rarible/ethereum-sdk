@@ -22,7 +22,7 @@ import type { CreateInputItem } from "./seaport-utils/types"
 import { SeaportOrderHandler } from "./seaport"
 
 //createSeaportOrder may return 400 error, try again
-describe.skip("seaport", () => {
+describe("seaport", () => {
 	const providerConfig = {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",
@@ -60,6 +60,7 @@ describe.skip("seaport", () => {
 		send,
 		config,
 		async () => 0,
+		"testnet"
 	)
 
 	test("fill order ERC-721 <-> ETH", async () => {

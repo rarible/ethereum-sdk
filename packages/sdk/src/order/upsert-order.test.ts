@@ -29,7 +29,7 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 
 	const getBaseOrderFee = async () => 0
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
-	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
+	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee, env)
 
 	const approve = () => Promise.resolve(undefined)
 	const configuration = new Configuration(getApiConfig(env))

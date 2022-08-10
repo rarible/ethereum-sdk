@@ -40,7 +40,7 @@ describe("buy & acceptBid orders", () => {
 	const checkWalletChainId = checkChainId.bind(null, ethereum1, config)
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
 	const getBaseOrderFee = async () => 100
-	const filler = new OrderFiller(ethereum1, send, config, apis, getBaseOrderFee)
+	const filler = new OrderFiller(ethereum1, send, config, apis, getBaseOrderFee, env)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -461,7 +461,7 @@ describe("buy & acceptBid orders", () => {
 
 		const finalOrder = { ...left, signature }
 
-		const filler = new OrderFiller(ethereum2, send, config, apis, getBaseOrderFee)
+		const filler = new OrderFiller(ethereum2, send, config, apis, getBaseOrderFee, env)
 
 		await filler.acceptBid({ order: finalOrder, amount: 1, originFees: []})
 

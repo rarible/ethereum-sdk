@@ -59,7 +59,7 @@ describe.skip("sell", () => {
 	const apis = createEthereumApis("testnet")
 
 	const getBaseOrderFee = async () => 0
-	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
+	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee, env)
 	const upserter = new UpsertOrder(
 		orderService,
 		send,

@@ -15,6 +15,8 @@ import { id32 } from "../../common/id"
 import type { SimpleLooksrareOrder, SimpleOrder} from "../types"
 import { isNft } from "../is-nft"
 import { encodePartToBuffer } from "../encode-data"
+import type { EthereumNetwork } from "../../types"
+import { createLooksrareExchange } from "../contracts/looksrare-exchange"
 import type { MakerOrderWithVRS } from "./looksrare-utils/types"
 import type { LooksrareOrderFillRequest, OrderFillSendData } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
@@ -26,6 +28,7 @@ export class LooksrareOrderHandler {
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
+		private readonly env: EthereumNetwork,
 	) {}
 
 	convertMakerOrderToLooksrare(makerOrder: SimpleLooksrareOrder, amount: BigNumberValue): MakerOrderWithVRS {
@@ -85,32 +88,61 @@ export class LooksrareOrderHandler {
 		if (request.originFees && request.originFees.length > 2) {
 			throw new Error("Origin fees recipients shouldn't be greater than 2")
 		}
-		const makerOrder = request.order
 		const provider = getRequiredWallet(this.ethereum)
 
-		const askWithoutHash = this.convertMakerOrderToLooksrare(makerOrder, request.amount)
+		const makerOrder = this.convertMakerOrderToLooksrare(request.order, request.amount)
 
-		askWithoutHash.currency = this.config.weth
+		makerOrder.currency = this.config.weth
 
-		const contract = createExchangeWrapperContract(provider, this.config.exchange.wrapper)
-
-		const fulfillData = this.getFulfillWrapperData(askWithoutHash, request.order.make.assetType.assetClass)
-
-		const data = {
-			marketId: ExchangeWrapperOrderType.LOOKSRARE_ORDERS,
-			amount: askWithoutHash.price,
-			data: fulfillData,
+		const takerOrder: TakerOrderWithEncodedParams = {
+			isOrderAsk: false,
+			taker: this.config.exchange.wrapper,
+			price: makerOrder.price,
+			tokenId: makerOrder.tokenId,
+			minPercentageToAsk: makerOrder.minPercentageToAsk,
+			params: makerOrder.params,
 		}
+
 		const feesValueInBasisPoints = request.originFees?.reduce((acc, part) => {
 			return acc += part.value
 		}, 0) || 0
 		const feesValue = toBn(feesValueInBasisPoints)
 			.dividedBy(10000)
-			.multipliedBy(data.amount)
+			.multipliedBy(makerOrder.price)
 			.integerValue(BigNumber.ROUND_FLOOR)
-		const valueForSending = feesValue.plus(data.amount)
+		const valueForSending = feesValue.plus(makerOrder.price)
 
-		const functionCall = contract.functionCall(
+		if (this.env === "mainnet") {
+			if (!this.config.exchange.looksrare) {
+				throw new Error("Looksrare contract in config is not exists")
+			}
+			const looksrareContract = createLooksrareExchange(provider, this.config.exchange.looksrare)
+
+			const functionCall = looksrareContract.functionCall(
+				"matchAskWithTakerBidUsingETHAndWETH",
+				takerOrder,
+				makerOrder
+			)
+			return {
+				functionCall,
+				options: {value: valueForSending.toString()},
+			}
+		}
+
+		const wrapperContract = createExchangeWrapperContract(provider, this.config.exchange.wrapper)
+		const fulfillData = this.getFulfillWrapperData(
+			makerOrder,
+			takerOrder,
+			request.order.make.assetType.assetClass
+		)
+
+		const data = {
+			marketId: ExchangeWrapperOrderType.LOOKSRARE_ORDERS,
+			amount: makerOrder.price,
+			data: fulfillData,
+		}
+
+		const functionCall = wrapperContract.functionCall(
 			"singlePurchase",
 			data,
 			encodePartToBuffer(request.originFees?.[0]),
@@ -122,17 +154,12 @@ export class LooksrareOrderHandler {
 		}
 	}
 
-	getFulfillWrapperData(makerOrder: MakerOrderWithVRS, assetClass: AssetType["assetClass"]) {
+	getFulfillWrapperData(
+		makerOrder: MakerOrderWithVRS,
+		takerOrderData: TakerOrderWithEncodedParams,
+		assetClass: AssetType["assetClass"]
+	) {
 		const provider = getRequiredWallet(this.ethereum)
-
-		const takerOrderData = {
-			isOrderAsk: false,
-			taker: this.config.exchange.wrapper,
-			price: makerOrder.price,
-			tokenId: makerOrder.tokenId,
-			minPercentageToAsk: makerOrder.minPercentageToAsk,
-			params: makerOrder.params,
-		}
 
 		const typeNft = id32(assetClass).substring(0, 10)
 

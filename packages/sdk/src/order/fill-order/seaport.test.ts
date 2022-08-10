@@ -60,6 +60,7 @@ describe.skip("seaport", () => {
 		send,
 		config,
 		async () => 0,
+		"testnet"
 	)
 
 	test("fill order ERC-721 <-> ETH", async () => {

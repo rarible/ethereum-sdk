@@ -40,7 +40,7 @@ describe.skip("cancel order", () => {
 
 	const getBaseOrderFee = async () => 0
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
-	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
+	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee, env)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

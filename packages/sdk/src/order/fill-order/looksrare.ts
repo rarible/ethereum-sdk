@@ -16,7 +16,6 @@ import type { SimpleLooksrareOrder, SimpleOrder} from "../types"
 import { isNft } from "../is-nft"
 import { encodePartToBuffer } from "../encode-data"
 import type { EthereumNetwork } from "../../types"
-import { createLooksrareExchange } from "../contracts/looksrare-exchange"
 import type { MakerOrderWithVRS } from "./looksrare-utils/types"
 import type { LooksrareOrderFillRequest, OrderFillSendData } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
@@ -111,23 +110,6 @@ export class LooksrareOrderHandler {
 			.multipliedBy(makerOrder.price)
 			.integerValue(BigNumber.ROUND_FLOOR)
 		const valueForSending = feesValue.plus(makerOrder.price)
-
-		if (this.env === "mainnet") {
-			if (!this.config.exchange.looksrare) {
-				throw new Error("Looksrare contract in config is not exists")
-			}
-			const looksrareContract = createLooksrareExchange(provider, this.config.exchange.looksrare)
-
-			const functionCall = looksrareContract.functionCall(
-				"matchAskWithTakerBidUsingETHAndWETH",
-				takerOrder,
-				makerOrder
-			)
-			return {
-				functionCall,
-				options: {value: valueForSending.toString()},
-			}
-		}
 
 		const wrapperContract = createExchangeWrapperContract(provider, this.config.exchange.wrapper)
 		const fulfillData = this.getFulfillWrapperData(

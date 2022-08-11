@@ -5,7 +5,6 @@ import { SeaportItemType } from "@rarible/ethereum-api-client/build/models/Seapo
 import { ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
 import type { AssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
-import { BigNumber } from "@rarible/utils"
 import type { SimpleSeaportV1Order } from "../types"
 import { isNft } from "../is-nft"
 import { addFee } from "../add-fee"

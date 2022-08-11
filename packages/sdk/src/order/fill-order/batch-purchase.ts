@@ -167,10 +167,6 @@ export class BatchOrderFiller {
 			await Promise.all(orders.map( async ({initial, inverted}) => {
 				const requestData = await this.getTransactionSingleRequestData(initial, inverted, totalFeeBasisPoints > 0)
 
-				if (initial.order.type === "OPEN_SEA_V1" && initial.originFees?.length) {
-					throw new Error("Origin fees in order request are not supported for batch purchase")
-				}
-
 				totalValue = totalValue.plus(requestData.options?.value || 0)
 
 				return { ...requestData.data }

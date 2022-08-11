@@ -75,8 +75,6 @@ export type FillOrderRequest =
 
 export type FillBatchSingleOrderRequest =
 	RaribleV2OrderFillRequestV2 |
-	//RaribleV2OrderFillRequestV3Buy |
-	//RaribleV2OrderFillRequestV3Sell |
 	OpenSeaV1OrderFillRequest
 
 export type FillBatchOrderRequest = {

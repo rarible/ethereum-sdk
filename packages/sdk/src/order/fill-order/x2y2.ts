@@ -6,6 +6,7 @@ import type { SimpleOrder, SimpleX2Y2Order } from "../types"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
 import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
+import type { RaribleEthereumApis } from "../../common/apis"
 import type { X2Y2OrderFillRequest } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
 import { X2Y2Utils } from "./x2y2-utils/get-order-sign"
@@ -17,6 +18,7 @@ export class X2Y2OrderHandler {
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
+		private readonly apis: RaribleEthereumApis,
 	) {}
 
 	async fillOrder(order: SimpleX2Y2Order, request: X2Y2OrderFillRequest): Promise<EthereumTransaction> {
@@ -36,9 +38,8 @@ export class X2Y2OrderHandler {
 
 		const { originFeeConverted, totalFeeBasisPoints } = originFeeValueConvert(request.originFees)
 
-		const x2y2Input = X2Y2Utils.getOrderSign({
+		const x2y2Input = await X2Y2Utils.getOrderSign(this.apis, {
 			sender: toAddress(await this.ethereum.getFrom()),
-			op: X2Y2Utils.SELL_OP,
 			orderId: order.data.orderId,
 			currency: ZERO_ADDRESS,
 			price: order.take.value,

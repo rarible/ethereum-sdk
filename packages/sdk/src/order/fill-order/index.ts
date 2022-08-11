@@ -76,7 +76,7 @@ export class OrderFiller {
 		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config, getBaseOrderFee)
 		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
 		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config, getBaseOrderFee)
-		this.x2y2Handler = new X2Y2OrderHandler(ethereum, send, config, getBaseOrderFee)
+		this.x2y2Handler = new X2Y2OrderHandler(ethereum, send, config, getBaseOrderFee, apis)
 		this.seaportHandler = new SeaportOrderHandler(ethereum, send, config, getBaseOrderFee, env)
 		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, config, getBaseOrderFee, env)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
@@ -91,7 +91,11 @@ export class OrderFiller {
 					if (!this.ethereum) {
 						throw new Error("Wallet undefined")
 					}
-					if (request.order.type === "SEAPORT_V1" || request.order.type === "LOOKSRARE") {
+					if (
+						request.order.type === "SEAPORT_V1" ||
+						request.order.type === "LOOKSRARE" ||
+						request.order.type === "X2Y2"
+					) {
 						return { request, inverted: request.order }
 					}
 					const from = toAddress(await this.ethereum.getFrom())

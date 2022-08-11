@@ -34,7 +34,7 @@ describe.skip("test exchange v1 order", () => {
 	const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
 	const send2 = getSimpleSendWithInjects().bind(null, checkWalletChainId2)
 
-	const filler = new OrderFiller(ethereum2, send2, e2eConfig, apis, getBaseOrderFee)
+	const filler = new OrderFiller(ethereum2, send2, e2eConfig, apis, getBaseOrderFee, "testnet")
 
 	const seller = toAddress(wallet1.getAddressString())
 	const buyer = toAddress(wallet2.getAddressString())

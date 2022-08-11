@@ -5,13 +5,13 @@ import { SeaportItemType } from "@rarible/ethereum-api-client/build/models/Seapo
 import { ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
 import type { AssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
-import { BigNumber } from "@rarible/utils"
 import type { SimpleSeaportV1Order } from "../types"
 import { isNft } from "../is-nft"
 import { addFee } from "../add-fee"
 import type { SimpleOrder } from "../types"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
+import type { EthereumNetwork } from "../../types"
 import { CROSS_CHAIN_SEAPORT_ADDRESS, ItemType, OrderType } from "./seaport-utils/constants"
 import type { SeaportV1OrderFillRequest } from "./types"
 import type { TipInputItem } from "./seaport-utils/types"
@@ -24,6 +24,7 @@ export class SeaportOrderHandler {
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
+		private readonly env: EthereumNetwork,
 	) {}
 
 	async fillSeaportOrder(
@@ -65,21 +66,23 @@ export class SeaportOrderHandler {
 			throw new Error("You can't fill private orders")
 		}
 
-		if (order.take.assetType.assetClass === "ETH") {
-			const {wrapper} = this.config.exchange
-			if (!wrapper || wrapper === ZERO_ADDRESS) {
-				throw new Error("Seaport wrapper address has not been set. Change address in config")
-			}
+		if (this.env !== "mainnet") {
+			if (order.take.assetType.assetClass === "ETH") {
+				const {wrapper} = this.config.exchange
+				if (!wrapper || wrapper === ZERO_ADDRESS) {
+					throw new Error("Seaport wrapper address has not been set. Change address in config")
+				}
 
-			return fulfillOrderWithWrapper(
-				this.ethereum,
-				this.send.bind(this),
-				order,
-				{
-					unitsToFill,
-					originFees: request.originFees,
-					seaportWrapper: wrapper,
-				})
+				return fulfillOrderWithWrapper(
+					this.ethereum,
+					this.send.bind(this),
+					order,
+					{
+						unitsToFill,
+						originFees: request.originFees,
+						seaportWrapper: wrapper,
+					})
+			}
 		}
 
 		let tips: TipInputItem[] | undefined = []
@@ -104,18 +107,8 @@ export class SeaportOrderHandler {
 		return this.getBaseOrderFeeConfig("SEAPORT_V1")
 	}
 
-	getOrderFee(order: SimpleSeaportV1Order): number {
-		const fees = order.data.consideration.reduce((acc, item) => {
-			if (item.recipient !== order.maker) {
-				acc = acc.plus(item.endAmount)
-			}
-			return acc
-		}, toBn(0))
-
-		return fees.div(order.take.value)
-			.multipliedBy(10000)
-			.integerValue(BigNumber.ROUND_FLOOR)
-			.toNumber()
+	getOrderFee(): number {
+		return 0
 	}
 }
 

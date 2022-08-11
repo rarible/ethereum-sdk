@@ -80,8 +80,8 @@ describe.skip("fillOrder: Opensea orders", function () {
 
 	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, apis, getBaseOrderFee)
 	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, send2, config, apis, getBaseOrderFee)
-	const orderFiller1 = new OrderFiller(ethereum1, send1, config, apis, getBaseOrderFee)
-	const orderFiller2 = new OrderFiller(ethereum2, send2, config, apis, getBaseOrderFee)
+	const orderFiller1 = new OrderFiller(ethereum1, send1, config, apis, getBaseOrderFee, "testnet")
+	const orderFiller2 = new OrderFiller(ethereum2, send2, config, apis, getBaseOrderFee, "testnet")
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

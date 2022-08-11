@@ -7,6 +7,7 @@ import type { Erc1155LazyAssetType, Erc721LazyAssetType } from "@rarible/ethereu
 import type {
 	SimpleCryptoPunkOrder,
 	SimpleLegacyOrder,
+	SimpleLooksrareOrder,
 	SimpleOpenSeaV1Order,
 	SimpleRaribleV2Order,
 	SimpleSeaportV1Order,
@@ -54,7 +55,10 @@ export type OpenSeaV1OrderFillRequest =
 export type SeaportV1OrderFillRequest = CommonFillRequest<SimpleSeaportV1Order> & { originFees?: Part[] }
 export type X2Y2OrderFillRequest = CommonFillRequest<SimpleX2Y2Order> & { originFees?: Part[] }
 
+export type LooksrareOrderFillRequest = CommonFillRequest<SimpleLooksrareOrder> & { originFees?: Part[] }
+
 export type CryptoPunksOrderFillRequest = CommonFillRequest<SimpleCryptoPunkOrder>
+
 
 export type SellOrderRequest =
 	LegacyOrderFillRequest |
@@ -63,6 +67,7 @@ export type SellOrderRequest =
 	OpenSeaV1OrderFillRequest |
 	SeaportV1OrderFillRequest |
 	CryptoPunksOrderFillRequest |
+	LooksrareOrderFillRequest |
 	X2Y2OrderFillRequest
 
 export type BuyOrderRequest =
@@ -72,10 +77,11 @@ export type BuyOrderRequest =
 	OpenSeaV1OrderFillRequest |
 	SeaportV1OrderFillRequest |
 	CryptoPunksOrderFillRequest |
+	LooksrareOrderFillRequest |
 	X2Y2OrderFillRequest
 
 export type FillOrderRequest =
-	SellOrderRequest | BuyOrderRequest
+  SellOrderRequest | BuyOrderRequest
 
 export type FillBatchSingleOrderRequest =
 	RaribleV2OrderFillRequestV2 |
@@ -90,6 +96,7 @@ export enum ExchangeWrapperOrderType {
 	OPENSEA_V1 = 1,
 	SEAPORT_ADVANCED_ORDERS = 2,
 	X2Y2 = 3,
+	LOOKSRARE_ORDERS = 4
 }
 
 export type PreparedOrderRequestDataForExchangeWrapper = {
@@ -104,6 +111,7 @@ export type PreparedOrderRequestDataForExchangeWrapper = {
 
 export type FillOrderAction = Action<FillOrderStageId, FillOrderRequest, EthereumTransaction>
 export type SellOrderAction = Action<FillOrderStageId, SellOrderRequest, EthereumTransaction>
+export type AcceptBidOrderAction = Action<FillOrderStageId, SellOrderRequest, EthereumTransaction>
 export type BuyOrderAction = Action<FillOrderStageId, BuyOrderRequest, EthereumTransaction>
 export type FillOrderStageId = "approve" | "send-tx"
 

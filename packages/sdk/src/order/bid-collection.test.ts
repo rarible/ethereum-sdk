@@ -48,7 +48,7 @@ describe.skip("bid", () => {
 
 	const getBaseOrderFee = async () => 0
 	const send2 = getSimpleSendWithInjects().bind(null, checkWalletChainId2)
-	const orderService = new OrderFiller(ethereum2, send2, config, apis, getBaseOrderFee)
+	const orderService = new OrderFiller(ethereum2, send2, config, apis, getBaseOrderFee, env)
 	const approve2 = approveTemplate.bind(null, ethereum2, send2, config.transferProxies)
 
 
@@ -79,7 +79,7 @@ describe.skip("bid", () => {
 		testErc721: deployTestErc721(web31, "Test", "TST"),
 	})
 
-	const filler1 = new OrderFiller(ethereum1, send1, config, apis, getBaseOrderFee)
+	const filler1 = new OrderFiller(ethereum1, send1, config, apis, getBaseOrderFee, env)
 
 	test("create bid for collection", async () => {
 		const ownerCollectionAddress = toAddress(await ethereum1.getFrom())

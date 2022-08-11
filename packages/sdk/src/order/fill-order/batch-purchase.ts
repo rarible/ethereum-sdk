@@ -13,7 +13,6 @@ import { checkAssetType } from "../check-asset-type"
 import { checkLazyAssetType } from "../check-lazy-asset-type"
 import { checkChainId } from "../check-chain-id"
 import type { IRaribleEthereumSdkConfig } from "../../types"
-import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
 import type {
 	FillBatchOrderAction,
 	FillBatchOrderRequest,
@@ -27,7 +26,6 @@ import type {
 import type { OrderFillTransactionData } from "./types"
 import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OpenSeaOrderHandler } from "./open-sea"
-import { originFeeValueConvert } from "./common/origin-fees-utils"
 
 export class BatchOrderFiller {
 	v2Handler: RaribleV2OrderHandler
@@ -146,6 +144,7 @@ export class BatchOrderFiller {
 	}
 
 	async getTransactionRequestData(
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		orders: { initial: FillBatchSingleOrderRequest, inverted: SimpleOrder }[]
 	): Promise<OrderFillSendData> {
 		throw new Error("This method not supported yet")

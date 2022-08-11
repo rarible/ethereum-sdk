@@ -108,18 +108,8 @@ export class SeaportOrderHandler {
 		return this.getBaseOrderFeeConfig("SEAPORT_V1")
 	}
 
-	getOrderFee(order: SimpleSeaportV1Order): number {
-		const fees = order.data.consideration.reduce((acc, item) => {
-			if (item.recipient !== order.maker) {
-				acc = acc.plus(item.endAmount)
-			}
-			return acc
-		}, toBn(0))
-
-		return fees.div(order.take.value)
-			.multipliedBy(10000)
-			.integerValue(BigNumber.ROUND_FLOOR)
-			.toNumber()
+	getOrderFee(): number {
+		return 0
 	}
 }
 

@@ -175,8 +175,8 @@ export class LooksrareOrderHandler {
 		return this.getBaseOrderFeeConfig("LOOKSRARE")
 	}
 
-	getOrderFee(order: SimpleLooksrareOrder): number {
-		return 10000 - order.data.minPercentageToAsk
+	getOrderFee(): number {
+		return 0
 	}
 }
 

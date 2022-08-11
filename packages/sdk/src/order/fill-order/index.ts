@@ -271,9 +271,9 @@ export class OrderFiller {
 			case "OPEN_SEA_V1":
 				return this.openSeaHandler.getOrderFee(order)
 			case "SEAPORT_V1":
-				return this.seaportHandler.getOrderFee(order)
+				return this.seaportHandler.getOrderFee()
 			case "LOOKSRARE":
-				return this.looksrareHandler.getOrderFee(order)
+				return this.looksrareHandler.getOrderFee()
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getOrderFee()
 			default:

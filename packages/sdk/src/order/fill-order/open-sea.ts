@@ -293,7 +293,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			data: {
 				marketId: ExchangeWrapperOrderType.OPENSEA_V1,
 				amount: (await getMatchOpenseaOptions(buy)).value!,
-				fee: feeValue,
+				fees: feeValue,
 				data: atomicMatchFunctionCall.data,
 			},
 			options: await getMatchOpenseaOptions(buy, originFees),

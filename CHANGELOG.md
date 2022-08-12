@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.82](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.81...v0.12.82) (2022-08-11)
+
+
+### Bug Fixes
+
+* seaport order fee ([0a83f10](https://github.com/rarible/protocol-ethereum-sdk/commit/0a83f100c4d46aab5dd66ed00b4a58f9efa97e08))
+
+
+
+
+
+## [0.12.81](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.80...v0.12.81) (2022-08-10)
+
+
+### Bug Fixes
+
+* jenkins switch stages ([492d79f](https://github.com/rarible/protocol-ethereum-sdk/commit/492d79f4b0edea7993fa9f343cf4cdb37991e551))
+* seaport mainnet handling ([#176](https://github.com/rarible/protocol-ethereum-sdk/issues/176)) ([e56eb50](https://github.com/rarible/protocol-ethereum-sdk/commit/e56eb50e825370a902b0954906569d6f71a4b882))
+
+
+
+
+
+## [0.12.80](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.79...v0.12.80) (2022-08-09)
+
+
+### Bug Fixes
+
+* remove extra import from sources ([#173](https://github.com/rarible/protocol-ethereum-sdk/issues/173)) ([830d645](https://github.com/rarible/protocol-ethereum-sdk/commit/830d6451919363feb19ad65e2685d73d208a6350))
+
+
+### Features
+
+* change seaport method ([#172](https://github.com/rarible/protocol-ethereum-sdk/issues/172)) ([562b0ce](https://github.com/rarible/protocol-ethereum-sdk/commit/562b0ce37fbec7b9fc66809f96e7a84d144e6b5b))
+* looksrare orders support ([#175](https://github.com/rarible/protocol-ethereum-sdk/issues/175)) ([6bfcf24](https://github.com/rarible/protocol-ethereum-sdk/commit/6bfcf244a4163fb1949eb157e024cbeaf87b29e0))
+
+
+
+
+
 ## [0.12.79](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.78...v0.12.79) (2022-07-28)
 
 

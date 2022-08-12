@@ -130,7 +130,7 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 			data: {
 				marketId: ExchangeWrapperOrderType.RARIBLE_V2,
 				amount: options?.value!,
-				fee: ZERO_FEE_VALUE,
+				fees: ZERO_FEE_VALUE,
 				data: callData,
 			},
 			options,

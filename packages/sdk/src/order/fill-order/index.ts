@@ -19,6 +19,7 @@ import { checkAssetType } from "../check-asset-type"
 import { checkLazyAssetType } from "../check-lazy-asset-type"
 import { checkChainId } from "../check-chain-id"
 import type { IRaribleEthereumSdkConfig } from "../../types"
+import type { EthereumNetwork } from "../../types"
 import type {
 	CryptoPunksOrderFillRequest,
 	FillOrderAction,
@@ -35,13 +36,14 @@ import type {
 	TransactionData,
 	SeaportV1OrderFillRequest,
 	SellOrderAction,
-	BuyOrderAction,
+	BuyOrderAction, LooksrareOrderFillRequest,
 } from "./types"
 import { RaribleV1OrderHandler } from "./rarible-v1"
 import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OpenSeaOrderHandler } from "./open-sea"
 import { CryptoPunksOrderHandler } from "./crypto-punks"
 import { SeaportOrderHandler } from "./seaport"
+import { LooksrareOrderHandler } from "./looksrare"
 
 export class OrderFiller {
 	v1Handler: RaribleV1OrderHandler
@@ -49,6 +51,7 @@ export class OrderFiller {
 	openSeaHandler: OpenSeaOrderHandler
 	punkHandler: CryptoPunksOrderHandler
 	seaportHandler: SeaportOrderHandler
+	looksrareHandler: LooksrareOrderHandler
 	private checkAssetType: CheckAssetTypeFunction
 	private checkLazyAssetType: (type: AssetType) => Promise<AssetType>
 
@@ -58,7 +61,8 @@ export class OrderFiller {
 		private readonly config: EthereumConfig,
 		private readonly apis: RaribleEthereumApis,
 		private readonly getBaseOrderFee: (type: SimpleOrder["type"]) => Promise<number>,
-		private readonly sdkConfig?: IRaribleEthereumSdkConfig
+		private readonly env: EthereumNetwork,
+		private readonly sdkConfig?: IRaribleEthereumSdkConfig,
 	) {
 		this.getBaseOrderFillFee = this.getBaseOrderFillFee.bind(this)
 		this.getTransactionData = this.getTransactionData.bind(this)
@@ -67,7 +71,8 @@ export class OrderFiller {
 		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config, getBaseOrderFee)
 		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
 		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config, getBaseOrderFee)
-		this.seaportHandler = new SeaportOrderHandler(ethereum, send, config, getBaseOrderFee)
+		this.seaportHandler = new SeaportOrderHandler(ethereum, send, config, getBaseOrderFee, env)
+		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, config, getBaseOrderFee, env)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 	}
@@ -80,7 +85,7 @@ export class OrderFiller {
 					if (!this.ethereum) {
 						throw new Error("Wallet undefined")
 					}
-					if (request.order.type === "SEAPORT_V1") {
+					if (request.order.type === "SEAPORT_V1" || request.order.type === "LOOKSRARE") {
 						return { request, inverted: request.order }
 					}
 					const from = toAddress(await this.ethereum.getFrom())
@@ -97,6 +102,7 @@ export class OrderFiller {
 			.thenStep({
 				id: "send-tx" as const,
 				run: async ({ inverted, request }: { inverted: SimpleOrder, request: Request }) => {
+					this.checkStartEndDates(request.order)
 					return this.sendTransaction(request, inverted)
 				},
 			})
@@ -192,6 +198,8 @@ export class OrderFiller {
 					<SimpleSeaportV1Order>request.order,
 					<SeaportV1OrderFillRequest>request
 				)
+			case "LOOKSRARE":
+				return this.looksrareHandler.sendTransaction(<LooksrareOrderFillRequest>request)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.sendTransaction(<SimpleCryptoPunkOrder>request.order, inverted)
 			default:
@@ -222,6 +230,8 @@ export class OrderFiller {
 				)
 			case "SEAPORT_V1":
 				throw new Error("Getting transaction data for Seaport orders is not implemented yet")
+			case "LOOKSRARE":
+				return this.looksrareHandler.getTransactionData(<LooksrareOrderFillRequest>request)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getTransactionData(
           <SimpleCryptoPunkOrder>request.order,
@@ -261,7 +271,9 @@ export class OrderFiller {
 			case "OPEN_SEA_V1":
 				return this.openSeaHandler.getOrderFee(order)
 			case "SEAPORT_V1":
-				return this.seaportHandler.getOrderFee(order)
+				return this.seaportHandler.getOrderFee()
+			case "LOOKSRARE":
+				return this.looksrareHandler.getOrderFee()
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getOrderFee()
 			default:
@@ -279,10 +291,22 @@ export class OrderFiller {
 				return this.openSeaHandler.getBaseOrderFee()
 			case "SEAPORT_V1":
 				return this.seaportHandler.getBaseOrderFee()
+			case "LOOKSRARE":
+				return this.looksrareHandler.getBaseOrderFee()
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getBaseOrderFee()
 			default:
 				throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
+		}
+	}
+
+	checkStartEndDates(order: SimpleOrder) {
+		const now = Date.now()
+		if (order.start !== undefined && new Date(order.start * 1000).getTime() > now) {
+			throw new Error(`Order will be actual since ${new Date(order.start * 1000)}, now ${new Date()}`)
+		}
+		if (order.end !== undefined && new Date(order.end * 1000).getTime() < now) {
+			throw new Error(`Order was actual until ${new Date(order.end * 1000)}, now ${new Date()}`)
 		}
 	}
 }

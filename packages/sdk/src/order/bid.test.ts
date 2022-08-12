@@ -59,7 +59,7 @@ describe.skip("bid", () => {
 	const approve = approveTemplate.bind(null, ethereum, send, config.transferProxies)
 	const getBaseOrderFee = async () => 0
 
-	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee)
+	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee, "testnet")
 
 	const checkLazyAssetType = checkLazyAssetTypeTemplate.bind(null, apis.nftItem)
 	const checkLazyAsset = checkLazyAssetTemplate.bind(null, checkLazyAssetType)

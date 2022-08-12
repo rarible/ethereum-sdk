@@ -111,7 +111,7 @@ export async function fulfillOrderWithWrapper(
 	const data: PreparedOrderRequestDataForExchangeWrapper["data"] = {
 		marketId: ExchangeWrapperOrderType.SEAPORT_ADVANCED_ORDERS,
 		amount: fulfillOrdersData.value,
-		fee: encodedFeesValue,
+		fees: encodedFeesValue,
 		data: fulfillOrdersData.data,
 	}
 

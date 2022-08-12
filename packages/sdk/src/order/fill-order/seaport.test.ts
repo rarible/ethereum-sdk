@@ -12,7 +12,6 @@ import { MintResponseTypeEnum } from "../../nft/mint"
 import { delay } from "../../common/retry"
 import { awaitOrder } from "../test/await-order"
 import { awaitOwnership } from "../test/await-ownership"
-import type { SimpleSeaportV1Order } from "../types"
 import { getOpenseaEthTakeData } from "../test/get-opensea-take-data"
 import { getEthereumConfig } from "../../config"
 import { checkChainId } from "../check-chain-id"
@@ -60,6 +59,7 @@ describe.skip("seaport", () => {
 		send,
 		config,
 		async () => 0,
+		"testnet"
 	)
 
 	test("fill order ERC-721 <-> ETH", async () => {
@@ -102,8 +102,8 @@ describe.skip("seaport", () => {
 		await tx.wait()
 		await awaitOwnership(sdkBuyer, sellItem.itemId, accountAddressBuyer, "1")
 
-		const fee = seaportBuyerOrderHandler.getOrderFee(order as SimpleSeaportV1Order)
-		expect(fee).toBe(250)
+		const fee = seaportBuyerOrderHandler.getOrderFee()
+		expect(fee).toBe(0)
 	})
 
 	test("fill order ERC-1155 <-> ETH", async () => {

@@ -8,8 +8,9 @@ import type {
 	EthereumTransaction,
 } from "@rarible/ethereum-provider"
 import { toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
+import type { BigNumber } from "@rarible/types"
 import { backOff } from "exponential-backoff"
-import { BigNumber, toBn } from "@rarible/utils"
+import { BigNumber as BigNum, toBn } from "@rarible/utils"
 import type { OrderOpenSeaV1DataV1 } from "@rarible/ethereum-api-client/build/models/OrderData"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { BigNumberValue } from "@rarible/utils/build/bn"
@@ -231,7 +232,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			const value = toBn(order.take.value)
 				.multipliedBy(fee)
 				.dividedBy(10000)
-				.integerValue(BigNumber.ROUND_FLOOR)
+				.integerValue(BigNum.ROUND_FLOOR)
 				.toFixed()
 			const feeOnly: Asset = {
 				...order.take,
@@ -255,18 +256,18 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 
 		if (isTakeEth) {
 			const openseaWrapperContract = createExchangeWrapperContract(this.ethereum, this.config.exchange.wrapper)
-			const { originFeeConverted, totalFeeBasisPoints } = originFeeValueConvert(request.originFees)
+			const { encodedFeesValue, feeAddresses } = originFeeValueConvert(request.originFees)
 			const { data, options } = await this.getTransactionDataForExchangeWrapper(
 				initial,
 				inverted,
 				request.originFees,
-				totalFeeBasisPoints > 0,
+				encodedFeesValue,
 			)
 
 			const functionCall = openseaWrapperContract.functionCall(
 				"singlePurchase",
 				data,
-				originFeeConverted[0], originFeeConverted[1],
+				feeAddresses[0], feeAddresses[1],
 			)
 			return {
 				functionCall,
@@ -284,7 +285,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		initial: SimpleOpenSeaV1Order,
 		inverted: SimpleOpenSeaV1Order,
 		originFees: Part[] | undefined,
-		addFee: boolean
+		feeValue: BigNumber,
 	): Promise<PreparedOrderRequestDataForExchangeWrapper> {
 		const atomicMatchFunctionCall = await this.getAtomicMatchFunctionCall(initial, inverted)
 		const { buy } = getBuySellOrders(initial, inverted)
@@ -292,7 +293,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			data: {
 				marketId: ExchangeWrapperOrderType.OPENSEA_V1,
 				amount: (await getMatchOpenseaOptions(buy)).value!,
-				addFee,
+				fees: feeValue,
 				data: atomicMatchFunctionCall.data,
 			},
 			options: await getMatchOpenseaOptions(buy, originFees),

@@ -84,7 +84,15 @@ describe.skip("looksrare fill", () => {
 		const tx = await sdkBuyer.order.buy({
 			order: sellOrder,
 			amount: 1,
+			originFees: [{
+				account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
+				value: 100,
+			}, {
+				account: toAddress("0xFc7b41fFC023bf3eab6553bf4881D45834EF1E8a"),
+				value: 50,
+			}],
 		})
+		console.log(tx)
 		await tx.wait()
 	})
 

@@ -1,25 +1,23 @@
 import type { Maybe } from "@rarible/types/build/maybe"
-import type { Ethereum } from "@rarible/ethereum-provider"
+import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { toBn } from "@rarible/utils/build/bn"
 import type { Address, AssetType } from "@rarible/ethereum-api-client"
 import { ZERO_ADDRESS } from "@rarible/types"
+import { toBigNumber } from "@rarible/types/build/big-number"
 import type { BigNumberValue } from "@rarible/utils"
-import { BigNumber } from "@rarible/utils"
-import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
 import { getRequiredWallet } from "../../common/get-required-wallet"
 import { toVrs } from "../../common/to-vrs"
 import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
 import { id32 } from "../../common/id"
-import type { SimpleLooksrareOrder, SimpleOrder} from "../types"
+import type { SimpleLooksrareOrder, SimpleOrder } from "../types"
 import { isNft } from "../is-nft"
-import { encodePartToBuffer } from "../encode-data"
 import type { EthereumNetwork } from "../../types"
-import type { MakerOrderWithVRS } from "./looksrare-utils/types"
+import type { MakerOrderWithVRS, TakerOrderWithEncodedParams } from "./looksrare-utils/types"
 import type { LooksrareOrderFillRequest, OrderFillSendData } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
-import type { TakerOrderWithEncodedParams } from "./looksrare-utils/types"
+import { calcValueWithFees, originFeeValueConvert } from "./common/origin-fees-utils"
 
 export class LooksrareOrderHandler {
 	constructor(
@@ -102,15 +100,6 @@ export class LooksrareOrderHandler {
 			params: makerOrder.params,
 		}
 
-		const feesValueInBasisPoints = request.originFees?.reduce((acc, part) => {
-			return acc += part.value
-		}, 0) || 0
-		const feesValue = toBn(feesValueInBasisPoints)
-			.dividedBy(10000)
-			.multipliedBy(makerOrder.price)
-			.integerValue(BigNumber.ROUND_FLOOR)
-		const valueForSending = feesValue.plus(makerOrder.price)
-
 		const wrapperContract = createExchangeWrapperContract(provider, this.config.exchange.wrapper)
 		const fulfillData = this.getFulfillWrapperData(
 			makerOrder,
@@ -118,17 +107,21 @@ export class LooksrareOrderHandler {
 			request.order.make.assetType.assetClass
 		)
 
+		const {encodedFeesValue, totalFeeBasisPoints, feeAddresses} = originFeeValueConvert(request.originFees)
+		const valueForSending = calcValueWithFees(toBigNumber(makerOrder.price.toString()), totalFeeBasisPoints)
+
 		const data = {
 			marketId: ExchangeWrapperOrderType.LOOKSRARE_ORDERS,
 			amount: makerOrder.price,
+			fees: encodedFeesValue,
 			data: fulfillData,
 		}
 
 		const functionCall = wrapperContract.functionCall(
 			"singlePurchase",
 			data,
-			encodePartToBuffer(request.originFees?.[0]),
-			encodePartToBuffer(request.originFees?.[1])
+			feeAddresses[0],
+			feeAddresses[1]
 		)
 		return {
 			functionCall,

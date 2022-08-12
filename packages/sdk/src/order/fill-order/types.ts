@@ -1,4 +1,4 @@
-import type { Address } from "@rarible/types"
+import type { Address, BigNumber } from "@rarible/types"
 import type { Word } from "@rarible/types/build/word"
 import type { CryptoPunksAssetType, Erc1155AssetType, Erc721AssetType, Part } from "@rarible/ethereum-api-client"
 import type { Action } from "@rarible/action"
@@ -81,11 +81,12 @@ export type FillOrderRequest =
 
 export type FillBatchSingleOrderRequest =
 	RaribleV2OrderFillRequestV2 |
-	//RaribleV2OrderFillRequestV3Buy |
-	//RaribleV2OrderFillRequestV3Sell |
 	OpenSeaV1OrderFillRequest
 
-export type FillBatchOrderRequest = FillBatchSingleOrderRequest[]
+export type FillBatchOrderRequest = {
+	requests: FillBatchSingleOrderRequest[],
+	originFees?: Part[]
+}
 
 export enum ExchangeWrapperOrderType {
 	RARIBLE_V2 = 0,
@@ -99,7 +100,7 @@ export type PreparedOrderRequestDataForExchangeWrapper = {
 	data: {
 		marketId: ExchangeWrapperOrderType,
 		amount: string | number,
-		addFee: boolean,
+		fees: BigNumber,
 		data: string,
 	},
 	options: OrderFillSendData["options"]
@@ -125,7 +126,8 @@ export interface OrderHandler<T extends FillOrderRequest> {
 }
 
 export type GetOrderFillTxData = (request: FillOrderRequest) => Promise<OrderFillTransactionData>
-export type GetOrderBuyBatchTxData = (request: FillBatchSingleOrderRequest[]) => Promise<OrderFillTransactionData>
+export type GetOrderBuyBatchTxData =
+	(request: FillBatchSingleOrderRequest[], originFees: Part[] | undefined) => Promise<OrderFillTransactionData>
 
 export type OrderFillTransactionData = {
 	data: string

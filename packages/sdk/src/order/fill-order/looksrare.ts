@@ -16,13 +16,11 @@ import type { SimpleLooksrareOrder, SimpleOrder} from "../types"
 import { isNft } from "../is-nft"
 import { encodePartToBuffer } from "../encode-data"
 import type { EthereumNetwork } from "../../types"
-import { createLooksrareExchange } from "../contracts/looksrare-exchange"
 import type { IRaribleEthereumSdkConfig } from "../../types"
 import type { MakerOrderWithVRS } from "./looksrare-utils/types"
 import type { LooksrareOrderFillRequest, OrderFillSendData } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
 import type { TakerOrderWithEncodedParams } from "./looksrare-utils/types"
-import { getUpdatedCall } from "./common/get-updated-call"
 
 export class LooksrareOrderHandler {
 	constructor(
@@ -86,10 +84,7 @@ export class LooksrareOrderHandler {
 		const {functionCall, options} = await this.getTransactionData(request)
 		return this.send(
 			functionCall,
-			{
-				...options,
-				additionalData: this.sdkConfig?.fillCalldata,
-			}
+			options
 		)
 	}
 
@@ -142,7 +137,10 @@ export class LooksrareOrderHandler {
 		)
 		return {
 			functionCall,
-			options: { value: valueForSending.toString() },
+			options: {
+				value: valueForSending.toString(),
+				additionalData: this.sdkConfig?.fillCalldata,
+			},
 		}
 	}
 

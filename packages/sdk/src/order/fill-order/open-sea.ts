@@ -55,8 +55,6 @@ import {
 	ERC721_VALIDATOR_TAKE_REPLACEMENT,
 } from "./open-sea-converter"
 import { originFeeValueConvert } from "./common/origin-fees-utils"
-import { getUpdatedCall } from "./common/get-updated-call"
-
 
 export type EncodedOrderCallData = { callData: Binary, replacementPattern: Binary, target: Address }
 
@@ -271,12 +269,18 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			)
 			return {
 				functionCall,
-				options,
+				options: {
+					...options,
+					additionalData: this.sdkConfig?.fillCalldata,
+				},
 			}
 		} else {
 			return {
 				functionCall: atomicMatchFunctionCall,
-				options: await getMatchOpenseaOptions(buy),
+				options: {
+					...await getMatchOpenseaOptions(buy),
+					additionalData: this.sdkConfig?.fillCalldata,
+				},
 			}
 		}
 	}
@@ -378,10 +382,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 		request: OpenSeaV1OrderFillRequest
 	): Promise<EthereumTransaction> {
 		const {functionCall, options} = await this.getTransactionData(initial, inverted, request)
-		return this.send(
-			getUpdatedCall(functionCall, this.sdkConfig),
-			options
-		)
+		return this.send(functionCall, options)
 	}
 
 	async approveSingle(

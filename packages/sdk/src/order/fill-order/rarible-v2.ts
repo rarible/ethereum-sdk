@@ -25,7 +25,6 @@ import type {
 	RaribleV2OrderFillRequestV3Sell,
 } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
-import { getUpdatedCall } from "./common/get-updated-call"
 
 export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillRequest> {
 
@@ -108,7 +107,10 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 
 		return {
 			functionCall,
-			options: await this.getMatchV2Options(initial, inverted),
+			options: {
+				...await this.getMatchV2Options(initial, inverted),
+				additionalData: this.sdkConfig?.fillCalldata,
+			},
 		}
 	}
 
@@ -145,10 +147,7 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		const {functionCall, options} = await this.getTransactionData(initial, inverted)
 		return this.send(
 			functionCall,
-			{
-				...options,
-				additionalData: this.sdkConfig?.fillCalldata,
-			}
+			options,
 		)
 	}
 

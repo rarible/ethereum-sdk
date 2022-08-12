@@ -76,7 +76,10 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 
 		return {
 			functionCall,
-			options: getMatchV1Options(inverted),
+			options: {
+				...getMatchV1Options(inverted),
+				additionalData: this.sdkConfig?.fillCalldata,
+			},
 		}
 	}
 
@@ -86,10 +89,7 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 		const {functionCall, options} = await this.getTransactionData(initial, inverted, request)
 		return this.send(
 			functionCall,
-			{
-				...options,
-				additionalData: this.sdkConfig?.fillCalldata,
-			}
+			options
 		)
 	}
 }

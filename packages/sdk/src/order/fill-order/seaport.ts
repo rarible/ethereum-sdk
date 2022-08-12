@@ -36,10 +36,7 @@ export class SeaportOrderHandler {
 		const {functionCall, options} = await this.getTransactionData(request)
 		return this.send(
 			functionCall,
-			{
-				...options,
-				additionalData: this.sdkConfig?.fillCalldata,
-			}
+			options
 		)
 	}
 
@@ -87,7 +84,7 @@ export class SeaportOrderHandler {
 					throw new Error("Seaport wrapper address has not been set. Change address in config")
 				}
 
-				return fulfillOrderWithWrapper(
+				const {functionCall, options} = await fulfillOrderWithWrapper(
 					ethereum,
 					this.send.bind(this),
 					order,
@@ -96,6 +93,13 @@ export class SeaportOrderHandler {
 						originFees: request.originFees,
 						seaportWrapper: wrapper,
 					})
+				return {
+					functionCall,
+					options: {
+						...options,
+						additionalData: this.sdkConfig?.fillCalldata,
+					},
+				}
 			}
 		}
 
@@ -107,7 +111,7 @@ export class SeaportOrderHandler {
 				recipient: fee.account,
 			}))
 		}
-		return fulfillOrder(
+		const {functionCall, options} = await fulfillOrder(
 			ethereum,
 			this.send.bind(this),
 			order,
@@ -115,6 +119,14 @@ export class SeaportOrderHandler {
 				unitsToFill,
 				tips,
 			})
+
+		return {
+			functionCall,
+			options: {
+				...options,
+				additionalData: this.sdkConfig?.fillCalldata,
+			},
+		}
 	}
 
 	getBaseOrderFee() {

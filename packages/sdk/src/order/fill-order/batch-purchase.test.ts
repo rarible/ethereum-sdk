@@ -208,11 +208,14 @@ describe.skip("fillOrder: Opensea orders", function () {
 		const beforeSellerNftBalance2 = await getBalance("ERC1155", sender2Address, tokenIds[1])
 		const beforeSellerNftBalance3 = await getBalance("ERC721", sender2Address)
 
-		const tx = await orderFiller.buy([
-			{order: order1, amount: 1, originFees}, //ERC1155 partial fill
-			{order: order2, amount: 2, originFees},
-			{order: order3, amount: 1, originFees},
-		])
+		const tx = await orderFiller.buy({
+			requests: [
+				{ order: order1, amount: 1 }, //ERC1155 partial fill
+				{ order: order2, amount: 2 },
+				{ order: order3, amount: 1 },
+			],
+			originFees,
+		})
 		await tx.wait()
 
 		//seller balances

@@ -36,7 +36,7 @@ export class X2Y2OrderHandler {
 			throw new Error("x2y2 supports max up to 2 origin fee value")
 		}
 
-		const { originFeeConverted, totalFeeBasisPoints } = originFeeValueConvert(request.originFees)
+		const { encodedFeesValue, feeAddresses, totalFeeBasisPoints } = originFeeValueConvert(request.originFees)
 
 		const x2y2Input = await X2Y2Utils.getOrderSign(this.apis, {
 			sender: toAddress(await this.ethereum.getFrom()),
@@ -50,10 +50,10 @@ export class X2Y2OrderHandler {
 		return this.send(
 			wrapper.functionCall("singlePurchase", {
 				marketId: ExchangeWrapperOrderType.X2Y2,
-				addFee: totalFeeBasisPoints > 0,
+				fees: encodedFeesValue,
 				amount: order.take.value,
 				data: x2y2Input,
-			}, originFeeConverted[0], originFeeConverted[1]),
+			}, feeAddresses[0], feeAddresses[1]),
 			{ value: valueForSending.toString() }
 		)
 	}

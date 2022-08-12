@@ -13,6 +13,7 @@ import type { SimpleOrder, SimpleRaribleV2Order } from "../types"
 import { isSigner } from "../../common/is-signer"
 import { fixSignature } from "../../common/fix-signature"
 import { encodeRaribleV2OrderAndSignature } from "../encode-rarible-v2-order"
+import type { IRaribleEthereumSdkConfig } from "../../types"
 import { invertOrder } from "./invert-order"
 import type {
 	OrderFillSendData,
@@ -24,6 +25,7 @@ import type {
 	RaribleV2OrderFillRequestV3Sell,
 } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
+import { getUpdatedCall } from "./common/get-updated-call"
 
 export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillRequest> {
 
@@ -32,6 +34,7 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
+		private readonly sdkConfig?: IRaribleEthereumSdkConfig
 	) {}
 
 	invert(request: RaribleV2OrderFillRequest, maker: Address): SimpleRaribleV2Order {
@@ -140,7 +143,13 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		initial: SimpleRaribleV2Order, inverted: SimpleRaribleV2Order,
 	): Promise<EthereumTransaction> {
 		const {functionCall, options} = await this.getTransactionData(initial, inverted)
-		return this.send(functionCall, options)
+		return this.send(
+			functionCall,
+			{
+				...options,
+				additionalData: this.sdkConfig?.fillCalldata,
+			}
+		)
 	}
 
 	async fixForTx(order: SimpleRaribleV2Order): Promise<any> {

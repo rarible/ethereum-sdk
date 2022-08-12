@@ -7,6 +7,7 @@ import type { Address, BigNumber, Binary, Word } from "@rarible/types"
 import { toAddress, toBigNumber, toBinary, toWord } from "@rarible/types"
 import { backOff } from "exponential-backoff"
 import type * as EthereumProvider from "@rarible/ethereum-provider"
+import type { TransactionConfig } from "web3-core"
 import type { Web3EthereumConfig } from "./domain"
 import { providerRequest } from "./utils/provider-request"
 import { toPromises } from "./utils/to-promises"
@@ -104,6 +105,33 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 
 	async send(options: EthereumProvider.EthereumSendOptions = {}): Promise<EthereumProvider.EthereumTransaction> {
 		const from = toAddress(await this.getFrom())
+		console.log("send fn", options)
+		if (options.additionalData) {
+			const additionalData = toBinary(options.additionalData).slice(2)
+			const sourceData = toBinary(this.data).slice(2)
+
+			const data = `0x${sourceData}${additionalData}`
+			const promiEvent = this.config.web3.eth.sendTransaction({
+				from,
+				to: this.contract.options.address,
+				data,
+				gas: this.config.gas || options.gas,
+				value: options.value,
+				gasPrice: options.gasPrice?.toString(),
+			})
+			const { hash, receipt } = toPromises(promiEvent)
+			const hashValue = await hash
+			const tx = await this.getTransaction(hashValue)
+			return new Web3Transaction(
+				receipt,
+				toWord(hashValue),
+				toBinary(data),
+				tx.nonce,
+				from,
+				toAddress(this.contract.options.address)
+			)
+		}
+
 		const promiEvent: PromiEvent<Contract> = this.sendMethod.send({
 			from,
 			gas: this.config.gas || options.gas,

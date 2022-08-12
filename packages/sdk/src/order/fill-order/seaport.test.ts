@@ -2,7 +2,7 @@ import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum/build"
 import type { SeaportV1Order } from "@rarible/ethereum-api-client/build/models/Order"
-import { toAddress } from "@rarible/types"
+import { toAddress, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
 import type { BigNumberValue} from "@rarible/utils/build/bn"
 import { toBn } from "@rarible/utils/build/bn"
 import { createRaribleSdk } from "../../index"
@@ -16,12 +16,13 @@ import { getOpenseaEthTakeData } from "../test/get-opensea-take-data"
 import { getEthereumConfig } from "../../config"
 import { checkChainId } from "../check-chain-id"
 import { getSimpleSendWithInjects } from "../../common/send-transaction"
+import { FILL_CALLDATA_TAG } from "../../config/common"
 import { ItemType } from "./seaport-utils/constants"
 import type { CreateInputItem } from "./seaport-utils/types"
 import { SeaportOrderHandler } from "./seaport"
 
 //createSeaportOrder may return 400 error, try again
-describe.skip("seaport", () => {
+describe("seaport", () => {
 	const providerConfig = {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",
@@ -306,6 +307,46 @@ describe.skip("seaport", () => {
 		await tx.wait()
 
 		await awaitOwnership(sdkBuyer, sellItem.itemId, accountAddressBuyer, "1")
+	})
+
+
+	test("fill order ERC-721 <-> ETH with calldata flag", async () => {
+		const accountAddressBuyer = toAddress(await ethereum.getFrom())
+		console.log("accountAddressBuyer", accountAddressBuyer)
+		console.log("seller", await ethereumSeller.getFrom())
+
+		const fillCalldata = toBinary(`${ZERO_ADDRESS}00000009`)
+		const sdkBuyer = createRaribleSdk(buyerWeb3, "testnet", {
+			fillCalldata,
+		})
+
+		const sellItem = await sdkSeller.nft.mint({
+			collection: createErc721V3Collection(rinkebyErc721V3ContractAddress),
+			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
+			lazy: false,
+		})
+		if (sellItem.type === MintResponseTypeEnum.ON_CHAIN) {
+			await sellItem.transaction.wait()
+		}
+
+		await delay(10000)
+		const make = {
+			itemType: ItemType.ERC721,
+			token: sellItem.contract,
+			identifier: sellItem.tokenId,
+		} as const
+		const take = getOpenseaEthTakeData("10000000000")
+		const orderHash = await createSeaportOrder(ethereumSeller, send, make, take)
+
+		const order = await awaitOrder(sdkBuyer, orderHash)
+
+		const tx = await sdkBuyer.order.buy({
+			order: order as SeaportV1Order,
+			amount: 1,
+		})
+		console.log("tx data buy", tx.data)
+		expect(tx.data.endsWith(fillCalldata.concat(FILL_CALLDATA_TAG))).toBe(true)
+		await tx.wait()
 	})
 })
 

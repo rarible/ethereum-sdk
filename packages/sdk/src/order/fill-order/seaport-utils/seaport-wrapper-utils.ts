@@ -7,6 +7,7 @@ import { toBigNumber } from "@rarible/types/build/big-number"
 import type { SendFunction } from "../../../common/send-transaction"
 import type { SimpleSeaportV1Order } from "../../types"
 import { createSeaportContract } from "../../contracts/seaport"
+import type { OrderFillSendData } from "../types"
 import { ExchangeWrapperOrderType } from "../types"
 import { createExchangeWrapperContract } from "../../contracts/exchange-wrapper"
 import { calcValueWithFees, originFeeValueConvert } from "../common/origin-fees-utils"
@@ -27,7 +28,7 @@ export async function fulfillOrderWithWrapper(
 		seaportWrapper: Address,
 		originFees?: Part[]
 	}
-) {
+): Promise<OrderFillSendData> {
 	const seaportContract = createSeaportContract(ethereum, toAddress(CROSS_CHAIN_SEAPORT_ADDRESS))
 
 	const order = convertAPIOrderToSeaport(simpleOrder)
@@ -116,9 +117,10 @@ export async function fulfillOrderWithWrapper(
 
 	const seaportWrapperContract = createExchangeWrapperContract(ethereum, seaportWrapper)
 	const valueForSending = calcValueWithFees(toBigNumber(data.amount), totalFeeBasisPoints)
+	const functionCall = seaportWrapperContract.functionCall("singlePurchase", data, originFeeConverted[0], originFeeConverted[1])
 
-	return send(
-		seaportWrapperContract.functionCall("singlePurchase", data, originFeeConverted[0], originFeeConverted[1]),
-		{ value: valueForSending.toString() }
-	)
+	return {
+		functionCall,
+		options: { value: valueForSending.toString() },
+	}
 }

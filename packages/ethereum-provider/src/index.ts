@@ -37,6 +37,7 @@ export interface EthereumSendOptions {
 	value?: number | string
 	gas?: number
 	gasPrice?: number
+	additionalData?: Binary
 }
 
 export interface EthereumEstimateGasOptions {

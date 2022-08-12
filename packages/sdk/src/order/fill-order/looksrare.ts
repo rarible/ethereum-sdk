@@ -17,10 +17,12 @@ import { isNft } from "../is-nft"
 import { encodePartToBuffer } from "../encode-data"
 import type { EthereumNetwork } from "../../types"
 import { createLooksrareExchange } from "../contracts/looksrare-exchange"
+import type { IRaribleEthereumSdkConfig } from "../../types"
 import type { MakerOrderWithVRS } from "./looksrare-utils/types"
 import type { LooksrareOrderFillRequest, OrderFillSendData } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
 import type { TakerOrderWithEncodedParams } from "./looksrare-utils/types"
+import { getUpdatedCall } from "./common/get-updated-call"
 
 export class LooksrareOrderHandler {
 	constructor(
@@ -29,6 +31,7 @@ export class LooksrareOrderHandler {
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly env: EthereumNetwork,
+		private readonly sdkConfig?: IRaribleEthereumSdkConfig
 	) {}
 
 	convertMakerOrderToLooksrare(makerOrder: SimpleLooksrareOrder, amount: BigNumberValue): MakerOrderWithVRS {
@@ -81,7 +84,13 @@ export class LooksrareOrderHandler {
 
 	async sendTransaction(request: LooksrareOrderFillRequest): Promise<EthereumTransaction> {
 		const {functionCall, options} = await this.getTransactionData(request)
-		return this.send(functionCall, options)
+		return this.send(
+			functionCall,
+			{
+				...options,
+				additionalData: this.sdkConfig?.fillCalldata,
+			}
+		)
 	}
 
 	async getTransactionData(request: LooksrareOrderFillRequest): Promise<OrderFillSendData> {
@@ -111,23 +120,6 @@ export class LooksrareOrderHandler {
 			.multipliedBy(makerOrder.price)
 			.integerValue(BigNumber.ROUND_FLOOR)
 		const valueForSending = feesValue.plus(makerOrder.price)
-
-		if (this.env === "mainnet") {
-			if (!this.config.exchange.looksrare) {
-				throw new Error("Looksrare contract in config is not exists")
-			}
-			const looksrareContract = createLooksrareExchange(provider, this.config.exchange.looksrare)
-
-			const functionCall = looksrareContract.functionCall(
-				"matchAskWithTakerBidUsingETHAndWETH",
-				takerOrder,
-				makerOrder
-			)
-			return {
-				functionCall,
-				options: {value: valueForSending.toString()},
-			}
-		}
 
 		const wrapperContract = createExchangeWrapperContract(provider, this.config.exchange.wrapper)
 		const fulfillData = this.getFulfillWrapperData(

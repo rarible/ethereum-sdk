@@ -67,12 +67,12 @@ export class OrderFiller {
 		this.getBaseOrderFillFee = this.getBaseOrderFillFee.bind(this)
 		this.getTransactionData = this.getTransactionData.bind(this)
 		this.getBuyTx = this.getBuyTx.bind(this)
-		this.v1Handler = new RaribleV1OrderHandler(ethereum, apis.order, send, config, getBaseOrderFee)
-		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config, getBaseOrderFee)
+		this.v1Handler = new RaribleV1OrderHandler(ethereum, apis.order, send, config, getBaseOrderFee, sdkConfig)
+		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config, getBaseOrderFee, sdkConfig)
 		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
-		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config, getBaseOrderFee)
-		this.seaportHandler = new SeaportOrderHandler(ethereum, send, config, getBaseOrderFee, env)
-		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, config, getBaseOrderFee, env)
+		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config, getBaseOrderFee, sdkConfig)
+		this.seaportHandler = new SeaportOrderHandler(ethereum, send, config, getBaseOrderFee, env, sdkConfig)
+		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, config, getBaseOrderFee, env, sdkConfig)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 	}
@@ -194,8 +194,7 @@ export class OrderFiller {
 					<OpenSeaV1OrderFillRequest>request
 				)
 			case "SEAPORT_V1":
-				return this.seaportHandler.fillSeaportOrder(
-					<SimpleSeaportV1Order>request.order,
+				return this.seaportHandler.sendTransaction(
 					<SeaportV1OrderFillRequest>request
 				)
 			case "LOOKSRARE":

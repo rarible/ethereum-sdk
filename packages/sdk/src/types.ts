@@ -1,4 +1,4 @@
-import type { ConfigurationParameters } from "@rarible/ethereum-api-client"
+import type { Binary, ConfigurationParameters } from "@rarible/ethereum-api-client"
 import type { Word } from "@rarible/types"
 
 export type EthereumNetwork =
@@ -20,6 +20,7 @@ export interface IRaribleEthereumSdkConfig {
 	logs?: LogsLevel
 	ethereum?: EthereumNetworkConfig
 	polygon?: EthereumNetworkConfig
+	fillCalldata?: Binary
 }
 
 export interface EthereumNetworkConfig {

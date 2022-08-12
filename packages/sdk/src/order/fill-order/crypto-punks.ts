@@ -9,8 +9,10 @@ import { waitTx } from "../../common/wait-tx"
 import type { SimpleCryptoPunkOrder } from "../types"
 import { createCryptoPunksMarketContract } from "../../nft/contracts/cryptoPunks"
 import type { SimpleOrder } from "../types"
+import type { IRaribleEthereumSdkConfig } from "../../types"
 import { invertOrder } from "./invert-order"
 import type { CryptoPunksOrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
+import { getUpdatedCall } from "./common/get-updated-call"
 
 export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFillRequest> {
 	constructor(
@@ -18,6 +20,7 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
+		private readonly sdkConfig?: IRaribleEthereumSdkConfig
 	) {}
 
 	invert(request: CryptoPunksOrderFillRequest, maker: Address): SimpleCryptoPunkOrder {
@@ -49,7 +52,10 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 		initial: SimpleCryptoPunkOrder, inverted: SimpleCryptoPunkOrder,
 	): Promise<EthereumTransaction> {
 		const {functionCall, options} = await this.getTransactionData(initial, inverted)
-		return this.send(functionCall, options)
+		return this.send(
+			getUpdatedCall(functionCall, this.sdkConfig),
+			options
+		)
 	}
 
 	getPunkOrderCallMethod(initial: SimpleCryptoPunkOrder): EthereumFunctionCall {

@@ -23,9 +23,9 @@ import {
 	mapOrderAmountsFromUnitsToFill,
 } from "./order"
 import { getBalancesAndApprovals } from "./balance-and-approval-check"
-import { fulfillBasicOrder } from "./fulfill-basic"
+import { getfulfillBasicOrderData } from "./fulfill-basic"
 import { getApprovalActions } from "./approval"
-import { fulfillStandardOrder } from "./fulfill-standard"
+import { getFulfillStandardOrderData } from "./fulfill-standard"
 import { CONDUIT_KEYS_TO_CONDUIT, CROSS_CHAIN_DEFAULT_CONDUIT_KEY, CROSS_CHAIN_SEAPORT_ADDRESS } from "./constants"
 import { convertAPIOrderToSeaport } from "./convert-to-seaport-order"
 
@@ -118,9 +118,8 @@ export async function fulfillOrder(
 			offererOperator,
 			fulfillerOperator,
 		})
-		return fulfillBasicOrder({
+		return getfulfillBasicOrderData({
 			ethereum,
-			send,
 			order: sanitizedOrder,
 			timeBasedItemParams,
 			conduitKey,
@@ -146,9 +145,8 @@ export async function fulfillOrder(
 		offererOperator,
 		fulfillerOperator,
 	})
-	return fulfillStandardOrder({
+	return getFulfillStandardOrderData({
 		ethereum,
-		send,
 		order: sanitizedOrder,
 		unitsToFill,
 		totalFilled,

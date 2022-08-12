@@ -1,7 +1,7 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import { toAddress } from "@rarible/types"
+import { toAddress, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import type { Erc1155AssetType, LooksRareOrder } from "@rarible/ethereum-api-client"
 import { createRaribleSdk } from "../../index"
 import { getEthereumConfig } from "../../config"
@@ -12,7 +12,7 @@ import { MintResponseTypeEnum } from "../../nft/mint"
 import { awaitOwnership } from "../test/await-ownership"
 import { makeRaribleSellOrder } from "./looksrare-utils/create-order"
 
-describe.skip("looksrare fill", () => {
+describe("looksrare fill", () => {
 	const providerConfig = {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",
@@ -55,6 +55,7 @@ describe.skip("looksrare fill", () => {
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
 
 	test("fill erc 721", async () => {
+		console.log("ethereumSeller", await ethereumSeller.getFrom())
 		if (!config.exchange.looksrare) {
 			throw new Error("Looksrare contract has not been set")
 		}
@@ -133,9 +134,38 @@ describe.skip("looksrare fill", () => {
 		await tx.wait()
 	})
 
-	test.skip("fill API order", async () => {
+	test("fill API order", async () => {
 		const order = await sdkBuyer.apis.order.getOrderByHash({
-			hash: "0x3a7ff5ea8769b18d220f962d215bca2d2667131c2dde5593bb7302a12cd2dda4",
+			hash: "0x3ad6d3ac107fa0afce8eb5d0247c29e108f813e5ec41a072d752e8f80db94f55",
+		}) as LooksRareOrder
+
+		const tx = await sdkBuyer.order.buy({
+			order,
+			amount: 1,
+			originFees: [
+				{
+					account: originFeeAddress,
+					value: 1000,
+				},
+			],
+		})
+		console.log("tx", tx)
+		await tx.wait()
+
+		const assetType = order.make.assetType as Erc1155AssetType
+		const itemId = `${assetType.contract}:${assetType.tokenId}`
+		await awaitOwnership(sdkBuyer, itemId, toAddress(await buyerWeb3.getFrom()), "1")
+	})
+
+	test("fill API order with calldata", async () => {
+		const fillCalldata = toBinary(`${ZERO_ADDRESS}00000009`)
+
+		const sdkBuyer = createRaribleSdk(buyerWeb3, "testnet", {
+			fillCalldata,
+		})
+
+		const order = await sdkBuyer.apis.order.getOrderByHash({
+			hash: "",
 		}) as LooksRareOrder
 
 		const tx = await sdkBuyer.order.buy({

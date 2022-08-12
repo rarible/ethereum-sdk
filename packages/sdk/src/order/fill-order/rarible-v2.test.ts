@@ -1,4 +1,4 @@
-import { randomAddress, randomWord, toAddress, toBigNumber, toWord } from "@rarible/types"
+import { randomAddress, randomWord, toAddress, toBigNumber, toBinary, toWord, ZERO_ADDRESS } from "@rarible/types"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import Web3 from "web3"
 import { toBn } from "@rarible/utils/build/bn"
@@ -24,6 +24,8 @@ import { id } from "../../common/id"
 import { approveErc20 } from "../approve-erc20"
 import { createEthereumApis } from "../../common/apis"
 import { checkChainId } from "../check-chain-id"
+import { createRaribleSdk } from "../../index"
+import { FILL_CALLDATA_TAG } from "../../config/common"
 import { OrderFiller } from "./index"
 
 describe("buy & acceptBid orders", () => {
@@ -470,4 +472,45 @@ describe("buy & acceptBid orders", () => {
 		expect(ownerAddress.toLowerCase()).toBe(sender1Address.toLowerCase())
 	})
 
+	test("buy erc-1155 <-> ETH with calldata flag", async () => {
+		const tokenId = "10"
+		await sentTx(it.testErc1155.methods.mint(sender2Address, tokenId, 10, "0x"), { from: sender1Address })
+
+		const left: SimpleOrder = {
+			make: {
+				assetType: {
+					assetClass: "ERC1155",
+					contract: toAddress(it.testErc1155.options.address),
+					tokenId: toBigNumber(tokenId),
+				},
+				value: toBigNumber("5"),
+			},
+			maker: sender2Address,
+			take: {
+				assetType: {
+					assetClass: "ETH",
+				},
+				value: toBigNumber("1000000"),
+			},
+			salt: randomWord(),
+			type: "RARIBLE_V2",
+			data: {
+				dataType: "RARIBLE_V2_DATA_V1",
+				payouts: [],
+				originFees: [],
+			},
+		}
+
+		const signature = await signOrder(ethereum1, config, left)
+
+		const finalOrder = { ...left, signature }
+
+		const fillCalldata = toBinary(`${ZERO_ADDRESS}00000001`)
+		const sdkBuyer = createRaribleSdk(ethereum1, env, {
+			fillCalldata: toBinary(`${ZERO_ADDRESS}00000009`),
+		})
+		const tx = await sdkBuyer.order.buy({ order: finalOrder, amount: 2, originFees: [] })
+		expect(tx.data.endsWith(fillCalldata.concat(FILL_CALLDATA_TAG))).toBe(true)
+		await tx.wait()
+	})
 })

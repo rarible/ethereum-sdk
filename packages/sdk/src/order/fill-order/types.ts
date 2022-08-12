@@ -1,4 +1,4 @@
-import type { Address } from "@rarible/types"
+import type { Address, BigNumber } from "@rarible/types"
 import type { Word } from "@rarible/types/build/word"
 import type { CryptoPunksAssetType, Erc1155AssetType, Erc721AssetType, Part } from "@rarible/ethereum-api-client"
 import type { Action } from "@rarible/action"
@@ -92,7 +92,7 @@ export type PreparedOrderRequestDataForExchangeWrapper = {
 	data: {
 		marketId: ExchangeWrapperOrderType,
 		amount: string | number,
-		addFee: boolean,
+		fee: BigNumber,
 		data: string,
 	},
 	options: OrderFillSendData["options"]

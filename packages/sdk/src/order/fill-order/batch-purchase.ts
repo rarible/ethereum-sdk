@@ -3,8 +3,7 @@ import { Action } from "@rarible/action"
 import type { Address, AssetType } from "@rarible/ethereum-api-client"
 import type { Part } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
-import { toBn } from "@rarible/utils"
-import { toAddress } from "@rarible/types"
+import { toAddress, toBigNumber } from "@rarible/types"
 import type { SimpleOpenSeaV1Order, SimpleOrder, SimpleRaribleV2Order } from "../types"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
@@ -14,7 +13,6 @@ import { checkAssetType } from "../check-asset-type"
 import { checkLazyAssetType } from "../check-lazy-asset-type"
 import { checkChainId } from "../check-chain-id"
 import type { IRaribleEthereumSdkConfig } from "../../types"
-import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
 import type {
 	FillBatchOrderAction,
 	FillBatchOrderRequest,
@@ -28,7 +26,6 @@ import type {
 } from "./types"
 import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OpenSeaOrderHandler } from "./open-sea"
-import { calcValueWithFees, originFeeValueConvert } from "./common/origin-fees-utils"
 
 export class BatchOrderFiller {
 	v2Handler: RaribleV2OrderHandler
@@ -157,36 +154,37 @@ export class BatchOrderFiller {
 		orders: { initial: FillBatchSingleOrderRequest, inverted: SimpleOrder }[],
 		originFees: Part[] | undefined
 	): Promise<OrderFillSendData> {
-		if (!this.ethereum) {
-			throw new Error("Wallet undefined")
-		}
+		throw new Error("This method not supported yet")
 
-		const { originFeeConverted, totalFeeBasisPoints } = originFeeValueConvert(originFees)
-		let totalValue = toBn(0)
-		const ordersCallData: PreparedOrderRequestDataForExchangeWrapper["data"][] =
-			await Promise.all(orders.map( async ({initial, inverted}) => {
-				const requestData = await this.getTransactionSingleRequestData(initial, inverted, totalFeeBasisPoints > 0)
-
-				totalValue = totalValue.plus(requestData.options?.value || 0)
-
-				return { ...requestData.data }
-			}))
-
-		const wrapperContract = createExchangeWrapperContract(this.ethereum, this.config.exchange.wrapper)
-		const functionCall = wrapperContract.functionCall(
-			"bulkPurchase",
-			ordersCallData,
-			originFeeConverted[0],
-			originFeeConverted[1]
-		)
-
-		return {functionCall, options: { value: calcValueWithFees(totalValue, totalFeeBasisPoints).toString() }}
+		// if (!this.ethereum) {
+		// 	throw new Error("Wallet undefined")
+		// }
+		//
+		// const { originFeeConverted, totalFeeBasisPoints } = originFeeValueConvert(originFees)
+		// let totalValue = toBn(0)
+		// const ordersCallData: PreparedOrderRequestDataForExchangeWrapper["data"][] =
+		// 	await Promise.all(orders.map( async ({initial, inverted}) => {
+		// 		const requestData = await this.getTransactionSingleRequestData(initial, inverted, totalFeeBasisPoints > 0)
+		//
+		// 		totalValue = totalValue.plus(requestData.options?.value || 0)
+		//
+		// 		return { ...requestData.data }
+		// 	}))
+		//
+		// const wrapperContract = createExchangeWrapperContract(this.ethereum, this.config.exchange.wrapper)
+		// const functionCall = wrapperContract.functionCall(
+		// 	"bulkPurchase",
+		// 	ordersCallData,
+		// 	originFeeConverted[0],
+		// 	originFeeConverted[1]
+		// )
+		//
+		// return {functionCall, options: { value: calcValueWithFees(totalValue, totalFeeBasisPoints).toString() }}
 	}
 
 	private async getTransactionSingleRequestData(
 		request: FillBatchSingleOrderRequest,
 		inverted: SimpleOrder,
-		addFee: boolean
 	): Promise<PreparedOrderRequestDataForExchangeWrapper> {
 		switch (request.order.type) {
 			case "RARIBLE_V2":
@@ -199,7 +197,7 @@ export class BatchOrderFiller {
           <SimpleOpenSeaV1Order>request.order,
 					<SimpleOpenSeaV1Order>inverted,
 					request.originFees,
-					addFee
+					toBigNumber("0")
 				)
 			default:
 				throw new Error(`Unsupported request: ${JSON.stringify(request)}`)

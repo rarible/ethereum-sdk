@@ -11,6 +11,19 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 		"anonymous": false,
 		"inputs": [
 			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "result",
+				"type": "bool",
+			},
+		],
+		"name": "Execution",
+		"type": "event",
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
 				"indexed": true,
 				"internalType": "address",
 				"name": "previousOwner",
@@ -381,9 +394,9 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 						"type": "uint256",
 					},
 					{
-						"internalType": "bool",
-						"name": "addFee",
-						"type": "bool",
+						"internalType": "uint256",
+						"name": "fees",
+						"type": "uint256",
 					},
 					{
 						"internalType": "bytes",
@@ -396,14 +409,14 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 				"type": "tuple",
 			},
 			{
-				"internalType": "uint256",
-				"name": "originFeeFirst",
-				"type": "uint256",
+				"internalType": "address",
+				"name": "feeRecipientFirst",
+				"type": "address",
 			},
 			{
-				"internalType": "uint256",
-				"name": "originFeeSecond",
-				"type": "uint256",
+				"internalType": "address",
+				"name": "feeRecipientSecond",
+				"type": "address",
 			},
 		],
 		"name": "singlePurchase",
@@ -427,9 +440,9 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 						"type": "uint256",
 					},
 					{
-						"internalType": "bool",
-						"name": "addFee",
-						"type": "bool",
+						"internalType": "uint256",
+						"name": "fees",
+						"type": "uint256",
 					},
 					{
 						"internalType": "bytes",
@@ -442,14 +455,14 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 				"type": "tuple[]",
 			},
 			{
-				"internalType": "uint256",
-				"name": "originFeeFirst",
-				"type": "uint256",
+				"internalType": "address",
+				"name": "feeRecipientFirst",
+				"type": "address",
 			},
 			{
-				"internalType": "uint256",
-				"name": "originFeeSecond",
-				"type": "uint256",
+				"internalType": "address",
+				"name": "feeRecipientSecond",
+				"type": "address",
 			},
 			{
 				"internalType": "bool",

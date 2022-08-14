@@ -12,6 +12,7 @@ import type { SimpleOrder } from "../types"
 import type { IRaribleEthereumSdkConfig } from "../../types"
 import { invertOrder } from "./invert-order"
 import type { CryptoPunksOrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
+import { getUpdatedCalldata } from "./common/get-updated-call"
 
 export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFillRequest> {
 	constructor(
@@ -45,7 +46,7 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 			functionCall: this.getPunkOrderCallMethod(initial),
 			options: {
 				...this.getMatchV2Options(initial, inverted),
-				additionalData: this.sdkConfig?.fillCalldata,
+				additionalData: getUpdatedCalldata(this.sdkConfig),
 			},
 		}
 	}

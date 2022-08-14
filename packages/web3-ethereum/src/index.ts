@@ -183,12 +183,12 @@ export class Web3Transaction implements EthereumProvider.EthereumTransaction {
 
 	async wait(): Promise<EthereumProvider.EthereumTransactionReceipt> {
 		const receipt = await this.receipt
-		const events: EthereumProvider.EthereumTransactionEvent[] = Object.keys(receipt.events!)
+		const events: EthereumProvider.EthereumTransactionEvent[] = receipt.events ? Object.keys(receipt.events!)
 			.map(ev => receipt.events![ev])
 			.map(ev => ({
 				...ev,
 				args: ev.returnValues,
-			}))
+			})) : []
 		return {
 			...receipt,
 			events,

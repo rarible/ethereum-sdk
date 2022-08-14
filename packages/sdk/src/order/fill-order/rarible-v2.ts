@@ -25,6 +25,8 @@ import type {
 	RaribleV2OrderFillRequestV3Sell,
 } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
+import { ZERO_FEE_VALUE } from "./common/origin-fees-utils"
+import { getUpdatedCalldata } from "./common/get-updated-call"
 
 export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillRequest> {
 
@@ -109,7 +111,7 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 			functionCall,
 			options: {
 				...await this.getMatchV2Options(initial, inverted),
-				additionalData: this.sdkConfig?.fillCalldata,
+				additionalData: getUpdatedCalldata(this.sdkConfig),
 			},
 		}
 	}
@@ -134,7 +136,7 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 			data: {
 				marketId: ExchangeWrapperOrderType.RARIBLE_V2,
 				amount: options?.value!,
-				addFee: false,
+				fees: ZERO_FEE_VALUE,
 				data: callData,
 			},
 			options,

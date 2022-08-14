@@ -12,7 +12,7 @@ import { MintResponseTypeEnum } from "../../nft/mint"
 import { awaitOwnership } from "../test/await-ownership"
 import { makeRaribleSellOrder } from "./looksrare-utils/create-order"
 
-describe("looksrare fill", () => {
+describe.skip("looksrare fill", () => {
 	const providerConfig = {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",
@@ -55,7 +55,6 @@ describe("looksrare fill", () => {
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
 
 	test("fill erc 721", async () => {
-		console.log("ethereumSeller", await ethereumSeller.getFrom())
 		if (!config.exchange.looksrare) {
 			throw new Error("Looksrare contract has not been set")
 		}
@@ -85,7 +84,15 @@ describe("looksrare fill", () => {
 		const tx = await sdkBuyer.order.buy({
 			order: sellOrder,
 			amount: 1,
+			originFees: [{
+				account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
+				value: 100,
+			}, {
+				account: toAddress("0xFc7b41fFC023bf3eab6553bf4881D45834EF1E8a"),
+				value: 50,
+			}],
 		})
+		console.log(tx)
 		await tx.wait()
 	})
 
@@ -134,9 +141,9 @@ describe("looksrare fill", () => {
 		await tx.wait()
 	})
 
-	test("fill API order", async () => {
+	test.skip("fill API order", async () => {
 		const order = await sdkBuyer.apis.order.getOrderByHash({
-			hash: "0x3ad6d3ac107fa0afce8eb5d0247c29e108f813e5ec41a072d752e8f80db94f55",
+			hash: "0x3a7ff5ea8769b18d220f962d215bca2d2667131c2dde5593bb7302a12cd2dda4",
 		}) as LooksRareOrder
 
 		const tx = await sdkBuyer.order.buy({
@@ -156,6 +163,7 @@ describe("looksrare fill", () => {
 		const itemId = `${assetType.contract}:${assetType.tokenId}`
 		await awaitOwnership(sdkBuyer, itemId, toAddress(await buyerWeb3.getFrom()), "1")
 	})
+
 
 	test("fill API order with calldata", async () => {
 		const fillCalldata = toBinary(`${ZERO_ADDRESS}00000009`)

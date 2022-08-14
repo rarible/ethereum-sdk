@@ -16,6 +16,7 @@ import type { SimpleOrder } from "../types"
 import type { IRaribleEthereumSdkConfig } from "../../types"
 import { invertOrder } from "./invert-order"
 import type { LegacyOrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
+import { getUpdatedCalldata } from "./common/get-updated-call"
 
 export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillRequest> {
 
@@ -78,7 +79,7 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 			functionCall,
 			options: {
 				...getMatchV1Options(inverted),
-				additionalData: this.sdkConfig?.fillCalldata,
+				additionalData: getUpdatedCalldata(this.sdkConfig),
 			},
 		}
 	}

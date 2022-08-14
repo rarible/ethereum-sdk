@@ -9,6 +9,7 @@ import type { SimpleSeaportV1Order } from "../../types"
 import { createSeaportContract } from "../../contracts/seaport"
 import type { OrderFillSendData } from "../types"
 import { ExchangeWrapperOrderType } from "../types"
+import type { PreparedOrderRequestDataForExchangeWrapper } from "../types"
 import { createExchangeWrapperContract } from "../../contracts/exchange-wrapper"
 import { calcValueWithFees, originFeeValueConvert } from "../common/origin-fees-utils"
 import type { InputCriteria } from "./types"
@@ -106,18 +107,18 @@ export async function fulfillOrderWithWrapper(
 		recipientAddress,
 	})
 
-	const {originFeeConverted, totalFeeBasisPoints} = originFeeValueConvert(originFees)
+	const {encodedFeesValue, totalFeeBasisPoints, feeAddresses} = originFeeValueConvert(originFees)
 
-	const data = {
+	const data: PreparedOrderRequestDataForExchangeWrapper["data"] = {
 		marketId: ExchangeWrapperOrderType.SEAPORT_ADVANCED_ORDERS,
 		amount: fulfillOrdersData.value,
-		addFee: totalFeeBasisPoints > 0,
+		fees: encodedFeesValue,
 		data: fulfillOrdersData.data,
 	}
 
 	const seaportWrapperContract = createExchangeWrapperContract(ethereum, seaportWrapper)
-	const valueForSending = calcValueWithFees(toBigNumber(data.amount), totalFeeBasisPoints)
-	const functionCall = seaportWrapperContract.functionCall("singlePurchase", data, originFeeConverted[0], originFeeConverted[1])
+	const functionCall = seaportWrapperContract.functionCall("singlePurchase", data, feeAddresses[0], feeAddresses[1])
+	const valueForSending = calcValueWithFees(toBigNumber(data.amount.toString()), totalFeeBasisPoints)
 
 	return {
 		functionCall,

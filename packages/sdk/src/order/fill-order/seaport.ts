@@ -19,6 +19,7 @@ import type { TipInputItem } from "./seaport-utils/types"
 import { fulfillOrderWithWrapper } from "./seaport-utils/seaport-wrapper-utils"
 import { fulfillOrder } from "./seaport-utils/seaport-utils"
 import type { OrderFillSendData } from "./types"
+import { getUpdatedCalldata } from "./common/get-updated-call"
 
 export class SeaportOrderHandler {
 	constructor(
@@ -97,7 +98,7 @@ export class SeaportOrderHandler {
 					functionCall,
 					options: {
 						...options,
-						additionalData: this.sdkConfig?.fillCalldata,
+						additionalData: getUpdatedCalldata(this.sdkConfig),
 					},
 				}
 			}
@@ -124,7 +125,7 @@ export class SeaportOrderHandler {
 			functionCall,
 			options: {
 				...options,
-				additionalData: this.sdkConfig?.fillCalldata,
+				additionalData: getUpdatedCalldata(this.sdkConfig),
 			},
 		}
 	}

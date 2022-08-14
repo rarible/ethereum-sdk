@@ -5,6 +5,8 @@ import type { SeaportV1Order } from "@rarible/ethereum-api-client/build/models/O
 import { toAddress, toBinary, ZERO_ADDRESS } from "@rarible/types"
 import type { BigNumberValue} from "@rarible/utils/build/bn"
 import { toBn } from "@rarible/utils/build/bn"
+import { EthersWeb3ProviderEthereum } from "@rarible/ethers-ethereum"
+import { ethers } from "ethers"
 import { createRaribleSdk } from "../../index"
 import { createSeaportOrder } from "../test/order-opensea"
 import { createErc1155V2Collection, createErc721V3Collection } from "../../common/mint"
@@ -42,8 +44,11 @@ describe("seaport", () => {
 	const ethereum = new Web3Ethereum({ web3, gas: 3000000 })
 
 	const buyerWeb3 = new Web3Ethereum({ web3: new Web3(providerBuyer as any), gas: 3000000})
+	const ethersWeb3Provider = new ethers.providers.Web3Provider(providerBuyer as any)
+	const buyerEthers = new EthersWeb3ProviderEthereum(ethersWeb3Provider)
 
-	const sdkBuyer = createRaribleSdk(buyerWeb3, "testnet")
+	// const sdkBuyer = createRaribleSdk(buyerWeb3, "testnet")
+	const sdkBuyer = createRaribleSdk(buyerEthers, "testnet")
 	const sdkSeller = createRaribleSdk(ethereumSeller, "testnet")
 
 	const rinkebyErc721V3ContractAddress = toAddress("0x6ede7f3c26975aad32a475e1021d8f6f39c89d82")
@@ -309,7 +314,6 @@ describe("seaport", () => {
 		await awaitOwnership(sdkBuyer, sellItem.itemId, accountAddressBuyer, "1")
 	})
 
-
 	test("fill order ERC-721 <-> ETH with calldata flag", async () => {
 		const accountAddressBuyer = toAddress(await ethereum.getFrom())
 		console.log("accountAddressBuyer", accountAddressBuyer)
@@ -344,8 +348,11 @@ describe("seaport", () => {
 			order: order as SeaportV1Order,
 			amount: 1,
 		})
-		console.log("tx data buy", tx.data)
-		expect(tx.data.endsWith(fillCalldata.concat(FILL_CALLDATA_TAG))).toBe(true)
+		console.log("tx", tx)
+		const fullAdditionalData = fillCalldata.concat(FILL_CALLDATA_TAG).slice(2)
+		console.log("tx data buy", tx.data.slice(-fullAdditionalData.length))
+		console.log("tx data add", fullAdditionalData)
+		expect(tx.data.endsWith(fullAdditionalData)).toBe(true)
 		await tx.wait()
 	})
 })

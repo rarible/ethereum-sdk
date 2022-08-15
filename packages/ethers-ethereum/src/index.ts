@@ -130,8 +130,8 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 		}
 	}
 
-	get data(): string {
-		return (this.contract.populateTransaction[this.name](...this.args) as any).data
+	async getData(): Promise<string> {
+		return (await this.contract.populateTransaction[this.name](...this.args)).data || "0x"
 	}
 
 	async estimateGas(options?: EthereumProvider.EthereumSendOptions) {
@@ -151,10 +151,13 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 
 	async send(options?: EthereumProvider.EthereumSendOptions): Promise<EthereumProvider.EthereumTransaction> {
 		if (options?.additionalData) {
+			const additionalData = toBinary(options.additionalData).slice(2)
+			const sourceData = toBinary(await this.getData()).slice(2)
+
 			const tx = await this.signer.sendTransaction({
 				from: await this.signer.getAddress(),
 				to: this.contract.address,
-				data: this.data,
+				data: `0x${sourceData}${additionalData}`,
 				gasLimit: options.gas,
 				gasPrice: options.gasPrice,
 				value: options.value,

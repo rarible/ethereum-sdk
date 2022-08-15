@@ -17,6 +17,7 @@ import type { IRaribleEthereumSdkConfig } from "../../types"
 import { invertOrder } from "./invert-order"
 import type { LegacyOrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
 import { getUpdatedCalldata } from "./common/get-updated-call"
+import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillRequest> {
 
@@ -74,13 +75,14 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 			inverted.take.value,
 			request.payout ?? ZERO_ADDRESS,
 		)
+		const options = getMatchV1Options(inverted)
 
 		return {
 			functionCall,
-			options: {
-				...getMatchV1Options(inverted),
+			options: hexifyOptionsValue({
+				...options,
 				additionalData: getUpdatedCalldata(this.sdkConfig),
-			},
+			}),
 		}
 	}
 

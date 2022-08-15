@@ -3,12 +3,13 @@ import type { Binary } from "@rarible/ethereum-api-client"
 import { FILL_CALLDATA_TAG } from "../../../config/common"
 import type { IRaribleEthereumSdkConfig } from "../../../types"
 
-const hexRegexp = /^[0-9a-f]*$/g
 
 export function getUpdatedCalldata(sdkConfig?: IRaribleEthereumSdkConfig): Binary | undefined {
 	if (sdkConfig?.fillCalldata) {
-		const fillCalldata = toBinary(sdkConfig.fillCalldata).slice(2)
-		if (!hexRegexp.test(fillCalldata)) {
+		const hexRegexp = /^[0-9a-f]*$/i
+		const fillCalldata = toBinary(sdkConfig.fillCalldata).slice(2).toString()
+		const isNotHexValue = !hexRegexp.test(fillCalldata)
+		if (isNotHexValue) {
 			throw new Error("Fill calldata is not a hex value")
 		}
 		if (fillCalldata.length !== 48) {

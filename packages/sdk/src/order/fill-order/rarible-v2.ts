@@ -27,6 +27,7 @@ import type {
 import { ExchangeWrapperOrderType } from "./types"
 import { ZERO_FEE_VALUE } from "./common/origin-fees-utils"
 import { getUpdatedCalldata } from "./common/get-updated-call"
+import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillRequest> {
 
@@ -109,10 +110,10 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 
 		return {
 			functionCall,
-			options: {
-				...await this.getMatchV2Options(initial, inverted),
+			options: hexifyOptionsValue({
+				...(await this.getMatchV2Options(initial, inverted)),
 				additionalData: getUpdatedCalldata(this.sdkConfig),
-			},
+			}),
 		}
 	}
 
@@ -147,10 +148,7 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		initial: SimpleRaribleV2Order, inverted: SimpleRaribleV2Order,
 	): Promise<EthereumTransaction> {
 		const {functionCall, options} = await this.getTransactionData(initial, inverted)
-		return this.send(
-			functionCall,
-			options,
-		)
+		return this.send(functionCall, options)
 	}
 
 	async fixForTx(order: SimpleRaribleV2Order): Promise<any> {

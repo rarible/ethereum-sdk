@@ -20,6 +20,7 @@ import { fulfillOrderWithWrapper } from "./seaport-utils/seaport-wrapper-utils"
 import { fulfillOrder } from "./seaport-utils/seaport-utils"
 import type { OrderFillSendData } from "./types"
 import { getUpdatedCalldata } from "./common/get-updated-call"
+import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export class SeaportOrderHandler {
 	constructor(
@@ -96,10 +97,10 @@ export class SeaportOrderHandler {
 					})
 				return {
 					functionCall,
-					options: {
+					options: hexifyOptionsValue({
 						...options,
 						additionalData: getUpdatedCalldata(this.sdkConfig),
-					},
+					}),
 				}
 			}
 		}
@@ -123,10 +124,10 @@ export class SeaportOrderHandler {
 
 		return {
 			functionCall,
-			options: {
+			options: hexifyOptionsValue({
 				...options,
 				additionalData: getUpdatedCalldata(this.sdkConfig),
-			},
+			}),
 		}
 	}
 

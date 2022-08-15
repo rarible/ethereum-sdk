@@ -19,6 +19,7 @@ import { getBalancesAndApprovals } from "./balance-and-approval-check"
 import { getOrderHash } from "./get-order-hash"
 import { validateAndSanitizeFromOrderStatus } from "./fulfill"
 import { getFulfillAdvancedOrderData } from "./fulfill-advance"
+import type { OrderStatus } from "./types"
 
 export async function fulfillOrderWithWrapper(
 	ethereum: Ethereum,
@@ -51,7 +52,7 @@ export async function fulfillOrderWithWrapper(
 	const [
 		offererBalancesAndApprovals,
 		fulfillerBalancesAndApprovals,
-		orderStatus,
+		orderStatusRaw,
 	] = await Promise.all([
 		getBalancesAndApprovals({
 			ethereum,
@@ -70,9 +71,12 @@ export async function fulfillOrderWithWrapper(
 		seaportContract.functionCall("getOrderStatus", getOrderHash(orderParameters)).call(),
 	])
 
-
-	orderStatus.totalFilled = toBn(orderStatus.totalFilled)
-	orderStatus.totalSize = toBn(orderStatus.totalSize)
+	const orderStatus: OrderStatus = {
+		totalFilled: toBn(orderStatusRaw.totalFilled),
+		totalSize: toBn(orderStatusRaw.totalSize),
+		isValidated: orderStatusRaw.isValidated,
+		isCancelled: orderStatusRaw.isCancelled,
+	}
 
 	const sanitizedOrder = validateAndSanitizeFromOrderStatus(
 		order,

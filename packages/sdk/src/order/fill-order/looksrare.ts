@@ -18,8 +18,9 @@ import type { IRaribleEthereumSdkConfig } from "../../types"
 import type { MakerOrderWithVRS, TakerOrderWithEncodedParams } from "./looksrare-utils/types"
 import type { LooksrareOrderFillRequest, OrderFillSendData } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
-import { calcValueWithFees, originFeeValueConvert } from "./common/origin-fees-utils"
 import { getUpdatedCalldata } from "./common/get-updated-call"
+import { calcValueWithFees, originFeeValueConvert } from "./common/origin-fees-utils"
+import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export class LooksrareOrderHandler {
 	constructor(
@@ -128,10 +129,10 @@ export class LooksrareOrderHandler {
 		)
 		return {
 			functionCall,
-			options: {
+			options: hexifyOptionsValue({
 				value: valueForSending.toString(),
 				additionalData: getUpdatedCalldata(this.sdkConfig),
-			},
+			}),
 		}
 	}
 

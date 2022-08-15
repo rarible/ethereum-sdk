@@ -147,7 +147,7 @@ export class BatchOrderFiller {
 			}
 		}))
 		const {functionCall, options} = await this.getTransactionRequestData(response, originFees)
-		return {data: functionCall.data, options}
+		return {data: await functionCall.getData(), options}
 	}
 
 	private async getTransactionRequestData(

@@ -124,8 +124,8 @@ export type InputCriteria = {
 export type OrderStatus = {
 	isValidated: boolean;
 	isCancelled: boolean;
-	totalFilled: string;
-	totalSize: string;
+	totalFilled: BigNumberValue;
+	totalSize: BigNumberValue;
 }
 
 export type OrderWithCounter = {

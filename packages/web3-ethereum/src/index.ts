@@ -86,7 +86,7 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 		}
 	}
 
-	get data(): string {
+	async getData(): Promise<string> {
 		return this.sendMethod.encodeABI()
 	}
 
@@ -104,10 +104,9 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 
 	async send(options: EthereumProvider.EthereumSendOptions = {}): Promise<EthereumProvider.EthereumTransaction> {
 		const from = toAddress(await this.getFrom())
-		console.log("send fn", options)
 		if (options.additionalData) {
 			const additionalData = toBinary(options.additionalData).slice(2)
-			const sourceData = toBinary(this.data).slice(2)
+			const sourceData = toBinary(await this.getData()).slice(2)
 
 			const data = `0x${sourceData}${additionalData}`
 			const promiEvent = this.config.web3.eth.sendTransaction({
@@ -143,7 +142,7 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 		return new Web3Transaction(
 			receipt,
 			toWord(hashValue),
-			toBinary(this.data),
+			toBinary(await this.getData()),
 			tx.nonce,
 			from,
 			toAddress(this.contract.options.address)

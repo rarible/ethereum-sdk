@@ -57,6 +57,7 @@ import {
 } from "./open-sea-converter"
 import { originFeeValueConvert } from "./common/origin-fees-utils"
 import { getUpdatedCalldata } from "./common/get-updated-call"
+import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export type EncodedOrderCallData = { callData: Binary, replacementPattern: Binary, target: Address }
 
@@ -159,7 +160,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			const methodArgs = [...startArgs, assetType.contract, assetType.tokenId, "0x", []]
 			return {
 				replacementPattern: isSellSide ? ERC721_VALIDATOR_MAKE_REPLACEMENT : ERC721_VALIDATOR_TAKE_REPLACEMENT,
-				callData: toBinary(c.functionCall(callMethod, ...methodArgs).data),
+				callData: toBinary(await c.functionCall(callMethod, ...methodArgs).getData()),
 				target: validatorAddress,
 			}
 		} else {
@@ -169,10 +170,10 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			const isSafeV3Method = initialCalldata.startsWith(SAFE_TRANSFER_SIGNATURE)
 			if (isSafeV3Method) {
 				const c = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, assetType.contract)
-				callData = toBinary(c.functionCall("safeTransferFrom", ...transferArgs).data)
+				callData = toBinary(await c.functionCall("safeTransferFrom", ...transferArgs).getData())
 			} else {
 				const c = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, assetType.contract)
-				callData = toBinary(c.functionCall("transferFrom", ...transferArgs).data)
+				callData = toBinary(await c.functionCall("transferFrom", ...transferArgs).getData())
 			}
 			return {
 				replacementPattern: isSellSide ? ERC721_MAKE_REPLACEMENT : ERC721_TAKE_REPLACEMENT,
@@ -197,7 +198,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			return {
 				replacementPattern: isSellSide ? ERC1155_VALIDATOR_MAKE_REPLACEMENT : ERC1155_VALIDATOR_TAKE_REPLACEMENT,
 				target: validatorAddress,
-				callData: toBinary(c.functionCall("matchERC1155UsingCriteria", ...methodArgs).data),
+				callData: toBinary(await c.functionCall("matchERC1155UsingCriteria", ...methodArgs).getData()),
 			}
 		} else {
 			const c = createErc1155Contract(ethereum, assetType.contract)
@@ -205,7 +206,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			return {
 				replacementPattern: isSellSide ? ERC1155_MAKE_REPLACEMENT : ERC1155_TAKE_REPLACEMENT,
 				target: assetType.contract,
-				callData: toBinary(c.functionCall("safeTransferFrom", ...methodArgs).data),
+				callData: toBinary(await c.functionCall("safeTransferFrom", ...methodArgs).getData()),
 			}
 		}
 	}
@@ -271,18 +272,18 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			)
 			return {
 				functionCall,
-				options: {
+				options: hexifyOptionsValue({
 					...options,
 					additionalData: getUpdatedCalldata(this.sdkConfig),
-				},
+				}),
 			}
 		} else {
 			return {
 				functionCall: atomicMatchFunctionCall,
-				options: {
+				options: hexifyOptionsValue({
 					...await getMatchOpenseaOptions(buy),
 					additionalData: getUpdatedCalldata(this.sdkConfig),
-				},
+				}),
 			}
 		}
 	}
@@ -300,7 +301,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 				marketId: ExchangeWrapperOrderType.OPENSEA_V1,
 				amount: (await getMatchOpenseaOptions(buy)).value!,
 				fees: feeValue,
-				data: atomicMatchFunctionCall.data,
+				data: await atomicMatchFunctionCall.getData(),
 			},
 			options: await getMatchOpenseaOptions(buy, originFees),
 		}

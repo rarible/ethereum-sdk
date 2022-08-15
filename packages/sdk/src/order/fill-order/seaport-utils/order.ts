@@ -1,6 +1,5 @@
 import type { BigNumberValue} from "@rarible/utils"
 import { toBn } from "@rarible/utils"
-import type { BigNumber } from "@rarible/utils"
 import { ZERO_ADDRESS } from "@rarible/types"
 import { MerkleTree } from "./merkletree"
 import type {
@@ -168,14 +167,14 @@ export const totalItemsAmount = <T extends OfferItem>(items: T[]) => {
  */
 export const mapOrderAmountsFromFilledStatus = (
 	order: Order,
-	{ totalFilled, totalSize }: { totalFilled: BigNumber; totalSize: BigNumber }
+	{ totalFilled, totalSize }: { totalFilled: BigNumberValue; totalSize: BigNumberValue }
 ): Order => {
-	if (totalFilled.eq(0) || totalSize.eq(0)) {
+	if (toBn(totalFilled).eq(0) || toBn(totalSize).eq(0)) {
 		return order
 	}
 
 	// i.e if totalFilled is 3 and totalSize is 4, there are 1 / 4 order amounts left to fill.
-	const basisPoints = totalSize
+	const basisPoints = toBn(totalSize)
 		.minus(totalFilled)
 		.multipliedBy(ONE_HUNDRED_PERCENT_BP)
 		.div(totalSize)
@@ -216,7 +215,7 @@ export const mapOrderAmountsFromUnitsToFill = (
 		unitsToFill,
 		totalFilled,
 		totalSize,
-	}: { unitsToFill: BigNumberValue; totalFilled: BigNumber; totalSize: BigNumber }
+	}: { unitsToFill: BigNumberValue; totalFilled: BigNumberValue; totalSize: BigNumberValue }
 ): Order => {
 	const unitsToFillBn = toBn(unitsToFill)
 
@@ -226,12 +225,12 @@ export const mapOrderAmountsFromUnitsToFill = (
 
 	const maxUnits = getMaximumSizeForOrder(order)
 
-	if (totalSize.eq(0)) {
+	if (toBn(totalSize).eq(0)) {
 		totalSize = maxUnits
 	}
 
 	// This is the percentage of the order that is left to be fulfilled, and therefore we can't fill more than that.
-	const remainingOrderPercentageToBeFilled = totalSize
+	const remainingOrderPercentageToBeFilled = toBn(totalSize)
 		.minus(totalFilled)
 		.multipliedBy(ONE_HUNDRED_PERCENT_BP)
 		.div(totalSize)

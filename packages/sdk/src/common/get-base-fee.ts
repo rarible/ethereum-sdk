@@ -20,8 +20,7 @@ export async function getBaseFee(
 		}
 	} catch (e) {
 		console.error(e)
-		// throw new Error("Config with fee variables cannot be loaded")
-		return 0
+		throw new Error("Config with fee variables cannot be loaded")
 	}
 
 	if (!(type in envFeeConfig)) {

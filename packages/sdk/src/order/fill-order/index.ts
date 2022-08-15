@@ -137,7 +137,7 @@ export class OrderFiller {
 		return {
 			from,
 			value,
-			data: functionCall.data,
+			data: await functionCall.getData(),
 			to: callInfo.contract,
 		}
 	}
@@ -255,7 +255,7 @@ export class OrderFiller {
 		const {functionCall, options} = await this.getTransactionRequestData(request, inverted)
 
 		return {
-			data: functionCall.data,
+			data: await functionCall.getData(),
 			options,
 		}
 	}

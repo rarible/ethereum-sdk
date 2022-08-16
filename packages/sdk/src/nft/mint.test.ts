@@ -54,7 +54,7 @@ const rinkebyErc721V3ContractAddress = toAddress("0x6ede7f3c26975aad32a475e1021d
 const rinkebyErc1155V2ContractAddress = toAddress("0x1af7a7555263f275433c6bb0b8fdcd231f89b1d7")
 
 // describe.each(providers)("mint test", ethereum => {
-describe("mint test", () => {
+describe.skip("mint test", () => {
 	//todo remove and uncomment describe.each
 	const ethereum = providers[0]
 	let minter: Address

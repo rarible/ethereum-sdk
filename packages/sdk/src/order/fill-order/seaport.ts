@@ -95,12 +95,17 @@ export class SeaportOrderHandler {
 						originFees: request.originFees,
 						seaportWrapper: wrapper,
 					})
+				const updatedOptions = hexifyOptionsValue({
+					...options,
+					additionalData: getUpdatedCalldata(this.sdkConfig),
+				})
+				await functionCall.estimateGas({
+					from: await ethereum.getFrom(),
+					value: options.value,
+				})
 				return {
 					functionCall,
-					options: hexifyOptionsValue({
-						...options,
-						additionalData: getUpdatedCalldata(this.sdkConfig),
-					}),
+					options: updatedOptions,
 				}
 			}
 		}
@@ -121,13 +126,18 @@ export class SeaportOrderHandler {
 				unitsToFill,
 				tips,
 			})
+		const updatedOptions = hexifyOptionsValue({
+			...options,
+			additionalData: getUpdatedCalldata(this.sdkConfig),
+		})
+		await functionCall.estimateGas({
+			from: await ethereum.getFrom(),
+			value: options.value,
+		})
 
 		return {
 			functionCall,
-			options: hexifyOptionsValue({
-				...options,
-				additionalData: getUpdatedCalldata(this.sdkConfig),
-			}),
+			options: updatedOptions,
 		}
 	}
 

@@ -61,7 +61,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 		rpcUrl: "https://polygon-rpc.com",
 	})
 
-	const env = "testnet" as const
+	const env = "dev-ethereum" as const
 	const config: EthereumConfig = {
 		...getEthereumConfig(env),
 		openSea: {

@@ -265,17 +265,23 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 				encodedFeesValue,
 			)
 
+			const updateOptions = hexifyOptionsValue({
+				...options,
+				additionalData: getUpdatedCalldata(this.sdkConfig),
+			})
 			const functionCall = openseaWrapperContract.functionCall(
 				"singlePurchase",
 				data,
 				feeAddresses[0], feeAddresses[1],
 			)
+			await functionCall.estimateGas({
+				from: await this.ethereum.getFrom(),
+				value: updateOptions.value,
+			})
+
 			return {
 				functionCall,
-				options: hexifyOptionsValue({
-					...options,
-					additionalData: getUpdatedCalldata(this.sdkConfig),
-				}),
+				options: updateOptions,
 			}
 		} else {
 			return {

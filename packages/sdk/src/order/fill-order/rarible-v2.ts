@@ -1,6 +1,6 @@
 import type { Address } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
-import { ZERO_WORD } from "@rarible/types"
+import { toAddress, ZERO_WORD } from "@rarible/types"
 import type { Maybe } from "@rarible/types/build/maybe"
 import { hashToSign, orderToStruct, signOrder } from "../sign-order"
 import { getAssetWithFee } from "../get-asset-with-fee"
@@ -107,13 +107,18 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 			orderToStruct(this.ethereum, inverted),
 			fixSignature(inverted.signature) || "0x",
 		)
+		const options = hexifyOptionsValue({
+			...(await this.getMatchV2Options(initial, inverted)),
+			additionalData: getUpdatedCalldata(this.sdkConfig),
+		})
+		await functionCall.estimateGas({
+			from: await this.ethereum.getFrom(),
+			value: options.value,
+		})
 
 		return {
 			functionCall,
-			options: hexifyOptionsValue({
-				...(await this.getMatchV2Options(initial, inverted)),
-				additionalData: getUpdatedCalldata(this.sdkConfig),
-			}),
+			options,
 		}
 	}
 

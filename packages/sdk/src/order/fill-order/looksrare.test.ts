@@ -182,7 +182,6 @@ describe.skip("looksrare fill", () => {
 		if (!config.exchange.looksrare) {
 			throw new Error("Looksrare contract has not been set")
 		}
-
 		const sellItem = await sdkSeller.nft.mint({
 			collection: createErc721V3Collection(rinkebyErc721V3ContractAddress),
 			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",

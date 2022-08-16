@@ -75,14 +75,19 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 			inverted.take.value,
 			request.payout ?? ZERO_ADDRESS,
 		)
-		const options = getMatchV1Options(inverted)
+		const options = hexifyOptionsValue({
+			...getMatchV1Options(inverted),
+			additionalData: getUpdatedCalldata(this.sdkConfig),
+		})
+
+		await functionCall.estimateGas({
+			from: await this.ethereum.getFrom(),
+			value: options.value,
+		})
 
 		return {
 			functionCall,
-			options: hexifyOptionsValue({
-				...options,
-				additionalData: getUpdatedCalldata(this.sdkConfig),
-			}),
+			options,
 		}
 	}
 
@@ -90,10 +95,7 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 		initial: SimpleLegacyOrder, inverted: SimpleLegacyOrder, request: LegacyOrderFillRequest
 	): Promise<EthereumTransaction> {
 		const {functionCall, options} = await this.getTransactionData(initial, inverted, request)
-		return this.send(
-			functionCall,
-			options
-		)
+		return this.send(functionCall, options)
 	}
 }
 

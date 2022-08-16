@@ -121,18 +121,24 @@ export class LooksrareOrderHandler {
 			data: fulfillData,
 		}
 
+		const options = hexifyOptionsValue({
+			value: valueForSending.toString(),
+			additionalData: getUpdatedCalldata(this.sdkConfig),
+		})
 		const functionCall = wrapperContract.functionCall(
 			"singlePurchase",
 			data,
 			feeAddresses[0],
 			feeAddresses[1]
 		)
+		await functionCall.estimateGas({
+			from: await provider.getFrom(),
+			value: options.value,
+		})
+
 		return {
 			functionCall,
-			options: hexifyOptionsValue({
-				value: valueForSending.toString(),
-				additionalData: getUpdatedCalldata(this.sdkConfig),
-			}),
+			options,
 		}
 	}
 

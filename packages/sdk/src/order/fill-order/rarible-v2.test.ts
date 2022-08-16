@@ -28,7 +28,7 @@ import { createRaribleSdk } from "../../index"
 import { FILL_CALLDATA_TAG } from "../../config/common"
 import { OrderFiller } from "./index"
 
-describe("buy & acceptBid orders", () => {
+describe.skip("buy & acceptBid orders", () => {
 	const { addresses, provider } = createGanacheProvider()
 	const [sender1Address, sender2Address] = addresses
 	const web3 = new Web3(provider as any)

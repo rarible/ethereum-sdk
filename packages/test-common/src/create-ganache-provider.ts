@@ -18,7 +18,7 @@ export function createGanacheProvider(...pk: string[]) {
 		accounts,
 		gasLimit: 10000000,
 		hardfork: "berlin",
-		chainId: 4,
+		chainId: 17,
 	})
 
 	afterAll((cb) => {

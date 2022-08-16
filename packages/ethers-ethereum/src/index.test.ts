@@ -41,6 +41,6 @@ describe.each(data)("ethers.js Ethereum", (eth: Ethereum) => {
 
 	test(`${eth.constructor.name} getNetworkId`, async () => {
 		const networkId = await eth.getChainId()
-		expect(networkId).toBe(4)
+		expect(networkId).toBe(17)
 	})
 })

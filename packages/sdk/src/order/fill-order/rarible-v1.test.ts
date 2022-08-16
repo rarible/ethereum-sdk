@@ -13,7 +13,7 @@ import { createEthereumApis } from "../../common/apis"
 import { checkChainId } from "../check-chain-id"
 import { OrderFiller } from "./"
 
-describe("test exchange v1 order", () => {
+describe.skip("test exchange v1 order", () => {
 	const { provider: provider1, wallet: wallet1 } = createE2eProvider()
 	const { provider: provider2, wallet: wallet2 } = createE2eProvider(
 		"ded057615d97f0f1c751ea2795bc4b03bbf44844c13ab4f5e6fd976506c276b9"

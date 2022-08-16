@@ -7,6 +7,7 @@ import { toBigNumber } from "@rarible/types/build/big-number"
 import type { SendFunction } from "../../../common/send-transaction"
 import type { SimpleSeaportV1Order } from "../../types"
 import { createSeaportContract } from "../../contracts/seaport"
+import type { OrderFillSendData } from "../types"
 import { ExchangeWrapperOrderType } from "../types"
 import type { PreparedOrderRequestDataForExchangeWrapper } from "../types"
 import { createExchangeWrapperContract } from "../../contracts/exchange-wrapper"
@@ -18,6 +19,7 @@ import { getBalancesAndApprovals } from "./balance-and-approval-check"
 import { getOrderHash } from "./get-order-hash"
 import { validateAndSanitizeFromOrderStatus } from "./fulfill"
 import { getFulfillAdvancedOrderData } from "./fulfill-advance"
+import type { OrderStatus } from "./types"
 
 export async function fulfillOrderWithWrapper(
 	ethereum: Ethereum,
@@ -28,7 +30,7 @@ export async function fulfillOrderWithWrapper(
 		seaportWrapper: Address,
 		originFees?: Part[]
 	}
-) {
+): Promise<OrderFillSendData> {
 	const seaportContract = createSeaportContract(ethereum, toAddress(CROSS_CHAIN_SEAPORT_ADDRESS))
 
 	const order = convertAPIOrderToSeaport(simpleOrder)
@@ -50,7 +52,7 @@ export async function fulfillOrderWithWrapper(
 	const [
 		offererBalancesAndApprovals,
 		fulfillerBalancesAndApprovals,
-		orderStatus,
+		orderStatusRaw,
 	] = await Promise.all([
 		getBalancesAndApprovals({
 			ethereum,
@@ -69,9 +71,12 @@ export async function fulfillOrderWithWrapper(
 		seaportContract.functionCall("getOrderStatus", getOrderHash(orderParameters)).call(),
 	])
 
-
-	orderStatus.totalFilled = toBn(orderStatus.totalFilled)
-	orderStatus.totalSize = toBn(orderStatus.totalSize)
+	const orderStatus: OrderStatus = {
+		totalFilled: toBn(orderStatusRaw.totalFilled),
+		totalSize: toBn(orderStatusRaw.totalSize),
+		isValidated: orderStatusRaw.isValidated,
+		isCancelled: orderStatusRaw.isCancelled,
+	}
 
 	const sanitizedOrder = validateAndSanitizeFromOrderStatus(
 		order,
@@ -116,10 +121,11 @@ export async function fulfillOrderWithWrapper(
 	}
 
 	const seaportWrapperContract = createExchangeWrapperContract(ethereum, seaportWrapper)
+	const functionCall = seaportWrapperContract.functionCall("singlePurchase", data, feeAddresses[0], feeAddresses[1])
 	const valueForSending = calcValueWithFees(toBigNumber(data.amount.toString()), totalFeeBasisPoints)
 
-	return send(
-		seaportWrapperContract.functionCall("singlePurchase", data, feeAddresses[0], feeAddresses[1]),
-		{ value: valueForSending.toString() }
-	)
+	return {
+		functionCall,
+		options: { value: valueForSending.toString() },
+	}
 }

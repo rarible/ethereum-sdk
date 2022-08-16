@@ -3,7 +3,7 @@ import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 import type { BigNumber} from "@rarible/utils"
 import type { BigNumberValue } from "@rarible/utils"
 import { createSeaportContract } from "../../contracts/seaport"
-import type { SendFunction } from "../../../common/send-transaction"
+import type { OrderFillSendData } from "../types"
 import { getAdvancedOrderNumeratorDenominator } from "./fulfill"
 import { generateCriteriaResolvers } from "./criteria"
 import type { ConsiderationItem, InputCriteria, Order, OrderStruct } from "./types"
@@ -12,9 +12,8 @@ import type { TimeBasedItemParams } from "./item"
 import { mapOrderAmountsFromFilledStatus, mapOrderAmountsFromUnitsToFill } from "./order"
 import { CROSS_CHAIN_SEAPORT_ADDRESS } from "./constants"
 
-export async function fulfillStandardOrder({
+export async function getFulfillStandardOrderData({
 	ethereum,
-	send,
 	order,
 	unitsToFill = 0,
 	totalSize,
@@ -28,7 +27,6 @@ export async function fulfillStandardOrder({
 	recipientAddress,
 }: {
 	ethereum: Ethereum;
-	send: SendFunction;
 	order: Order;
 	unitsToFill?: BigNumberValue;
 	totalFilled: BigNumber;
@@ -40,7 +38,7 @@ export async function fulfillStandardOrder({
 	conduitKey: string;
 	recipientAddress: string;
 	timeBasedItemParams: TimeBasedItemParams;
-}) {
+}): Promise<OrderFillSendData> {
 	// If we are supplying units to fill, we adjust the order by the minimum of the amount to fill and
 	// the remaining order left to be fulfilled
 	const orderWithAdjustedFills = unitsToFill
@@ -111,7 +109,7 @@ export async function fulfillStandardOrder({
 	const seaportContract = createSeaportContract(ethereum, toAddress(CROSS_CHAIN_SEAPORT_ADDRESS))
 
 	if (useAdvanced) {
-		const tx = await seaportContract.functionCall("fulfillAdvancedOrder",
+		const functionCall = await seaportContract.functionCall("fulfillAdvancedOrder",
 			{
 				...orderAccountingForTips,
 				numerator,
@@ -128,13 +126,18 @@ export async function fulfillStandardOrder({
 			conduitKey,
 			recipientAddress,
 		)
-		return send(tx, { value: totalNativeAmount?.toString() })
+		return {
+			functionCall,
+			options: { value: totalNativeAmount?.toString() },
+		}
 	}
 
-	const tx = await seaportContract.functionCall(
+	const functionCall = await seaportContract.functionCall(
 		"fulfillOrder",
 		orderAccountingForTips, conduitKey
 	)
-	return send(tx, { value: totalNativeAmount?.toString() })
-
+	return {
+		functionCall,
+		options: {value: totalNativeAmount?.toString()},
+	}
 }

@@ -147,11 +147,13 @@ export class BatchOrderFiller {
 			}
 		}))
 		const {functionCall, options} = await this.getTransactionRequestData(response, originFees)
-		return {data: functionCall.data, options}
+		return {data: await functionCall.getData(), options}
 	}
 
 	private async getTransactionRequestData(
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		orders: { initial: FillBatchSingleOrderRequest, inverted: SimpleOrder }[],
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		originFees: Part[] | undefined
 	): Promise<OrderFillSendData> {
 		throw new Error("This method not supported yet")

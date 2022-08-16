@@ -20,15 +20,20 @@ import { checkChainId } from "../order/check-chain-id"
 import { getEthereumConfig } from "../config"
 import { signNft } from "./sign-nft"
 import type { ERC1155RequestV1, ERC1155RequestV2, ERC721RequestV1, ERC721RequestV2, ERC721RequestV3} from "./mint"
-import { mint as mintTemplate } from "./mint"
+import { mint as mintTemplate, MintResponseTypeEnum } from "./mint"
 import { deployErc721V1 } from "./contracts/erc721/deploy/test/v1"
 import { ERC1155VersionEnum, ERC721VersionEnum } from "./contracts/domain"
 import { getErc721Contract } from "./contracts/erc721"
 import { getErc1155Contract } from "./contracts/erc1155"
 
-const { provider: provider1 } = createE2eProvider()
-const { provider: provider2, wallet: wallet2 } = createE2eProvider()
-const { provider: provider3 } = createE2eProvider()
+const providerConfig = {
+	networkId: 4,
+	rpcUrl: "https://node-rinkeby.rarible.com",
+}
+const pk = "0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a"
+const { provider: provider1 } = createE2eProvider(pk, providerConfig)
+const { provider: provider2, wallet: wallet2 } = createE2eProvider(pk, providerConfig)
+const { provider: provider3 } = createE2eProvider(pk, providerConfig)
 const web3 = new Web3(provider1 as any)
 
 const providers = [
@@ -39,21 +44,21 @@ const providers = [
 	new EthersWeb3ProviderEthereum(new ethers.providers.Web3Provider(provider3 as any)),
 ]
 
-const configuration = new Configuration(getApiConfig("dev-ethereum"))
+const configuration = new Configuration(getApiConfig("testnet"))
 const nftCollectionApi = new NftCollectionControllerApi(configuration)
 const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 const nftItemApi = new NftItemControllerApi(configuration)
 const gatewayApi = new GatewayControllerApi(configuration)
 
-const e2eErc721V3ContractAddress = toAddress("0x96CE5b00c75e28d7b15F25eA392Cbb513ce1DE9E")
-const e2eErc1155V2ContractAddress = toAddress("0xda75B20cCFf4F86d2E8Ef00Da61A166edb7a233a")
+const rinkebyErc721V3ContractAddress = toAddress("0x6ede7f3c26975aad32a475e1021d8f6f39c89d82")
+const rinkebyErc1155V2ContractAddress = toAddress("0x1af7a7555263f275433c6bb0b8fdcd231f89b1d7")
 
 // describe.each(providers)("mint test", ethereum => {
 describe.skip("mint test", () => {
 	//todo remove and uncomment describe.each
 	const ethereum = providers[0]
 	let minter: Address
-	const config = getEthereumConfig("dev-ethereum")
+	const config = getEthereumConfig("testnet")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
 	beforeAll(async () => {
@@ -139,13 +144,13 @@ describe.skip("mint test", () => {
 
 	test("mint ERC-721 v3", async () => {
 		const result = await mint({
-			collection: createErc721V3Collection(e2eErc721V3ContractAddress),
+			collection: createErc721V3Collection(rinkebyErc721V3ContractAddress),
 			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
 			creators: [{ account: toAddress(minter), value: 10000 }],
 			royalties: [],
 			lazy: false,
 		} as ERC721RequestV3)
-		const contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, e2eErc721V3ContractAddress)
+		const contract = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V3, rinkebyErc721V3ContractAddress)
 		const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter).call()).toFixed()
 		const uri = await contract.functionCall("tokenURI", result.tokenId).call()
 		expect(uri).toBe("ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5")
@@ -154,14 +159,17 @@ describe.skip("mint test", () => {
 
 	test("mint ERC-1155 v2", async () => {
 		const minted = await mint({
-			collection: createErc1155V2Collection(e2eErc1155V2ContractAddress),
+			collection: createErc1155V2Collection(rinkebyErc1155V2ContractAddress),
 			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
 			supply: 100,
 			creators: [{ account: toAddress(minter), value: 10000 }],
 			royalties: [],
 			lazy: false,
 		} as ERC1155RequestV2)
-		const contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V2, e2eErc1155V2ContractAddress)
+		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			console.log(minted.transaction)
+		}
+		const contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V2, rinkebyErc1155V2ContractAddress)
 		const balanceOfMinter = toBn(await contract.functionCall("balanceOf", minter, minted.tokenId).call()).toFixed()
 		const uri = await contract.functionCall("uri", minted.tokenId).call()
 		expect(uri).toBe("ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5")
@@ -170,7 +178,7 @@ describe.skip("mint test", () => {
 
 	test.skip("mint ERC-721 v3 lazy", async () => {
 		const minted = await mint({
-			collection: createErc721V3Collection(e2eErc721V3ContractAddress),
+			collection: createErc721V3Collection(rinkebyErc721V3ContractAddress),
 			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
 			creators: [{ account: toAddress(minter), value: 10000 }],
 			royalties: [],
@@ -185,7 +193,7 @@ describe.skip("mint test", () => {
 
 	test.skip("mint ERC-1155 v2 lazy", async () => {
 		const minted = await mint({
-			collection: createErc1155V2Collection(e2eErc1155V2ContractAddress),
+			collection: createErc1155V2Collection(rinkebyErc1155V2ContractAddress),
 			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
 			supply: 100,
 			creators: [{ account: toAddress(minter), value: 10000 }],

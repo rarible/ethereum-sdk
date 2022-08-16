@@ -18,7 +18,10 @@ export class EthersWeb3ProviderEthereum implements EthereumProvider.Ethereum {
 		if (!address) {
 			throw new Error("No Contract address provided, it's required for EthersEthereum")
 		}
-		return new EthersContract(new ethers.Contract(address, abi, this.web3Provider.getSigner()))
+		return new EthersContract(
+			new ethers.Contract(address, abi, this.web3Provider.getSigner()),
+			this.web3Provider.getSigner()
+		)
 	}
 
 	send(method: string, params: any): Promise<any> {
@@ -64,7 +67,7 @@ export class EthersEthereum implements EthereumProvider.Ethereum {
 		if (!address) {
 			throw new Error("No Contract address provided, it's required for EthersEthereum")
 		}
-		return new EthersContract(new ethers.Contract(address, abi, this.signer))
+		return new EthersContract(new ethers.Contract(address, abi, this.signer), this.signer)
 	}
 
 	personalSign(message: string): Promise<string> {
@@ -99,16 +102,20 @@ export class EthersEthereum implements EthereumProvider.Ethereum {
 }
 
 export class EthersContract implements EthereumProvider.EthereumContract {
-	constructor(private readonly contract: Contract) {
+	constructor(
+		private readonly contract: Contract,
+		private readonly signer: TypedDataSigner & ethers.Signer
+	) {
 	}
 
 	functionCall(name: string, ...args: any): EthereumProvider.EthereumFunctionCall {
-		return new EthersFunctionCall(this.contract, name, args)
+		return new EthersFunctionCall(this.signer, this.contract, name, args)
 	}
 }
 
 export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall {
 	constructor(
+		private readonly signer: TypedDataSigner & ethers.Signer,
 		private readonly contract: Contract,
 		private readonly name: string,
 		private readonly args: any[],
@@ -123,8 +130,8 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 		}
 	}
 
-	get data(): string {
-		return (this.contract.populateTransaction[this.name](...this.args) as any).data
+	async getData(): Promise<string> {
+		return (await this.contract.populateTransaction[this.name](...this.args)).data || "0x"
 	}
 
 	async estimateGas(options?: EthereumProvider.EthereumSendOptions) {
@@ -143,6 +150,21 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 	}
 
 	async send(options?: EthereumProvider.EthereumSendOptions): Promise<EthereumProvider.EthereumTransaction> {
+		if (options?.additionalData) {
+			const additionalData = toBinary(options.additionalData).slice(2)
+			const sourceData = toBinary(await this.getData()).slice(2)
+
+			const tx = await this.signer.sendTransaction({
+				from: await this.signer.getAddress(),
+				to: this.contract.address,
+				data: `0x${sourceData}${additionalData}`,
+				gasLimit: options.gas,
+				gasPrice: options.gasPrice,
+				value: options.value,
+			})
+			return new EthersTransaction(tx)
+		}
+
 		const func = this.contract[this.name].bind(null, ...this.args)
 		if (options) {
 			return new EthersTransaction(await func(options))

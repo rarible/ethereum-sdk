@@ -5,18 +5,22 @@ import { SeaportItemType } from "@rarible/ethereum-api-client/build/models/Seapo
 import { ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
 import type { AssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
-import type { SimpleSeaportV1Order } from "../types"
 import { isNft } from "../is-nft"
 import { addFee } from "../add-fee"
 import type { SimpleOrder } from "../types"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
 import type { EthereumNetwork } from "../../types"
+import type { IRaribleEthereumSdkConfig } from "../../types"
+import { getRequiredWallet } from "../../common/get-required-wallet"
 import { CROSS_CHAIN_SEAPORT_ADDRESS, ItemType, OrderType } from "./seaport-utils/constants"
 import type { SeaportV1OrderFillRequest } from "./types"
 import type { TipInputItem } from "./seaport-utils/types"
 import { fulfillOrderWithWrapper } from "./seaport-utils/seaport-wrapper-utils"
 import { fulfillOrder } from "./seaport-utils/seaport-utils"
+import type { OrderFillSendData } from "./types"
+import { getUpdatedCalldata } from "./common/get-updated-call"
+import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export class SeaportOrderHandler {
 	constructor(
@@ -25,15 +29,24 @@ export class SeaportOrderHandler {
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly env: EthereumNetwork,
+		private readonly sdkConfig?: IRaribleEthereumSdkConfig
 	) {}
 
-	async fillSeaportOrder(
-		order: SimpleSeaportV1Order, request: SeaportV1OrderFillRequest
+	async sendTransaction(
+		request: SeaportV1OrderFillRequest,
 	): Promise<EthereumTransaction> {
-		if (!this.ethereum) {
-			throw new Error("Wallet undefined")
-		}
+		const {functionCall, options} = await this.getTransactionData(request)
+		return this.send(
+			functionCall,
+			options
+		)
+	}
 
+	async getTransactionData(
+		request: SeaportV1OrderFillRequest
+	): Promise<OrderFillSendData> {
+		const ethereum = getRequiredWallet(this.ethereum)
+		const { order } = request
 		if (order.data.protocol !== CROSS_CHAIN_SEAPORT_ADDRESS) {
 			throw new Error("Unsupported protocol")
 		}
@@ -73,8 +86,8 @@ export class SeaportOrderHandler {
 					throw new Error("Seaport wrapper address has not been set. Change address in config")
 				}
 
-				return fulfillOrderWithWrapper(
-					this.ethereum,
+				const {functionCall, options} = await fulfillOrderWithWrapper(
+					ethereum,
 					this.send.bind(this),
 					order,
 					{
@@ -82,6 +95,13 @@ export class SeaportOrderHandler {
 						originFees: request.originFees,
 						seaportWrapper: wrapper,
 					})
+				return {
+					functionCall,
+					options: hexifyOptionsValue({
+						...options,
+						additionalData: getUpdatedCalldata(this.sdkConfig),
+					}),
+				}
 			}
 		}
 
@@ -93,14 +113,22 @@ export class SeaportOrderHandler {
 				recipient: fee.account,
 			}))
 		}
-		return fulfillOrder(
-			this.ethereum,
-			this.send,
+		const {functionCall, options} = await fulfillOrder(
+			ethereum,
+			this.send.bind(this),
 			order,
 			{
 				unitsToFill,
 				tips,
 			})
+
+		return {
+			functionCall,
+			options: hexifyOptionsValue({
+				...options,
+				additionalData: getUpdatedCalldata(this.sdkConfig),
+			}),
+		}
 	}
 
 	getBaseOrderFee() {

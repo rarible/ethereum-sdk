@@ -1,27 +1,25 @@
 import type { Ethereum } from "@rarible/ethereum-provider"
 import { toAddress, ZERO_ADDRESS } from "@rarible/types"
 import { createSeaportContract } from "../../contracts/seaport"
-import type { SendFunction } from "../../../common/send-transaction"
+import type { OrderFillSendData } from "../types"
 import type { BasicOrderParametersStruct, ConsiderationItem, Order } from "./types"
 import { getSummedTokenAndIdentifierAmounts } from "./item"
 import type { TimeBasedItemParams } from "./item"
 import { BasicOrderRouteType, CROSS_CHAIN_SEAPORT_ADDRESS, ItemType, NO_CONDUIT } from "./constants"
 
-export async function fulfillBasicOrder({
+export async function getfulfillBasicOrderData({
 	ethereum,
-	send,
 	order,
 	timeBasedItemParams,
 	tips = [],
 	conduitKey = NO_CONDUIT,
 }: {
 	ethereum: Ethereum,
-	send: SendFunction,
 	order: Order;
 	timeBasedItemParams: TimeBasedItemParams;
 	tips?: ConsiderationItem[];
 	conduitKey: string;
-}) {
+}): Promise<OrderFillSendData> {
 	const { offer, consideration } = order.parameters
 	const considerationIncludingTips = [...consideration, ...tips]
 
@@ -63,10 +61,6 @@ export async function fulfillBasicOrder({
 		offerer: order.parameters.offerer,
 		offererConduitKey: order.parameters.conduitKey,
 		zone: order.parameters.zone,
-		//  Note the use of a "basicOrderType" enum;
-		//  this represents both the usual order type as well as the "route"
-		//  of the basic order (a simple derivation function for the basic order
-		//  type is `basicOrderType = orderType + (4 * basicOrderRoute)`.)
 		basicOrderType: order.parameters.orderType + 4 * basicOrderRouteType,
 		offerToken: offerItem.token,
 		offerIdentifier: offerItem.identifierOrCriteria,
@@ -86,10 +80,12 @@ export async function fulfillBasicOrder({
 	}
 
 	const seaportContract = createSeaportContract(ethereum, toAddress(CROSS_CHAIN_SEAPORT_ADDRESS))
-	return send(
-		seaportContract.functionCall("fulfillBasicOrder", basicOrderParameters),
-		{ value: totalNativeAmount?.toString() }
-	)
+	const functionCall = seaportContract.functionCall("fulfillBasicOrder", basicOrderParameters)
+
+	return {
+		functionCall,
+		options: { value: totalNativeAmount?.toString() },
+	}
 }
 
 const offerAndConsiderationFulfillmentMapping: {

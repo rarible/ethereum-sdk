@@ -86,7 +86,7 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 		}
 	}
 
-	get data(): string {
+	async getData(): Promise<string> {
 		return this.sendMethod.encodeABI()
 	}
 
@@ -104,6 +104,32 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 
 	async send(options: EthereumProvider.EthereumSendOptions = {}): Promise<EthereumProvider.EthereumTransaction> {
 		const from = toAddress(await this.getFrom())
+		if (options.additionalData) {
+			const additionalData = toBinary(options.additionalData).slice(2)
+			const sourceData = toBinary(await this.getData()).slice(2)
+
+			const data = `0x${sourceData}${additionalData}`
+			const promiEvent = this.config.web3.eth.sendTransaction({
+				from,
+				to: this.contract.options.address,
+				data,
+				gas: this.config.gas || options.gas,
+				value: options.value,
+				gasPrice: options.gasPrice?.toString(),
+			})
+			const { hash, receipt } = toPromises(promiEvent)
+			const hashValue = await hash
+			const tx = await this.getTransaction(hashValue)
+			return new Web3Transaction(
+				receipt,
+				toWord(hashValue),
+				toBinary(data),
+				tx.nonce,
+				from,
+				toAddress(this.contract.options.address)
+			)
+		}
+
 		const promiEvent: PromiEvent<Contract> = this.sendMethod.send({
 			from,
 			gas: this.config.gas || options.gas,
@@ -116,7 +142,7 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 		return new Web3Transaction(
 			receipt,
 			toWord(hashValue),
-			toBinary(this.data),
+			toBinary(await this.getData()),
 			tx.nonce,
 			from,
 			toAddress(this.contract.options.address)
@@ -156,12 +182,12 @@ export class Web3Transaction implements EthereumProvider.EthereumTransaction {
 
 	async wait(): Promise<EthereumProvider.EthereumTransactionReceipt> {
 		const receipt = await this.receipt
-		const events: EthereumProvider.EthereumTransactionEvent[] = Object.keys(receipt.events!)
+		const events: EthereumProvider.EthereumTransactionEvent[] = receipt.events ? Object.keys(receipt.events!)
 			.map(ev => receipt.events![ev])
 			.map(ev => ({
 				...ev,
 				args: ev.returnValues,
-			}))
+			})) : []
 		return {
 			...receipt,
 			events,

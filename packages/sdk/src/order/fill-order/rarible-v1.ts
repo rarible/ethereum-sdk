@@ -13,8 +13,11 @@ import { toLegacyAssetType } from "../to-legacy-asset-type"
 import { toVrs } from "../../common/to-vrs"
 import { waitTx } from "../../common/wait-tx"
 import type { SimpleOrder } from "../types"
+import type { IRaribleEthereumSdkConfig } from "../../types"
 import { invertOrder } from "./invert-order"
 import type { LegacyOrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
+import { getUpdatedCalldata } from "./common/get-updated-call"
+import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillRequest> {
 
@@ -24,6 +27,7 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
+		private readonly sdkConfig?: IRaribleEthereumSdkConfig
 	) {}
 
 	invert(request: LegacyOrderFillRequest, maker: Address): SimpleLegacyOrder {
@@ -71,10 +75,14 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 			inverted.take.value,
 			request.payout ?? ZERO_ADDRESS,
 		)
+		const options = getMatchV1Options(inverted)
 
 		return {
 			functionCall,
-			options: getMatchV1Options(inverted),
+			options: hexifyOptionsValue({
+				...options,
+				additionalData: getUpdatedCalldata(this.sdkConfig),
+			}),
 		}
 	}
 
@@ -82,7 +90,10 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 		initial: SimpleLegacyOrder, inverted: SimpleLegacyOrder, request: LegacyOrderFillRequest
 	): Promise<EthereumTransaction> {
 		const {functionCall, options} = await this.getTransactionData(initial, inverted, request)
-		return this.send(functionCall, options)
+		return this.send(
+			functionCall,
+			options
+		)
 	}
 }
 

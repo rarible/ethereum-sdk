@@ -9,8 +9,11 @@ import { waitTx } from "../../common/wait-tx"
 import type { SimpleCryptoPunkOrder } from "../types"
 import { createCryptoPunksMarketContract } from "../../nft/contracts/cryptoPunks"
 import type { SimpleOrder } from "../types"
+import type { IRaribleEthereumSdkConfig } from "../../types"
 import { invertOrder } from "./invert-order"
 import type { CryptoPunksOrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
+import { getUpdatedCalldata } from "./common/get-updated-call"
+import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFillRequest> {
 	constructor(
@@ -18,6 +21,7 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
+		private readonly sdkConfig?: IRaribleEthereumSdkConfig
 	) {}
 
 	invert(request: CryptoPunksOrderFillRequest, maker: Address): SimpleCryptoPunkOrder {
@@ -41,7 +45,10 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 	): Promise<OrderFillSendData> {
 		return {
 			functionCall: this.getPunkOrderCallMethod(initial),
-			options: this.getMatchV2Options(initial, inverted),
+			options: hexifyOptionsValue({
+				...this.getMatchV2Options(initial, inverted),
+				additionalData: getUpdatedCalldata(this.sdkConfig),
+			}),
 		}
 	}
 

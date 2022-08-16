@@ -13,6 +13,7 @@ import type { SimpleOrder, SimpleRaribleV2Order } from "../types"
 import { isSigner } from "../../common/is-signer"
 import { fixSignature } from "../../common/fix-signature"
 import { encodeRaribleV2OrderAndSignature } from "../encode-rarible-v2-order"
+import type { IRaribleEthereumSdkConfig } from "../../types"
 import { invertOrder } from "./invert-order"
 import type {
 	OrderFillSendData,
@@ -25,6 +26,8 @@ import type {
 } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
 import { ZERO_FEE_VALUE } from "./common/origin-fees-utils"
+import { getUpdatedCalldata } from "./common/get-updated-call"
+import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillRequest> {
 
@@ -33,6 +36,7 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
+		private readonly sdkConfig?: IRaribleEthereumSdkConfig
 	) {}
 
 	invert(request: RaribleV2OrderFillRequest, maker: Address): SimpleRaribleV2Order {
@@ -106,7 +110,10 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 
 		return {
 			functionCall,
-			options: await this.getMatchV2Options(initial, inverted),
+			options: hexifyOptionsValue({
+				...(await this.getMatchV2Options(initial, inverted)),
+				additionalData: getUpdatedCalldata(this.sdkConfig),
+			}),
 		}
 	}
 

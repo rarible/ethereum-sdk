@@ -72,7 +72,7 @@ describe.skip("fillOrder", () => {
 		config.exchange.v1 = toAddress(it.exchangeV2.options.address)
 		config.exchange.v2 = toAddress(it.exchangeV2.options.address)
 		config.transferProxies.cryptoPunks = toAddress(it.punksTransferProxy.options.address)
-		config.chainId = 17
+		config.chainId = 4
 
 		await sentTx(it.erc20TransferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
 			from: sender1Address,

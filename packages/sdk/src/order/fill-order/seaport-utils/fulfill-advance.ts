@@ -1,5 +1,4 @@
 import type { BigNumberValue } from "@rarible/utils/build/bn"
-import type { BigNumber } from "@rarible/utils"
 import { ZERO_ADDRESS } from "@rarible/types"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { Address } from "@rarible/ethereum-api-client"
@@ -39,8 +38,8 @@ export async function getFulfillAdvancedOrderData({
 	send: SendFunction
 	order: Order;
 	unitsToFill?: BigNumberValue;
-	totalFilled: BigNumber;
-	totalSize: BigNumber;
+	totalFilled: BigNumberValue;
+	totalSize: BigNumberValue;
 	offerCriteria: InputCriteria[];
 	considerationCriteria: InputCriteria[];
 	tips?: ConsiderationItem[];
@@ -156,7 +155,7 @@ export async function getFulfillAdvancedOrderData({
 	]
 
 	return {
-		data: seaportContract.functionCall("fulfillAdvancedOrder", ...fulfillAdvancedOrderArgs).data,
+		data: await seaportContract.functionCall("fulfillAdvancedOrder", ...fulfillAdvancedOrderArgs).getData(),
 		value: totalNativeAmount.toString(),
 	}
 }

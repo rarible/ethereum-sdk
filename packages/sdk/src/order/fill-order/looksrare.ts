@@ -14,10 +14,13 @@ import { id32 } from "../../common/id"
 import type { SimpleLooksrareOrder, SimpleOrder } from "../types"
 import { isNft } from "../is-nft"
 import type { EthereumNetwork } from "../../types"
+import type { IRaribleEthereumSdkConfig } from "../../types"
 import type { MakerOrderWithVRS, TakerOrderWithEncodedParams } from "./looksrare-utils/types"
 import type { LooksrareOrderFillRequest, OrderFillSendData } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
+import { getUpdatedCalldata } from "./common/get-updated-call"
 import { calcValueWithFees, originFeeValueConvert } from "./common/origin-fees-utils"
+import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export class LooksrareOrderHandler {
 	constructor(
@@ -26,6 +29,7 @@ export class LooksrareOrderHandler {
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly env: EthereumNetwork,
+		private readonly sdkConfig?: IRaribleEthereumSdkConfig
 	) {}
 
 	convertMakerOrderToLooksrare(makerOrder: SimpleLooksrareOrder, amount: BigNumberValue): MakerOrderWithVRS {
@@ -125,7 +129,10 @@ export class LooksrareOrderHandler {
 		)
 		return {
 			functionCall,
-			options: { value: valueForSending.toString() },
+			options: hexifyOptionsValue({
+				value: valueForSending.toString(),
+				additionalData: getUpdatedCalldata(this.sdkConfig),
+			}),
 		}
 	}
 

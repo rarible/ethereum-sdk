@@ -44,7 +44,7 @@ describe.skip("test exchange v1 order", () => {
 	})
 
 	const sign = signOrder.bind(null, ethereum1, {
-		chainId: 17,
+		chainId: 4,
 		exchange: e2eConfig.exchange,
 	})
 

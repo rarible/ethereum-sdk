@@ -1,5 +1,5 @@
 import { toAddress, ZERO_WORD } from "@rarible/types"
-import { encodePartToBuffer } from "./encode-data"
+import { encodePartToBuffer } from "./encode-rarible-v2-order-data"
 
 describe("Convert OriginFee Part to uint", () => {
 	test("Should make correct value",  () => {

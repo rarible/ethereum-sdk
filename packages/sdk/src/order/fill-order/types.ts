@@ -81,12 +81,13 @@ export type FillOrderRequest =
 
 export type FillBatchSingleOrderRequest =
 	RaribleV2OrderFillRequestV2 |
-	OpenSeaV1OrderFillRequest
+	// RaribleV2OrderFillRequestV3Sell |
+	// RaribleV2OrderFillRequestV3Buy |
+	OpenSeaV1OrderFillRequest |
+	LooksrareOrderFillRequest |
+	SeaportV1OrderFillRequest
 
-export type FillBatchOrderRequest = {
-	requests: FillBatchSingleOrderRequest[],
-	originFees?: Part[]
-}
+export type FillBatchOrderRequest = FillBatchSingleOrderRequest[]
 
 export enum ExchangeWrapperOrderType {
 	RARIBLE_V2 = 0,

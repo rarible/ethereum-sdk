@@ -304,7 +304,7 @@ describe("buy & acceptBid orders", () => {
 	})
 
 	test("should match order(buy erc1155 for eth) with dataType=V3", async () => {
-		await sentTx(it.testErc1155.methods.mint(sender2Address, 4, 10, "0x"), { from: sender1Address })
+		await sentTx(it.testErc1155.methods.mint(sender2Address, 5, 10, "0x"), { from: sender1Address })
 
 		const left: SimpleOrder = {
 			make: {
@@ -473,7 +473,7 @@ describe("buy & acceptBid orders", () => {
 	})
 
 	test("buy erc-1155 <-> ETH with calldata flag", async () => {
-		const tokenId = "10"
+		const tokenId = "5"
 		await sentTx(it.testErc1155.methods.mint(sender2Address, tokenId, 10, "0x"), { from: sender1Address })
 
 		const left: SimpleOrder = {
@@ -506,11 +506,11 @@ describe("buy & acceptBid orders", () => {
 		const finalOrder = { ...left, signature }
 
 		const fillCalldata = toBinary(`${ZERO_ADDRESS}00000001`)
-		const sdkBuyer = createRaribleSdk(ethereum1, env, {
-			fillCalldata: toBinary(`${ZERO_ADDRESS}00000009`),
+		const sdkBuyer = createRaribleSdk(ethereum2, env, {
+			fillCalldata,
 		})
 		const tx = await sdkBuyer.order.buy({ order: finalOrder, amount: 2, originFees: [] })
-		expect(tx.data.endsWith(fillCalldata.concat(FILL_CALLDATA_TAG))).toBe(true)
+		expect(tx.data.endsWith(fillCalldata.concat(FILL_CALLDATA_TAG).slice(2))).toBe(true)
 		await tx.wait()
 	})
 })

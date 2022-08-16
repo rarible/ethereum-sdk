@@ -75,7 +75,7 @@ describe("buy & acceptBid orders", () => {
 		config.exchange.v2 = toAddress(it.exchangeV2.options.address)
 		config.transferProxies.cryptoPunks = toAddress(it.punksTransferProxy.options.address)
 		config.transferProxies.erc20 = toAddress(it.erc20TransferProxy.options.address)
-		config.chainId = 17
+		config.chainId = 4
 
 		await sentTx(it.transferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
 			from: sender1Address,

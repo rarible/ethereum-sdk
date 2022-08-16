@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.83](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.82...v0.12.83) (2022-08-16)
+
+
+### Features
+
+* add flag calldata ([#178](https://github.com/rarible/protocol-ethereum-sdk/issues/178)) ([58bf1cb](https://github.com/rarible/protocol-ethereum-sdk/commit/58bf1cb75897e2ea7179131a2bcc97e9bfa53c62))
+
+
+
+
+
 ## [0.12.80](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.79...v0.12.80) (2022-08-09)
 
 

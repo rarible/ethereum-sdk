@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.83](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.82...v0.12.83) (2022-08-16)
+
+
+### Bug Fixes
+
+* looksrare mainnet ([01ab946](https://github.com/rarible/protocol-ethereum-sdk/commit/01ab946cfcf50d1483b0bcccec0fafe10ab7a75c))
+
+
+### Features
+
+* add flag calldata ([#178](https://github.com/rarible/protocol-ethereum-sdk/issues/178)) ([58bf1cb](https://github.com/rarible/protocol-ethereum-sdk/commit/58bf1cb75897e2ea7179131a2bcc97e9bfa53c62))
+* update wrapper exchange contract ([#174](https://github.com/rarible/protocol-ethereum-sdk/issues/174)) ([bf69c93](https://github.com/rarible/protocol-ethereum-sdk/commit/bf69c9381d817667077ce3d4c0d71647572cd54c))
+
+
+
+
+
 ## [0.12.82](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.81...v0.12.82) (2022-08-11)
 
 

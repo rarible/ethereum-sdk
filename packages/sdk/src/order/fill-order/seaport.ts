@@ -2,7 +2,9 @@ import type { Maybe } from "@rarible/types/build/maybe"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { SeaportOrderType } from "@rarible/ethereum-api-client/build/models/SeaportOrderType"
 import { SeaportItemType } from "@rarible/ethereum-api-client/build/models/SeaportItemType"
+import type { BigNumber } from "@rarible/types"
 import { ZERO_ADDRESS } from "@rarible/types"
+import type { Part } from "@rarible/ethereum-api-client"
 import { toBn } from "@rarible/utils/build/bn"
 import type { AssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
 import { isNft } from "../is-nft"
@@ -14,13 +16,14 @@ import type { EthereumNetwork } from "../../types"
 import type { IRaribleEthereumSdkConfig } from "../../types"
 import { getRequiredWallet } from "../../common/get-required-wallet"
 import { CROSS_CHAIN_SEAPORT_ADDRESS, ItemType, OrderType } from "./seaport-utils/constants"
-import type { SeaportV1OrderFillRequest } from "./types"
+import type { PreparedOrderRequestDataForExchangeWrapper, SeaportV1OrderFillRequest } from "./types"
 import type { TipInputItem } from "./seaport-utils/types"
-import { fulfillOrderWithWrapper } from "./seaport-utils/seaport-wrapper-utils"
+import { fulfillOrderWithWrapper, prepareSeaportExchangeData } from "./seaport-utils/seaport-wrapper-utils"
 import { fulfillOrder } from "./seaport-utils/seaport-utils"
 import type { OrderFillSendData } from "./types"
 import { getUpdatedCalldata } from "./common/get-updated-call"
 import { hexifyOptionsValue } from "./common/hexify-options-value"
+import { originFeeValueConvert } from "./common/origin-fees-utils"
 
 export class SeaportOrderHandler {
 	constructor(
@@ -57,27 +60,11 @@ export class SeaportOrderHandler {
 			throw new Error("Order should includes start/end fields")
 		}
 
-		const takeIsNft = isNft(order.take.assetType)
-		const makeIsNft = isNft(order.make.assetType)
-		const unitsToFill = order.make.assetType.assetClass === "ERC1155" || order.take.assetType.assetClass === "ERC1155" ? request.amount : undefined
-		const isSupportedPartialFill = order.data.orderType === "PARTIAL_RESTRICTED" || order.data.orderType === "PARTIAL_OPEN"
-
-		let isPartialFill: boolean
-		if (takeIsNft) {
-			isPartialFill = unitsToFill ? unitsToFill.toString() !== order.take.value.toString() : false
-		} else if (makeIsNft) {
-			isPartialFill = unitsToFill ? unitsToFill.toString() !== order.make.value.toString() : false
-		} else {
-			throw new Error("Make/take asset in order is non-nft asset")
-		}
-
-		if (!isSupportedPartialFill && isPartialFill) {
-			throw new Error("Order is not supported partial fill")
-		}
-
-		if (order.taker) {
+		if (request.order.taker) {
 			throw new Error("You can't fill private orders")
 		}
+
+		const { unitsToFill, takeIsNft } = getUnitsToFill(request)
 
 		if (this.env !== "mainnet") {
 			if (order.take.assetType.assetClass === "ETH") {
@@ -131,12 +118,68 @@ export class SeaportOrderHandler {
 		}
 	}
 
+	async getTransactionDataForExchangeWrapper(
+		request: SeaportV1OrderFillRequest,
+		originFees: Part[] | undefined,
+		feeValue: BigNumber,
+	): Promise<PreparedOrderRequestDataForExchangeWrapper> {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
+
+		const { unitsToFill } = getUnitsToFill(request)
+
+		const { totalFeeBasisPoints } = originFeeValueConvert(originFees)
+
+		return prepareSeaportExchangeData(
+			this.ethereum,
+			this.send.bind(this),
+			request.order,
+			{
+				unitsToFill: unitsToFill,
+				encodedFeesValue: feeValue,
+				totalFeeBasisPoints: totalFeeBasisPoints,
+			}
+		)
+	}
+
 	getBaseOrderFee() {
 		return this.getBaseOrderFeeConfig("SEAPORT_V1")
 	}
 
 	getOrderFee(): number {
 		return 0
+	}
+}
+
+function getUnitsToFill(request: SeaportV1OrderFillRequest): {
+	unitsToFill: number | undefined,
+	takeIsNft: boolean,
+} {
+	const takeIsNft = isNft(request.order.take.assetType)
+	const makeIsNft = isNft(request.order.make.assetType)
+	const unitsToFill =
+		request.order.make.assetType.assetClass === "ERC1155" || request.order.take.assetType.assetClass === "ERC1155" ?
+			request.amount : undefined
+	const isSupportedPartialFill = request.order.data.orderType === "PARTIAL_RESTRICTED" ||
+		request.order.data.orderType === "PARTIAL_OPEN"
+
+	let isPartialFill: boolean
+	if (takeIsNft) {
+		isPartialFill = unitsToFill ? unitsToFill.toString() !== request.order.take.value.toString() : false
+	} else if (makeIsNft) {
+		isPartialFill = unitsToFill ? unitsToFill.toString() !== request.order.make.value.toString() : false
+	} else {
+		throw new Error("Make/take asset in order is non-nft asset")
+	}
+
+	if (!isSupportedPartialFill && isPartialFill) {
+		throw new Error("Order is not supported partial fill")
+	}
+
+	return {
+		unitsToFill,
+		takeIsNft,
 	}
 }
 

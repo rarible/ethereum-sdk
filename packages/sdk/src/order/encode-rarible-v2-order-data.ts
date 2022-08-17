@@ -23,7 +23,11 @@ export function encodePartToBuffer(part: Part | undefined): BigNumber {
 }
 
 //todo wrongEncode когда применять?
-export function encodeData(ethereum: Ethereum, data: OrderData, wrongEncode: Boolean = false): [string, string] {
+export function encodeRaribleV2OrderData(
+	ethereum: Ethereum,
+	data: OrderData,
+	wrongEncode: Boolean = false
+): [string, string] {
 	switch (data.dataType) {
 		case "RARIBLE_V2_DATA_V3_BUY": {
 			const encoded = ethereum.encodeParameter(DATA_V3_BUY_TYPE, {

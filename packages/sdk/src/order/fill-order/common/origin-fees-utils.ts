@@ -8,6 +8,16 @@ import { toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 export const ZERO_FEE_VALUE = toBigNumber("0x" + "0".repeat(64))
 
 /**
+ * Pack 2 number value to single uint256 (BigNumber)
+ * @param fees
+ */
+export function packFeesToUint(fees: [number | undefined, number | undefined]): BigNumber {
+	const firstFee = fees[0]?.toString(16).padStart(4, "0") ?? "0000"
+	const secondFee = fees[1]?.toString(16).padStart(4, "0") ?? "0000"
+	return toBigNumber("0x" + "0".repeat(64 - 8) + firstFee + secondFee)
+}
+
+/**
  * Check requirements for origin fees, converting them to single uint value for fee and list of fee receiver addresses
  * @param originFees
  */
@@ -20,9 +30,7 @@ export function originFeeValueConvert(originFees?: Part[]): {
 		throw new Error("This method supports max up to 2 origin fee values")
 	}
 
-	const firstFee = originFees?.[0]?.value?.toString(16).padStart(4, "0") ?? "0000"
-	const secondFee = originFees?.[1]?.value?.toString(16).padStart(4, "0") ?? "0000"
-	const encodedFeesValue = toBigNumber("0x" + "0".repeat(64 - 8) + firstFee + secondFee)
+	const encodedFeesValue = packFeesToUint([originFees?.[0]?.value, originFees?.[1]?.value])
 
 	const addresses = [
 		originFees?.[0]?.account ?? ZERO_ADDRESS,

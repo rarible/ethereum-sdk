@@ -2,7 +2,9 @@ import type { Maybe } from "@rarible/types/build/maybe"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import { toBn } from "@rarible/utils/build/bn"
 import type { Address, AssetType } from "@rarible/ethereum-api-client"
+import type { BigNumber } from "@rarible/types"
 import { ZERO_ADDRESS } from "@rarible/types"
+import type { Part } from "@rarible/ethereum-api-client"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import type { BigNumberValue } from "@rarible/utils"
 import type { SendFunction } from "../../common/send-transaction"
@@ -19,6 +21,7 @@ import type { MakerOrderWithVRS, TakerOrderWithEncodedParams } from "./looksrare
 import type { LooksrareOrderFillRequest, OrderFillSendData } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
 import { getUpdatedCalldata } from "./common/get-updated-call"
+import type { PreparedOrderRequestDataForExchangeWrapper } from "./types"
 import { calcValueWithFees, originFeeValueConvert } from "./common/origin-fees-utils"
 import { hexifyOptionsValue } from "./common/hexify-options-value"
 
@@ -85,57 +88,6 @@ export class LooksrareOrderHandler {
 		return this.send(functionCall, options)
 	}
 
-	async getTransactionData(request: LooksrareOrderFillRequest): Promise<OrderFillSendData> {
-		if (request.originFees && request.originFees.length > 2) {
-			throw new Error("Origin fees recipients shouldn't be greater than 2")
-		}
-		const provider = getRequiredWallet(this.ethereum)
-
-		const makerOrder = this.convertMakerOrderToLooksrare(request.order, request.amount)
-
-		makerOrder.currency = this.config.weth
-
-		const takerOrder: TakerOrderWithEncodedParams = {
-			isOrderAsk: false,
-			taker: this.config.exchange.wrapper,
-			price: makerOrder.price,
-			tokenId: makerOrder.tokenId,
-			minPercentageToAsk: makerOrder.minPercentageToAsk,
-			params: makerOrder.params,
-		}
-
-		const wrapperContract = createExchangeWrapperContract(provider, this.config.exchange.wrapper)
-		const fulfillData = this.getFulfillWrapperData(
-			makerOrder,
-			takerOrder,
-			request.order.make.assetType.assetClass
-		)
-
-		const {encodedFeesValue, totalFeeBasisPoints, feeAddresses} = originFeeValueConvert(request.originFees)
-		const valueForSending = calcValueWithFees(toBigNumber(makerOrder.price.toString()), totalFeeBasisPoints)
-
-		const data = {
-			marketId: ExchangeWrapperOrderType.LOOKSRARE_ORDERS,
-			amount: makerOrder.price,
-			fees: encodedFeesValue,
-			data: fulfillData,
-		}
-
-		const functionCall = wrapperContract.functionCall(
-			"singlePurchase",
-			data,
-			feeAddresses[0],
-			feeAddresses[1]
-		)
-		return {
-			functionCall,
-			options: hexifyOptionsValue({
-				value: valueForSending.toString(),
-				additionalData: getUpdatedCalldata(this.sdkConfig),
-			}),
-		}
-	}
-
 	getFulfillWrapperData(
 		makerOrder: MakerOrderWithVRS,
 		takerOrderData: TakerOrderWithEncodedParams,
@@ -151,6 +103,88 @@ export class LooksrareOrderHandler {
 			takerOrderData,
 			typeNft
 		)
+	}
+
+	private prepareTransactionData(
+		request: LooksrareOrderFillRequest,
+		originFees: Part[] | undefined,
+		encodedFeesValue?: BigNumber,
+	) {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
+
+		if (request.originFees && request.originFees.length > 2) {
+			throw new Error("Origin fees recipients shouldn't be greater than 2")
+		}
+
+		const makerOrder = this.convertMakerOrderToLooksrare(request.order, request.amount)
+
+		makerOrder.currency = this.config.weth
+
+		const takerOrder: TakerOrderWithEncodedParams = {
+			isOrderAsk: false,
+			taker: this.config.exchange.wrapper,
+			price: makerOrder.price,
+			tokenId: makerOrder.tokenId,
+			minPercentageToAsk: makerOrder.minPercentageToAsk,
+			params: makerOrder.params,
+		}
+
+		const fulfillData = this.getFulfillWrapperData(
+			makerOrder,
+			takerOrder,
+			request.order.make.assetType.assetClass
+		)
+
+		const { totalFeeBasisPoints, encodedFeesValue: localEncodedFee, feeAddresses } = originFeeValueConvert(originFees)
+		const valueForSending = calcValueWithFees(toBigNumber(makerOrder.price.toString()), totalFeeBasisPoints)
+
+		const feeEncodedValue = encodedFeesValue ?? localEncodedFee
+
+		const data = {
+			marketId: ExchangeWrapperOrderType.LOOKSRARE_ORDERS,
+			amount: makerOrder.price.toString(),
+			fees: feeEncodedValue,
+			data: fulfillData,
+		}
+
+		return {
+			requestData: {
+				data: data,
+				options: { value: valueForSending.toString() },
+			},
+			feeAddresses,
+		}
+	}
+
+	async getTransactionDataForExchangeWrapper(
+		request: LooksrareOrderFillRequest,
+		originFees: Part[] | undefined,
+		encodedFeesValue: BigNumber,
+	): Promise<PreparedOrderRequestDataForExchangeWrapper> {
+		return this.prepareTransactionData(request, originFees, encodedFeesValue).requestData
+	}
+
+	async getTransactionData(request: LooksrareOrderFillRequest): Promise<OrderFillSendData> {
+		const {requestData, feeAddresses} = this.prepareTransactionData(request, request.originFees, undefined)
+
+		const provider = getRequiredWallet(this.ethereum)
+		const wrapperContract = createExchangeWrapperContract(provider, this.config.exchange.wrapper)
+
+		const functionCall = wrapperContract.functionCall(
+			"singlePurchase",
+			requestData.data,
+			feeAddresses[0],
+			feeAddresses[1]
+		)
+		return {
+			functionCall,
+			options: hexifyOptionsValue({
+				value: requestData.options.value.toString(),
+				additionalData: getUpdatedCalldata(this.sdkConfig),
+			}),
+		}
 	}
 
 	getBaseOrderFee() {

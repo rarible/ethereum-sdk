@@ -1,5 +1,6 @@
 import {
 	awaitAll,
+	createE2eProvider,
 	createGanacheProvider,
 	deployErc20TransferProxy,
 	deployTestErc1155,
@@ -12,19 +13,152 @@ import {
 } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
-import type { Address, Asset } from "@rarible/ethereum-api-client"
+import type { Address, Asset, Part } from "@rarible/ethereum-api-client"
 import { randomAddress, randomWord, toAddress, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
 import type { BigNumber } from "@rarible/utils"
-import { getSimpleSendWithInjects, sentTx } from "../../common/send-transaction"
-import type { EthereumConfig } from "../../config/type"
-import { getEthereumConfig } from "../../config"
-import { id32 } from "../../common/id"
-import type { SimpleRaribleV2Order } from "../types"
-import { createEthereumApis } from "../../common/apis"
-import { checkChainId } from "../check-chain-id"
-import { signOrder } from "../sign-order"
-import { BatchOrderFiller } from "./batch-purchase"
+import { getSimpleSendWithInjects, sentTx } from "../../../../common/send-transaction"
+import type { EthereumConfig } from "../../../../config/type"
+import { getEthereumConfig } from "../../../../config"
+import { id32 } from "../../../../common/id"
+import type { SimpleOrder, SimpleRaribleV2Order } from "../../../types"
+import { createEthereumApis } from "../../../../common/apis"
+import { checkChainId } from "../../../check-chain-id"
+import { signOrder } from "../../../sign-order"
+import { BatchOrderFiller } from "../batch-purchase"
+import { createRaribleSdk } from "../../../../index"
+import {
+	checkOwnerships,
+	makeLooksrareOrder,
+	makeRaribleV2Order,
+	makeSeaportOrder,
+	ordersToRequests,
+} from "./common/utils"
+
+describe.skip("Batch purchase", function () {
+	const providerConfig = {
+		networkId: 4,
+		rpcUrl: "https://node-rinkeby.rarible.com",
+	}
+	const { provider: providerBuyer } = createE2eProvider(
+		"0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a",
+		providerConfig
+	)
+	const { provider: providerSeller } = createE2eProvider(
+		"0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c",
+		providerConfig
+	)
+
+	const web3Seller = new Web3(providerSeller as any)
+	const ethereumSeller = new Web3Ethereum({ web3: web3Seller, gas: 3000000 })
+	const ethereum = new Web3Ethereum({ web3: web3Seller, gas: 3000000 })
+
+	const buyerWeb3 = new Web3Ethereum({ web3: new Web3(providerBuyer as any), gas: 3000000})
+	const sdkBuyer = createRaribleSdk(buyerWeb3, "testnet")
+	const sdkSeller = createRaribleSdk(ethereumSeller, "testnet")
+
+	const config = getEthereumConfig("testnet")
+	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
+	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+
+	beforeAll(async () => {
+		console.log({
+			buyerWallet: await buyerWeb3.getFrom(),
+			sellerWallet: await ethereumSeller.getFrom(),
+		})
+	})
+
+	async function buyout(orders: SimpleOrder[], originFees: Part[] | undefined) {
+		const requests = await ordersToRequests(orders, originFees)
+
+		const tx = await sdkBuyer.order.buyBatch(requests)
+		console.log(tx)
+		await tx.wait()
+
+		await checkOwnerships(
+			sdkBuyer,
+			orders.map((o) => o.make),
+			toAddress("0xC66D094eD928f7840A6B0d373c1cd825C97e3C7c")
+		)
+	}
+
+	test("RaribleOrder few items sell", async () => {
+		const orders = await Promise.all([
+			makeRaribleV2Order(sdkSeller, {}),
+			makeRaribleV2Order(sdkSeller, {}),
+		])
+
+		await buyout(orders, [{
+			account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
+			value: 100,
+		}])
+	})
+
+	test("Seaport few items sell", async () => {
+		const orders = await Promise.all([
+			makeSeaportOrder(sdkSeller, ethereum, send),
+			makeSeaportOrder(sdkSeller, ethereum, send),
+		])
+
+		await buyout(orders, [{
+			account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
+			value: 100,
+		}])
+	})
+
+	test("looksrare few items sell", async () => {
+		const orders = await Promise.all([
+			makeLooksrareOrder(sdkSeller, ethereum, send, config),
+			//makeLooksrareOrder(sdkSeller, ethereum, send, config),
+		])
+
+		await buyout(orders, [{
+			account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
+			value: 100,
+		}])
+	})
+
+	test("Different orders types sell", async () => {
+		const orders = await Promise.all([
+			makeRaribleV2Order(sdkSeller, {}),
+			makeSeaportOrder(sdkSeller, ethereum, send),
+			makeLooksrareOrder(sdkSeller, ethereum, send, config),
+			makeRaribleV2Order(sdkSeller, {}),
+		])
+
+		const requests = [
+			...(await ordersToRequests([orders[0]], [{
+				account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
+				value: 100,
+			}])),
+			...(await ordersToRequests([orders[1]], [{
+				account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
+				value: 400,
+			}, {
+				account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
+				value: 300,
+			}])),
+			...(await ordersToRequests([orders[2]], [{
+				account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
+				value: 200,
+			}, {
+				account: toAddress("0xFc7b41fFC023bf3eab6553bf4881D45834EF1E8a"),
+				value: 500,
+			}])),
+			...(await ordersToRequests([orders[3]], undefined)),
+		]
+
+		const tx = await sdkBuyer.order.buyBatch(requests)
+		console.log(tx)
+		await tx.wait()
+
+		await checkOwnerships(
+			sdkBuyer,
+			orders.map((o) => o.make),
+			toAddress("0xC66D094eD928f7840A6B0d373c1cd825C97e3C7c")
+		)
+	})
+})
 
 describe.skip("fillOrder: Opensea orders", function () {
 	const { addresses, provider } = createGanacheProvider()
@@ -49,7 +183,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 
 	const send1 = getSimpleSendWithInjects().bind(null, checkWalletChainId1)
 
-	const orderFiller = new BatchOrderFiller(ethereum1, send1, config, apis, getBaseOrderFee)
+	const orderFiller = new BatchOrderFiller(ethereum1, send1, config, apis, getBaseOrderFee, env)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -163,9 +297,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 			}
 			default: throw new Error("Should never heppen")
 		}
-
 	}
-
 
 	test("Match batch of rarible-v2 orders", async () => {
 		const tokenIds = ["3", "4", "5"]
@@ -208,14 +340,11 @@ describe.skip("fillOrder: Opensea orders", function () {
 		const beforeSellerNftBalance2 = await getBalance("ERC1155", sender2Address, tokenIds[1])
 		const beforeSellerNftBalance3 = await getBalance("ERC721", sender2Address)
 
-		const tx = await orderFiller.buy({
-			requests: [
-				{ order: order1, amount: 1 }, //ERC1155 partial fill
-				{ order: order2, amount: 2 },
-				{ order: order3, amount: 1 },
-			],
-			originFees,
-		})
+		const tx = await orderFiller.buy([
+			{ order: order1, amount: 1 }, //ERC1155 partial fill
+			{ order: order2, amount: 2 },
+			{ order: order3, amount: 1 },
+		])
 		await tx.wait()
 
 		//seller balances

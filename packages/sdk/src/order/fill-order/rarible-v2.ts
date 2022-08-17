@@ -12,8 +12,8 @@ import { waitTx } from "../../common/wait-tx"
 import type { SimpleOrder, SimpleRaribleV2Order } from "../types"
 import { isSigner } from "../../common/is-signer"
 import { fixSignature } from "../../common/fix-signature"
-import { encodeRaribleV2OrderAndSignature } from "../encode-rarible-v2-order"
 import type { IRaribleEthereumSdkConfig } from "../../types"
+import { encodeRaribleV2OrderPurchaseStruct } from "./rarible-v2/encode-rarible-v2-order"
 import { invertOrder } from "./invert-order"
 import type {
 	OrderFillSendData,
@@ -118,7 +118,8 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 	}
 
 	async getTransactionDataForExchangeWrapper(
-		initial: SimpleRaribleV2Order, inverted: SimpleRaribleV2Order
+		initial: SimpleRaribleV2Order,
+		inverted: SimpleRaribleV2Order
 	): Promise<PreparedOrderRequestDataForExchangeWrapper> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
@@ -129,15 +130,41 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		if (!initial.signature) {
 			initial.signature = await signOrder(this.ethereum, this.config, initial)
 		}
-		const fixed = await this.fixForTx(initial)
+
+		// fix payouts to send bought item to buyer
+		if (inverted.data.dataType === "RARIBLE_V2_DATA_V1" || inverted.data.dataType === "RARIBLE_V2_DATA_V2") {
+			if (!inverted.data.payouts?.length) {
+				inverted.data.payouts = [{
+					account: inverted.maker,
+					value: 10000,
+				}]
+			}
+		} else if (
+			inverted.data.dataType === "RARIBLE_V2_DATA_V3_BUY" ||
+			inverted.data.dataType === "RARIBLE_V2_DATA_V3_SELL"
+		) {
+			if (!inverted.data.payout) {
+				inverted.data.payout = {
+					account: inverted.maker,
+					value: 10000,
+				}
+			}
+		}
+
 		const signature = fixSignature(initial.signature) || "0x"
-		const callData = encodeRaribleV2OrderAndSignature(this.ethereum, fixed, signature, inverted.take.value)
+		const callData = encodeRaribleV2OrderPurchaseStruct(
+			this.ethereum,
+			initial,
+			signature,
+			inverted,
+			true
+		)
 		const options = await this.getMatchV2Options(initial, inverted)
 		return {
 			data: {
 				marketId: ExchangeWrapperOrderType.RARIBLE_V2,
 				amount: options?.value!,
-				fees: ZERO_FEE_VALUE,
+				fees: ZERO_FEE_VALUE, // using zero fee because fees already included in callData
 				data: callData,
 			},
 			options,

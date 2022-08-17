@@ -28,7 +28,6 @@ import { cancel as cancelTemplate } from "./order/cancel"
 import type {
 	FillBatchOrderAction,
 	FillOrderAction,
-	GetOrderBuyBatchTxData,
 	GetOrderBuyTxData,
 	GetOrderFillTxData,
 } from "./order/fill-order/types"
@@ -56,7 +55,7 @@ import { createRemoteLogger, getEnvironment } from "./common/logger/logger"
 import { getAuctionHash } from "./auction/common"
 import type { CryptoPunksWrapper } from "./common/crypto-punks"
 import { approveForWrapper, unwrapPunk, wrapPunk } from "./nft/cryptopunk-wrapper"
-import { BatchOrderFiller } from "./order/fill-order/batch-purchase"
+import { BatchOrderFiller } from "./order/fill-order/batch-purchase/batch-purchase"
 
 export interface RaribleOrderSdk {
 	/**
@@ -114,12 +113,6 @@ export interface RaribleOrderSdk {
    * @param request order and parameters (amount to fill, fees etc)
    */
 	getFillTxData: GetOrderFillTxData
-
-	/**
-	 * Get buyBatch transaction data (for external sending)
-	 * @param request array of orders and parameters (amount to fill, fees etc)
-	 */
-	getBuyBatchTxData: GetOrderBuyBatchTxData,
 
 	/**
    * Get buy transaction data (for external sending)
@@ -264,7 +257,7 @@ export function createRaribleSdk(
 
 	const getBaseOrderFee = getBaseFee.bind(null, config, env)
 	const filler = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee, env, sdkConfig)
-	const buyBatchService = new BatchOrderFiller(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
+	const buyBatchService = new BatchOrderFiller(ethereum, send, config, apis, getBaseOrderFee, env, sdkConfig)
 
 	const approveFn = partialCall(approveTemplate, ethereum, send, config.transferProxies)
 
@@ -294,7 +287,6 @@ export function createRaribleSdk(
 			fill: filler.fill,
 			buy: filler.buy,
 			buyBatch: buyBatchService.buy,
-			getBuyBatchTxData: buyBatchService.getTransactionData,
 			acceptBid: filler.acceptBid,
 			getFillTxData: filler.getTransactionData,
 			getBuyTxData: filler.getBuyTx,

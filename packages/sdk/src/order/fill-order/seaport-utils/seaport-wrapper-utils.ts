@@ -1,6 +1,7 @@
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { BigNumberValue } from "@rarible/utils"
 import { toBn } from "@rarible/utils"
+import type { BigNumber } from "@rarible/types"
 import { toAddress } from "@rarible/types"
 import type { Address, Part } from "@rarible/ethereum-api-client"
 import { toBigNumber } from "@rarible/types/build/big-number"
@@ -31,6 +32,42 @@ export async function fulfillOrderWithWrapper(
 		originFees?: Part[]
 	}
 ): Promise<OrderFillSendData> {
+	const { totalFeeBasisPoints, encodedFeesValue, feeAddresses } = originFeeValueConvert(originFees)
+
+	const preparedData = await prepareSeaportExchangeData(
+		ethereum,
+		send,
+		simpleOrder,
+		{
+			unitsToFill,
+			encodedFeesValue,
+			totalFeeBasisPoints,
+		},
+	)
+
+	const seaportWrapperContract = createExchangeWrapperContract(ethereum, seaportWrapper)
+	const functionCall = seaportWrapperContract.functionCall("singlePurchase", preparedData.data, feeAddresses[0], feeAddresses[1])
+	return {
+		functionCall,
+		options: preparedData.options,
+	}
+}
+
+export async function prepareSeaportExchangeData(
+	ethereum: Ethereum,
+	send: SendFunction,
+	simpleOrder: SimpleSeaportV1Order,
+	{
+		unitsToFill,
+		encodedFeesValue,
+		totalFeeBasisPoints,
+	}: {
+		unitsToFill?: BigNumberValue
+		// converted to single uint fee value, values should be in right order in case of use for batch purchase
+		encodedFeesValue: BigNumber,
+		totalFeeBasisPoints: number
+	}
+): Promise<PreparedOrderRequestDataForExchangeWrapper> {
 	const seaportContract = createSeaportContract(ethereum, toAddress(CROSS_CHAIN_SEAPORT_ADDRESS))
 
 	const order = convertAPIOrderToSeaport(simpleOrder)
@@ -111,21 +148,17 @@ export async function fulfillOrderWithWrapper(
 		recipientAddress,
 	})
 
-	const {encodedFeesValue, totalFeeBasisPoints, feeAddresses} = originFeeValueConvert(originFees)
-
-	const data: PreparedOrderRequestDataForExchangeWrapper["data"] = {
-		marketId: ExchangeWrapperOrderType.SEAPORT_ADVANCED_ORDERS,
-		amount: fulfillOrdersData.value,
-		fees: encodedFeesValue,
-		data: fulfillOrdersData.data,
-	}
-
-	const seaportWrapperContract = createExchangeWrapperContract(ethereum, seaportWrapper)
-	const functionCall = seaportWrapperContract.functionCall("singlePurchase", data, feeAddresses[0], feeAddresses[1])
-	const valueForSending = calcValueWithFees(toBigNumber(data.amount.toString()), totalFeeBasisPoints)
+	const valueForSending = calcValueWithFees(toBigNumber(fulfillOrdersData.value), totalFeeBasisPoints)
 
 	return {
-		functionCall,
-		options: { value: valueForSending.toString() },
+		data: {
+			marketId: ExchangeWrapperOrderType.SEAPORT_ADVANCED_ORDERS,
+			amount: fulfillOrdersData.value,
+			fees: encodedFeesValue,
+			data: fulfillOrdersData.data,
+		},
+		options: {
+			value: valueForSending.toString(),
+		},
 	}
 }

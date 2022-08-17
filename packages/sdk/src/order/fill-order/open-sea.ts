@@ -57,7 +57,6 @@ import {
 } from "./open-sea-converter"
 import { originFeeValueConvert } from "./common/origin-fees-utils"
 import { getUpdatedCalldata } from "./common/get-updated-call"
-import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export type EncodedOrderCallData = { callData: Binary, replacementPattern: Binary, target: Address }
 
@@ -265,10 +264,6 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 				encodedFeesValue,
 			)
 
-			const updateOptions = hexifyOptionsValue({
-				...options,
-				additionalData: getUpdatedCalldata(this.sdkConfig),
-			})
 			const functionCall = openseaWrapperContract.functionCall(
 				"singlePurchase",
 				data,
@@ -276,20 +271,27 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			)
 			await functionCall.estimateGas({
 				from: await this.ethereum.getFrom(),
-				value: updateOptions.value,
+				value: options.value,
 			})
-
 			return {
 				functionCall,
-				options: updateOptions,
+				options: {
+					...options,
+					additionalData: getUpdatedCalldata(this.sdkConfig),
+				},
 			}
 		} else {
+			const options = {
+				...await getMatchOpenseaOptions(buy),
+				additionalData: getUpdatedCalldata(this.sdkConfig),
+			}
+			await atomicMatchFunctionCall.estimateGas({
+				from: await this.ethereum.getFrom(),
+				value: options.value,
+			})
 			return {
 				functionCall: atomicMatchFunctionCall,
-				options: hexifyOptionsValue({
-					...await getMatchOpenseaOptions(buy),
-					additionalData: getUpdatedCalldata(this.sdkConfig),
-				}),
+				options,
 			}
 		}
 	}

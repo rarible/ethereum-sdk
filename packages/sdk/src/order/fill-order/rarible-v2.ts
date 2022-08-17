@@ -1,6 +1,6 @@
 import type { Address } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
-import { toAddress, ZERO_WORD } from "@rarible/types"
+import { ZERO_WORD } from "@rarible/types"
 import type { Maybe } from "@rarible/types/build/maybe"
 import { hashToSign, orderToStruct, signOrder } from "../sign-order"
 import { getAssetWithFee } from "../get-asset-with-fee"
@@ -12,8 +12,8 @@ import { waitTx } from "../../common/wait-tx"
 import type { SimpleOrder, SimpleRaribleV2Order } from "../types"
 import { isSigner } from "../../common/is-signer"
 import { fixSignature } from "../../common/fix-signature"
-import { encodeRaribleV2OrderAndSignature } from "../encode-rarible-v2-order"
 import type { IRaribleEthereumSdkConfig } from "../../types"
+import { encodeRaribleV2OrderPurchaseStruct } from "./rarible-v2/encode-rarible-v2-order"
 import { invertOrder } from "./invert-order"
 import type {
 	OrderFillSendData,
@@ -27,7 +27,6 @@ import type {
 import { ExchangeWrapperOrderType } from "./types"
 import { ZERO_FEE_VALUE } from "./common/origin-fees-utils"
 import { getUpdatedCalldata } from "./common/get-updated-call"
-import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillRequest> {
 
@@ -107,23 +106,24 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 			orderToStruct(this.ethereum, inverted),
 			fixSignature(inverted.signature) || "0x",
 		)
-		const options = hexifyOptionsValue({
-			...(await this.getMatchV2Options(initial, inverted)),
-			additionalData: getUpdatedCalldata(this.sdkConfig),
-		})
+
+		const options = await this.getMatchV2Options(initial, inverted)
 		await functionCall.estimateGas({
 			from: await this.ethereum.getFrom(),
 			value: options.value,
 		})
-
 		return {
 			functionCall,
-			options,
+			options: {
+				...options,
+				additionalData: getUpdatedCalldata(this.sdkConfig),
+			},
 		}
 	}
 
 	async getTransactionDataForExchangeWrapper(
-		initial: SimpleRaribleV2Order, inverted: SimpleRaribleV2Order
+		initial: SimpleRaribleV2Order,
+		inverted: SimpleRaribleV2Order
 	): Promise<PreparedOrderRequestDataForExchangeWrapper> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
@@ -134,15 +134,41 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 		if (!initial.signature) {
 			initial.signature = await signOrder(this.ethereum, this.config, initial)
 		}
-		const fixed = await this.fixForTx(initial)
+
+		// fix payouts to send bought item to buyer
+		if (inverted.data.dataType === "RARIBLE_V2_DATA_V1" || inverted.data.dataType === "RARIBLE_V2_DATA_V2") {
+			if (!inverted.data.payouts?.length) {
+				inverted.data.payouts = [{
+					account: inverted.maker,
+					value: 10000,
+				}]
+			}
+		} else if (
+			inverted.data.dataType === "RARIBLE_V2_DATA_V3_BUY" ||
+			inverted.data.dataType === "RARIBLE_V2_DATA_V3_SELL"
+		) {
+			if (!inverted.data.payout) {
+				inverted.data.payout = {
+					account: inverted.maker,
+					value: 10000,
+				}
+			}
+		}
+
 		const signature = fixSignature(initial.signature) || "0x"
-		const callData = encodeRaribleV2OrderAndSignature(this.ethereum, fixed, signature, inverted.take.value)
+		const callData = encodeRaribleV2OrderPurchaseStruct(
+			this.ethereum,
+			initial,
+			signature,
+			inverted,
+			true
+		)
 		const options = await this.getMatchV2Options(initial, inverted)
 		return {
 			data: {
 				marketId: ExchangeWrapperOrderType.RARIBLE_V2,
 				amount: options?.value!,
-				fees: ZERO_FEE_VALUE,
+				fees: ZERO_FEE_VALUE, // using zero fee because fees already included in callData
 				data: callData,
 			},
 			options,

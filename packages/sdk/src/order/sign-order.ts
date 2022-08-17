@@ -8,7 +8,7 @@ import type { EthereumConfig } from "../config/type"
 import { hashLegacyOrder } from "./hash-legacy-order"
 import { assetTypeToStruct } from "./asset-type-to-struct"
 import { EIP712_DOMAIN_TEMPLATE, EIP712_ORDER_TYPE, EIP712_ORDER_TYPES } from "./eip712"
-import { encodeData } from "./encode-data"
+import { encodeRaribleV2OrderData } from "./encode-rarible-v2-order-data"
 import type { SimpleOrder, SimpleRaribleV2Order } from "./types"
 
 export async function signOrder(
@@ -59,7 +59,7 @@ function createEIP712Domain(chainId: number, verifyingContract: Address): EIP712
 }
 
 export function orderToStruct(ethereum: Ethereum, order: SimpleRaribleV2Order, wrongEncode: Boolean = false): any {
-	const [dataType, data] = encodeData(ethereum, order.data, wrongEncode)
+	const [dataType, data] = encodeRaribleV2OrderData(ethereum, order.data, wrongEncode)
 	return {
 		maker: order.maker,
 		makeAsset: assetToStruct(ethereum, order.make),

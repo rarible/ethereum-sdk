@@ -32,6 +32,8 @@ import { LooksrareOrderHandler } from "../looksrare"
 import { OriginFeeReducer } from "../common/origin-fee-reducer"
 import { createExchangeWrapperContract } from "../../contracts/exchange-wrapper"
 import type { SeaportV1OrderFillRequest } from "../types"
+import { getUpdatedCalldata } from "../common/get-updated-call"
+import { hexifyOptionsValue } from "../common/hexify-options-value"
 
 export class BatchOrderFiller {
 	v2Handler: RaribleV2OrderHandler
@@ -197,7 +199,13 @@ export class BatchOrderFiller {
 			true // allowFail
 		)
 
-		return {functionCall, options: { value: totalValue.toString() }}
+		return {
+			functionCall,
+			options: hexifyOptionsValue({
+				value: totalValue.toString(),
+				additionalData: getUpdatedCalldata(this.sdkConfig),
+			}),
+		}
 	}
 
 	private async getTransactionSingleRequestData(

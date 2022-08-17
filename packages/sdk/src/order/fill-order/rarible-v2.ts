@@ -27,7 +27,6 @@ import type {
 import { ExchangeWrapperOrderType } from "./types"
 import { ZERO_FEE_VALUE } from "./common/origin-fees-utils"
 import { getUpdatedCalldata } from "./common/get-updated-call"
-import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillRequest> {
 
@@ -110,10 +109,10 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 
 		return {
 			functionCall,
-			options: hexifyOptionsValue({
+			options: {
 				...(await this.getMatchV2Options(initial, inverted)),
 				additionalData: getUpdatedCalldata(this.sdkConfig),
-			}),
+			},
 		}
 	}
 

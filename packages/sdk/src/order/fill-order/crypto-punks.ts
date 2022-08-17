@@ -13,7 +13,6 @@ import type { IRaribleEthereumSdkConfig } from "../../types"
 import { invertOrder } from "./invert-order"
 import type { CryptoPunksOrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
 import { getUpdatedCalldata } from "./common/get-updated-call"
-import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFillRequest> {
 	constructor(
@@ -45,10 +44,10 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 	): Promise<OrderFillSendData> {
 		return {
 			functionCall: this.getPunkOrderCallMethod(initial),
-			options: hexifyOptionsValue({
+			options: {
 				...this.getMatchV2Options(initial, inverted),
 				additionalData: getUpdatedCalldata(this.sdkConfig),
-			}),
+			},
 		}
 	}
 

@@ -28,7 +28,7 @@ import type { CreateInputItem } from "./seaport-utils/types"
 import { SeaportOrderHandler } from "./seaport"
 
 //createSeaportOrder may return 400 error, try again
-describe.skip("seaport", () => {
+describe("seaport", () => {
 	const providerConfig = {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",
@@ -73,7 +73,7 @@ describe.skip("seaport", () => {
 		"testnet"
 	)
 
-	test("fill order ERC-721 <-> ETH", async () => {
+	test.skip("fill order ERC-721 <-> ETH", async () => {
 		const accountAddressBuyer = toAddress(await ethereum.getFrom())
 		console.log("accountAddressBuyer", accountAddressBuyer)
 		console.log("seller", await ethereumSeller.getFrom())
@@ -117,7 +117,7 @@ describe.skip("seaport", () => {
 		expect(fee).toBe(0)
 	})
 
-	test("fill order ERC-1155 <-> ETH", async () => {
+	test.skip("fill order ERC-1155 <-> ETH", async () => {
 		const accountAddress = await ethereumSeller.getFrom()
 		const accountAddressBuyer = toAddress(await ethereum.getFrom())
 
@@ -153,7 +153,7 @@ describe.skip("seaport", () => {
 		await awaitOwnership(sdkBuyer, sellItem.itemId, accountAddressBuyer, "2")
 	})
 
-	test("fill order ERC-1155 <-> ETH with restricted partial fill", async () => {
+	test.skip("fill order ERC-1155 <-> ETH with restricted partial fill", async () => {
 		const accountAddress = await ethereumSeller.getFrom()
 
 		const sellItem = await sdkSeller.nft.mint({
@@ -186,7 +186,7 @@ describe.skip("seaport", () => {
 		await expect(buyResponse).rejects.toThrow("Order is not supported partial fill")
 	})
 
-	test("fill order ERC-1155 <-> ETH with origin fees", async () => {
+	test.skip("fill order ERC-1155 <-> ETH with origin fees", async () => {
 		const accountAddress = await ethereumSeller.getFrom()
 		const accountAddressBuyer = toAddress(await ethereum.getFrom())
 
@@ -236,7 +236,7 @@ describe.skip("seaport", () => {
 
 	})
 
-	test("fill order ERC-1155 <-> ERC-20 (WETH) with origin fees", async () => {
+	test.skip("fill order ERC-1155 <-> ERC-20 (WETH) with origin fees", async () => {
 		const accountAddress = await ethereumSeller.getFrom()
 		const accountAddressBuyer = toAddress(await ethereum.getFrom())
 
@@ -286,7 +286,7 @@ describe.skip("seaport", () => {
 		expect(toBn(buyerBalanceStart).minus(buyerBalanceFinish).toString()).toBe("0.00000000000011")
 	})
 
-	test("fill order ERC-721 <-> ERC-20 (WETH)", async () => {
+	test.skip("fill order ERC-721 <-> ERC-20 (WETH)", async () => {
 		const accountAddressBuyer = toAddress(await ethereum.getFrom())
 
 		const sellItem = await sdkSeller.nft.mint({
@@ -320,25 +320,29 @@ describe.skip("seaport", () => {
 	})
 
 	test.each([
-		buyerEthersWeb3Provider,
+		// buyerEthersWeb3Provider,
 		buyerEthersEthereum,
-		buyerWeb3,
+		// buyerWeb3,
 	])("fill order ERC-721 <-> ETH with calldata flag", async (ethereum) => {
+		const fillCalldata = toBinary(`${ZERO_ADDRESS}00000009`)
+
 		const accountAddressBuyer = toAddress(await buyerEthersEthereum.getFrom())
+		/*
 		console.log("accountAddressBuyer", accountAddressBuyer)
 		console.log("seller", await ethereumSeller.getFrom())
 
-		const fillCalldata = toBinary(`${ZERO_ADDRESS}00000009`)
 		const orderHash = await mintAndCreateSeaportOrder(
 			sdkSeller,
 			ethereumSeller,
 			send,
 			rinkebyErc721V3ContractAddress
 		)
+
+		 */
 		const sdkBuyer = createRaribleSdk(ethereum, "testnet", {
 			fillCalldata,
 		})
-
+		const orderHash = "0xa29ec548e66788cdc7c8816c25b51c03b0bfd224e2f679b24ef27660260cbff2"
 		const order = await awaitOrder(sdkBuyer, orderHash)
 
 		const tx = await sdkBuyer.order.buy({

@@ -57,7 +57,6 @@ import {
 } from "./open-sea-converter"
 import { originFeeValueConvert } from "./common/origin-fees-utils"
 import { getUpdatedCalldata } from "./common/get-updated-call"
-import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export type EncodedOrderCallData = { callData: Binary, replacementPattern: Binary, target: Address }
 
@@ -272,18 +271,18 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 			)
 			return {
 				functionCall,
-				options: hexifyOptionsValue({
+				options: {
 					...options,
 					additionalData: getUpdatedCalldata(this.sdkConfig),
-				}),
+				},
 			}
 		} else {
 			return {
 				functionCall: atomicMatchFunctionCall,
-				options: hexifyOptionsValue({
+				options: {
 					...await getMatchOpenseaOptions(buy),
 					additionalData: getUpdatedCalldata(this.sdkConfig),
-				}),
+				},
 			}
 		}
 	}

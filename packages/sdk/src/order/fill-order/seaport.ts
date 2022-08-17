@@ -22,7 +22,6 @@ import { fulfillOrderWithWrapper, prepareSeaportExchangeData } from "./seaport-u
 import { fulfillOrder } from "./seaport-utils/seaport-utils"
 import type { OrderFillSendData } from "./types"
 import { getUpdatedCalldata } from "./common/get-updated-call"
-import { hexifyOptionsValue } from "./common/hexify-options-value"
 import { originFeeValueConvert } from "./common/origin-fees-utils"
 
 export class SeaportOrderHandler {
@@ -84,10 +83,10 @@ export class SeaportOrderHandler {
 					})
 				return {
 					functionCall,
-					options: hexifyOptionsValue({
+					options: {
 						...options,
 						additionalData: getUpdatedCalldata(this.sdkConfig),
-					}),
+					},
 				}
 			}
 		}
@@ -111,10 +110,10 @@ export class SeaportOrderHandler {
 
 		return {
 			functionCall,
-			options: hexifyOptionsValue({
+			options: {
 				...options,
 				additionalData: getUpdatedCalldata(this.sdkConfig),
-			}),
+			},
 		}
 	}
 

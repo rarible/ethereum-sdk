@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.86](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.85...v0.12.86) (2022-08-17)
+
+
+### Bug Fixes
+
+* tx value converter ([#182](https://github.com/rarible/protocol-ethereum-sdk/issues/182)) ([28c1413](https://github.com/rarible/protocol-ethereum-sdk/commit/28c1413c286b5009485ca80f93d7fdb08c5557ac))
+
+
+
+
+
 ## [0.12.85](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.84...v0.12.85) (2022-08-17)
 
 

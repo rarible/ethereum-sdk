@@ -177,12 +177,17 @@ export class LooksrareOrderHandler {
 			feeAddresses[0],
 			feeAddresses[1]
 		)
+		const options = {
+			value: requestData.options.value.toString(),
+			additionalData: getUpdatedCalldata(this.sdkConfig),
+		}
+		await functionCall.estimateGas({
+			from: await provider.getFrom(),
+			value: options.value,
+		})
 		return {
 			functionCall,
-			options: {
-				value: requestData.options.value.toString(),
-				additionalData: getUpdatedCalldata(this.sdkConfig),
-			},
+			options,
 		}
 	}
 

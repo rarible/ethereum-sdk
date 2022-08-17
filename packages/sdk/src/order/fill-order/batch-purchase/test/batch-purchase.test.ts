@@ -14,7 +14,7 @@ import {
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import type { Address, Asset, Part } from "@rarible/ethereum-api-client"
-import { randomAddress, randomWord, toAddress, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
+import { randomWord, toAddress, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
 import type { BigNumber } from "@rarible/utils"
 import { getSimpleSendWithInjects, sentTx } from "../../../../common/send-transaction"
@@ -301,10 +301,6 @@ describe.skip("fillOrder: Opensea orders", function () {
 
 	test("Match batch of rarible-v2 orders", async () => {
 		const tokenIds = ["3", "4", "5"]
-		const originFees = [{
-			account: randomAddress(),
-			value: 100,
-		}]
 
 		const order1 = await mintTestAssetAndReturnOrder({
 			assetType: {

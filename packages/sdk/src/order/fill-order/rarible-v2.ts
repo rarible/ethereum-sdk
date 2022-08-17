@@ -107,10 +107,15 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 			fixSignature(inverted.signature) || "0x",
 		)
 
+		const options = await this.getMatchV2Options(initial, inverted)
+		await functionCall.estimateGas({
+			from: await this.ethereum.getFrom(),
+			value: options.value,
+		})
 		return {
 			functionCall,
 			options: {
-				...(await this.getMatchV2Options(initial, inverted)),
+				...options,
 				additionalData: getUpdatedCalldata(this.sdkConfig),
 			},
 		}

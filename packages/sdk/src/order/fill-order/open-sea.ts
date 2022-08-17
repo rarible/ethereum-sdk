@@ -269,6 +269,10 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 				data,
 				feeAddresses[0], feeAddresses[1],
 			)
+			await functionCall.estimateGas({
+				from: await this.ethereum.getFrom(),
+				value: options.value,
+			})
 			return {
 				functionCall,
 				options: {
@@ -277,12 +281,17 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 				},
 			}
 		} else {
+			const options = {
+				...await getMatchOpenseaOptions(buy),
+				additionalData: getUpdatedCalldata(this.sdkConfig),
+			}
+			await atomicMatchFunctionCall.estimateGas({
+				from: await this.ethereum.getFrom(),
+				value: options.value,
+			})
 			return {
 				functionCall: atomicMatchFunctionCall,
-				options: {
-					...await getMatchOpenseaOptions(buy),
-					additionalData: getUpdatedCalldata(this.sdkConfig),
-				},
+				options,
 			}
 		}
 	}

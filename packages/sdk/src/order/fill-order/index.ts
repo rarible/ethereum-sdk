@@ -227,7 +227,7 @@ export class OrderFiller {
 					<OpenSeaV1OrderFillRequest>request
 				)
 			case "SEAPORT_V1":
-				throw new Error("Getting transaction data for Seaport orders is not implemented yet")
+				return this.seaportHandler.getTransactionData(<SeaportV1OrderFillRequest>request)
 			case "LOOKSRARE":
 				return this.looksrareHandler.getTransactionData(<LooksrareOrderFillRequest>request)
 			case "CRYPTO_PUNK":

@@ -7,6 +7,7 @@ import type { Address, Binary, BigNumber, Word } from "@rarible/types"
 import { toAddress, toBigNumber, toBinary, toWord } from "@rarible/types"
 import type { MessageTypes, TypedMessage } from "@rarible/ethereum-provider"
 import type { TypedDataSigner } from "@ethersproject/abstract-signer"
+import { BigNumber as EthersBN } from "ethers/lib/ethers"
 import { encodeParameters } from "./abi-coder"
 
 export class EthersWeb3ProviderEthereum implements EthereumProvider.Ethereum {
@@ -160,7 +161,7 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 				data: `0x${sourceData}${additionalData}`,
 				gasLimit: options.gas,
 				gasPrice: options.gasPrice,
-				value: options.value,
+				value: options.value !== undefined ? ethers.utils.hexValue(EthersBN.from(options.value)) : undefined,
 			})
 			return new EthersTransaction(tx)
 		}

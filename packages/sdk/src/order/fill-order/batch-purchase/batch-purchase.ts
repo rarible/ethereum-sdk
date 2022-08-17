@@ -33,7 +33,6 @@ import { OriginFeeReducer } from "../common/origin-fee-reducer"
 import { createExchangeWrapperContract } from "../../contracts/exchange-wrapper"
 import type { SeaportV1OrderFillRequest } from "../types"
 import { getUpdatedCalldata } from "../common/get-updated-call"
-import { hexifyOptionsValue } from "../common/hexify-options-value"
 
 export class BatchOrderFiller {
 	v2Handler: RaribleV2OrderHandler
@@ -201,10 +200,10 @@ export class BatchOrderFiller {
 
 		return {
 			functionCall,
-			options: hexifyOptionsValue({
+			options: {
 				value: totalValue.toString(),
 				additionalData: getUpdatedCalldata(this.sdkConfig),
-			}),
+			},
 		}
 	}
 

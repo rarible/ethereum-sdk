@@ -23,7 +23,6 @@ import { ExchangeWrapperOrderType } from "./types"
 import { getUpdatedCalldata } from "./common/get-updated-call"
 import type { PreparedOrderRequestDataForExchangeWrapper } from "./types"
 import { calcValueWithFees, originFeeValueConvert } from "./common/origin-fees-utils"
-import { hexifyOptionsValue } from "./common/hexify-options-value"
 
 export class LooksrareOrderHandler {
 	constructor(
@@ -180,10 +179,10 @@ export class LooksrareOrderHandler {
 		)
 		return {
 			functionCall,
-			options: hexifyOptionsValue({
+			options: {
 				value: requestData.options.value.toString(),
 				additionalData: getUpdatedCalldata(this.sdkConfig),
-			}),
+			},
 		}
 	}
 

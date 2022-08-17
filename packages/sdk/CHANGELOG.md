@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.85](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.84...v0.12.85) (2022-08-17)
+
+
+### Bug Fixes
+
+* batch purchase calldata ([ff1d474](https://github.com/rarible/protocol-ethereum-sdk/commit/ff1d4742db5c10d55306c368ff8780daf31d0baf))
+
+
+
+
+
 ## [0.12.84](https://github.com/rarible/ethereum-sdk/compare/v0.12.83...v0.12.84) (2022-08-17)
 
 

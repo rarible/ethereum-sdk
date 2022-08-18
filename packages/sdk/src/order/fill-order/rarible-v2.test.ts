@@ -33,7 +33,7 @@ import { OrderFiller } from "./index"
 describe.skip("buy & acceptBid orders", () => {
 	const { addresses, provider, accounts } = createGanacheProvider()
 	const [sender1Address, sender2Address] = addresses
-	const [account1, account2] = accounts
+	const [account1] = accounts
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })

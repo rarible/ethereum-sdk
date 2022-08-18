@@ -1,7 +1,7 @@
-import type { AbiItem } from "@rarible/protocol-ethereum-sdk/src/common/abi-item"
 import type { Log } from "web3-core"
 import type Web3 from "web3"
 import type * as EthereumProvider from "@rarible/ethereum-provider"
+import type { AbiItem } from "web3-utils"
 
 export function logParser(
 	logs: Log[],

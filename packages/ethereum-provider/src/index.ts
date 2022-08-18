@@ -6,6 +6,7 @@ export type EthereumTransactionEvent = {
 	event: string,
 	address: string
 	args: any
+	returnValues?: any
 	logIndex: number
 	transactionIndex: number
 	transactionHash: string

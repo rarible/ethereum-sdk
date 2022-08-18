@@ -16,6 +16,8 @@ import {
 	deployTestRoyaltiesProvider,
 	deployTransferProxy,
 } from "@rarible/ethereum-sdk-test-common"
+import { ethers } from "ethers"
+import { EthersEthereum, EthersWeb3ProviderEthereum } from "@rarible/ethers-ethereum"
 import { getSimpleSendWithInjects, sentTx } from "../../common/send-transaction"
 import { getEthereumConfig } from "../../config"
 import { signOrder } from "../sign-order"
@@ -29,11 +31,18 @@ import { FILL_CALLDATA_TAG } from "../../config/common"
 import { OrderFiller } from "./index"
 
 describe.skip("buy & acceptBid orders", () => {
-	const { addresses, provider } = createGanacheProvider()
+	const { addresses, provider, accounts } = createGanacheProvider()
+	const [account1] = accounts
 	const [buyerAddress, sellerAddress] = addresses
 	const web3 = new Web3(provider as any)
 	const buyerEthereum = new Web3Ethereum({ web3, from: buyerAddress, gas: 1000000 })
 	const sellerEthereum = new Web3Ethereum({ web3, from: sellerAddress, gas: 1000000 })
+
+	const ethersWeb3Provider = new ethers.providers.Web3Provider(provider as any)
+	const buyerEthersWeb3Provider1 = new EthersWeb3ProviderEthereum(ethersWeb3Provider, buyerAddress)
+	const buyerEthersEthereum1 =	new EthersEthereum(
+		new ethers.Wallet(account1.secretKey, ethersWeb3Provider)
+	)
 
 	const env = "testnet" as const
 	const config = getEthereumConfig(env)
@@ -104,6 +113,9 @@ describe.skip("buy & acceptBid orders", () => {
 
 		await sentTx(it.punksMarket.methods.allInitialOwnersAssigned(), {from: buyerAddress})
 
+		await sentTx(it.testErc20.methods.mint(buyerAddress, 10000), { from: buyerAddress })
+		await sentTx(it.testErc1155.methods.mint(sellerAddress, 999, 100, "0x"), { from: buyerAddress })
+
 	})
 
 	test("should match order(buy erc1155 for erc20)", async () => {
@@ -149,11 +161,89 @@ describe.skip("buy & acceptBid orders", () => {
 		const signature = await signOrder(sellerEthereum, config, left)
 
 		const finalOrder = { ...left, signature }
-		await filler.buy({ order: finalOrder, amount: 2, payouts: [], originFees: [] })
 
-		expect(toBn(await it.testErc20.methods.balanceOf(sellerAddress).call()).toString()).toBe("4")
-		expect(toBn(await it.testErc1155.methods.balanceOf(buyerAddress, 1).call()).toString()).toBe("2")
+		const startErc20Balance = toBn(await it.testErc20.methods.balanceOf(sellerAddress).call())
+		const startErc1155Balance = toBn(await it.testErc1155.methods.balanceOf(buyerAddress, 1).call())
+
+		const filler = new OrderFiller(provider, send, config, apis, getBaseOrderFee, env)
+		const tx = await filler.buy({ order: finalOrder, amount: 1, payouts: [], originFees: [] })
+		const receipt = await tx.wait()
+		console.log("rece", receipt)
+
+		const finishErc20Balance = toBn(await it.testErc20.methods.balanceOf(sellerAddress).call())
+		const finishErc1155Balance = toBn(await it.testErc1155.methods.balanceOf(buyerAddress, 1).call())
+
+		expect(finishErc20Balance.minus(startErc20Balance).toString()).toBe("2")
+		expect(finishErc1155Balance.minus(startErc1155Balance).toString()).toBe("1")
 	})
+
+	test.each([
+		{provider: buyerEthereum, name: "web3"},
+		{provider: buyerEthersWeb3Provider1, name: "ethersWeb3Ethereum"},
+		{provider: buyerEthersEthereum1, name: "ethersEthereum"},
+	])("should match order(buy erc1155 for erc20) with $name provider", async ({provider}) => {
+		//sender1 has ERC20, sender2 has ERC1155
+
+		const tokenId = "999"
+		const left: SimpleOrder = {
+			make: {
+				assetType: {
+					assetClass: "ERC1155",
+					contract: toAddress(it.testErc1155.options.address),
+					tokenId: toBigNumber(tokenId),
+				},
+				value: toBigNumber("5"),
+			},
+			maker: sellerAddress,
+			take: {
+				assetType: {
+					assetClass: "ERC20",
+					contract: toAddress(it.testErc20.options.address),
+				},
+				value: toBigNumber("10"),
+			},
+			salt: randomWord(),
+			type: "RARIBLE_V2",
+			data: {
+				dataType: "RARIBLE_V2_DATA_V1",
+				payouts: [],
+				originFees: [],
+			},
+		}
+
+		await sentTx(it.testErc20.methods.approve(it.erc20TransferProxy.options.address, toBn(10)), {
+			from: buyerAddress,
+		})
+
+		await sentTx(it.testErc1155.methods.setApprovalForAll(it.transferProxy.options.address, true), {
+			from: sellerAddress,
+		})
+
+		const signature = await signOrder(sellerEthereum, config, left)
+
+		const finalOrder = { ...left, signature }
+
+		const startErc20Balance = toBn(await it.testErc20.methods.balanceOf(buyerAddress).call())
+		const startErc1155Balance = toBn(await it.testErc1155.methods.balanceOf(buyerAddress, tokenId).call())
+
+		const fillCalldata = toBinary(`${ZERO_ADDRESS}00000001`)
+		const filler = new OrderFiller(provider, send, config, apis, getBaseOrderFee, env, {
+			fillCalldata,
+		})
+		const tx = await filler.buy({ order: finalOrder, amount: 1, payouts: [], originFees: [] })
+		const receipt = await tx.wait()
+		console.log("rece", JSON.stringify(receipt, null, " "))
+		const matchEvent = receipt.events.find(e => e.event === "Match")
+		expect(matchEvent).toBeTruthy()
+		expect(matchEvent?.returnValues).toBeTruthy()
+
+		const finishErc20Balance = toBn(await it.testErc20.methods.balanceOf(sellerAddress).call())
+		const finishErc1155Balance = toBn(await it.testErc1155.methods.balanceOf(buyerAddress, tokenId).call())
+
+		expect(finishErc20Balance.minus(startErc20Balance).toString()).toBe("2")
+		expect(finishErc1155Balance.minus(startErc1155Balance).toString()).toBe("1")
+	})
+
 
 	test("should throw error on match order (on estimateGas)", async () => {
 		//sender1 has ERC20, sender2 has ERC1155

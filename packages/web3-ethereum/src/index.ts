@@ -10,6 +10,7 @@ import type * as EthereumProvider from "@rarible/ethereum-provider"
 import type { Web3EthereumConfig } from "./domain"
 import { providerRequest } from "./utils/provider-request"
 import { toPromises } from "./utils/to-promises"
+import { logParser } from "./utils/log-parser"
 
 export class Web3Ethereum implements EthereumProvider.Ethereum {
 	constructor(private readonly config: Web3EthereumConfig) {
@@ -102,6 +103,10 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 		})
 	}
 
+	private getTxEvents(receipt: TransactionReceipt): EthereumProvider.EthereumTransactionEvent[] {
+		return logParser(receipt.logs, this.contract.options.jsonInterface, this.config.web3)
+	}
+
 	async send(options: EthereumProvider.EthereumSendOptions = {}): Promise<EthereumProvider.EthereumTransaction> {
 		const from = toAddress(await this.getFrom())
 		if (options.additionalData) {
@@ -120,13 +125,15 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 			const { hash, receipt } = toPromises(promiEvent)
 			const hashValue = await hash
 			const tx = await this.getTransaction(hashValue)
+
 			return new Web3Transaction(
 				receipt,
 				toWord(hashValue),
 				toBinary(data),
 				tx.nonce,
 				from,
-				toAddress(this.contract.options.address)
+				toAddress(this.contract.options.address),
+				this.getTxEvents.bind(this)
 			)
 		}
 
@@ -176,12 +183,21 @@ export class Web3Transaction implements EthereumProvider.EthereumTransaction {
 		public readonly data: Binary,
 		public readonly nonce: number,
 		public readonly from: Address,
-		public readonly to?: Address
+		public readonly to?: Address,
+		public readonly getEvents?: (receipt: TransactionReceipt) => EthereumProvider.EthereumTransactionEvent[]
 	) {
 	}
 
 	async wait(): Promise<EthereumProvider.EthereumTransactionReceipt> {
 		const receipt = await this.receipt
+
+		if (this.getEvents) {
+			return {
+				...receipt,
+				events: this.getEvents ? this.getEvents(receipt) : [],
+			}
+		}
+
 		const events: EthereumProvider.EthereumTransactionEvent[] = receipt.events ? Object.keys(receipt.events!)
 			.map(ev => receipt.events![ev])
 			.map(ev => ({

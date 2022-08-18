@@ -81,6 +81,10 @@ export class SeaportOrderHandler {
 						originFees: request.originFees,
 						seaportWrapper: wrapper,
 					})
+				await functionCall.estimateGas({
+					from: await ethereum.getFrom(),
+					value: options.value,
+				})
 				return {
 					functionCall,
 					options: {
@@ -107,6 +111,11 @@ export class SeaportOrderHandler {
 				unitsToFill,
 				tips,
 			})
+
+		await functionCall.estimateGas({
+			from: await ethereum.getFrom(),
+			value: options.value,
+		})
 
 		return {
 			functionCall,

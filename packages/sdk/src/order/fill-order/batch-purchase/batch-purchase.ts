@@ -33,6 +33,7 @@ import { OriginFeeReducer } from "../common/origin-fee-reducer"
 import { createExchangeWrapperContract } from "../../contracts/exchange-wrapper"
 import type { SeaportV1OrderFillRequest } from "../types"
 import { getUpdatedCalldata } from "../common/get-updated-call"
+import { getRequiredWallet } from "../../../common/get-required-wallet"
 
 export class BatchOrderFiller {
 	v2Handler: RaribleV2OrderHandler
@@ -183,6 +184,8 @@ export class BatchOrderFiller {
 		feeAddresses: [Address, Address]
 	): Promise<OrderFillSendData> {
 		let totalValue = toBn(0)
+		const ethereum = getRequiredWallet(this.ethereum)
+
 		const ordersCallData = await Promise.all(preparedOrders.map(async (preparedOrder) => {
 			const requestData = await this.getTransactionSingleRequestData(preparedOrder)
 			totalValue = totalValue.plus(requestData.options?.value || 0)
@@ -197,6 +200,11 @@ export class BatchOrderFiller {
 			feeAddresses[1],
 			true // allowFail
 		)
+
+		await functionCall.estimateGas({
+			from: await ethereum.getFrom(),
+			value: totalValue.toString(),
+		})
 
 		return {
 			functionCall,

@@ -20,21 +20,20 @@ describe.skip("test exchange v1 order", () => {
 	)
 	const web31 = new Web3(provider1)
 	const web32 = new Web3(provider2)
-	const ethereum1 = new Web3Ethereum({ web3: web31 })
-	const ethereum2 = new Web3Ethereum({ web3: web32 })
+	const sellerEthereum = new Web3Ethereum({ web3: web31 })
+	const buyerEthereum = new Web3Ethereum({ web3: web32 })
 
-	const e2eConfig = getEthereumConfig("testnet")
-	const configuration = new Configuration(getApiConfig("testnet"))
+	const configuration = new Configuration(getApiConfig("dev-ethereum"))
 	const ownershipApi = new NftOwnershipControllerApi(configuration)
 
-	const apis = createEthereumApis("testnet")
-	const config = getEthereumConfig("testnet")
+	const apis = createEthereumApis("dev-ethereum")
+	const config = getEthereumConfig("dev-ethereum")
 
 	const getBaseOrderFee = async () => 0
-	const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
+	const checkWalletChainId2 = checkChainId.bind(null, buyerEthereum, config)
 	const send2 = getSimpleSendWithInjects().bind(null, checkWalletChainId2)
 
-	const filler = new OrderFiller(ethereum2, send2, e2eConfig, apis, getBaseOrderFee, "testnet")
+	const filler = new OrderFiller(buyerEthereum, send2, config, apis, getBaseOrderFee, "dev-ethereum")
 
 	const seller = toAddress(wallet1.getAddressString())
 	const buyer = toAddress(wallet2.getAddressString())
@@ -43,12 +42,10 @@ describe.skip("test exchange v1 order", () => {
 		testErc721: deployTestErc721(web31, "Test", "TST"),
 	})
 
-	const sign = signOrder.bind(null, ethereum1, {
-		chainId: 4,
-		exchange: e2eConfig.exchange,
-	})
+	const sign = signOrder.bind(null, sellerEthereum, config)
 
 	test("simple test v1", async () => {
+		console.log(await buyerEthereum.getFrom())
 		const tokenId = toBigNumber("1")
 		await it.testErc721.methods.mint(seller, tokenId, "url").send({ from: seller })
 
@@ -77,7 +74,7 @@ describe.skip("test exchange v1 order", () => {
 		}
 
 		await it.testErc721.methods
-			.setApprovalForAll(e2eConfig.transferProxies.nft, true)
+			.setApprovalForAll(config.transferProxies.nft, true)
 			.send({from: seller })
 
 		const signedOrder: SimpleLegacyOrder = { ...order, signature: await sign(order) }

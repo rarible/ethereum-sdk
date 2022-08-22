@@ -107,7 +107,7 @@ describe.skip("cancel order", () => {
 		)
 
 		const order = await upserter.upsert({ order: form })
-		const tx = await cancel(checkLazyOrder, ethereum, send, config.exchange, checkWalletChainId, order)
+		const tx = await cancel(checkLazyOrder, ethereum, send, config.exchange, checkWalletChainId, apis, order)
 		await tx.wait()
 
 		const cancelledOrder = await retry(15, 2000, async () => {

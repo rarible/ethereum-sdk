@@ -11,6 +11,7 @@ export const devEthereumConfig: EthereumConfig = {
 		v2: toAddress("0x6aABb267a1c440CfB5C200Ebcd078Efa9249492A"),
 		openseaV1: ZERO_ADDRESS,
 		wrapper: ZERO_ADDRESS,
+		x2y2: ZERO_ADDRESS,
 	},
 	transferProxies: {
 		nft: toAddress("0xc6f33b62A94939E52E1b074c4aC1A801B869fDB2"),

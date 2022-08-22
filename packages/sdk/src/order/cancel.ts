@@ -1,11 +1,13 @@
+import { ethers } from "ethers"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Address, CryptoPunksAssetType } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
-import { toAddress } from "@rarible/types"
+import { toAddress, toBigNumber } from "@rarible/types"
 import type { ExchangeAddresses } from "../config/type"
 import { toVrs } from "../common/to-vrs"
 import { createCryptoPunksMarketContract } from "../nft/contracts/cryptoPunks"
 import type { SendFunction } from "../common/send-transaction"
+import type { RaribleEthereumApis } from "../common/apis"
 import { getRequiredWallet } from "../common/get-required-wallet"
 import { createExchangeV1Contract } from "./contracts/exchange-v1"
 import { createExchangeV2Contract } from "./contracts/exchange-v2"
@@ -17,7 +19,7 @@ import type {
 	SimpleLegacyOrder, SimpleLooksrareOrder,
 	SimpleOpenSeaV1Order,
 	SimpleOrder,
-	SimpleRaribleV2Order, SimpleSeaportV1Order,
+	SimpleRaribleV2Order, SimpleSeaportV1Order, SimpleX2Y2Order,
 } from "./types"
 import { orderToStruct } from "./sign-order"
 import { convertOpenSeaOrderToDTO } from "./fill-order/open-sea-converter"
@@ -26,6 +28,7 @@ import { createSeaportContract } from "./contracts/seaport"
 import { CROSS_CHAIN_SEAPORT_ADDRESS } from "./fill-order/seaport-utils/constants"
 import { convertAPIOrderToSeaport } from "./fill-order/seaport-utils/convert-to-seaport-order"
 import { createLooksrareExchange } from "./contracts/looksrare-exchange"
+import { createX2Y2Contract } from "./contracts/exchange-x2y2-v1"
 
 export async function cancel(
 	checkLazyOrder: (form: CheckLazyOrderPart) => Promise<CheckLazyOrderPart>,
@@ -33,6 +36,7 @@ export async function cancel(
 	send: SendFunction,
 	config: ExchangeAddresses,
 	checkWalletChainId: () => Promise<boolean>,
+	apis: RaribleEthereumApis,
 	orderToCheck: SimpleOrder,
 ): Promise<EthereumTransaction> {
 	await checkWalletChainId()
@@ -51,6 +55,8 @@ export async function cancel(
 				return cancelLooksRareOrder(ethereum, send, config, order)
 			case "CRYPTO_PUNK":
 				return cancelCryptoPunksOrder(ethereum, send, order)
+			case "X2Y2":
+				return cancelX2Y2Order(ethereum, send, apis, config.x2y2, order)
 			default:
 				throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
 		}
@@ -93,6 +99,47 @@ export function cancelOpenseaOrderV1(
 			makerVRS.s,
 		)
 	)
+}
+
+export async function cancelX2Y2Order(
+	ethereum: Ethereum, send: SendFunction, apis: RaribleEthereumApis, contract: Address, order: SimpleX2Y2Order
+) {
+	function decodeCancelInput(input: string) {
+		return ethers.utils.defaultAbiCoder.decode(
+			["tuple(bytes32[] itemHashes, uint256 deadline, uint8 v, bytes32 r, bytes32 s)"],
+			input
+		)[0] as {
+			itemHashes: string[]
+			deadline: string
+			// signature
+			r: string
+			s: string
+			v: number
+		}
+	}
+
+	const OP_CANCEL_OFFER = toBigNumber("3")
+	const exchangeContract = createX2Y2Contract(ethereum, contract)
+
+	const signMessage = "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+	const cancelInput = decodeCancelInput((await apis.orderSignature.cancelSignX2Y2({
+		x2Y2GetCancelInputRequest: {
+			orderId: order.data.orderId,
+			op: OP_CANCEL_OFFER,
+			caller: await ethereum.getFrom(),
+			sign: signMessage,
+			signMessage: await ethereum.personalSign(signMessage),
+		},
+	})).input)
+
+	return send(exchangeContract.functionCall(
+		"cancel",
+		cancelInput.itemHashes,
+		cancelInput.deadline,
+		cancelInput.v,
+		cancelInput.r,
+		cancelInput.s,
+	))
 }
 
 export function cancelCryptoPunksOrder(ethereum: Ethereum, send: SendFunction, order: SimpleCryptoPunkOrder) {

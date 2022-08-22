@@ -293,7 +293,7 @@ export function createRaribleSdk(
 			bid: bidService.bid,
 			bidUpdate: bidService.update,
 			upsert: upsertService.upsert,
-			cancel: partialCall(cancelTemplate, checkLazyOrder, ethereum, send, config.exchange, checkWalletChainId),
+			cancel: partialCall(cancelTemplate, checkLazyOrder, ethereum, send, config.exchange, checkWalletChainId, apis),
 			getBaseOrderFee: getBaseOrderFee,
 			getBaseOrderFillFee: filler.getBaseOrderFillFee,
 		},

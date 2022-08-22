@@ -125,7 +125,7 @@ export async function ordersToRequests(
 }
 
 export function waitUntilOrderActive(sdk: RaribleSdk, orderHash: string) {
-	return retry(20, 2000, async () => {
+	return retry(30, 2000, async () => {
 		const order = await sdk.apis.order.getOrderByHash({ hash: orderHash })
 		expect(order.status).toBe("ACTIVE")
 		return order

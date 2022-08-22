@@ -7,6 +7,7 @@ export type RaribleEthereumApis = {
 	nftOwnership: EthereumApiClient.NftOwnershipControllerApi;
 	order: EthereumApiClient.OrderControllerApi;
 	orderActivity: EthereumApiClient.OrderActivityControllerApi;
+	orderSignature: EthereumApiClient.OrderSignatureControllerApi;
 	nftCollection: EthereumApiClient.NftCollectionControllerApi;
 	balances: EthereumApiClient.BalanceControllerApi;
 	gateway: EthereumApiClient.GatewayControllerApi;
@@ -25,6 +26,7 @@ export function createEthereumApis(
 		nftOwnership: new EthereumApiClient.NftOwnershipControllerApi(configuration),
 		order: new EthereumApiClient.OrderControllerApi(configuration),
 		orderActivity: new EthereumApiClient.OrderActivityControllerApi(configuration),
+		orderSignature: new EthereumApiClient.OrderSignatureControllerApi(configuration),
 		nftCollection: new EthereumApiClient.NftCollectionControllerApi(configuration),
 		balances: new EthereumApiClient.BalanceControllerApi(configuration),
 		gateway: new EthereumApiClient.GatewayControllerApi(configuration),

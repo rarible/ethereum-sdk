@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.87](https://github.com/rarible/ethereum-sdk/compare/v0.12.86...v0.12.87) (2022-08-22)
+
+
+### Bug Fixes
+
+* fix events from send transaction ([#183](https://github.com/rarible/ethereum-sdk/issues/183)) ([0c9d581](https://github.com/rarible/ethereum-sdk/commit/0c9d581b6a85353e7cc41076ec7bb4f4c4789441))
+
+
+### Features
+
+* add tx data to error log ([#185](https://github.com/rarible/ethereum-sdk/issues/185)) ([f9104e2](https://github.com/rarible/ethereum-sdk/commit/f9104e27cae299d1426ce5008ad76c26a79dd798))
+* call estimate gas before sending tx ([#180](https://github.com/rarible/ethereum-sdk/issues/180)) ([df22906](https://github.com/rarible/ethereum-sdk/commit/df229066a2f2b45fb0f265e467909fc98a889ddd))
+
+
+
+
+
 ## [0.12.86](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.85...v0.12.86) (2022-08-17)
 
 

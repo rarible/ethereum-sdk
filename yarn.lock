@@ -2520,10 +2520,10 @@
   dependencies:
     "@rarible/types" "~0.9.2"
 
-"@rarible/logger@~0.6.2":
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/@rarible/logger/-/logger-0.6.2.tgz#46a0742053cb4ecde944a85af481aaa1d70eb742"
-  integrity sha512-e7o7+IAPlknynF+JWH8MRMucx0puZ/eVADkVxae20alombj4aiwSkj//qiA28k1kExXjyf6tC2v1Vz4/4dhI8w==
+"@rarible/logger@~0.9.5":
+  version "0.9.5"
+  resolved "https://registry.yarnpkg.com/@rarible/logger/-/logger-0.9.5.tgz#773971ac3a4a83f4edfa565b7e2e2c7af1e5633c"
+  integrity sha512-127yckgb2Ao8pUjkNVIMn46teYfbFKkxAl4oUU7lN9iIIlJoyrqle2AVX/oPpMUpoqETf9xGLtAxX9miJZsLbg==
   dependencies:
     json-stringify-safe "^5.0.1"
 
@@ -2543,10 +2543,10 @@
   resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.9.3.tgz#16eac9f500b48e4bd4c43f2d93a84c46dc5a5a13"
   integrity sha512-lvmmqyibKNqylXr9yYMdor+onv/2z7O8LThpEsO/DpM2nawJ8f/QeEPjlyqTpjVhQyrpGwwFjuNQCTiiJi3msg==
 
-"@rarible/utils@~0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@rarible/utils/-/utils-0.5.0.tgz#e111e5cad0ba962747bf541eae3515b642b559de"
-  integrity sha512-t1OgC2RJtRFHSqF0DKb6tk2HO3+a+lhbte1Z47AkoHoJ3oK4HjAXssydctP/wR8Y1/lIP2zMruShv297B+h8fw==
+"@rarible/utils@~0.9.1":
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/@rarible/utils/-/utils-0.9.1.tgz#007eef8b762818b8569273e892f97b20cf07868c"
+  integrity sha512-Z+olAMTwpnu+y1rOyFlWobjFHKsWCxXWef5UyjfkbPtHUUM3R+0zt7Xp92FZWx/By4bJ9wmVvZMCDvomTPL+7g==
   dependencies:
     bignumber.js "^9.0.0"
 

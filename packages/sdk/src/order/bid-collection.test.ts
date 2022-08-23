@@ -16,6 +16,7 @@ import { delay } from "../common/retry"
 import { createEthereumApis } from "../common/apis"
 import { createErc721V3Collection } from "../common/mint"
 import type { ERC721RequestV3, MintOffChainResponse} from "../nft/mint"
+import { getEstimateGasInjects } from "../common/estimate-gas"
 import { mint as mintTemplate } from "../nft/mint"
 import { signNft } from "../nft/sign-nft"
 import { OrderBid } from "./bid"
@@ -48,7 +49,8 @@ describe.skip("bid", () => {
 
 	const getBaseOrderFee = async () => 0
 	const send2 = getSimpleSendWithInjects().bind(null, checkWalletChainId2)
-	const orderService = new OrderFiller(ethereum2, send2, config, apis, getBaseOrderFee, env)
+	const estimateGas = getEstimateGasInjects()
+	const orderService = new OrderFiller(ethereum2, send2, estimateGas, config, apis, getBaseOrderFee, env)
 	const approve2 = approveTemplate.bind(null, ethereum2, send2, config.transferProxies)
 
 
@@ -79,7 +81,7 @@ describe.skip("bid", () => {
 		testErc721: deployTestErc721(web31, "Test", "TST"),
 	})
 
-	const filler1 = new OrderFiller(ethereum1, send1, config, apis, getBaseOrderFee, env)
+	const filler1 = new OrderFiller(ethereum1, send1, estimateGas, config, apis, getBaseOrderFee, env)
 
 	test("create bid for collection", async () => {
 		const ownerCollectionAddress = toAddress(await ethereum1.getFrom())

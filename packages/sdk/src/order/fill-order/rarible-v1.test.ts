@@ -10,6 +10,7 @@ import { getApiConfig } from "../../config/api-config"
 import { signOrder } from "../sign-order"
 import type { SimpleLegacyOrder, SimpleOrder } from "../types"
 import { createEthereumApis } from "../../common/apis"
+import { getEstimateGasInjects } from "../../common/estimate-gas"
 import { checkChainId } from "../check-chain-id"
 import { OrderFiller } from "./"
 
@@ -32,8 +33,8 @@ describe.skip("test exchange v1 order", () => {
 	const getBaseOrderFee = async () => 0
 	const checkWalletChainId2 = checkChainId.bind(null, buyerEthereum, config)
 	const send2 = getSimpleSendWithInjects().bind(null, checkWalletChainId2)
-
-	const filler = new OrderFiller(buyerEthereum, send2, config, apis, getBaseOrderFee, "dev-ethereum")
+	const estimateGas = getEstimateGasInjects()
+	const filler = new OrderFiller(buyerEthereum, send2, estimateGas, config, apis, getBaseOrderFee, "dev-ethereum")
 
 	const seller = toAddress(wallet1.getAddressString())
 	const buyer = toAddress(wallet2.getAddressString())

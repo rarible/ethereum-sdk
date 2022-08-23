@@ -1,4 +1,3 @@
-import { ethers } from "ethers"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Address, CryptoPunksAssetType } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
@@ -105,9 +104,28 @@ export async function cancelX2Y2Order(
 	ethereum: Ethereum, send: SendFunction, apis: RaribleEthereumApis, contract: Address, order: SimpleX2Y2Order
 ) {
 	function decodeCancelInput(input: string) {
-		return ethers.utils.defaultAbiCoder.decode(
-			["tuple(bytes32[] itemHashes, uint256 deadline, uint8 v, bytes32 r, bytes32 s)"],
-			input
+		return ethereum.decodeParameter(
+			[{
+				components: [{
+					name: "itemHashes",
+					type: "bytes32[]",
+				}, {
+					name: "deadline",
+					type: "uint256",
+				}, {
+					name: "v",
+					type: "uint8",
+				}, {
+					name: "r",
+					type: "bytes32",
+				}, {
+					name: "s",
+					type: "bytes32",
+				}],
+				name: "data",
+				type: "tuple",
+			}],
+			input,
 		)[0] as {
 			itemHashes: string[]
 			deadline: string

@@ -40,4 +40,43 @@ describe("Web3Ethereum", () => {
 		const network = await e2eEthereum.getChainId()
 		expect(network).toBe(300500)
 	})
+
+	test("encode/decode", async () => {
+		const type = {
+			components: [
+				{
+					name: "payouts",
+					type: "uint256",
+				},
+				{
+					name: "originFeeFirst",
+					type: "uint256",
+				},
+				{
+					name: "marketplaceMarker",
+					type: "bytes",
+				},
+				{
+					name: "r",
+					type: "uint8",
+				},
+			],
+			name: "data",
+			type: "tuple",
+		}
+
+		const data = {
+			payouts: 0x4058,
+			originFeeFirst: 0x1011,
+			marketplaceMarker: "0xabcdef",
+			r: 78,
+		}
+
+		const encoded = e2eEthereum.encodeParameter(type,	data)
+		const decoded = e2eEthereum.decodeParameter(type,	encoded)
+		for (const field in data) {
+			//@ts-ignore
+			expect(decoded[field]).toEqual(data[field].toString())
+		}
+	})
 })

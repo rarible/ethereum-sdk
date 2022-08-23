@@ -53,6 +53,12 @@ export function encodeParameters(types: any[], params: any[]) {
 	return ethersAbiCoder.encode(types, params)
 }
 
+export function decodeParameters(types: any[], data: string) {
+	types = mapTypes(types)
+
+	return ethersAbiCoder.decode(types, data).data
+}
+
 function mapTypes(types: any[]) {
 	const mappedTypes: (string | object)[] = []
 	types.forEach(function (type) {

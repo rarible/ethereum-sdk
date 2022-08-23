@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.87](https://github.com/rarible/ethereum-sdk/compare/v0.12.86...v0.12.87) (2022-08-22)
+
+
+### Bug Fixes
+
+* fix events from send transaction ([#183](https://github.com/rarible/ethereum-sdk/issues/183)) ([0c9d581](https://github.com/rarible/ethereum-sdk/commit/0c9d581b6a85353e7cc41076ec7bb4f4c4789441))
+
+
+
+
+
 ## [0.12.83](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.82...v0.12.83) (2022-08-16)
 
 

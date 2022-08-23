@@ -2,13 +2,16 @@ import type { Maybe } from "@rarible/types/build/maybe"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { EthereumTransaction } from "@rarible/ethereum-provider/src"
 import { toAddress, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
+import type { BigNumber } from "@rarible/types"
+import type { Part } from "@rarible/ethereum-api-client"
 import type { SimpleOrder, SimpleX2Y2Order } from "../types"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
 import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
 import type { RaribleEthereumApis } from "../../common/apis"
 import type { X2Y2OrderFillRequest } from "./types"
-import { ExchangeWrapperOrderType } from "./types"
+import type {	PreparedOrderRequestDataForExchangeWrapper} from "./types"
+import { ExchangeWrapperOrderType} from "./types"
 import { X2Y2Utils } from "./x2y2-utils/get-order-sign"
 import { calcValueWithFees, originFeeValueConvert } from "./common/origin-fees-utils"
 
@@ -36,26 +39,61 @@ export class X2Y2OrderHandler {
 			throw new Error("x2y2 supports max up to 2 origin fee value")
 		}
 
-		const { encodedFeesValue, feeAddresses, totalFeeBasisPoints } = originFeeValueConvert(request.originFees)
+		const { totalFeeBasisPoints, encodedFeesValue, feeAddresses } = originFeeValueConvert(request.originFees)
+		const valueForSending = calcValueWithFees(toBigNumber(request.order.take.value), totalFeeBasisPoints)
+
+		const data = await this.getWrapperData(
+			request,
+			encodedFeesValue,
+			valueForSending.toString()
+		)
+
+		return this.send(
+			wrapper.functionCall("singlePurchase", data.data, feeAddresses[0], feeAddresses[1]),
+			data.options
+		)
+	}
+
+	async getTransactionDataForExchangeWrapper(
+		request: X2Y2OrderFillRequest,
+		originFees: Part[] | undefined,
+		feeValue: BigNumber,
+	): Promise<PreparedOrderRequestDataForExchangeWrapper> {
+		const { totalFeeBasisPoints } = originFeeValueConvert(originFees)
+		const valueForSending = calcValueWithFees(toBigNumber(request.order.take.value), totalFeeBasisPoints)
+
+		return this.getWrapperData(
+			request,
+			feeValue,
+			valueForSending.toString()
+		)
+	}
+
+	private async getWrapperData(
+		request: X2Y2OrderFillRequest,
+		feeValue: BigNumber,
+		totalValueForSending: string
+	) {
+		if (!this.ethereum) {
+			throw new Error("Wallet undefined")
+		}
 
 		const x2y2Input = await X2Y2Utils.getOrderSign(this.apis, {
 			sender: toAddress(await this.ethereum.getFrom()),
-			orderId: order.data.orderId,
+			orderId: request.order.data.orderId,
 			currency: ZERO_ADDRESS,
-			price: order.take.value,
+			price: request.order.take.value,
 		})
 
-		const valueForSending = calcValueWithFees(toBigNumber(order.take.value), totalFeeBasisPoints)
-
-		return this.send(
-			wrapper.functionCall("singlePurchase", {
+		return {
+			data: {
 				marketId: ExchangeWrapperOrderType.X2Y2,
-				fees: encodedFeesValue,
-				amount: order.take.value,
+				amount: request.order.take.value,
+				fees: feeValue,
 				data: x2y2Input,
-			}, feeAddresses[0], feeAddresses[1]),
-			{ value: valueForSending.toString() }
-		)
+			},
+			options: { value: totalValueForSending },
+		}
 	}
 
 	getBaseOrderFee() {

@@ -89,7 +89,8 @@ export type FillBatchSingleOrderRequest =
 	// RaribleV2OrderFillRequestV3Buy |
 	OpenSeaV1OrderFillRequest |
 	LooksrareOrderFillRequest |
-	SeaportV1OrderFillRequest
+	SeaportV1OrderFillRequest |
+	X2Y2OrderFillRequest
 
 export type FillBatchOrderRequest = FillBatchSingleOrderRequest[]
 

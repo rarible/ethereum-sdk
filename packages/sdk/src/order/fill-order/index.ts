@@ -19,6 +19,7 @@ import { checkLazyAssetType } from "../check-lazy-asset-type"
 import { checkChainId } from "../check-chain-id"
 import type { IRaribleEthereumSdkConfig } from "../../types"
 import type { EthereumNetwork } from "../../types"
+import type { EstimateGasMethod } from "../../common/estimate-gas"
 import type {
 	CryptoPunksOrderFillRequest,
 	FillOrderAction,
@@ -57,6 +58,7 @@ export class OrderFiller {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
+		private readonly estimateGas: EstimateGasMethod,
 		private readonly config: EthereumConfig,
 		private readonly apis: RaribleEthereumApis,
 		private readonly getBaseOrderFee: (type: SimpleOrder["type"]) => Promise<number>,
@@ -66,12 +68,28 @@ export class OrderFiller {
 		this.getBaseOrderFillFee = this.getBaseOrderFillFee.bind(this)
 		this.getTransactionData = this.getTransactionData.bind(this)
 		this.getBuyTx = this.getBuyTx.bind(this)
-		this.v1Handler = new RaribleV1OrderHandler(ethereum, apis.order, send, config, getBaseOrderFee, sdkConfig)
-		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config, getBaseOrderFee, sdkConfig)
-		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
-		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config, getBaseOrderFee, sdkConfig)
-		this.seaportHandler = new SeaportOrderHandler(ethereum, send, config, getBaseOrderFee, env, sdkConfig)
-		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, config, getBaseOrderFee, env, sdkConfig)
+		this.v1Handler = new RaribleV1OrderHandler(
+			ethereum,
+			apis.order,
+			send,
+			estimateGas,
+			config,
+			getBaseOrderFee,
+			sdkConfig,
+		)
+		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, sdkConfig)
+		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, estimateGas, config, apis, getBaseOrderFee, sdkConfig)
+		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, sdkConfig)
+		this.seaportHandler = new SeaportOrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, env, sdkConfig)
+		this.looksrareHandler = new LooksrareOrderHandler(
+			ethereum,
+			send,
+			estimateGas,
+			config,
+			getBaseOrderFee,
+			env,
+			sdkConfig,
+		)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 	}

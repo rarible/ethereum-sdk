@@ -34,6 +34,7 @@ import { createExchangeWrapperContract } from "../../contracts/exchange-wrapper"
 import type { SeaportV1OrderFillRequest } from "../types"
 import { getUpdatedCalldata } from "../common/get-updated-call"
 import { getRequiredWallet } from "../../../common/get-required-wallet"
+import type { EstimateGasMethod } from "../../../common/estimate-gas"
 
 export class BatchOrderFiller {
 	v2Handler: RaribleV2OrderHandler
@@ -46,16 +47,17 @@ export class BatchOrderFiller {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
+		private readonly estimateGas: EstimateGasMethod,
 		private readonly config: EthereumConfig,
 		private readonly apis: RaribleEthereumApis,
 		private readonly getBaseOrderFee: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly env: EthereumNetwork,
 		private readonly sdkConfig?: IRaribleEthereumSdkConfig
 	) {
-		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config, getBaseOrderFee)
-		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
-		this.seaportHandler = new SeaportOrderHandler(ethereum, send, config, getBaseOrderFee, env)
-		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, config, getBaseOrderFee, env)
+		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee)
+		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, estimateGas, config, apis, getBaseOrderFee, sdkConfig)
+		this.seaportHandler = new SeaportOrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, env)
+		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, env)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 		this.getTransactionRequestData = this.getTransactionRequestData.bind(this)
@@ -201,7 +203,7 @@ export class BatchOrderFiller {
 			true // allowFail
 		)
 
-		await functionCall.estimateGas({
+		await this.estimateGas(functionCall, {
 			from: await ethereum.getFrom(),
 			value: totalValue.toString(),
 		})

@@ -8,6 +8,7 @@ import { getApiConfig } from "../config/api-config"
 import { createTestProviders } from "../common/create-test-providers"
 import { createEthereumApis } from "../common/apis"
 import { getSimpleSendWithInjects } from "../common/send-transaction"
+import { getEstimateGasInjects } from "../common/estimate-gas"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { UpsertOrder } from "./upsert-order"
 import { signOrder } from "./sign-order"
@@ -29,7 +30,8 @@ describe.each(providers)("upsertOrder", (ethereum) => {
 
 	const getBaseOrderFee = async () => 0
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
-	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee, env)
+	const estimateGas = getEstimateGasInjects()
+	const orderService = new OrderFiller(ethereum, send, estimateGas, config, apis, getBaseOrderFee, env)
 
 	const approve = () => Promise.resolve(undefined)
 	const configuration = new Configuration(getApiConfig(env))

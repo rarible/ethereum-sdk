@@ -15,6 +15,7 @@ import type { EthereumConfig } from "../../config/type"
 import type { EthereumNetwork } from "../../types"
 import type { IRaribleEthereumSdkConfig } from "../../types"
 import { getRequiredWallet } from "../../common/get-required-wallet"
+import type { EstimateGasMethod } from "../../common/estimate-gas"
 import { CROSS_CHAIN_SEAPORT_ADDRESS, ItemType, OrderType } from "./seaport-utils/constants"
 import type { PreparedOrderRequestDataForExchangeWrapper, SeaportV1OrderFillRequest } from "./types"
 import type { TipInputItem } from "./seaport-utils/types"
@@ -28,6 +29,7 @@ export class SeaportOrderHandler {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
+		private readonly estimateGas: EstimateGasMethod,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly env: EthereumNetwork,
@@ -81,7 +83,7 @@ export class SeaportOrderHandler {
 						originFees: request.originFees,
 						seaportWrapper: wrapper,
 					})
-				await functionCall.estimateGas({
+				await this.estimateGas(functionCall, {
 					from: await ethereum.getFrom(),
 					value: options.value,
 				})
@@ -112,7 +114,7 @@ export class SeaportOrderHandler {
 				tips,
 			})
 
-		await functionCall.estimateGas({
+		await this.estimateGas(functionCall, {
 			from: await ethereum.getFrom(),
 			value: options.value,
 		})

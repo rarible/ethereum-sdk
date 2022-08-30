@@ -35,6 +35,10 @@ export const testnetEthereumConfig: EthereumConfig = {
 		marketContract: toAddress("0x85252f525456d3fce3654e56f6eaf034075e231c"),
 		wrapperContract: toAddress("0x7898972f9708358acb7ea7d000ebdf28fcdf325c"),
 	},
+	sudoswap: {
+		pairFactory: toAddress("0xcB1514FE29db064fa595628E0BFFD10cdf998F33"),
+		pairRouter: toAddress("0x9ABDe410D7BA62fA11EF37984c0Faf2782FE39B5"),
+	},
 	weth: toAddress("0xc778417e063141139fce010982780140aa0cd5ab"),
 	auction: ZERO_ADDRESS,
 }

@@ -33,6 +33,10 @@ export const polygonConfig: EthereumConfig = {
 		marketContract: ZERO_ADDRESS,
 		wrapperContract: ZERO_ADDRESS,
 	},
+	sudoswap: {
+		pairFactory: ZERO_ADDRESS,
+		pairRouter: ZERO_ADDRESS,
+	},
 	weth: toAddress("0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"),
 	auction: ZERO_ADDRESS,
 }

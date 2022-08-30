@@ -6,7 +6,8 @@
     "SEAPORT_V1": 0,
     "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
-    "AUCTION": 0
+    "AUCTION": 0,
+    "AMM": 0
   },
   "mumbai": {
     "RARIBLE_V1": 0,
@@ -15,7 +16,8 @@
     "SEAPORT_V1": 0,
     "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
-    "AUCTION": 0
+    "AUCTION": 0,
+    "AMM": 0
   },
   "mumbai-dev": {
     "RARIBLE_V1": 0,
@@ -24,7 +26,8 @@
     "SEAPORT_V1": 0,
     "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
-    "AUCTION": 0
+    "AUCTION": 0,
+    "AMM": 0
   },
   "polygon": {
     "RARIBLE_V1": 0,
@@ -33,7 +36,8 @@
     "SEAPORT_V1": 0,
     "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
-    "AUCTION": 0
+    "AUCTION": 0,
+    "AMM": 0
   },
   "rinkeby": {
     "RARIBLE_V1": 0,
@@ -42,7 +46,8 @@
     "SEAPORT_V1": 0,
     "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
-    "AUCTION": 0
+    "AUCTION": 0,
+    "AMM": 0
   },
   "testnet": {
     "RARIBLE_V1": 0,
@@ -51,7 +56,8 @@
     "SEAPORT_V1": 0,
     "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
-    "AUCTION": 0
+    "AUCTION": 0,
+    "AMM": 0
   },
   "dev-ethereum": {
     "RARIBLE_V1": 0,
@@ -60,7 +66,8 @@
     "SEAPORT_V1": 0,
     "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
-    "AUCTION": 0
+    "AUCTION": 0,
+    "AMM": 0
   },
   "dev-polygon": {
     "RARIBLE_V1": 0,
@@ -69,6 +76,7 @@
     "SEAPORT_V1": 0,
     "LOOKSRARE": 0,
     "CRYPTO_PUNK": 0,
-    "AUCTION": 0
+    "AUCTION": 0,
+    "AMM": 0
   }
 }

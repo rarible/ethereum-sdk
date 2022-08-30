@@ -34,6 +34,11 @@ export type CryptoPunksConfig = {
 	wrapperContract: Address
 }
 
+export type SudoswapConfig = {
+	pairFactory: Address
+	pairRouter: Address
+}
+
 export type EthereumConfig = {
 	basePath: string
 	chainId: number
@@ -43,6 +48,7 @@ export type EthereumConfig = {
 	openSea: OpenSeaConfig
 	factories: FactoriesAddresses
 	weth: Address
-	auction: Address,
+	auction: Address
 	cryptoPunks: CryptoPunksConfig
+	sudoswap: SudoswapConfig
 }

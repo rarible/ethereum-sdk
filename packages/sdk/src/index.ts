@@ -56,6 +56,7 @@ import { getAuctionHash } from "./auction/common"
 import type { CryptoPunksWrapper } from "./common/crypto-punks"
 import { approveForWrapper, unwrapPunk, wrapPunk } from "./nft/cryptopunk-wrapper"
 import { BatchOrderFiller } from "./order/fill-order/batch-purchase/batch-purchase"
+import { getEstimateGasInjects } from "./common/estimate-gas"
 
 export interface RaribleOrderSdk {
 	/**
@@ -249,6 +250,12 @@ export function createRaribleSdk(
 			level: sdkConfig?.logs ?? LogsLevel.DISABLED,
 		},
 	}), apis.gateway)
+	const estimateGas = getEstimateGasInjects({
+		logger: {
+			instance: createRemoteLogger({ethereum, env: getEnvironment(env)}),
+			level: sdkConfig?.logs ?? LogsLevel.DISABLED,
+		},
+	})
 	const send = partialCall(sendWithInjects, checkWalletChainId)
 	const checkLazyAssetType = partialCall(order.checkLazyAssetType, apis.nftItem)
 	const checkLazyAsset = partialCall(order.checkLazyAsset, checkLazyAssetType)
@@ -256,8 +263,17 @@ export function createRaribleSdk(
 	const checkAssetType = partialCall(checkAssetTypeTemplate, apis.nftCollection)
 
 	const getBaseOrderFee = getBaseFee.bind(null, config, env)
-	const filler = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee, env, sdkConfig)
-	const buyBatchService = new BatchOrderFiller(ethereum, send, config, apis, getBaseOrderFee, env, sdkConfig)
+	const filler = new OrderFiller(ethereum, send, estimateGas, config, apis, getBaseOrderFee, env, sdkConfig)
+	const buyBatchService = new BatchOrderFiller(
+		ethereum,
+		send,
+		estimateGas,
+		config,
+		apis,
+		getBaseOrderFee,
+		env,
+		sdkConfig,
+	)
 
 	const approveFn = partialCall(approveTemplate, ethereum, send, config.transferProxies)
 

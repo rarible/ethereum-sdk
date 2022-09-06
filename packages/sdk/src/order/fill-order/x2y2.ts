@@ -9,6 +9,7 @@ import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
 import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
 import type { RaribleEthereumApis } from "../../common/apis"
+import type { EstimateGasMethod } from "../../common/estimate-gas"
 import type { X2Y2OrderFillRequest } from "./types"
 import type {	PreparedOrderRequestDataForExchangeWrapper} from "./types"
 import { ExchangeWrapperOrderType} from "./types"
@@ -19,6 +20,7 @@ export class X2Y2OrderHandler {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
+		private readonly estimateGas: EstimateGasMethod,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly apis: RaribleEthereumApis,
@@ -48,8 +50,15 @@ export class X2Y2OrderHandler {
 			valueForSending.toString()
 		)
 
+		const functionCall = wrapper.functionCall("singlePurchase", data.data, feeAddresses[0], feeAddresses[1])
+
+		await this.estimateGas(functionCall, {
+			from: await this.ethereum.getFrom(),
+			value: data.options.value,
+		})
+
 		return this.send(
-			wrapper.functionCall("singlePurchase", data.data, feeAddresses[0], feeAddresses[1]),
+			functionCall,
 			data.options
 		)
 	}

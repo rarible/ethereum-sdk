@@ -10,7 +10,7 @@ export const devEthereumConfig: EthereumConfig = {
 		v1: ZERO_ADDRESS,
 		v2: toAddress("0x6aABb267a1c440CfB5C200Ebcd078Efa9249492A"),
 		openseaV1: ZERO_ADDRESS,
-		wrapper: ZERO_ADDRESS,
+		wrapper: toAddress("0xB9078a4102309Fe32eCDb2B82f61496bB1c7FBA1"),
 		x2y2: ZERO_ADDRESS,
 	},
 	transferProxies: {

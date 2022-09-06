@@ -1,21 +1,11 @@
 import type { ContractSendMethod, SendOptions } from "web3-eth-contract"
-import type { PromiEvent } from "web3-core"
+import type { PromiEvent, TransactionReceipt } from "web3-core"
 import { toAddress, toBinary, toWord } from "@rarible/types"
 import type { GatewayControllerApi } from "@rarible/ethereum-api-client"
-import type {
-	EthereumFunctionCall,
-	EthereumSendOptions,
-	EthereumTransaction,
-} from "@rarible/ethereum-provider"
-import type { AbstractLogger } from "@rarible/logger/build/domain"
-import type { TransactionReceipt } from "web3-core"
+import type { EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { LogsLevel } from "../types"
+import type { ILoggerConfig } from "./logger/logger"
 import { getErrorMessageString } from "./logger/logger"
-
-interface ILoggerConfig {
-	instance: AbstractLogger
-	level: LogsLevel
-}
 
 export type SendFunction = (
 	functionCall: EthereumFunctionCall, options?: EthereumSendOptions,

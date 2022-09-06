@@ -1,6 +1,6 @@
 {
   "name": "@rarible/protocol-ethereum-sdk",
-  "version": "0.12.87",
+  "version": "0.12.88",
   "keywords": [
     "axios",
     "typescript",
@@ -28,8 +28,8 @@
     "@rarible/action": "~0.5.0",
     "@rarible/ethereum-api-client": "^0.1.23-beta6",
     "@rarible/ethereum-provider": "^0.12.87",
-    "@rarible/logger": "~0.6.2",
-    "@rarible/utils": "~0.5.0",
+    "@rarible/logger": "~0.9.5",
+    "@rarible/utils": "~0.9.1",
     "axios": "^0.25.0",
     "eth-sig-util": "^3.0.0",
     "ethereumjs-util": "^7.1.0",

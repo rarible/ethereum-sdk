@@ -27,6 +27,7 @@ import { checkChainId } from "../../../check-chain-id"
 import { signOrder } from "../../../sign-order"
 import { BatchOrderFiller } from "../batch-purchase"
 import { createRaribleSdk } from "../../../../index"
+import { getEstimateGasInjects } from "../../../../common/estimate-gas"
 import {
 	checkOwnerships,
 	makeLooksrareOrder,
@@ -182,8 +183,9 @@ describe.skip("fillOrder: Opensea orders", function () {
 	// const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
 
 	const send1 = getSimpleSendWithInjects().bind(null, checkWalletChainId1)
+	const estimateGas = getEstimateGasInjects()
 
-	const orderFiller = new BatchOrderFiller(ethereum1, send1, config, apis, getBaseOrderFee, env)
+	const orderFiller = new BatchOrderFiller(ethereum1, send1, estimateGas, config, apis, getBaseOrderFee, env)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

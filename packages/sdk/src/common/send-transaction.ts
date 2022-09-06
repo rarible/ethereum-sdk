@@ -55,17 +55,9 @@ export function getSendWithInjects(injects: {
 		} catch (err: any) {
 			try {
 				if (logsAvailable && logger.level >= LogsLevel.ERROR && callInfo) {
-					let data = undefined
-					try {
-						data = await functionCall.getData()
-					} catch (e: any) {
-						console.error("Unable to get tx data for log", e)
-					}
-
 					logger.instance.error(callInfo.method, {
 						from: callInfo.from,
 						args: callInfo.args,
-						data,
 						error: getErrorMessageString(err),
 					})
 				}

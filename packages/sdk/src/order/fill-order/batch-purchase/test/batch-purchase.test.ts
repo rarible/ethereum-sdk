@@ -110,7 +110,7 @@ describe.skip("Batch purchase", function () {
 	test("looksrare few items sell", async () => {
 		const orders = await Promise.all([
 			makeLooksrareOrder(sdkSeller, ethereum, send, config),
-			//makeLooksrareOrder(sdkSeller, ethereum, send, config),
+			makeLooksrareOrder(sdkSeller, ethereum, send, config),
 		])
 
 		await buyout(orders, [{

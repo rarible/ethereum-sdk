@@ -33,21 +33,22 @@ export class SeaportOrderHandler {
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly env: EthereumNetwork,
-		private readonly sdkConfig?: IRaribleEthereumSdkConfig
-	) {}
+		private readonly sdkConfig?: IRaribleEthereumSdkConfig,
+	) {
+	}
 
 	async sendTransaction(
 		request: SeaportV1OrderFillRequest,
 	): Promise<EthereumTransaction> {
-		const {functionCall, options} = await this.getTransactionData(request)
+		const { functionCall, options } = await this.getTransactionData(request)
 		return this.send(
 			functionCall,
-			options
+			options,
 		)
 	}
 
 	async getTransactionData(
-		request: SeaportV1OrderFillRequest
+		request: SeaportV1OrderFillRequest,
 	): Promise<OrderFillSendData> {
 		const ethereum = getRequiredWallet(this.ethereum)
 		const { order } = request
@@ -69,12 +70,12 @@ export class SeaportOrderHandler {
 
 		if (this.env !== "mainnet") {
 			if (order.take.assetType.assetClass === "ETH") {
-				const {wrapper} = this.config.exchange
+				const { wrapper } = this.config.exchange
 				if (!wrapper || wrapper === ZERO_ADDRESS) {
 					throw new Error("Seaport wrapper address has not been set. Change address in config")
 				}
 
-				const {functionCall, options} = await fulfillOrderWithWrapper(
+				const { functionCall, options } = await fulfillOrderWithWrapper(
 					ethereum,
 					this.send.bind(this),
 					order,
@@ -82,7 +83,8 @@ export class SeaportOrderHandler {
 						unitsToFill,
 						originFees: request.originFees,
 						seaportWrapper: wrapper,
-					})
+					},
+				)
 				await this.estimateGas(functionCall, {
 					from: await ethereum.getFrom(),
 					value: options.value,
@@ -105,7 +107,7 @@ export class SeaportOrderHandler {
 				recipient: fee.account,
 			}))
 		}
-		const {functionCall, options} = await fulfillOrder(
+		const { functionCall, options } = await fulfillOrder(
 			ethereum,
 			this.send.bind(this),
 			order,
@@ -149,7 +151,7 @@ export class SeaportOrderHandler {
 				unitsToFill: unitsToFill,
 				encodedFeesValue: feeValue,
 				totalFeeBasisPoints: totalFeeBasisPoints,
-			}
+			},
 		)
 	}
 

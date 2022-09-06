@@ -9,7 +9,7 @@ import type { MessageTypes, TypedMessage } from "@rarible/ethereum-provider"
 import type { TypedDataSigner } from "@ethersproject/abstract-signer"
 import { BigNumber as EthersBN } from "ethers/lib/ethers"
 import type { EthereumTransactionEvent } from "@rarible/ethereum-provider/src"
-import { encodeParameters } from "./abi-coder"
+import { decodeParameters, encodeParameters } from "./abi-coder"
 
 export class EthersWeb3ProviderEthereum implements EthereumProvider.Ethereum {
 	constructor(readonly web3Provider: ethers.providers.Web3Provider, readonly from?: string) {
@@ -51,6 +51,10 @@ export class EthersWeb3ProviderEthereum implements EthereumProvider.Ethereum {
 		return encodeParameters([type], [parameter])
 	}
 
+	decodeParameter(type: any, data: string): any {
+		return decodeParameters([type], data)
+	}
+
 	async getBalance(address: Address): Promise<BigNumber> {
 		const balance = await this.web3Provider.getBalance(address)
 		return toBigNumber(balance.toString())
@@ -88,6 +92,10 @@ export class EthersEthereum implements EthereumProvider.Ethereum {
 
 	encodeParameter(type: any, parameter: any): string {
 		return encodeParameters([type], [parameter])
+	}
+
+	decodeParameter(type: any, data: string): any {
+		return decodeParameters([type], data)
 	}
 
 	async getBalance(address: Address): Promise<BigNumber> {

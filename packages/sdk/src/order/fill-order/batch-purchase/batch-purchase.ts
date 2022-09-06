@@ -34,6 +34,8 @@ import { createExchangeWrapperContract } from "../../contracts/exchange-wrapper"
 import type { SeaportV1OrderFillRequest } from "../types"
 import { getUpdatedCalldata } from "../common/get-updated-call"
 import { getRequiredWallet } from "../../../common/get-required-wallet"
+import { X2Y2OrderHandler } from "../x2y2"
+import type { X2Y2OrderFillRequest } from "../types"
 import type { EstimateGasMethod } from "../../../common/estimate-gas"
 
 export class BatchOrderFiller {
@@ -41,6 +43,7 @@ export class BatchOrderFiller {
 	openSeaHandler: OpenSeaOrderHandler
 	seaportHandler: SeaportOrderHandler
 	looksrareHandler: LooksrareOrderHandler
+	x2Y2Handler: X2Y2OrderHandler
 	private checkAssetType: CheckAssetTypeFunction
 	private checkLazyAssetType: (type: AssetType) => Promise<AssetType>
 
@@ -58,6 +61,7 @@ export class BatchOrderFiller {
 		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, estimateGas, config, apis, getBaseOrderFee, sdkConfig)
 		this.seaportHandler = new SeaportOrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, env)
 		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, env)
+		this.x2Y2Handler = new X2Y2OrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, apis)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 		this.getTransactionRequestData = this.getTransactionRequestData.bind(this)
@@ -128,7 +132,8 @@ export class BatchOrderFiller {
 				request.order.type !== "RARIBLE_V2" &&
 				request.order.type !== "OPEN_SEA_V1" &&
 				request.order.type !== "LOOKSRARE" &&
-				request.order.type !== "SEAPORT_V1"
+				request.order.type !== "SEAPORT_V1" &&
+				request.order.type !== "X2Y2"
 			) {
 				throw new Error("Unsupported order type for batch purchase")
 			}
@@ -242,6 +247,12 @@ export class BatchOrderFiller {
 			case "LOOKSRARE":
 				return this.looksrareHandler.getTransactionDataForExchangeWrapper(
 					<LooksrareOrderFillRequest>preparedOrder.request,
+					preparedOrder.request.originFees,
+					preparedOrder.fees
+				)
+			case "X2Y2":
+				return this.x2Y2Handler.getTransactionDataForExchangeWrapper(
+					<X2Y2OrderFillRequest>preparedOrder.request,
 					preparedOrder.request.originFees,
 					preparedOrder.fees
 				)

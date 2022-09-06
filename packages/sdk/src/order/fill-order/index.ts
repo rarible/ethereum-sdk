@@ -9,6 +9,7 @@ import type {
 	SimpleOpenSeaV1Order,
 	SimpleOrder,
 	SimpleRaribleV2Order,
+	SimpleX2Y2Order,
 } from "../types"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
@@ -36,13 +37,16 @@ import type {
 	TransactionData,
 	SeaportV1OrderFillRequest,
 	SellOrderAction,
-	BuyOrderAction, LooksrareOrderFillRequest,
+	BuyOrderAction,
+	LooksrareOrderFillRequest,
+	X2Y2OrderFillRequest,
 } from "./types"
 import { RaribleV1OrderHandler } from "./rarible-v1"
 import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OpenSeaOrderHandler } from "./open-sea"
 import { CryptoPunksOrderHandler } from "./crypto-punks"
 import { SeaportOrderHandler } from "./seaport"
+import { X2Y2OrderHandler } from "./x2y2"
 import { LooksrareOrderHandler } from "./looksrare"
 
 export class OrderFiller {
@@ -52,6 +56,7 @@ export class OrderFiller {
 	punkHandler: CryptoPunksOrderHandler
 	seaportHandler: SeaportOrderHandler
 	looksrareHandler: LooksrareOrderHandler
+	x2y2Handler: X2Y2OrderHandler
 	private checkAssetType: CheckAssetTypeFunction
 	private checkLazyAssetType: (type: AssetType) => Promise<AssetType>
 
@@ -90,6 +95,7 @@ export class OrderFiller {
 			env,
 			sdkConfig,
 		)
+		this.x2y2Handler = new X2Y2OrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, apis)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 	}
@@ -102,7 +108,11 @@ export class OrderFiller {
 					if (!this.ethereum) {
 						throw new Error("Wallet undefined")
 					}
-					if (request.order.type === "SEAPORT_V1" || request.order.type === "LOOKSRARE") {
+					if (
+						request.order.type === "SEAPORT_V1" ||
+						request.order.type === "LOOKSRARE" ||
+						request.order.type === "X2Y2"
+					) {
 						return { request, inverted: request.order }
 					}
 					const from = toAddress(await this.ethereum.getFrom())
@@ -170,6 +180,8 @@ export class OrderFiller {
 				return this.openSeaHandler.invert(<OpenSeaV1OrderFillRequest>request, from)
 			case "SEAPORT_V1":
 				throw new Error("Approve for Seaport orders is not implemented yet")
+			case "X2Y2":
+				throw new Error("Approve for x2y2 orders is not implemented yet")
 			case "CRYPTO_PUNK":
 				return this.punkHandler.invert(<CryptoPunksOrderFillRequest>request, from)
 			default:
@@ -187,6 +199,8 @@ export class OrderFiller {
 				return this.openSeaHandler.approve(inverted, isInfinite)
 			case "SEAPORT_V1":
 				throw new Error("Approve for Seaport orders is not implemented yet")
+			case "X2Y2":
+				throw new Error("Approve for x2y2 orders is not implemented yet")
 			case "CRYPTO_PUNK":
 				return this.punkHandler.approve(inverted, isInfinite)
 			default:
@@ -216,6 +230,11 @@ export class OrderFiller {
 				)
 			case "LOOKSRARE":
 				return this.looksrareHandler.sendTransaction(<LooksrareOrderFillRequest>request)
+			case "X2Y2":
+				return this.x2y2Handler.fillOrder(
+					<SimpleX2Y2Order>request.order,
+					<X2Y2OrderFillRequest>request
+				)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.sendTransaction(<SimpleCryptoPunkOrder>request.order, inverted)
 			default:

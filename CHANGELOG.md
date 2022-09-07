@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.91](https://github.com/rarible/ethereum-sdk/compare/v0.12.90...v0.12.91) (2022-09-07)
+
+**Note:** Version bump only for package root
+
+
+
+
+
 ## [0.12.90](https://github.com/rarible/ethereum-sdk/compare/v0.12.89...v0.12.90) (2022-09-06)
 
 

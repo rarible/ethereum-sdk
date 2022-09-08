@@ -1,5 +1,7 @@
-import { toAddress } from "@rarible/types"
+import { toAddress, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
+import { SudoSwapCurveType } from "@rarible/ethereum-api-client/build/models/SudoSwapCurveType"
+import { SudoSwapPoolType } from "@rarible/ethereum-api-client/build/models/SudoSwapPoolType"
 import type { Address, Asset, Part } from "@rarible/ethereum-api-client"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { RaribleSdk } from "../../../../../index"
@@ -7,7 +9,7 @@ import { delay, retry } from "../../../../../common/retry"
 import { createErc721V3Collection } from "../../../../../common/mint"
 import { MintResponseTypeEnum } from "../../../../../nft/mint"
 import type { FillBatchSingleOrderRequest } from "../../../types"
-import type { SimpleOrder } from "../../../../types"
+import type { SimpleAmmOrder, SimpleOrder } from "../../../../types"
 import { ItemType } from "../../../seaport-utils/constants"
 import { getOpenseaEthTakeData } from "../../../../test/get-opensea-take-data"
 import { createSeaportOrder } from "../../../../test/order-opensea"
@@ -100,6 +102,39 @@ export async function makeLooksrareOrder(
 	return sellOrder
 }
 
+export async function makeAmmOrder(): Promise<SimpleAmmOrder> {
+	return {
+		type: "AMM",
+		salt: "143024" as any,
+		maker: toAddress("0x4c6a766e27726f084c41e2ba98d6df8e78f8e6e1"),
+		make: {
+			value: toBigNumber("1"),
+			assetType: {
+				assetClass: "ERC721",
+				contract: toAddress("0x5C31fab0ce13AF42B3A3A3391Cf02c0c078B66e9"),
+				tokenId: toBigNumber("2"),
+			},
+		},
+		take: {
+			assetType: {
+				assetClass: "ETH",
+			},
+			value: toBigNumber("15000000000000000"),
+		},
+		data: {
+			dataType: "SUDOSWAP_AMM_DATA_V1",
+			poolAddress: toAddress("0xbAC2141bCB75F2F9f716C356bDE3669bd5625b77"),
+			bondingCurve: ZERO_ADDRESS,
+			curveType: SudoSwapCurveType.UNKNOWN,
+			assetRecipient: ZERO_ADDRESS,
+			poolType: SudoSwapPoolType.NFT,
+			delta: toBigNumber("0"),
+			fee: toBigNumber("0"),
+			feeDecimal: 0,
+		},
+	}
+}
+
 export async function ordersToRequests(
 	orders: SimpleOrder[],
 	originFees?: Part[],
@@ -110,7 +145,8 @@ export async function ordersToRequests(
 			order.type !== "RARIBLE_V2" &&
 			order.type !== "OPEN_SEA_V1" &&
 			order.type !== "SEAPORT_V1" &&
-			order.type !== "LOOKSRARE"
+			order.type !== "LOOKSRARE" &&
+			order.type !== "AMM"
 		) {
 			throw new Error("Unsupported order type")
 		}
@@ -139,7 +175,8 @@ export async function checkOwnerships(sdk: RaribleSdk, assets: Asset[], expected
 				asset.assetType.assetClass === "ETH" ||
 				asset.assetType.assetClass === "ERC20" ||
 				asset.assetType.assetClass === "COLLECTION" ||
-				asset.assetType.assetClass === "GEN_ART"
+				asset.assetType.assetClass === "GEN_ART" ||
+				asset.assetType.assetClass === "AMM_NFT"
 			) {
 				throw new Error("Not an token type")
 			}

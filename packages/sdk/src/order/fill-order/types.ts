@@ -90,7 +90,8 @@ export type FillBatchSingleOrderRequest =
 	// RaribleV2OrderFillRequestV3Buy |
 	OpenSeaV1OrderFillRequest |
 	LooksrareOrderFillRequest |
-	SeaportV1OrderFillRequest
+	SeaportV1OrderFillRequest |
+	AmmOrderFillRequest
 
 export type FillBatchOrderRequest = FillBatchSingleOrderRequest[]
 
@@ -99,7 +100,8 @@ export enum ExchangeWrapperOrderType {
 	OPENSEA_V1 = 1,
 	SEAPORT_ADVANCED_ORDERS = 2,
 	X2Y2 = 3,
-	LOOKSRARE_ORDERS = 4
+	LOOKSRARE_ORDERS = 4,
+	AAM
 }
 
 export type PreparedOrderRequestDataForExchangeWrapper = {

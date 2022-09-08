@@ -16,6 +16,7 @@ import { checkChainId } from "../../check-chain-id"
 import type { IRaribleEthereumSdkConfig } from "../../../types"
 import type { EthereumNetwork } from "../../../types"
 import type {
+	AmmOrderFillRequest,
 	FillBatchOrderAction,
 	FillBatchOrderRequest,
 	FillBatchSingleOrderRequest,
@@ -35,12 +36,14 @@ import type { SeaportV1OrderFillRequest } from "../types"
 import { getUpdatedCalldata } from "../common/get-updated-call"
 import { getRequiredWallet } from "../../../common/get-required-wallet"
 import type { EstimateGasMethod } from "../../../common/estimate-gas"
+import { AmmOrderHandler } from "../amm"
 
 export class BatchOrderFiller {
 	v2Handler: RaribleV2OrderHandler
 	openSeaHandler: OpenSeaOrderHandler
 	seaportHandler: SeaportOrderHandler
 	looksrareHandler: LooksrareOrderHandler
+	ammHandler: AmmOrderHandler
 	private checkAssetType: CheckAssetTypeFunction
 	private checkLazyAssetType: (type: AssetType) => Promise<AssetType>
 
@@ -58,6 +61,7 @@ export class BatchOrderFiller {
 		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, estimateGas, config, apis, getBaseOrderFee, sdkConfig)
 		this.seaportHandler = new SeaportOrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, env)
 		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, env)
+		this.ammHandler = new AmmOrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, env)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 		this.getTransactionRequestData = this.getTransactionRequestData.bind(this)
@@ -128,7 +132,8 @@ export class BatchOrderFiller {
 				request.order.type !== "RARIBLE_V2" &&
 				request.order.type !== "OPEN_SEA_V1" &&
 				request.order.type !== "LOOKSRARE" &&
-				request.order.type !== "SEAPORT_V1"
+				request.order.type !== "SEAPORT_V1" &&
+				request.order.type !== "AMM"
 			) {
 				throw new Error("Unsupported order type for batch purchase")
 			}
@@ -242,6 +247,12 @@ export class BatchOrderFiller {
 			case "LOOKSRARE":
 				return this.looksrareHandler.getTransactionDataForExchangeWrapper(
 					<LooksrareOrderFillRequest>preparedOrder.request,
+					preparedOrder.request.originFees,
+					preparedOrder.fees
+				)
+			case "AMM":
+				return this.ammHandler.getTransactionDataForExchangeWrapper(
+					<AmmOrderFillRequest>preparedOrder.request,
 					preparedOrder.request.originFees,
 					preparedOrder.fees
 				)

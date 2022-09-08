@@ -29,14 +29,14 @@ import { BatchOrderFiller } from "../batch-purchase"
 import { createRaribleSdk } from "../../../../index"
 import { getEstimateGasInjects } from "../../../../common/estimate-gas"
 import {
-	checkOwnerships,
+	checkOwnerships, makeAmmOrder,
 	makeLooksrareOrder,
 	makeRaribleV2Order,
 	makeSeaportOrder,
 	ordersToRequests,
 } from "./common/utils"
 
-describe.skip("Batch purchase", function () {
+describe("Batch purchase", function () {
 	const providerConfig = {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",
@@ -110,6 +110,19 @@ describe.skip("Batch purchase", function () {
 	test("looksrare few items sell", async () => {
 		const orders = await Promise.all([
 			makeLooksrareOrder(sdkSeller, ethereum, send, config),
+			//makeLooksrareOrder(sdkSeller, ethereum, send, config),
+		])
+
+		await buyout(orders, [{
+			account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
+			value: 100,
+		}])
+	})
+
+	//skip, should create new item for the sudoswap pool
+	test.skip("amm few items sell", async () => {
+		const orders = await Promise.all([
+			makeAmmOrder(),
 			//makeLooksrareOrder(sdkSeller, ethereum, send, config),
 		])
 

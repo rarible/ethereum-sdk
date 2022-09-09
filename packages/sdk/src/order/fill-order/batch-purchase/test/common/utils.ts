@@ -43,7 +43,7 @@ export async function makeRaribleV2Order(
 	const sellOrder = await sdk.order.sell({
 		type: "DATA_V2",
 		amount: 1,
-		priceDecimal: toBn(request.price ?? "342342430.000000000001"),
+		priceDecimal: toBn(request.price ?? "0.000000000001"),
 		takeAssetType: {
 			assetClass: "ETH",
 		},

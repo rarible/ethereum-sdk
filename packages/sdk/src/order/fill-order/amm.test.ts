@@ -9,7 +9,7 @@ import { retry } from "../../common/retry"
 import type { SimpleOrder } from "../types"
 import { mintTokensToNewSudoswapPool } from "./amm/test/utils"
 
-describe("amm", () => {
+describe.skip("amm", () => {
 	const providerConfig = {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",

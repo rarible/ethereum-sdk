@@ -1,8 +1,8 @@
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { EthereumTransaction } from "@rarible/ethereum-provider/src"
-import { toAddress, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 import type { BigNumber } from "@rarible/types"
+import { toAddress, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 import type { Part } from "@rarible/ethereum-api-client"
 import type { SimpleOrder, SimpleX2Y2Order } from "../types"
 import type { SendFunction } from "../../common/send-transaction"
@@ -10,9 +10,9 @@ import type { EthereumConfig } from "../../config/type"
 import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
 import type { RaribleEthereumApis } from "../../common/apis"
 import type { EstimateGasMethod } from "../../common/estimate-gas"
-import type { X2Y2OrderFillRequest } from "./types"
-import type {	PreparedOrderRequestDataForExchangeWrapper} from "./types"
-import { ExchangeWrapperOrderType} from "./types"
+import type { PreparedOrderRequestDataForExchangeWrapper, X2Y2OrderFillRequest } from "./types"
+import { ExchangeWrapperOrderType } from "./types"
+import type { OrderFillSendData } from "./types"
 import { X2Y2Utils } from "./x2y2-utils/get-order-sign"
 import { calcValueWithFees, originFeeValueConvert } from "./common/origin-fees-utils"
 
@@ -27,13 +27,22 @@ export class X2Y2OrderHandler {
 	) {}
 
 	async fillOrder(order: SimpleX2Y2Order, request: X2Y2OrderFillRequest): Promise<EthereumTransaction> {
+		const sendData = await this.getTransactionData(request)
+
+		return this.send(
+			sendData.functionCall,
+			sendData.options
+		)
+	}
+
+	async getTransactionData(request: X2Y2OrderFillRequest): Promise<OrderFillSendData> {
 		if (!this.ethereum) {
 			throw new Error("Wallet undefined")
 		}
 
 		const wrapper = createExchangeWrapperContract(this.ethereum, this.config.exchange.wrapper)
 
-		if (!order.data?.orderId) {
+		if (!request.order.data?.orderId) {
 			throw new Error("No x2y2 orderId provided")
 		}
 
@@ -57,10 +66,10 @@ export class X2Y2OrderHandler {
 			value: data.options.value,
 		})
 
-		return this.send(
+		return {
 			functionCall,
-			data.options
-		)
+			options: data.options,
+		}
 	}
 
 	async getTransactionDataForExchangeWrapper(
@@ -107,5 +116,9 @@ export class X2Y2OrderHandler {
 
 	getBaseOrderFee() {
 		return this.getBaseOrderFeeConfig("X2Y2")
+	}
+
+	getOrderFee(): number {
+		return 0
 	}
 }

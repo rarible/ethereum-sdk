@@ -40,6 +40,7 @@ import type {
 	BuyOrderAction,
 	LooksrareOrderFillRequest,
 	X2Y2OrderFillRequest,
+	AmmOrderFillRequest,
 } from "./types"
 import { RaribleV1OrderHandler } from "./rarible-v1"
 import { RaribleV2OrderHandler } from "./rarible-v2"
@@ -48,6 +49,7 @@ import { CryptoPunksOrderHandler } from "./crypto-punks"
 import { SeaportOrderHandler } from "./seaport"
 import { X2Y2OrderHandler } from "./x2y2"
 import { LooksrareOrderHandler } from "./looksrare"
+import { AmmOrderHandler } from "./amm"
 
 export class OrderFiller {
 	v1Handler: RaribleV1OrderHandler
@@ -57,6 +59,7 @@ export class OrderFiller {
 	seaportHandler: SeaportOrderHandler
 	looksrareHandler: LooksrareOrderHandler
 	x2y2Handler: X2Y2OrderHandler
+	ammHandler: AmmOrderHandler
 	private checkAssetType: CheckAssetTypeFunction
 	private checkLazyAssetType: (type: AssetType) => Promise<AssetType>
 
@@ -96,6 +99,15 @@ export class OrderFiller {
 			sdkConfig,
 		)
 		this.x2y2Handler = new X2Y2OrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, apis)
+		this.ammHandler = new AmmOrderHandler(
+			ethereum,
+			send,
+			estimateGas,
+			config,
+			getBaseOrderFee,
+			env,
+			sdkConfig
+		)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 	}
@@ -111,7 +123,8 @@ export class OrderFiller {
 					if (
 						request.order.type === "SEAPORT_V1" ||
 						request.order.type === "LOOKSRARE" ||
-						request.order.type === "X2Y2"
+						request.order.type === "X2Y2" ||
+						request.order.type === "AMM"
 					) {
 						return { request, inverted: request.order }
 					}
@@ -179,9 +192,11 @@ export class OrderFiller {
 			case "OPEN_SEA_V1":
 				return this.openSeaHandler.invert(<OpenSeaV1OrderFillRequest>request, from)
 			case "SEAPORT_V1":
-				throw new Error("Approve for Seaport orders is not implemented yet")
+				throw new Error("Invert for Seaport orders is not implemented yet")
 			case "X2Y2":
-				throw new Error("Approve for x2y2 orders is not implemented yet")
+				throw new Error("Invert for x2y2 orders is not implemented yet")
+			case "AMM":
+				throw new Error("Invert for AMM orders is not implemented yet")
 			case "CRYPTO_PUNK":
 				return this.punkHandler.invert(<CryptoPunksOrderFillRequest>request, from)
 			default:
@@ -201,6 +216,8 @@ export class OrderFiller {
 				throw new Error("Approve for Seaport orders is not implemented yet")
 			case "X2Y2":
 				throw new Error("Approve for x2y2 orders is not implemented yet")
+			case "AMM":
+				throw new Error("Approve for AMM orders is not implemented yet")
 			case "CRYPTO_PUNK":
 				return this.punkHandler.approve(inverted, isInfinite)
 			default:
@@ -237,6 +254,8 @@ export class OrderFiller {
 				)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.sendTransaction(<SimpleCryptoPunkOrder>request.order, inverted)
+			case "AMM":
+				return this.ammHandler.sendTransaction(<AmmOrderFillRequest>request)
 			default:
 				throw new Error(`Unsupported order: ${JSON.stringify(inverted)}`)
 		}
@@ -267,6 +286,10 @@ export class OrderFiller {
 				return this.seaportHandler.getTransactionData(<SeaportV1OrderFillRequest>request)
 			case "LOOKSRARE":
 				return this.looksrareHandler.getTransactionData(<LooksrareOrderFillRequest>request)
+			case "AMM":
+				return this.ammHandler.getTransactionData(<AmmOrderFillRequest>request)
+			case "X2Y2":
+				return this.x2y2Handler.getTransactionData(<X2Y2OrderFillRequest>request)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getTransactionData(
           <SimpleCryptoPunkOrder>request.order,
@@ -311,6 +334,10 @@ export class OrderFiller {
 				return this.looksrareHandler.getOrderFee()
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getOrderFee()
+			case "X2Y2":
+				return this.x2y2Handler.getOrderFee()
+			case "AMM":
+				return this.ammHandler.getOrderFee()
 			default:
 				throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
 		}
@@ -330,6 +357,10 @@ export class OrderFiller {
 				return this.looksrareHandler.getBaseOrderFee()
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getBaseOrderFee()
+			case "AMM":
+				return this.ammHandler.getBaseOrderFee()
+			case "X2Y2":
+				return this.ammHandler.getBaseOrderFee()
 			default:
 				throw new Error(`Unsupported order: ${JSON.stringify(order)}`)
 		}

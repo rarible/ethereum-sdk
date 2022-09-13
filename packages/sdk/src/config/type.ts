@@ -7,6 +7,7 @@ export type ExchangeAddresses = {
 	openseaV1: Address
 	wrapper: Address
 	looksrare?: Address
+	x2y2: Address
 }
 
 export type TransferProxies = {

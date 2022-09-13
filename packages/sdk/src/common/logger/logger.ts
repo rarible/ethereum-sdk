@@ -66,7 +66,7 @@ export function createRemoteLogger(context: {
 
 	return new RemoteLogger((msg) => axios.post(loggerConfig.elkUrl, msg), {
 		initialContext: getContext(),
-		maxByteSize: 3 * 10240,
+		maxByteSize: 5 * 10240,
 	})
 }
 

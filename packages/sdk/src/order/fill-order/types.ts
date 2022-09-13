@@ -11,6 +11,7 @@ import type {
 	SimpleOpenSeaV1Order,
 	SimpleRaribleV2Order,
 	SimpleSeaportV1Order,
+	SimpleX2Y2Order,
 	SimpleAmmOrder,
 } from "../types"
 import type { NftAssetType } from "../check-asset-type"
@@ -53,6 +54,7 @@ export type OpenSeaV1OrderFillRequest =
   Omit<CommonFillRequest<SimpleOpenSeaV1Order>, "amount"> & { payouts?: Part[], originFees?: Part[] }
 
 export type SeaportV1OrderFillRequest = CommonFillRequest<SimpleSeaportV1Order> & { originFees?: Part[] }
+export type X2Y2OrderFillRequest = CommonFillRequest<SimpleX2Y2Order> & { originFees?: Part[] }
 
 export type LooksrareOrderFillRequest = CommonFillRequest<SimpleLooksrareOrder> & { originFees?: Part[] }
 
@@ -67,8 +69,9 @@ export type SellOrderRequest =
 	RaribleV2OrderFillRequestV3Sell |
 	OpenSeaV1OrderFillRequest |
 	SeaportV1OrderFillRequest |
-	LooksrareOrderFillRequest |
 	CryptoPunksOrderFillRequest |
+	LooksrareOrderFillRequest |
+	X2Y2OrderFillRequest |
 	AmmOrderFillRequest
 
 export type BuyOrderRequest =
@@ -77,8 +80,9 @@ export type BuyOrderRequest =
 	RaribleV2OrderFillRequestV3Buy |
 	OpenSeaV1OrderFillRequest |
 	SeaportV1OrderFillRequest |
-	LooksrareOrderFillRequest |
 	CryptoPunksOrderFillRequest |
+	LooksrareOrderFillRequest |
+	X2Y2OrderFillRequest |
 	AmmOrderFillRequest
 
 export type FillOrderRequest =
@@ -91,6 +95,7 @@ export type FillBatchSingleOrderRequest =
 	OpenSeaV1OrderFillRequest |
 	LooksrareOrderFillRequest |
 	SeaportV1OrderFillRequest |
+	X2Y2OrderFillRequest |
 	AmmOrderFillRequest
 
 export type FillBatchOrderRequest = FillBatchSingleOrderRequest[]
@@ -101,7 +106,7 @@ export enum ExchangeWrapperOrderType {
 	SEAPORT_ADVANCED_ORDERS = 2,
 	X2Y2 = 3,
 	LOOKSRARE_ORDERS = 4,
-	AAM
+	AAM = 5
 }
 
 export type PreparedOrderRequestDataForExchangeWrapper = {

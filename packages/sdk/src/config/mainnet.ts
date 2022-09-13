@@ -10,8 +10,9 @@ export const mainnetConfig: EthereumConfig = {
 		v1: toAddress("0x09EaB21c40743B2364b94345419138eF80f39e30"),
 		v2: toAddress("0x9757F2d2b135150BBeb65308D4a91804107cd8D6"),
 		openseaV1: toAddress("0x7be8076f4ea4a4ad08075c2508e481d6c946d12b"),
-		wrapper: toAddress("0x2a7251d1e7d708c507b1b0d3ff328007beecce5d"),
+		wrapper: toAddress("0x2C45Af926d5f62C5935278106800a03eB565778E"),
 		looksrare: toAddress("0x59728544B08AB483533076417FbBB2fD0B17CE3a"),
+		x2y2: toAddress("0x6d7812d41a08bc2a910b562d8b56411964a4ed88"),
 	},
 	transferProxies: {
 		nft: toAddress("0x4fee7b061c97c9c496b01dbce9cdb10c02f0a0be"),

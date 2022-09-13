@@ -42,10 +42,14 @@ export function getSendWithInjects(injects: {
 			}
 			try {
 				if (logsAvailable && logger.level >= LogsLevel.TRACE) {
-					logger.instance.trace(callInfo.method, {
-						from: callInfo.from,
-						args: callInfo.args,
-						tx,
+					logger.instance.raw({
+						level: "TRACE",
+						method: callInfo.method,
+						message: {
+							from: callInfo.from,
+							args: callInfo.args,
+							tx,
+						},
 					})
 				}
 			} catch (e) {
@@ -62,11 +66,15 @@ export function getSendWithInjects(injects: {
 						console.error("Unable to get tx data for log", e)
 					}
 
-					logger.instance.error(callInfo.method, {
-						from: callInfo.from,
-						args: callInfo.args,
+					logger.instance.raw({
+						level: "ERROR",
+						method: callInfo.method,
+						message: {
+							error: getErrorMessageString(err),
+							from: callInfo.from,
+							args: callInfo.args,
+						},
 						data,
-						error: getErrorMessageString(err),
 					})
 				}
 			} catch (e) {

@@ -357,8 +357,10 @@ describe.skip("fillOrder: Opensea orders", function () {
 				v1: ZERO_ADDRESS,
 				v2: ZERO_ADDRESS,
 				wrapper: toAddress(it.exchangeWrapper.options.address),
+				x2y2: ZERO_ADDRESS,
 			},
 			checkChainId.bind(null, ethereum1, config),
+			apis,
 			{
 				...order,
 				signature,

@@ -43,6 +43,10 @@ export class Web3Ethereum implements EthereumProvider.Ethereum {
 		return this.config.web3.eth.abi.encodeParameter(type, parameter)
 	}
 
+	decodeParameter(type: any, data: string): any {
+		return this.config.web3.eth.abi.decodeParameter(type, data)
+	}
+
 	async getBalance(address: Address): Promise<BigNumber> {
 		return toBigNumber(await this.config.web3.eth.getBalance(address))
 	}
@@ -57,11 +61,12 @@ export class Web3Ethereum implements EthereumProvider.Ethereum {
 }
 
 export class Web3Contract implements EthereumProvider.EthereumContract {
-	constructor(private readonly config: Web3EthereumConfig, private readonly contract: Contract) {}
+	constructor(private readonly config: Web3EthereumConfig, private readonly contract: Contract) {
+	}
 
 	functionCall(name: string, ...args: any): EthereumProvider.EthereumFunctionCall {
 		return new Web3FunctionCall(
-			this.config, this.contract, name, args
+			this.config, this.contract, name, args,
 		)
 	}
 }
@@ -73,7 +78,7 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 		private readonly config: Web3EthereumConfig,
 		private readonly contract: Contract,
 		private readonly methodName: string,
-		private readonly args: any[]
+		private readonly args: any[],
 	) {
 		this.sendMethod = this.contract.methods[this.methodName](...this.args)
 	}
@@ -133,7 +138,7 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 				tx.nonce,
 				from,
 				toAddress(this.contract.options.address),
-				this.getTxEvents.bind(this)
+				this.getTxEvents.bind(this),
 			)
 		}
 
@@ -152,7 +157,7 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 			toBinary(await this.getData()),
 			tx.nonce,
 			from,
-			toAddress(this.contract.options.address)
+			toAddress(this.contract.options.address),
 		)
 	}
 
@@ -184,7 +189,7 @@ export class Web3Transaction implements EthereumProvider.EthereumTransaction {
 		public readonly nonce: number,
 		public readonly from: Address,
 		public readonly to?: Address,
-		public readonly getEvents?: (receipt: TransactionReceipt) => EthereumProvider.EthereumTransactionEvent[]
+		public readonly getEvents?: (receipt: TransactionReceipt) => EthereumProvider.EthereumTransactionEvent[],
 	) {
 	}
 

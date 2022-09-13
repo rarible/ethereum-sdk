@@ -1,7 +1,5 @@
-import { toAddress, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
+import { toAddress } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
-import { SudoSwapCurveType } from "@rarible/ethereum-api-client/build/models/SudoSwapCurveType"
-import { SudoSwapPoolType } from "@rarible/ethereum-api-client/build/models/SudoSwapPoolType"
 import type { Address, Asset, Part } from "@rarible/ethereum-api-client"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { RaribleSdk } from "../../../../../index"
@@ -16,6 +14,7 @@ import { createSeaportOrder } from "../../../../test/order-opensea"
 import type { SendFunction } from "../../../../../common/send-transaction"
 import { makeRaribleSellOrder } from "../../../looksrare-utils/create-order"
 import type { EthereumConfig } from "../../../../../config/type"
+import { mintTokensToNewSudoswapPool } from "../../../amm/test/utils"
 
 const rinkebyErc721V3ContractAddress = toAddress("0x6ede7f3c26975aad32a475e1021d8f6f39c89d82")
 // const rinkebyErc1155V2ContractAddress = toAddress("0x1af7a7555263f275433c6bb0b8fdcd231f89b1d7")
@@ -102,44 +101,24 @@ export async function makeLooksrareOrder(
 	return sellOrder
 }
 
-export async function makeAmmOrder(): Promise<SimpleAmmOrder> {
-	return {
-		type: "AMM",
-		salt: "143024" as any,
-		maker: toAddress("0x4c6a766e27726f084c41e2ba98d6df8e78f8e6e1"),
-		make: {
-			value: toBigNumber("1"),
-			assetType: {
-				assetClass: "ERC721",
-				contract: toAddress("0x5C31fab0ce13AF42B3A3A3391Cf02c0c078B66e9"),
-				tokenId: toBigNumber("2"),
-			},
-		},
-		take: {
-			assetType: {
-				assetClass: "ETH",
-			},
-			value: toBigNumber("15000000000000000"),
-		},
-		data: {
-			dataType: "SUDOSWAP_AMM_DATA_V1",
-			poolAddress: toAddress("0xbAC2141bCB75F2F9f716C356bDE3669bd5625b77"),
-			bondingCurve: ZERO_ADDRESS,
-			curveType: SudoSwapCurveType.UNKNOWN,
-			assetRecipient: ZERO_ADDRESS,
-			poolType: SudoSwapPoolType.NFT,
-			delta: toBigNumber("0"),
-			fee: toBigNumber("0"),
-			feeDecimal: 0,
-		},
-	}
+export async function makeAmmOrder(
+	sdk: RaribleSdk,
+	ethereum: Ethereum,
+	send: SendFunction,
+	config: EthereumConfig
+): Promise<SimpleAmmOrder> {
+	const {poolAddress} = await mintTokensToNewSudoswapPool(sdk, ethereum, send, config.sudoswap.pairFactory, 1)
+	const orderHash = "0x" + poolAddress.slice(2).padStart(64, "0")
+	return await retry(20, 2000, async () => {
+		return await sdk.apis.order.getOrderByHash({hash: orderHash})
+	}) as SimpleAmmOrder
 }
 
-export async function ordersToRequests(
+export function ordersToRequests(
 	orders: SimpleOrder[],
 	originFees?: Part[],
 	payouts?: Part[],
-): Promise<FillBatchSingleOrderRequest[]> {
+): FillBatchSingleOrderRequest[] {
 	return orders.map((order) => {
 		if (
 			order.type !== "RARIBLE_V2" &&
@@ -161,7 +140,7 @@ export async function ordersToRequests(
 }
 
 export function waitUntilOrderActive(sdk: RaribleSdk, orderHash: string) {
-	return retry(20, 2000, async () => {
+	return retry(30, 2000, async () => {
 		const order = await sdk.apis.order.getOrderByHash({ hash: orderHash })
 		expect(order.status).toBe("ACTIVE")
 		return order

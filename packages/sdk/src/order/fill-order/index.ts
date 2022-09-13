@@ -9,6 +9,7 @@ import type {
 	SimpleOpenSeaV1Order,
 	SimpleOrder,
 	SimpleRaribleV2Order,
+	SimpleX2Y2Order,
 } from "../types"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
@@ -36,13 +37,17 @@ import type {
 	TransactionData,
 	SeaportV1OrderFillRequest,
 	SellOrderAction,
-	BuyOrderAction, LooksrareOrderFillRequest, AmmOrderFillRequest,
+	BuyOrderAction,
+	LooksrareOrderFillRequest,
+	X2Y2OrderFillRequest,
+	AmmOrderFillRequest,
 } from "./types"
 import { RaribleV1OrderHandler } from "./rarible-v1"
 import { RaribleV2OrderHandler } from "./rarible-v2"
 import { OpenSeaOrderHandler } from "./open-sea"
 import { CryptoPunksOrderHandler } from "./crypto-punks"
 import { SeaportOrderHandler } from "./seaport"
+import { X2Y2OrderHandler } from "./x2y2"
 import { LooksrareOrderHandler } from "./looksrare"
 import { AmmOrderHandler } from "./amm"
 
@@ -53,6 +58,7 @@ export class OrderFiller {
 	punkHandler: CryptoPunksOrderHandler
 	seaportHandler: SeaportOrderHandler
 	looksrareHandler: LooksrareOrderHandler
+	x2y2Handler: X2Y2OrderHandler
 	ammHandler: AmmOrderHandler
 	private checkAssetType: CheckAssetTypeFunction
 	private checkLazyAssetType: (type: AssetType) => Promise<AssetType>
@@ -92,6 +98,7 @@ export class OrderFiller {
 			env,
 			sdkConfig,
 		)
+		this.x2y2Handler = new X2Y2OrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, apis)
 		this.ammHandler = new AmmOrderHandler(
 			ethereum,
 			send,
@@ -116,6 +123,7 @@ export class OrderFiller {
 					if (
 						request.order.type === "SEAPORT_V1" ||
 						request.order.type === "LOOKSRARE" ||
+						request.order.type === "X2Y2" ||
 						request.order.type === "AMM"
 					) {
 						return { request, inverted: request.order }
@@ -185,6 +193,8 @@ export class OrderFiller {
 				return this.openSeaHandler.invert(<OpenSeaV1OrderFillRequest>request, from)
 			case "SEAPORT_V1":
 				throw new Error("Invert for Seaport orders is not implemented yet")
+			case "X2Y2":
+				throw new Error("Invert for x2y2 orders is not implemented yet")
 			case "AMM":
 				throw new Error("Invert for AMM orders is not implemented yet")
 			case "CRYPTO_PUNK":
@@ -204,6 +214,8 @@ export class OrderFiller {
 				return this.openSeaHandler.approve(inverted, isInfinite)
 			case "SEAPORT_V1":
 				throw new Error("Approve for Seaport orders is not implemented yet")
+			case "X2Y2":
+				throw new Error("Approve for x2y2 orders is not implemented yet")
 			case "AMM":
 				throw new Error("Approve for AMM orders is not implemented yet")
 			case "CRYPTO_PUNK":
@@ -235,6 +247,11 @@ export class OrderFiller {
 				)
 			case "LOOKSRARE":
 				return this.looksrareHandler.sendTransaction(<LooksrareOrderFillRequest>request)
+			case "X2Y2":
+				return this.x2y2Handler.fillOrder(
+					<SimpleX2Y2Order>request.order,
+					<X2Y2OrderFillRequest>request
+				)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.sendTransaction(<SimpleCryptoPunkOrder>request.order, inverted)
 			case "AMM":
@@ -271,6 +288,8 @@ export class OrderFiller {
 				return this.looksrareHandler.getTransactionData(<LooksrareOrderFillRequest>request)
 			case "AMM":
 				return this.ammHandler.getTransactionData(<AmmOrderFillRequest>request)
+			case "X2Y2":
+				return this.x2y2Handler.getTransactionData(<X2Y2OrderFillRequest>request)
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getTransactionData(
           <SimpleCryptoPunkOrder>request.order,
@@ -315,6 +334,8 @@ export class OrderFiller {
 				return this.looksrareHandler.getOrderFee()
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getOrderFee()
+			case "X2Y2":
+				return this.x2y2Handler.getOrderFee()
 			case "AMM":
 				return this.ammHandler.getOrderFee()
 			default:
@@ -337,6 +358,8 @@ export class OrderFiller {
 			case "CRYPTO_PUNK":
 				return this.punkHandler.getBaseOrderFee()
 			case "AMM":
+				return this.ammHandler.getBaseOrderFee()
+			case "X2Y2":
 				return this.ammHandler.getBaseOrderFee()
 			default:
 				throw new Error(`Unsupported order: ${JSON.stringify(order)}`)

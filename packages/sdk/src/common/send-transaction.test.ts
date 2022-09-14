@@ -55,6 +55,6 @@ describe.skip("sendTransaction", () => {
 		const functionCall = testErc721.functionCall("mint", tokenId, v, r, s, [], "uri")
 		const tx = send(functionCall)
 
-		await expect(tx).rejects.toThrow("Config chainId=4, but wallet chainId=17")
+		await expect(tx).rejects.toThrow("Change network of your wallet. Config chainId=4, but wallet chainId=17")
 	})
 })

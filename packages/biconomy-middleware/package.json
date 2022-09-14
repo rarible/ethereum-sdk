@@ -22,7 +22,8 @@
   "dependencies": {
     "@biconomy/mexa": "^2.0.25",
     "eth-json-rpc-middleware": "^7.0.1",
-    "json-rpc-engine": "^6.1.0"
+    "json-rpc-engine": "^6.1.0",
+    "@rarible/logger": "~0.9.7"
   },
   "devDependencies": {
     "@rarible/ethereum-sdk-test-common": "^0.12.87",

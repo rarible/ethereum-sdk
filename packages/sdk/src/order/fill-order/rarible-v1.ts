@@ -14,6 +14,7 @@ import { toVrs } from "../../common/to-vrs"
 import { waitTx } from "../../common/wait-tx"
 import type { SimpleOrder } from "../types"
 import type { IRaribleEthereumSdkConfig } from "../../types"
+import type { EstimateGasMethod } from "../../common/estimate-gas"
 import { invertOrder } from "./invert-order"
 import type { LegacyOrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
 import { getUpdatedCalldata } from "./common/get-updated-call"
@@ -24,6 +25,7 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly orderApi: OrderControllerApi,
 		private readonly send: SendFunction,
+		private readonly estimateGas: EstimateGasMethod,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly sdkConfig?: IRaribleEthereumSdkConfig
@@ -76,7 +78,7 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 		)
 		const options = getMatchV1Options(inverted)
 
-		await functionCall.estimateGas({
+		await this.estimateGas(functionCall, {
 			from: await this.ethereum.getFrom(),
 			value: options.value,
 		})

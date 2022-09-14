@@ -1,8 +1,10 @@
 import axios from "axios"
 import { RemoteLogger } from "@rarible/logger/build"
+import type { AbstractLogger } from "@rarible/logger/build/domain"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { EthereumNetwork } from "../../types"
+import type { LogsLevel } from "../../types"
 
 type Environment = "prod" | "testnet" | "dev" | "staging"
 
@@ -64,6 +66,11 @@ export function createRemoteLogger(context: {
 
 	return new RemoteLogger((msg) => axios.post(loggerConfig.elkUrl, msg), {
 		initialContext: getContext(),
-		maxByteSize: 3 * 10240,
+		maxByteSize: 5 * 10240,
 	})
+}
+
+export interface ILoggerConfig {
+	instance: AbstractLogger
+	level: LogsLevel
 }

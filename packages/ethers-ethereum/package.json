@@ -1,6 +1,6 @@
 {
   "name": "@rarible/ethers-ethereum",
-  "version": "0.12.87",
+  "version": "0.12.92",
   "description": "Ethereum interface with ethers.js",
   "keywords": [
     "ethereum",
@@ -22,18 +22,18 @@
     "verify": "tsc --noEmit"
   },
   "dependencies": {
-    "@rarible/ethereum-provider": "^0.12.87",
+    "@rarible/ethereum-provider": "^0.12.89",
     "ethereumjs-util": "^7.1.0",
     "ethers": "~5.4.4"
   },
   "devDependencies": {
-    "@rarible/ethereum-sdk-test-common": "^0.12.87",
+    "@rarible/ethereum-sdk-test-common": "^0.12.92",
     "@types/jest": "^27.0.2",
     "jest": "^27.3.1",
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
     "ts-jest": "^27.0.7",
-    "typescript": "^4.4.4",
+    "typescript": "^4.7.4",
     "webpack": "^5.55.1",
     "webpack-cli": "^4.8.0"
   },

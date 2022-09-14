@@ -3,6 +3,49 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.92](https://github.com/rarible/ethereum-sdk/compare/v0.12.91...v0.12.92) (2022-09-13)
+
+**Note:** Version bump only for package @rarible/protocol-ethereum-sdk
+
+
+
+
+
+## [0.12.91](https://github.com/rarible/ethereum-sdk/compare/v0.12.90...v0.12.91) (2022-09-07)
+
+**Note:** Version bump only for package @rarible/protocol-ethereum-sdk
+
+
+
+
+
+## [0.12.90](https://github.com/rarible/ethereum-sdk/compare/v0.12.89...v0.12.90) (2022-09-06)
+
+
+### Bug Fixes
+
+* use fixed api-client version ([272f2cd](https://github.com/rarible/ethereum-sdk/commit/272f2cdbf78c4630acc60f71c044f21dd7128351))
+
+
+
+
+
+## [0.12.89](https://github.com/rarible/ethereum-sdk/compare/v0.12.88...v0.12.89) (2022-09-06)
+
+**Note:** Version bump only for package @rarible/protocol-ethereum-sdk
+
+
+
+
+
+## [0.12.88](https://github.com/rarible/ethereum-sdk/compare/v0.12.87...v0.12.88) (2022-08-24)
+
+**Note:** Version bump only for package @rarible/protocol-ethereum-sdk
+
+
+
+
+
 ## [0.12.87](https://github.com/rarible/ethereum-sdk/compare/v0.12.86...v0.12.87) (2022-08-22)
 
 

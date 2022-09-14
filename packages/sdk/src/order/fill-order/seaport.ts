@@ -15,6 +15,7 @@ import type { EthereumConfig } from "../../config/type"
 import type { EthereumNetwork } from "../../types"
 import type { IRaribleEthereumSdkConfig } from "../../types"
 import { getRequiredWallet } from "../../common/get-required-wallet"
+import type { EstimateGasMethod } from "../../common/estimate-gas"
 import { CROSS_CHAIN_SEAPORT_ADDRESS, ItemType, OrderType } from "./seaport-utils/constants"
 import type { PreparedOrderRequestDataForExchangeWrapper, SeaportV1OrderFillRequest } from "./types"
 import type { TipInputItem } from "./seaport-utils/types"
@@ -28,24 +29,26 @@ export class SeaportOrderHandler {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
+		private readonly estimateGas: EstimateGasMethod,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly env: EthereumNetwork,
-		private readonly sdkConfig?: IRaribleEthereumSdkConfig
-	) {}
+		private readonly sdkConfig?: IRaribleEthereumSdkConfig,
+	) {
+	}
 
 	async sendTransaction(
 		request: SeaportV1OrderFillRequest,
 	): Promise<EthereumTransaction> {
-		const {functionCall, options} = await this.getTransactionData(request)
+		const { functionCall, options } = await this.getTransactionData(request)
 		return this.send(
 			functionCall,
-			options
+			options,
 		)
 	}
 
 	async getTransactionData(
-		request: SeaportV1OrderFillRequest
+		request: SeaportV1OrderFillRequest,
 	): Promise<OrderFillSendData> {
 		const ethereum = getRequiredWallet(this.ethereum)
 		const { order } = request
@@ -67,12 +70,12 @@ export class SeaportOrderHandler {
 
 		if (this.env !== "mainnet") {
 			if (order.take.assetType.assetClass === "ETH") {
-				const {wrapper} = this.config.exchange
+				const { wrapper } = this.config.exchange
 				if (!wrapper || wrapper === ZERO_ADDRESS) {
 					throw new Error("Seaport wrapper address has not been set. Change address in config")
 				}
 
-				const {functionCall, options} = await fulfillOrderWithWrapper(
+				const { functionCall, options } = await fulfillOrderWithWrapper(
 					ethereum,
 					this.send.bind(this),
 					order,
@@ -80,8 +83,9 @@ export class SeaportOrderHandler {
 						unitsToFill,
 						originFees: request.originFees,
 						seaportWrapper: wrapper,
-					})
-				await functionCall.estimateGas({
+					},
+				)
+				await this.estimateGas(functionCall, {
 					from: await ethereum.getFrom(),
 					value: options.value,
 				})
@@ -103,7 +107,7 @@ export class SeaportOrderHandler {
 				recipient: fee.account,
 			}))
 		}
-		const {functionCall, options} = await fulfillOrder(
+		const { functionCall, options } = await fulfillOrder(
 			ethereum,
 			this.send.bind(this),
 			order,
@@ -112,7 +116,7 @@ export class SeaportOrderHandler {
 				tips,
 			})
 
-		await functionCall.estimateGas({
+		await this.estimateGas(functionCall, {
 			from: await ethereum.getFrom(),
 			value: options.value,
 		})
@@ -147,7 +151,7 @@ export class SeaportOrderHandler {
 				unitsToFill: unitsToFill,
 				encodedFeesValue: feeValue,
 				totalFeeBasisPoints: totalFeeBasisPoints,
-			}
+			},
 		)
 	}
 

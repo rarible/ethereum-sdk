@@ -27,8 +27,9 @@ import { checkChainId } from "../../../check-chain-id"
 import { signOrder } from "../../../sign-order"
 import { BatchOrderFiller } from "../batch-purchase"
 import { createRaribleSdk } from "../../../../index"
+import { getEstimateGasInjects } from "../../../../common/estimate-gas"
 import {
-	checkOwnerships,
+	checkOwnerships, makeAmmOrder,
 	makeLooksrareOrder,
 	makeRaribleV2Order,
 	makeSeaportOrder,
@@ -69,7 +70,7 @@ describe.skip("Batch purchase", function () {
 	})
 
 	async function buyout(orders: SimpleOrder[], originFees: Part[] | undefined) {
-		const requests = await ordersToRequests(orders, originFees)
+		const requests = ordersToRequests(orders, originFees)
 
 		const tx = await sdkBuyer.order.buyBatch(requests)
 		console.log(tx)
@@ -109,13 +110,27 @@ describe.skip("Batch purchase", function () {
 	test("looksrare few items sell", async () => {
 		const orders = await Promise.all([
 			makeLooksrareOrder(sdkSeller, ethereum, send, config),
-			//makeLooksrareOrder(sdkSeller, ethereum, send, config),
+			makeLooksrareOrder(sdkSeller, ethereum, send, config),
 		])
 
 		await buyout(orders, [{
 			account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
 			value: 100,
 		}])
+	})
+
+	test("amm sudoswap few items sell form different pools", async () => {
+		const orders = await Promise.all([
+			makeAmmOrder(sdkSeller, ethereum, send, config),
+			makeAmmOrder(sdkSeller, ethereum, send, config),
+		])
+
+		const tx = await sdkBuyer.order.buyBatch(ordersToRequests(orders, [{
+			account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
+			value: 100,
+		}]))
+		console.log(tx)
+		await tx.wait()
 	})
 
 	test("Different orders types sell", async () => {
@@ -127,25 +142,25 @@ describe.skip("Batch purchase", function () {
 		])
 
 		const requests = [
-			...(await ordersToRequests([orders[0]], [{
+			...(ordersToRequests([orders[0]], [{
 				account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
 				value: 100,
 			}])),
-			...(await ordersToRequests([orders[1]], [{
+			...(ordersToRequests([orders[1]], [{
 				account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
 				value: 400,
 			}, {
 				account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
 				value: 300,
 			}])),
-			...(await ordersToRequests([orders[2]], [{
+			...(ordersToRequests([orders[2]], [{
 				account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
 				value: 200,
 			}, {
 				account: toAddress("0xFc7b41fFC023bf3eab6553bf4881D45834EF1E8a"),
 				value: 500,
 			}])),
-			...(await ordersToRequests([orders[3]], undefined)),
+			...(ordersToRequests([orders[3]], undefined)),
 		]
 
 		const tx = await sdkBuyer.order.buyBatch(requests)
@@ -182,8 +197,9 @@ describe.skip("fillOrder: Opensea orders", function () {
 	// const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
 
 	const send1 = getSimpleSendWithInjects().bind(null, checkWalletChainId1)
+	const estimateGas = getEstimateGasInjects()
 
-	const orderFiller = new BatchOrderFiller(ethereum1, send1, config, apis, getBaseOrderFee, env)
+	const orderFiller = new BatchOrderFiller(ethereum1, send1, estimateGas, config, apis, getBaseOrderFee, env)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

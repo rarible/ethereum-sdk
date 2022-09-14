@@ -11,6 +11,7 @@ export const devPolygonConfig: EthereumConfig = {
 		v2: toAddress("0x8283Ffd0F535E1103C3599D2d00b85815774A896"),
 		openseaV1: ZERO_ADDRESS,
 		wrapper: ZERO_ADDRESS,
+		x2y2: ZERO_ADDRESS,
 	},
 	transferProxies: {
 		nft: toAddress("0x3586d3E6CDaE98d5F0eEaB737977Bc78406Da2BD"),
@@ -32,6 +33,10 @@ export const devPolygonConfig: EthereumConfig = {
 	cryptoPunks: {
 		marketContract: ZERO_ADDRESS,
 		wrapperContract: ZERO_ADDRESS,
+	},
+	sudoswap: {
+		pairFactory: ZERO_ADDRESS,
+		pairRouter: ZERO_ADDRESS,
 	},
 	weth: toAddress("0xb24740adECB71fEb7d66AA4EBD5F5c334E5bE922"),
 	auction: ZERO_ADDRESS,

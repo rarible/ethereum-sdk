@@ -1,21 +1,11 @@
 import type { ContractSendMethod, SendOptions } from "web3-eth-contract"
-import type { PromiEvent } from "web3-core"
+import type { PromiEvent, TransactionReceipt } from "web3-core"
 import { toAddress, toBinary, toWord } from "@rarible/types"
 import type { GatewayControllerApi } from "@rarible/ethereum-api-client"
-import type {
-	EthereumFunctionCall,
-	EthereumSendOptions,
-	EthereumTransaction,
-} from "@rarible/ethereum-provider"
-import type { AbstractLogger } from "@rarible/logger/build/domain"
-import type { TransactionReceipt } from "web3-core"
+import type { EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
 import { LogsLevel } from "../types"
+import type { ILoggerConfig } from "./logger/logger"
 import { getErrorMessageString } from "./logger/logger"
-
-interface ILoggerConfig {
-	instance: AbstractLogger
-	level: LogsLevel
-}
 
 export type SendFunction = (
 	functionCall: EthereumFunctionCall, options?: EthereumSendOptions,
@@ -52,10 +42,14 @@ export function getSendWithInjects(injects: {
 			}
 			try {
 				if (logsAvailable && logger.level >= LogsLevel.TRACE) {
-					logger.instance.trace(callInfo.method, {
-						from: callInfo.from,
-						args: callInfo.args,
-						tx,
+					logger.instance.raw({
+						level: "TRACE",
+						method: callInfo.method,
+						message: {
+							from: callInfo.from,
+							args: callInfo.args,
+							tx,
+						},
 					})
 				}
 			} catch (e) {
@@ -72,11 +66,15 @@ export function getSendWithInjects(injects: {
 						console.error("Unable to get tx data for log", e)
 					}
 
-					logger.instance.error(callInfo.method, {
-						from: callInfo.from,
-						args: callInfo.args,
+					logger.instance.raw({
+						level: "ERROR",
+						method: callInfo.method,
+						message: {
+							error: getErrorMessageString(err),
+							from: callInfo.from,
+							args: callInfo.args,
+						},
 						data,
-						error: getErrorMessageString(err),
 					})
 				}
 			} catch (e) {

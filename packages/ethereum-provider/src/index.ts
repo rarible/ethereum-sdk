@@ -71,6 +71,7 @@ export interface Ethereum {
 	personalSign(message: string): Promise<string>
 	signTypedData<T extends MessageTypes>(data: TypedMessage<T>): Promise<string>
 	encodeParameter(type: any, parameter: any): string
+	decodeParameter(type: any, data: string): any
 	getBalance(address: Address): Promise<BigNumber>
 	getChainId(): Promise<number>
 }

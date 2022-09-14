@@ -36,6 +36,7 @@ import { getBlockchainFromChainId } from "../../common/get-blockchain-from-chain
 import type { EthereumNetworkConfig, IRaribleEthereumSdkConfig } from "../../types"
 import { id32 } from "../../common/id"
 import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
+import type { EstimateGasMethod } from "../../common/estimate-gas"
 import type { OpenSeaOrderDTO } from "./open-sea-types"
 import type {
 	OpenSeaV1OrderFillRequest,
@@ -64,6 +65,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
+		private readonly estimateGas: EstimateGasMethod,
 		private readonly config: EthereumConfig,
 		private readonly apis: RaribleEthereumApis,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
@@ -269,7 +271,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 				data,
 				feeAddresses[0], feeAddresses[1],
 			)
-			await functionCall.estimateGas({
+			await this.estimateGas(functionCall, {
 				from: await this.ethereum.getFrom(),
 				value: options.value,
 			})
@@ -285,7 +287,7 @@ export class OpenSeaOrderHandler implements OrderHandler<OpenSeaV1OrderFillReque
 				...await getMatchOpenseaOptions(buy),
 				additionalData: getUpdatedCalldata(this.sdkConfig),
 			}
-			await atomicMatchFunctionCall.estimateGas({
+			await this.estimateGas(atomicMatchFunctionCall, {
 				from: await this.ethereum.getFrom(),
 				value: options.value,
 			})

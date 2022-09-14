@@ -41,6 +41,7 @@ import { createRaribleSdk } from "../../index"
 import { createErc721V3Collection } from "../../common/mint"
 import type { ERC721RequestV3 } from "../../nft/mint"
 import { MintResponseTypeEnum } from "../../nft/mint"
+import { getEstimateGasInjects } from "../../common/estimate-gas"
 import {
 	getAtomicMatchArgAddresses,
 	getAtomicMatchArgCommonData,
@@ -77,11 +78,12 @@ describe.skip("fillOrder: Opensea orders", function () {
 
 	const send1 = getSimpleSendWithInjects().bind(null, checkWalletChainId1)
 	const send2 = getSimpleSendWithInjects().bind(null, checkWalletChainId2)
+	const estimateGas = getEstimateGasInjects()
 
-	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, apis, getBaseOrderFee)
-	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, send2, config, apis, getBaseOrderFee)
-	const orderFiller1 = new OrderFiller(ethereum1, send1, config, apis, getBaseOrderFee, "testnet")
-	const orderFiller2 = new OrderFiller(ethereum2, send2, config, apis, getBaseOrderFee, "testnet")
+	const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, estimateGas, config, apis, getBaseOrderFee)
+	const openSeaFillHandler2 = new OpenSeaOrderHandler(ethereum2, send2, estimateGas, config, apis, getBaseOrderFee)
+	const orderFiller1 = new OrderFiller(ethereum1, send1, estimateGas, config, apis, getBaseOrderFee, "testnet")
+	const orderFiller2 = new OrderFiller(ethereum2, send2, estimateGas, config, apis, getBaseOrderFee, "testnet")
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -355,8 +357,10 @@ describe.skip("fillOrder: Opensea orders", function () {
 				v1: ZERO_ADDRESS,
 				v2: ZERO_ADDRESS,
 				wrapper: toAddress(it.exchangeWrapper.options.address),
+				x2y2: ZERO_ADDRESS,
 			},
 			checkChainId.bind(null, ethereum1, config),
+			apis,
 			{
 				...order,
 				signature,
@@ -391,13 +395,13 @@ describe.skip("fillOrder: Opensea orders", function () {
 	})
 
 	test("get order origin without sdkConfig", async () => {
-		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, apis, getBaseOrderFee)
+		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, estimateGas, config, apis, getBaseOrderFee)
 		expect(openSeaFillHandler1.getOrderMetadata()).toEqual(id32(Platform.RARIBLE))
 	})
 
 	test("get order origin with sdkConfig and passed ethereum platform", async () => {
 		const meta = toWord(id32("CUSTOM_STRING"))
-		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, apis, getBaseOrderFee, {
+		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, estimateGas, config, apis, getBaseOrderFee, {
 			ethereum: {
 				openseaOrdersMetadata: meta,
 			},
@@ -407,7 +411,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 
 	test("get order origin with passed polygon platform, but wallet still ethereum", async () => {
 		const meta = toWord(id32("CUSTOM_STRING"))
-		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, config, apis, getBaseOrderFee, {
+		const openSeaFillHandler1 = new OpenSeaOrderHandler(ethereum1, send1, estimateGas, config, apis, getBaseOrderFee, {
 			polygon: {
 				openseaOrdersMetadata: meta,
 			},
@@ -427,7 +431,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 				proxyRegistry: ZERO_ADDRESS,
 			},
 		}
-		const openSeaFillHandler1 = new OpenSeaOrderHandler(polygon1, send1, config, apis, getBaseOrderFee, {
+		const openSeaFillHandler1 = new OpenSeaOrderHandler(polygon1, send1, estimateGas, config, apis, getBaseOrderFee, {
 			polygon: {
 				openseaOrdersMetadata: meta,
 			},
@@ -447,7 +451,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 				proxyRegistry: ZERO_ADDRESS,
 			},
 		}
-		const openSeaFillHandler1 = new OpenSeaOrderHandler(polygon1, send1, config, apis, getBaseOrderFee, {
+		const openSeaFillHandler1 = new OpenSeaOrderHandler(polygon1, send1, estimateGas, config, apis, getBaseOrderFee, {
 			polygon: {
 				openseaOrdersMetadata: meta,
 			},

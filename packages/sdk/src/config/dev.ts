@@ -10,7 +10,8 @@ export const devEthereumConfig: EthereumConfig = {
 		v1: ZERO_ADDRESS,
 		v2: toAddress("0x6aABb267a1c440CfB5C200Ebcd078Efa9249492A"),
 		openseaV1: ZERO_ADDRESS,
-		wrapper: ZERO_ADDRESS,
+		wrapper: toAddress("0xB9078a4102309Fe32eCDb2B82f61496bB1c7FBA1"),
+		x2y2: ZERO_ADDRESS,
 	},
 	transferProxies: {
 		nft: toAddress("0xc6f33b62A94939E52E1b074c4aC1A801B869fDB2"),
@@ -32,6 +33,10 @@ export const devEthereumConfig: EthereumConfig = {
 	cryptoPunks: {
 		marketContract: ZERO_ADDRESS,
 		wrapperContract: ZERO_ADDRESS,
+	},
+	sudoswap: {
+		pairFactory: ZERO_ADDRESS,
+		pairRouter: ZERO_ADDRESS,
 	},
 	weth: toAddress("0x55eB2809896aB7414706AaCDde63e3BBb26e0BC6"),
 	auction: ZERO_ADDRESS,

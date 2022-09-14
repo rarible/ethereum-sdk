@@ -7,13 +7,14 @@ import { delay, retry } from "../../../../../common/retry"
 import { createErc721V3Collection } from "../../../../../common/mint"
 import { MintResponseTypeEnum } from "../../../../../nft/mint"
 import type { FillBatchSingleOrderRequest } from "../../../types"
-import type { SimpleOrder } from "../../../../types"
+import type { SimpleAmmOrder, SimpleOrder } from "../../../../types"
 import { ItemType } from "../../../seaport-utils/constants"
 import { getOpenseaEthTakeData } from "../../../../test/get-opensea-take-data"
 import { createSeaportOrder } from "../../../../test/order-opensea"
 import type { SendFunction } from "../../../../../common/send-transaction"
 import { makeRaribleSellOrder } from "../../../looksrare-utils/create-order"
 import type { EthereumConfig } from "../../../../../config/type"
+import { mintTokensToNewSudoswapPool } from "../../../amm/test/utils"
 
 const rinkebyErc721V3ContractAddress = toAddress("0x6ede7f3c26975aad32a475e1021d8f6f39c89d82")
 // const rinkebyErc1155V2ContractAddress = toAddress("0x1af7a7555263f275433c6bb0b8fdcd231f89b1d7")
@@ -43,7 +44,7 @@ export async function makeRaribleV2Order(
 	const sellOrder = await sdk.order.sell({
 		type: "DATA_V2",
 		amount: 1,
-		priceDecimal: toBn(request.price ?? "0.000000000001"),
+		priceDecimal: toBn(request.price ?? "342342430.000000000001"),
 		takeAssetType: {
 			assetClass: "ETH",
 		},
@@ -100,17 +101,31 @@ export async function makeLooksrareOrder(
 	return sellOrder
 }
 
-export async function ordersToRequests(
+export async function makeAmmOrder(
+	sdk: RaribleSdk,
+	ethereum: Ethereum,
+	send: SendFunction,
+	config: EthereumConfig
+): Promise<SimpleAmmOrder> {
+	const {poolAddress} = await mintTokensToNewSudoswapPool(sdk, ethereum, send, config.sudoswap.pairFactory, 1)
+	const orderHash = "0x" + poolAddress.slice(2).padStart(64, "0")
+	return await retry(20, 2000, async () => {
+		return await sdk.apis.order.getOrderByHash({hash: orderHash})
+	}) as SimpleAmmOrder
+}
+
+export function ordersToRequests(
 	orders: SimpleOrder[],
 	originFees?: Part[],
 	payouts?: Part[],
-): Promise<FillBatchSingleOrderRequest[]> {
+): FillBatchSingleOrderRequest[] {
 	return orders.map((order) => {
 		if (
 			order.type !== "RARIBLE_V2" &&
 			order.type !== "OPEN_SEA_V1" &&
 			order.type !== "SEAPORT_V1" &&
-			order.type !== "LOOKSRARE"
+			order.type !== "LOOKSRARE" &&
+			order.type !== "AMM"
 		) {
 			throw new Error("Unsupported order type")
 		}
@@ -125,7 +140,7 @@ export async function ordersToRequests(
 }
 
 export function waitUntilOrderActive(sdk: RaribleSdk, orderHash: string) {
-	return retry(20, 2000, async () => {
+	return retry(30, 2000, async () => {
 		const order = await sdk.apis.order.getOrderByHash({ hash: orderHash })
 		expect(order.status).toBe("ACTIVE")
 		return order
@@ -139,7 +154,8 @@ export async function checkOwnerships(sdk: RaribleSdk, assets: Asset[], expected
 				asset.assetType.assetClass === "ETH" ||
 				asset.assetType.assetClass === "ERC20" ||
 				asset.assetType.assetClass === "COLLECTION" ||
-				asset.assetType.assetClass === "GEN_ART"
+				asset.assetType.assetClass === "GEN_ART" ||
+				asset.assetType.assetClass === "AMM_NFT"
 			) {
 				throw new Error("Not an token type")
 			}

@@ -22,6 +22,9 @@ export class LimitsRegistry implements ILimitsRegistry {
 			})
 			await handleFetchErrorResponse(response, { code: NetworkErrorCode.BICONOMY_EXTERNAL_ERR })
 		} catch (e) {
+			if (e instanceof NetworkError) {
+				throw e
+			}
 			throw new NetworkError({
 				url: fetchUrl,
 				data: (e as Error).message,

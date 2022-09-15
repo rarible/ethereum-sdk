@@ -14,6 +14,9 @@ export class Registry implements IContractRegistry {
 		  await handleFetchErrorResponse(resp, { code: NetworkErrorCode.BICONOMY_EXTERNAL_ERR })
 		  this.registryData = await resp.json()
 		} catch (e) {
+			if (e instanceof NetworkError) {
+				throw e
+			}
 			throw new NetworkError({
 				url: this.registryUrl,
 				data: (e as Error).message,

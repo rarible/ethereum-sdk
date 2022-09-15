@@ -3,6 +3,7 @@ import { toBigNumber } from "@rarible/types"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { Part } from "@rarible/ethereum-api-client"
 import { sanitizeUri } from "../common/sanitize-uri"
+import { getBlockchainFromChainId } from "../common/get-blockchain-from-chain-id"
 import type { SimpleLazyNft } from "./sign-nft"
 import { getTokenId } from "./get-token-id"
 import type { ERC1155RequestV2, ERC721RequestV3, MintOffChainResponse} from "./mint"
@@ -19,6 +20,10 @@ export async function mintOffChain(
 	nftLazyMintApi: EthereumApi.NftLazyMintControllerApi,
 	data: ERC721RequestV3 | ERC1155RequestV2
 ): Promise<MintOffChainResponse> {
+	if (getBlockchainFromChainId(await ethereum.getChainId()) === "POLYGON") {
+		throw new Error("Off-chain mint not supported for Polygon")
+	}
+
 	const creators = await getCreators(data, ethereum)
 	const { tokenId } = await getTokenId(nftCollectionApi, data.collection.id, creators[0].account, data.nftTokenId)
 

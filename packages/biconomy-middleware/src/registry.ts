@@ -9,20 +9,18 @@ export class Registry implements IContractRegistry {
 	}
 
 	private async fetchData() {
+		let response
 		try {
-		  const resp = await fetch(this.registryUrl)
-		  await handleFetchErrorResponse(resp, { code: NetworkErrorCode.BICONOMY_EXTERNAL_ERR })
-		  this.registryData = await resp.json()
+		  response = await fetch(this.registryUrl)
 		} catch (e) {
-			if (e instanceof NetworkError) {
-				throw e
-			}
 			throw new NetworkError({
 				url: this.registryUrl,
 				data: (e as Error).message,
 				code: NetworkErrorCode.BICONOMY_EXTERNAL_ERR,
 			})
 		}
+		await handleFetchErrorResponse(response, { code: NetworkErrorCode.BICONOMY_EXTERNAL_ERR })
+		this.registryData = await response.json()
 	}
 
 	async getMetadata(address: string, data?: string): Promise<ContractMetadata | undefined> {

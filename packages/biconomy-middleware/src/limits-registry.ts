@@ -20,17 +20,14 @@ export class LimitsRegistry implements ILimitsRegistry {
 					"x-api-key": this.options.apiKey,
 				}),
 			})
-			await handleFetchErrorResponse(response, { code: NetworkErrorCode.BICONOMY_EXTERNAL_ERR })
 		} catch (e) {
-			if (e instanceof NetworkError) {
-				throw e
-			}
 			throw new NetworkError({
 				url: fetchUrl,
 				data: (e as Error).message,
 				code: NetworkErrorCode.BICONOMY_EXTERNAL_ERR,
 			})
 		}
+		await handleFetchErrorResponse(response, { code: NetworkErrorCode.BICONOMY_EXTERNAL_ERR })
 		return response.json()
 	}
 }

@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.94](https://github.com/rarible/ethereum-sdk/compare/v0.12.93...v0.12.94) (2022-09-15)
+
+
+### Features
+
+* added default calldata marker ([#188](https://github.com/rarible/ethereum-sdk/issues/188)) ([d021a3f](https://github.com/rarible/ethereum-sdk/commit/d021a3f2e5901561791d6abc114e3dae3232d722))
+* disable lazy mint for polygon ([#191](https://github.com/rarible/ethereum-sdk/issues/191)) ([2468050](https://github.com/rarible/ethereum-sdk/commit/246805099a9b50d395a3e73999b4f56ec66c6eee))
+
+
+
+
+
 ## [0.12.93](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.92...v0.12.93) (2022-09-15)
 
 

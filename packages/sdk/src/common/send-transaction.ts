@@ -158,20 +158,20 @@ export async function sentTxConfirm(source: ContractSendMethod, options: SendOpt
 
 export async function waitForHash<T>(promiEvent: PromiEvent<T>): Promise<string> {
 	return new Promise((resolve, reject) => {
-		promiEvent.on("transactionHash", hash => resolve(hash))
-		promiEvent.on("error", error => reject(error))
+		promiEvent.once("transactionHash", hash => resolve(hash))
+		promiEvent.once("error", error => reject(error))
 	})
 }
 
 export async function waitForConfirmation<T>(promiEvent: PromiEvent<T>): Promise<string> {
 	return new Promise((resolve, reject) => {
-		promiEvent.on("confirmation", (confNumber: number, receipt: TransactionReceipt) => resolve(receipt.transactionHash))
-		promiEvent.on("error", error => reject(error))
+		promiEvent.once("confirmation", (confNumber: number, receipt: TransactionReceipt) => resolve(receipt.transactionHash))
+		promiEvent.once("error", error => reject(error))
 	})
 }
 export async function waitForReceipt<T>(promiEvent: PromiEvent<T>): Promise<TransactionReceipt> {
 	return new Promise((resolve, reject) => {
-		promiEvent.on("receipt", receipt => resolve(receipt))
-		promiEvent.on("error", error => reject(error))
+		promiEvent.once("receipt", receipt => resolve(receipt))
+		promiEvent.once("error", error => reject(error))
 	})
 }

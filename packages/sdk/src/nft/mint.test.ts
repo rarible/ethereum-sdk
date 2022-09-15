@@ -167,6 +167,7 @@ describe.skip("mint test", () => {
 			lazy: false,
 		} as ERC1155RequestV2)
 		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			await minted.transaction.wait()
 			console.log(minted.transaction)
 		}
 		const contract = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V2, rinkebyErc1155V2ContractAddress)
@@ -191,7 +192,7 @@ describe.skip("mint test", () => {
 		expect(lazy.uri).toBe("/ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5")
 	})
 
-	test.skip("mint ERC-1155 v2 lazy", async () => {
+	test("mint ERC-1155 v2 lazy", async () => {
 		const minted = await mint({
 			collection: createErc1155V2Collection(rinkebyErc1155V2ContractAddress),
 			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",

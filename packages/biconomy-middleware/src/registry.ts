@@ -1,3 +1,4 @@
+import { NetworkError } from "@rarible/logger/build"
 import type { ContractMetadata, IContractRegistry } from "./types"
 
 export class Registry implements IContractRegistry {
@@ -8,6 +9,21 @@ export class Registry implements IContractRegistry {
 
 	private async fetchData() {
 		const resp = await fetch(this.registryUrl)
+		if (!resp.ok) {
+			let value
+			try {
+				value = await resp.clone().json()
+			} catch (e) {
+				value = await resp.clone().text()
+			}
+
+			throw new NetworkError({
+				status: resp.status,
+				url: resp.url,
+				value,
+				code: "BICONOMY_EXTERNAL_ERR",
+			})
+		}
 		this.registryData = await resp.json()
 	}
 

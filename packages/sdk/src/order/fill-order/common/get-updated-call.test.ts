@@ -25,4 +25,9 @@ describe("getUpdatedFunctionCall",  () => {
 		)
 		expect(calldata).toBe(`${ZERO_ADDRESS}00000001${FILL_CALLDATA_TAG}`)
 	})
+
+	test("get updated call with no fillCalldata should returns default value", async () => {
+		const calldata = getUpdatedCalldata()
+		expect(calldata).toBe(`${ZERO_ADDRESS}00000000${FILL_CALLDATA_TAG}`)
+	})
 })

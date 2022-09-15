@@ -74,3 +74,7 @@ export interface ILoggerConfig {
 	instance: AbstractLogger
 	level: LogsLevel
 }
+
+export enum NetworkErrorCode {
+	ETHEREUM_EXTERNAL_ERR = "ETHEREUM_EXTERNAL_ERR"
+}

@@ -17,3 +17,7 @@ export type MessageTypes = {
 }
 
 export type TypedMessage<T extends MessageTypes> = EthSigUtilTypedData<T>
+
+export enum NetworkErrorCode {
+	BICONOMY_EXTERNAL_ERR = "BICONOMY_EXTERNAL_ERR"
+}

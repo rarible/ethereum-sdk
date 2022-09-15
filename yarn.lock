@@ -2535,10 +2535,10 @@
   dependencies:
     "@rarible/types" "~0.9.2"
 
-"@rarible/logger@~0.9.7":
-  version "0.9.7"
-  resolved "https://registry.yarnpkg.com/@rarible/logger/-/logger-0.9.7.tgz#43d40ba204035c69ec83e9b7f76ecf2185245908"
-  integrity sha512-U1VrdaCbQ8Ci6yMiKLHndlrxIqY9pq13kvZQiT2b7i5MykMOMy5npV0TJSUr672G/znm0m5v8yVHs5waPEe+mQ==
+"@rarible/logger@~0.9.8":
+  version "0.9.8"
+  resolved "https://registry.yarnpkg.com/@rarible/logger/-/logger-0.9.8.tgz#fd6691056d504ec074a5df8e22a95b55b8b3efc2"
+  integrity sha512-fkGOocArjDH1eJ2EeUpENlaibWKq9zarKqAjVIA/KStd6LGLrebocTwd8KgHoUvfFbslkACylY+P/xgXHKEVgg==
   dependencies:
     json-stringify-safe "^5.0.1"
 

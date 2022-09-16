@@ -1,10 +1,11 @@
 import type { AxiosResponse } from "axios"
 import axios from "axios"
-import { NetworkError } from "@rarible/logger/build"
+import { handleAxiosErrorResponse } from "@rarible/logger/build"
 import type { EthereumConfig } from "../config/type"
 import type { EthereumNetwork } from "../types"
 import type { SimpleOrder } from "../order/types"
 import { CURRENT_ORDER_TYPE_VERSION } from "./order"
+import { NetworkErrorCode } from "./logger/logger"
 
 export async function getBaseFee(
 	config: EthereumConfig,
@@ -21,14 +22,7 @@ export async function getBaseFee(
 		}
 	} catch (e) {
 		console.error(e)
-		if (axios.isAxiosError(e) && e.response) {
-			throw new NetworkError({
-				status: e.response.status,
-				url: e.config.url || "",
-				value: e.response.data,
-				code: "ETHEREUM_EXTERNAL_ERR",
-			})
-		}
+		handleAxiosErrorResponse(e, { code: NetworkErrorCode.ETHEREUM_EXTERNAL_ERR })
 		throw e
 	}
 

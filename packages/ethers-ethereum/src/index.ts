@@ -160,24 +160,29 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 	}
 
 	private getTxEvents(receipt: ethers.providers.TransactionReceipt): EthereumTransactionEvent[] {
-		return receipt.logs.map(log => {
-			try {
-				const parsedEvent = this.contract.interface.parseLog(log)
-				return {
-					...log,
-					event: parsedEvent.name,
-					args: parsedEvent.args,
-					returnValues: parsedEvent.args,
+		try {
+			return receipt.logs.map(log => {
+				try {
+					const parsedEvent = this.contract.interface.parseLog(log)
+					return {
+						...log,
+						event: parsedEvent.name,
+						args: parsedEvent.args,
+						returnValues: parsedEvent.args,
+					}
+				} catch (e) {
+					return {
+						...log,
+						event: "",
+						returnValues: {},
+						args: {},
+					}
 				}
-			} catch (e) {
-				return {
-					...log,
-					event: "",
-					returnValues: {},
-					args: {},
-				}
-			}
-		})
+			})
+		} catch (e) {
+			console.log(e)
+			return []
+		}
 	}
 
 	async send(options?: EthereumProvider.EthereumSendOptions): Promise<EthereumProvider.EthereumTransaction> {

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.95](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.94...v0.12.95) (2022-09-16)
+
+
+### Features
+
+* logger helpers ([#192](https://github.com/rarible/protocol-ethereum-sdk/issues/192)) ([eda572a](https://github.com/rarible/protocol-ethereum-sdk/commit/eda572a7f0e1d7c76b4eb2d5e0035816c9dfae7c))
+
+
+
+
+
 ## [0.12.93](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.92...v0.12.93) (2022-09-15)
 
 

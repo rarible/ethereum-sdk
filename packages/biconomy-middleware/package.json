@@ -1,6 +1,6 @@
 {
   "name": "@rarible/biconomy-middleware",
-  "version": "0.12.93",
+  "version": "0.12.95",
   "description": "Middleware for biconomy integration",
   "keywords": [
     "ethereum",

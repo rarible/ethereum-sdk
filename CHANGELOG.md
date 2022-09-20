@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.96](https://github.com/rarible/ethereum-sdk/compare/v0.12.95...v0.12.96) (2022-09-20)
+
+
+### Features
+
+* use directPurchase method in exchangeV2 contract for fill sell … ([#193](https://github.com/rarible/ethereum-sdk/issues/193)) ([9fbc2c2](https://github.com/rarible/ethereum-sdk/commit/9fbc2c298cb5b6e41c29dfce48815951d10301ca))
+
+
+
+
+
 ## [0.12.95](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.94...v0.12.95) (2022-09-16)
 
 

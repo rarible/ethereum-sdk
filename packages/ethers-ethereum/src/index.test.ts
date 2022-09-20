@@ -4,6 +4,8 @@ import Web3 from "web3"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
+import { SeaportABI } from "@rarible/ethereum-sdk-test-common/build/contracts/opensea/test-seaport"
+import { getTxEvents } from "./utils/parse-logs"
 import { EthersEthereum, EthersWeb3ProviderEthereum } from "./index"
 
 const testPK = "d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469"
@@ -19,6 +21,7 @@ const data = [
 	ethereum,
 	etheresEthereum,
 ]
+
 
 describe.each(data)("ethers.js Ethereum", (eth: Ethereum) => {
 
@@ -81,5 +84,31 @@ describe.each(data)("ethers.js Ethereum", (eth: Ethereum) => {
 			//@ts-ignore
 			expect(decoded[field]).toEqual(data[field].toString())
 		}
+	})
+})
+
+describe("get transaction receipt events", () => {
+	const { provider } = common.createE2eProvider(
+		"d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469",
+		{
+			networkId: 1,
+			rpcUrl: "https://node-mainnet.rarible.com",
+		}
+	)
+	const web3Provider = new ethers.providers.Web3Provider(provider as any)
+	const ethereum = new EthersWeb3ProviderEthereum(web3Provider)
+
+
+	test("get Seaport tx events (prod)", async () => {
+		const receipt = ethereum.web3Provider.getTransactionReceipt("0x8d7ce93eac45141de762bf29fae4a1c6458e2b2d0b0361432b091a9e29b3c903")
+		const signer = web3Provider.getSigner()
+		const seaportAddr = "0x00000000006c3852cbef3e08e8df289169ede581"
+
+		const ethersContract = new ethers.Contract(seaportAddr, SeaportABI, signer)
+		const events = await getTxEvents(
+			receipt,
+			ethersContract
+		)
+		expect(events).toBeTruthy()
 	})
 })

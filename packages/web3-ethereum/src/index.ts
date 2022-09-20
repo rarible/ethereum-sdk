@@ -10,7 +10,10 @@ import type * as EthereumProvider from "@rarible/ethereum-provider"
 import type { Web3EthereumConfig } from "./domain"
 import { providerRequest } from "./utils/provider-request"
 import { toPromises } from "./utils/to-promises"
-import { logParser } from "./utils/log-parser"
+import {
+	getContractMethodReceiptEvents,
+	getTransactionReceiptEvents,
+} from "./utils/log-parser"
 
 export class Web3Ethereum implements EthereumProvider.Ethereum {
 	constructor(private readonly config: Web3EthereumConfig) {
@@ -108,10 +111,6 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 		})
 	}
 
-	private getTxEvents(receipt: TransactionReceipt): EthereumProvider.EthereumTransactionEvent[] {
-		return logParser(receipt.logs, this.contract.options.jsonInterface, this.config.web3)
-	}
-
 	async send(options: EthereumProvider.EthereumSendOptions = {}): Promise<EthereumProvider.EthereumTransaction> {
 		const from = toAddress(await this.getFrom())
 		if (options.additionalData) {
@@ -138,7 +137,11 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 				tx.nonce,
 				from,
 				toAddress(this.contract.options.address),
-				this.getTxEvents.bind(this),
+				getTransactionReceiptEvents(
+					receipt,
+					this.contract.options.address,
+					this.contract.options.jsonInterface
+				),
 			)
 		}
 
@@ -158,6 +161,7 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 			tx.nonce,
 			from,
 			toAddress(this.contract.options.address),
+			getContractMethodReceiptEvents(receipt)
 		)
 	}
 
@@ -189,30 +193,19 @@ export class Web3Transaction implements EthereumProvider.EthereumTransaction {
 		public readonly nonce: number,
 		public readonly from: Address,
 		public readonly to?: Address,
-		public readonly getEvents?: (receipt: TransactionReceipt) => EthereumProvider.EthereumTransactionEvent[],
-	) {
-	}
+		private readonly events?: Promise<EthereumProvider.EthereumTransactionEvent[]>,
+	) {}
 
 	async wait(): Promise<EthereumProvider.EthereumTransactionReceipt> {
 		const receipt = await this.receipt
 
-		if (this.getEvents) {
-			return {
-				...receipt,
-				events: this.getEvents ? this.getEvents(receipt) : [],
-			}
-		}
-
-		const events: EthereumProvider.EthereumTransactionEvent[] = receipt.events ? Object.keys(receipt.events!)
-			.map(ev => receipt.events![ev])
-			.map(ev => ({
-				...ev,
-				args: ev.returnValues,
-			})) : []
 		return {
 			...receipt,
-			events,
 		}
+	}
+
+	async getEvents(): Promise<EthereumProvider.EthereumTransactionEvent[]> {
+		return this.events || []
 	}
 }
 

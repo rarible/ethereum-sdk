@@ -22,7 +22,6 @@ export type EthereumTransactionReceipt = {
 	transactionHash: string
 	blockHash: string
 	blockNumber: number
-	events: EthereumTransactionEvent[]
 }
 
 export interface EthereumTransaction {
@@ -32,6 +31,7 @@ export interface EthereumTransaction {
 	data: Binary
 	nonce: number
 	wait(): Promise<EthereumTransactionReceipt>
+	getEvents(): Promise<EthereumTransactionEvent[]>
 }
 
 export interface EthereumSendOptions {

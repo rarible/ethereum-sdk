@@ -112,21 +112,21 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 			const functionCall = exchangeContract.functionCall(
 				"directPurchase",
 				{
-					sellOrderMaker: initial.maker,			        // sellOrderMaker
-					sellOrderNftAmount: initial.make.value,     // sellOrderNftAmount
-					nftAssetClass: nftStruct.assetClass,        // nftAssetClass
-					nftData: nftStruct.data,                    // nftData
-					sellOrderPaymentAmount: initial.take.value, // sellOrderPaymentAmount
-					paymentToken: initial.take.assetType.assetClass === "ETH" ? ZERO_ADDRESS : initial.take.assetType.contract,	// paymentToken
-					sellOrderSalt: initial.salt,                // sellOrderSalt
-					sellOrderStart: initial.start ?? 0,         // sellOrderStart
-					sellOrderEnd: initial.end ?? 0,             // sellOrderEnd
-					sellOrderDataType: sellOrderDataType,       // sellOrderDataType
-					sellOrderData: sellOrderData,               // sellOrderData
-					sellOrderSignature: fixSignature(initial.signature) || "0x", // sellOrderSignature
-					buyOrderPaymentAmount: inverted.make.value, // buyOrderPaymentAmount
-					buyOrderNftAmount: inverted.take.value,		  // buyOrderNftAmount
-					buyOrderData: buyOrderData,                 // buyOrderData
+					sellOrderMaker: initial.maker,
+					sellOrderNftAmount: initial.make.value,
+					nftAssetClass: nftStruct.assetClass,
+					nftData: nftStruct.data,
+					sellOrderPaymentAmount: initial.take.value,
+					paymentToken: initial.take.assetType.assetClass === "ETH" ? ZERO_ADDRESS : initial.take.assetType.contract,
+					sellOrderSalt: initial.salt,
+					sellOrderStart: initial.start ?? 0,
+					sellOrderEnd: initial.end ?? 0,
+					sellOrderDataType: sellOrderDataType,
+					sellOrderData: sellOrderData,
+					sellOrderSignature: fixSignature(initial.signature) || "0x",
+					buyOrderPaymentAmount: inverted.make.value,
+					buyOrderNftAmount: inverted.take.value,
+					buyOrderData: buyOrderData,
 				}
 			)
 			const options = await this.getMatchV2Options(initial, inverted)

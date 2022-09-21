@@ -4,10 +4,12 @@ export function getBlockchainFromChainId(chainId: number): EVMBlockchain {
 		case 4:
 		case 3:
 		case 17:
+		case 200500:
 		case 300500:
 			return "ETHEREUM"
 		case 137:
 		case 80001:
+		case 200501:
 		case 300501:
 			return "POLYGON"
 		default: throw new Error("ChainID from config could not be recognized")

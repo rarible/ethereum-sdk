@@ -2,12 +2,14 @@ import type { Binary, ConfigurationParameters } from "@rarible/ethereum-api-clie
 import type { Word } from "@rarible/types"
 
 export type EthereumNetwork =
-  | "testnet"
   | "mainnet"
+  | "testnet"
+  | "staging"
   | "mumbai"
   | "polygon"
   | "dev-ethereum"
   | "dev-polygon"
+  | "staging-polygon"
 
 export enum LogsLevel {
 	DISABLED = 0,

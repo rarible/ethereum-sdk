@@ -1,6 +1,6 @@
 import type { Address } from "@rarible/ethereum-api-client"
 import type { Ethereum, EthereumSendOptions, EthereumTransaction } from "@rarible/ethereum-provider"
-import { ZERO_WORD } from "@rarible/types"
+import { ZERO_ADDRESS, ZERO_WORD } from "@rarible/types"
 import type { Maybe } from "@rarible/types/build/maybe"
 import { hashToSign, orderToStruct, signOrder } from "../sign-order"
 import { getAssetWithFee } from "../get-asset-with-fee"
@@ -14,6 +14,8 @@ import { isSigner } from "../../common/is-signer"
 import { fixSignature } from "../../common/fix-signature"
 import type { EstimateGasMethod } from "../../common/estimate-gas"
 import type { IRaribleEthereumSdkConfig } from "../../types"
+import { assetTypeToStruct } from "../asset-type-to-struct"
+import { encodeRaribleV2OrderData } from "../encode-rarible-v2-order-data"
 import { encodeRaribleV2OrderPurchaseStruct } from "./rarible-v2/encode-rarible-v2-order"
 import { invertOrder } from "./invert-order"
 import type {
@@ -101,25 +103,62 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 			throw new Error("Wallet undefined")
 		}
 		const exchangeContract = createExchangeV2Contract(this.ethereum, this.config.exchange.v2)
-		const functionCall = exchangeContract.functionCall(
-			"matchOrders",
-			await this.fixForTx(initial),
-			fixSignature(initial.signature) || "0x",
-			orderToStruct(this.ethereum, inverted),
-			fixSignature(inverted.signature) || "0x",
-		)
 
-		const options = await this.getMatchV2Options(initial, inverted)
-		await this.estimateGas(functionCall, {
-			from: await this.ethereum.getFrom(),
-			value: options.value,
-		})
-		return {
-			functionCall,
-			options: {
-				...options,
-				additionalData: getUpdatedCalldata(this.sdkConfig),
-			},
+		if (isSellOrder(initial)) {
+			const nftStruct = assetTypeToStruct(this.ethereum, initial.make.assetType)
+			const [sellOrderDataType, sellOrderData] = encodeRaribleV2OrderData(this.ethereum, initial.data)
+			const [, buyOrderData] = encodeRaribleV2OrderData(this.ethereum, inverted.data)
+
+			const functionCall = exchangeContract.functionCall(
+				"directPurchase",
+				{
+					sellOrderMaker: initial.maker,
+					sellOrderNftAmount: initial.make.value,
+					nftAssetClass: nftStruct.assetClass,
+					nftData: nftStruct.data,
+					sellOrderPaymentAmount: initial.take.value,
+					paymentToken: initial.take.assetType.assetClass === "ETH" ? ZERO_ADDRESS : initial.take.assetType.contract,
+					sellOrderSalt: initial.salt,
+					sellOrderStart: initial.start ?? 0,
+					sellOrderEnd: initial.end ?? 0,
+					sellOrderDataType: sellOrderDataType,
+					sellOrderData: sellOrderData,
+					sellOrderSignature: fixSignature(initial.signature) || "0x",
+					buyOrderPaymentAmount: inverted.make.value,
+					buyOrderNftAmount: inverted.take.value,
+					buyOrderData: buyOrderData,
+				}
+			)
+			const options = await this.getMatchV2Options(initial, inverted)
+
+			return {
+				functionCall,
+				options: {
+					...options,
+					additionalData: getUpdatedCalldata(this.sdkConfig),
+				},
+			}
+		} else {
+			const functionCall = exchangeContract.functionCall(
+				"matchOrders",
+				await this.fixForTx(initial),
+				fixSignature(initial.signature) || "0x",
+				orderToStruct(this.ethereum, inverted),
+				fixSignature(inverted.signature) || "0x",
+			)
+
+			const options = await this.getMatchV2Options(initial, inverted)
+			await this.estimateGas(functionCall, {
+				from: await this.ethereum.getFrom(),
+				value: options.value,
+			})
+			return {
+				functionCall,
+				options: {
+					...options,
+					additionalData: getUpdatedCalldata(this.sdkConfig),
+				},
+			}
 		}
 	}
 
@@ -229,4 +268,11 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 	async getBaseOrderFee(): Promise<number> {
 		return this.getBaseOrderFeeConfig("RARIBLE_V2")
 	}
+}
+
+/**
+ * Check if order selling something for currency
+ */
+function isSellOrder(order: SimpleOrder): boolean {
+	return order.take.assetType.assetClass === "ETH" || order.take.assetType.assetClass ==="ERC20"
 }

@@ -176,7 +176,7 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 
 			return new EthersTransaction(
 				tx,
-				getTxEvents(tx.wait(), this.contract)
+				this.contract
 			)
 		}
 
@@ -192,7 +192,7 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 export class EthersTransaction implements EthereumProvider.EthereumTransaction {
 	constructor(
 		private readonly tx: TransactionResponse,
-		private readonly events?: Promise<EthereumTransactionEvent[]>
+		private readonly contract?: Contract
 	) {}
 
 	get hash(): Word {
@@ -210,12 +210,13 @@ export class EthersTransaction implements EthereumProvider.EthereumTransaction {
 	}
 
 	async getEvents(): Promise<EthereumTransactionEvent[]> {
-		if (this.events) {
-			return await this.events
-		}
 		const receipt = await this.tx.wait()
 
-		return (receipt as any).events || []
+		if (this.contract) {
+			return getTxEvents(receipt, this.contract)
+		}
+
+		return (receipt as any)?.events || []
 	}
 
 	get to(): Address | undefined {

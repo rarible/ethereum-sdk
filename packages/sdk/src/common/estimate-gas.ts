@@ -31,10 +31,14 @@ export function getEstimateGasInjects(injects: {
 					} catch (e: any) {
 						console.error("Unable to get tx data for log", e)
 					}
-					logger.instance.warn("estimateGas for " + callInfo.method, {
-						error: getErrorMessageString(err),
-						from: callInfo.from,
-						args: callInfo.args,
+					logger.instance.raw({
+						level: "WARN",
+						method: callInfo.method,
+						message: {
+							error: getErrorMessageString(err),
+							from: callInfo.from,
+							args: callInfo.args,
+						},
 						data,
 					})
 				}

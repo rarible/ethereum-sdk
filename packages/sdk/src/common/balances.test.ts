@@ -34,7 +34,7 @@ describe("getBalance test", () => {
 		expect(balance.toString()).toBe("1.9355")
 	})
 
-	test("get erc-20 balance", async () => {
+	test.skip("get erc-20 balance", async () => {
 		const senderAddress = toAddress(await ethereum.getFrom())
 		await it.testErc20.methods.mint(senderAddress, 1).send({
 			from: senderAddress,

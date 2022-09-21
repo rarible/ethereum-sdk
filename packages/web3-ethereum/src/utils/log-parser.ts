@@ -21,11 +21,10 @@ export async function getTransactionReceiptEvents(
 	address: string,
 	abi: AbiItem[],
 ): Promise<EthereumProvider.EthereumTransactionEvent[]> {
-	const receipt = await receiptPromise
 	const eventsResponse = parseReceiptEvents(
 		abi,
 		address,
-		receipt
+		await receiptPromise
 	)
-	return eventsResponse?.events
+	return Object.values(eventsResponse.events) || []
 }

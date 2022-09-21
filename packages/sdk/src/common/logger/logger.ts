@@ -66,11 +66,15 @@ export function createRemoteLogger(context: {
 
 	return new RemoteLogger((msg) => axios.post(loggerConfig.elkUrl, msg), {
 		initialContext: getContext(),
-		maxByteSize: 3 * 10240,
+		maxByteSize: 5 * 10240,
 	})
 }
 
 export interface ILoggerConfig {
 	instance: AbstractLogger
 	level: LogsLevel
+}
+
+export enum NetworkErrorCode {
+	ETHEREUM_EXTERNAL_ERR = "ETHEREUM_EXTERNAL_ERR"
 }

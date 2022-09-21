@@ -42,10 +42,14 @@ export function getSendWithInjects(injects: {
 			}
 			try {
 				if (logsAvailable && logger.level >= LogsLevel.TRACE) {
-					logger.instance.trace(callInfo.method, {
-						from: callInfo.from,
-						args: callInfo.args,
-						tx,
+					logger.instance.raw({
+						level: "TRACE",
+						method: callInfo.method,
+						message: {
+							from: callInfo.from,
+							args: callInfo.args,
+							tx,
+						},
 					})
 				}
 			} catch (e) {
@@ -55,10 +59,22 @@ export function getSendWithInjects(injects: {
 		} catch (err: any) {
 			try {
 				if (logsAvailable && logger.level >= LogsLevel.ERROR && callInfo) {
-					logger.instance.error(callInfo.method, {
-						from: callInfo.from,
-						args: callInfo.args,
-						error: getErrorMessageString(err),
+					let data = undefined
+					try {
+						data = await functionCall.getData()
+					} catch (e: any) {
+						console.error("Unable to get tx data for log", e)
+					}
+
+					logger.instance.raw({
+						level: "ERROR",
+						method: callInfo.method,
+						message: {
+							error: getErrorMessageString(err),
+							from: callInfo.from,
+							args: callInfo.args,
+						},
+						data,
 					})
 				}
 			} catch (e) {
@@ -142,20 +158,20 @@ export async function sentTxConfirm(source: ContractSendMethod, options: SendOpt
 
 export async function waitForHash<T>(promiEvent: PromiEvent<T>): Promise<string> {
 	return new Promise((resolve, reject) => {
-		promiEvent.on("transactionHash", hash => resolve(hash))
-		promiEvent.on("error", error => reject(error))
+		promiEvent.once("transactionHash", hash => resolve(hash))
+		promiEvent.once("error", error => reject(error))
 	})
 }
 
 export async function waitForConfirmation<T>(promiEvent: PromiEvent<T>): Promise<string> {
 	return new Promise((resolve, reject) => {
-		promiEvent.on("confirmation", (confNumber: number, receipt: TransactionReceipt) => resolve(receipt.transactionHash))
-		promiEvent.on("error", error => reject(error))
+		promiEvent.once("confirmation", (confNumber: number, receipt: TransactionReceipt) => resolve(receipt.transactionHash))
+		promiEvent.once("error", error => reject(error))
 	})
 }
 export async function waitForReceipt<T>(promiEvent: PromiEvent<T>): Promise<TransactionReceipt> {
 	return new Promise((resolve, reject) => {
-		promiEvent.on("receipt", receipt => resolve(receipt))
-		promiEvent.on("error", error => reject(error))
+		promiEvent.once("receipt", receipt => resolve(receipt))
+		promiEvent.once("error", error => reject(error))
 	})
 }

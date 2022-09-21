@@ -367,8 +367,6 @@ describe.skip("fillOrder: Opensea orders", function () {
 			},
 		)
 
-		const tx = await cancelledOrder.wait()
-
 		const cancelEvent = (await cancelledOrder.getEvents()).find(e => e.event === "OrderCancelled")
 
 		expect(cancelEvent).toHaveProperty("args.hash", signedHash)

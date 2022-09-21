@@ -3,12 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [0.12.91-hotfix.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.91...v0.12.91-hotfix.0) (2022-09-16)
+## [0.12.94](https://github.com/rarible/ethereum-sdk/compare/v0.12.93...v0.12.94) (2022-09-15)
 
 
-### Bug Fixes
+### Features
 
-* tx events ([fff81ff](https://github.com/rarible/protocol-ethereum-sdk/commit/fff81ff7eda0d77cf0a80f49ba405faf058c9106))
+* added default calldata marker ([#188](https://github.com/rarible/ethereum-sdk/issues/188)) ([d021a3f](https://github.com/rarible/ethereum-sdk/commit/d021a3f2e5901561791d6abc114e3dae3232d722))
+
+
+
+
+
+## [0.12.92](https://github.com/rarible/ethereum-sdk/compare/v0.12.91...v0.12.92) (2022-09-13)
+
+**Note:** Version bump only for package @rarible/web3-ethereum
 
 
 

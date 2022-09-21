@@ -5,8 +5,7 @@ import type { Ethereum } from "@rarible/ethereum-provider"
 import { toAddress } from "@rarible/types"
 import { createGanacheProvider } from "@rarible/ethereum-sdk-test-common/build/create-ganache-provider"
 import { SeaportABI } from "@rarible/ethereum-sdk-test-common/build/contracts/opensea/test-seaport"
-import { getTxEvents } from "./utils/parse-logs"
-import { EthersEthereum, EthersWeb3ProviderEthereum } from "./index"
+import { EthersEthereum, EthersTransaction, EthersWeb3ProviderEthereum } from "./index"
 
 const testPK = "d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469"
 
@@ -100,15 +99,14 @@ describe("get transaction receipt events", () => {
 
 
 	test("get Seaport tx events (prod)", async () => {
-		const receipt = ethereum.web3Provider.getTransactionReceipt("0x8d7ce93eac45141de762bf29fae4a1c6458e2b2d0b0361432b091a9e29b3c903")
+		const tx = await ethereum.web3Provider.getTransaction("0x8d7ce93eac45141de762bf29fae4a1c6458e2b2d0b0361432b091a9e29b3c903")
 		const signer = web3Provider.getSigner()
 		const seaportAddr = "0x00000000006c3852cbef3e08e8df289169ede581"
 
 		const ethersContract = new ethers.Contract(seaportAddr, SeaportABI, signer)
-		const events = await getTxEvents(
-			receipt,
-			ethersContract
-		)
-		expect(events).toBeTruthy()
+		const ethersTx = new EthersTransaction(tx, ethersContract)
+		const events = await ethersTx.getEvents()
+
+		expect(events.find(e => e.event === "OrderFulfilled")).toBeTruthy()
 	})
 })

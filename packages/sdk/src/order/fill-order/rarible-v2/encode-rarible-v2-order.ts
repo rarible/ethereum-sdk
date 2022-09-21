@@ -17,7 +17,7 @@ export function encodeRaribleV2OrderPurchaseStruct(
 	sellOrder: SimpleRaribleV2Order,
 	sellOrderSignature: string,
 	buyOrder: SimpleRaribleV2Order,
-	withMethodId: boolean
+	withMethodId: boolean,
 ): string {
 
 	const nftStruct = assetTypeToStruct(ethereum, sellOrder.make.assetType)

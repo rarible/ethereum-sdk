@@ -3,12 +3,54 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [0.12.91-hotfix.0](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.91...v0.12.91-hotfix.0) (2022-09-16)
+## [0.12.96](https://github.com/rarible/ethereum-sdk/compare/v0.12.95...v0.12.96) (2022-09-20)
 
 
-### Bug Fixes
+### Features
 
-* tx events ([fff81ff](https://github.com/rarible/protocol-ethereum-sdk/commit/fff81ff7eda0d77cf0a80f49ba405faf058c9106))
+* use directPurchase method in exchangeV2 contract for fill sell … ([#193](https://github.com/rarible/ethereum-sdk/issues/193)) ([9fbc2c2](https://github.com/rarible/ethereum-sdk/commit/9fbc2c298cb5b6e41c29dfce48815951d10301ca))
+
+
+
+
+
+## [0.12.95](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.94...v0.12.95) (2022-09-16)
+
+
+### Features
+
+* logger helpers ([#192](https://github.com/rarible/protocol-ethereum-sdk/issues/192)) ([eda572a](https://github.com/rarible/protocol-ethereum-sdk/commit/eda572a7f0e1d7c76b4eb2d5e0035816c9dfae7c))
+
+
+
+
+
+## [0.12.94](https://github.com/rarible/ethereum-sdk/compare/v0.12.93...v0.12.94) (2022-09-15)
+
+
+### Features
+
+* added default calldata marker ([#188](https://github.com/rarible/ethereum-sdk/issues/188)) ([d021a3f](https://github.com/rarible/ethereum-sdk/commit/d021a3f2e5901561791d6abc114e3dae3232d722))
+* disable lazy mint for polygon ([#191](https://github.com/rarible/ethereum-sdk/issues/191)) ([2468050](https://github.com/rarible/ethereum-sdk/commit/246805099a9b50d395a3e73999b4f56ec66c6eee))
+
+
+
+
+
+## [0.12.93](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.92...v0.12.93) (2022-09-15)
+
+
+### Features
+
+* log errors ([#190](https://github.com/rarible/protocol-ethereum-sdk/issues/190)) ([a855522](https://github.com/rarible/protocol-ethereum-sdk/commit/a855522269203459f1e5a10a4b6cc9fe819247e9))
+
+
+
+
+
+## [0.12.92](https://github.com/rarible/ethereum-sdk/compare/v0.12.91...v0.12.92) (2022-09-13)
+
+**Note:** Version bump only for package root
 
 
 

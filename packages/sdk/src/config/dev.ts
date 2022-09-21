@@ -34,6 +34,10 @@ export const devEthereumConfig: EthereumConfig = {
 		marketContract: ZERO_ADDRESS,
 		wrapperContract: ZERO_ADDRESS,
 	},
+	sudoswap: {
+		pairFactory: ZERO_ADDRESS,
+		pairRouter: ZERO_ADDRESS,
+	},
 	weth: toAddress("0x55eB2809896aB7414706AaCDde63e3BBb26e0BC6"),
 	auction: ZERO_ADDRESS,
 }

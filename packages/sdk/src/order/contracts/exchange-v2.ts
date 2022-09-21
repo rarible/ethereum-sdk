@@ -93,25 +93,6 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "oldValue",
-				"type": "uint256",
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "newValue",
-				"type": "uint256",
-			},
-		],
-		"name": "ProtocolFeeChanged",
-		"type": "event",
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
 				"indexed": true,
 				"internalType": "bytes4",
 				"name": "assetType",
@@ -236,56 +217,22 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 		"type": "function",
 	},
 	{
-		"inputs": [],
-		"name": "defaultFeeReceiver",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address",
-			},
-		],
-		"stateMutability": "view",
-		"type": "function",
-		"constant": true,
-	},
-	{
 		"inputs": [
 			{
 				"components": [
 					{
-						"internalType": "uint256",
-						"name": "tokenBidAmount",
-						"type": "uint256",
-					},
-					{
-						"internalType": "uint256",
-						"name": "tokenAcceptAmount",
-						"type": "uint256",
-					},
-					{
-						"internalType": "uint256",
-						"name": "priceBid",
-						"type": "uint256",
-					},
-					{
-						"internalType": "uint256",
-						"name": "priceAccept",
-						"type": "uint256",
-					},
-					{
-						"internalType": "uint256",
-						"name": "salt",
-						"type": "uint256",
-					},
-					{
 						"internalType": "address",
-						"name": "buyer",
+						"name": "bidMaker",
 						"type": "address",
 					},
 					{
+						"internalType": "uint256",
+						"name": "bidNftAmount",
+						"type": "uint256",
+					},
+					{
 						"internalType": "bytes4",
-						"name": "nftClass",
+						"name": "nftAssetClass",
 						"type": "bytes4",
 					},
 					{
@@ -294,23 +241,58 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 						"type": "bytes",
 					},
 					{
+						"internalType": "uint256",
+						"name": "bidPaymentAmount",
+						"type": "uint256",
+					},
+					{
+						"internalType": "address",
+						"name": "paymentToken",
+						"type": "address",
+					},
+					{
+						"internalType": "uint256",
+						"name": "bidSalt",
+						"type": "uint256",
+					},
+					{
+						"internalType": "uint256",
+						"name": "bidStart",
+						"type": "uint256",
+					},
+					{
+						"internalType": "uint256",
+						"name": "bidEnd",
+						"type": "uint256",
+					},
+					{
+						"internalType": "bytes4",
+						"name": "bidDataType",
+						"type": "bytes4",
+					},
+					{
 						"internalType": "bytes",
-						"name": "paymentData",
+						"name": "bidData",
 						"type": "bytes",
 					},
 					{
 						"internalType": "bytes",
-						"name": "bidOrderData",
+						"name": "bidSignature",
 						"type": "bytes",
 					},
 					{
-						"internalType": "bytes",
-						"name": "acceptOrderData",
-						"type": "bytes",
+						"internalType": "uint256",
+						"name": "sellOrderPaymentAmount",
+						"type": "uint256",
+					},
+					{
+						"internalType": "uint256",
+						"name": "sellOrderNftAmount",
+						"type": "uint256",
 					},
 					{
 						"internalType": "bytes",
-						"name": "signature",
+						"name": "sellOrderData",
 						"type": "bytes",
 					},
 				],
@@ -330,43 +312,18 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 			{
 				"components": [
 					{
-						"internalType": "uint256",
-						"name": "tokenSellAmount",
-						"type": "uint256",
-					},
-					{
-						"internalType": "uint256",
-						"name": "tokenPurchaseAmount",
-						"type": "uint256",
-					},
-					{
-						"internalType": "uint256",
-						"name": "priceSell",
-						"type": "uint256",
-					},
-					{
-						"internalType": "uint256",
-						"name": "pricePurchase",
-						"type": "uint256",
-					},
-					{
-						"internalType": "uint256",
-						"name": "salt",
-						"type": "uint256",
-					},
-					{
 						"internalType": "address",
-						"name": "seller",
+						"name": "sellOrderMaker",
 						"type": "address",
 					},
 					{
-						"internalType": "bytes4",
-						"name": "nftClass",
-						"type": "bytes4",
+						"internalType": "uint256",
+						"name": "sellOrderNftAmount",
+						"type": "uint256",
 					},
 					{
 						"internalType": "bytes4",
-						"name": "paymentClass",
+						"name": "nftAssetClass",
 						"type": "bytes4",
 					},
 					{
@@ -375,9 +332,34 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 						"type": "bytes",
 					},
 					{
-						"internalType": "bytes",
-						"name": "paymentData",
-						"type": "bytes",
+						"internalType": "uint256",
+						"name": "sellOrderPaymentAmount",
+						"type": "uint256",
+					},
+					{
+						"internalType": "address",
+						"name": "paymentToken",
+						"type": "address",
+					},
+					{
+						"internalType": "uint256",
+						"name": "sellOrderSalt",
+						"type": "uint256",
+					},
+					{
+						"internalType": "uint256",
+						"name": "sellOrderStart",
+						"type": "uint256",
+					},
+					{
+						"internalType": "uint256",
+						"name": "sellOrderEnd",
+						"type": "uint256",
+					},
+					{
+						"internalType": "bytes4",
+						"name": "sellOrderDataType",
+						"type": "bytes4",
 					},
 					{
 						"internalType": "bytes",
@@ -386,12 +368,22 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 					},
 					{
 						"internalType": "bytes",
-						"name": "purchaseOrderData",
+						"name": "sellOrderSignature",
 						"type": "bytes",
 					},
 					{
+						"internalType": "uint256",
+						"name": "buyOrderPaymentAmount",
+						"type": "uint256",
+					},
+					{
+						"internalType": "uint256",
+						"name": "buyOrderNftAmount",
+						"type": "uint256",
+					},
+					{
 						"internalType": "bytes",
-						"name": "signature",
+						"name": "buyOrderData",
 						"type": "bytes",
 					},
 				],
@@ -405,26 +397,6 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 		"stateMutability": "payable",
 		"type": "function",
 		"payable": true,
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address",
-			},
-		],
-		"name": "feeReceivers",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address",
-			},
-		],
-		"stateMutability": "view",
-		"type": "function",
-		"constant": true,
 	},
 	{
 		"inputs": [
@@ -681,20 +653,6 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 	},
 	{
 		"inputs": [],
-		"name": "protocolFee",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256",
-			},
-		],
-		"stateMutability": "view",
-		"type": "function",
-		"constant": true,
-	},
-	{
-		"inputs": [],
 		"name": "renounceOwnership",
 		"outputs": [],
 		"stateMutability": "nonpayable",
@@ -728,50 +686,6 @@ export const EXCHANGEV2_ABI: AbiItem[] = [
 			},
 		],
 		"name": "setAssetMatcher",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function",
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address payable",
-				"name": "newDefaultFeeReceiver",
-				"type": "address",
-			},
-		],
-		"name": "setDefaultFeeReceiver",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function",
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "token",
-				"type": "address",
-			},
-			{
-				"internalType": "address",
-				"name": "wallet",
-				"type": "address",
-			},
-		],
-		"name": "setFeeReceiver",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function",
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint64",
-				"name": "_protocolFee",
-				"type": "uint64",
-			},
-		],
-		"name": "setProtocolFee",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function",

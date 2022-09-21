@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.95](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.94...v0.12.95) (2022-09-16)
+
+
+### Features
+
+* logger helpers ([#192](https://github.com/rarible/protocol-ethereum-sdk/issues/192)) ([eda572a](https://github.com/rarible/protocol-ethereum-sdk/commit/eda572a7f0e1d7c76b4eb2d5e0035816c9dfae7c))
+
+
+
+
+
+## [0.12.93](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.92...v0.12.93) (2022-09-15)
+
+
+### Features
+
+* log errors ([#190](https://github.com/rarible/protocol-ethereum-sdk/issues/190)) ([a855522](https://github.com/rarible/protocol-ethereum-sdk/commit/a855522269203459f1e5a10a4b6cc9fe819247e9))
+
+
+
+
+
+## [0.12.92](https://github.com/rarible/ethereum-sdk/compare/v0.12.91...v0.12.92) (2022-09-13)
+
+**Note:** Version bump only for package @rarible/biconomy-middleware
+
+
+
+
+
 ## [0.12.89](https://github.com/rarible/ethereum-sdk/compare/v0.12.88...v0.12.89) (2022-09-06)
 
 **Note:** Version bump only for package @rarible/biconomy-middleware

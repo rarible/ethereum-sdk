@@ -5,18 +5,20 @@ import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-clien
 import { getSendWithInjects } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { getEthereumConfig } from "../config"
-import { testnetEthereumConfig } from "../config/testnet"
 import { checkChainId } from "../order/check-chain-id"
 import { DeployErc721 } from "./deploy-erc721"
 
-describe.skip("deploy erc-721 token test", () => {
-	const { provider } = createE2eProvider()
+describe("deploy erc-721 token test", () => {
+	const { provider } = createE2eProvider(
+		"26250bb39160076f030517503da31e11aca80060d14f84ebdaced666efb89e21", {
+			networkId: 200500,
+			rpcUrl: "https://staging-ethereum-node.rarible.com",
+		})
 	const web3 = new Web3(provider)
-	const ethereum1 = new Web3Ethereum({ web3, gas: 2000000 })
+	const ethereum1 = new Web3Ethereum({ web3, gas: 5000000 })
 
-	const config = getEthereumConfig("testnet")
-	config.factories.erc721 = testnetEthereumConfig.factories.erc721
-	const configuration = new Configuration(getApiConfig("testnet"))
+	const config = getEthereumConfig("staging")
+	const configuration = new Configuration(getApiConfig("staging"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const checkWalletChainId = checkChainId.bind(null, ethereum1, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)

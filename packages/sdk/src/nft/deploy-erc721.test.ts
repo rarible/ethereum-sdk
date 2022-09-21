@@ -30,8 +30,7 @@ describe.skip("deploy erc-721 token test", () => {
 			"https://ipfs.rarible.com",
 			"https://ipfs.rarible.com",
 		)
-		const receipt = await tx.wait()
-		const createProxyEvent = receipt.events.find(e => e.event === "Create721RaribleProxy")
+		const createProxyEvent = (await tx.getEvents()).find(e => e.event === "Create721RaribleProxy")
 
 		if (!createProxyEvent || !createProxyEvent.args) {
 			throw new Error("Proxy has not been created")
@@ -49,8 +48,7 @@ describe.skip("deploy erc-721 token test", () => {
 			"https://ipfs.rarible.com",
 			[],
 		)
-		const receipt = await tx.wait()
-		const createProxyEvent = receipt.events.find(e => e.event === "Create721RaribleUserProxy")
+		const createProxyEvent = (await tx.getEvents()).find(e => e.event === "Create721RaribleUserProxy")
 
 		if (!createProxyEvent || !createProxyEvent.args) {
 			throw new Error("Proxy has not been created")

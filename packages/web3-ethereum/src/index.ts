@@ -7,10 +7,14 @@ import type { Address, BigNumber, Binary, Word } from "@rarible/types"
 import { toAddress, toBigNumber, toBinary, toWord } from "@rarible/types"
 import { backOff } from "exponential-backoff"
 import type * as EthereumProvider from "@rarible/ethereum-provider"
+import type { AbiItem } from "web3-utils"
 import type { Web3EthereumConfig } from "./domain"
 import { providerRequest } from "./utils/provider-request"
 import { toPromises } from "./utils/to-promises"
-import { logParser } from "./utils/log-parser"
+import {
+	getContractMethodReceiptEvents,
+	getTransactionReceiptEvents,
+} from "./utils/log-parser"
 
 export class Web3Ethereum implements EthereumProvider.Ethereum {
 	constructor(private readonly config: Web3EthereumConfig) {
@@ -108,10 +112,6 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 		})
 	}
 
-	private getTxEvents(receipt: TransactionReceipt): EthereumProvider.EthereumTransactionEvent[] {
-		return logParser(receipt.logs, this.contract.options.jsonInterface, this.config.web3)
-	}
-
 	async send(options: EthereumProvider.EthereumSendOptions = {}): Promise<EthereumProvider.EthereumTransaction> {
 		const from = toAddress(await this.getFrom())
 		if (options.additionalData) {
@@ -138,7 +138,7 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 				tx.nonce,
 				from,
 				toAddress(this.contract.options.address),
-				this.getTxEvents.bind(this),
+				this.contract.options.jsonInterface
 			)
 		}
 
@@ -157,7 +157,7 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 			toBinary(await this.getData()),
 			tx.nonce,
 			from,
-			toAddress(this.contract.options.address),
+			toAddress(this.contract.options.address)
 		)
 	}
 
@@ -189,30 +189,22 @@ export class Web3Transaction implements EthereumProvider.EthereumTransaction {
 		public readonly nonce: number,
 		public readonly from: Address,
 		public readonly to?: Address,
-		public readonly getEvents?: (receipt: TransactionReceipt) => EthereumProvider.EthereumTransactionEvent[],
-	) {
-	}
+		private readonly contractAbi?: AbiItem[],
+	) {}
 
 	async wait(): Promise<EthereumProvider.EthereumTransactionReceipt> {
-		const receipt = await this.receipt
+		return await this.receipt
+	}
 
-		if (this.getEvents) {
-			return {
-				...receipt,
-				events: this.getEvents ? this.getEvents(receipt) : [],
-			}
+	async getEvents(): Promise<EthereumProvider.EthereumTransactionEvent[]> {
+		if (this.to && this.contractAbi) {
+			return getTransactionReceiptEvents(
+				this.receipt,
+				this.to,
+				this.contractAbi
+			)
 		}
-
-		const events: EthereumProvider.EthereumTransactionEvent[] = receipt.events ? Object.keys(receipt.events!)
-			.map(ev => receipt.events![ev])
-			.map(ev => ({
-				...ev,
-				args: ev.returnValues,
-			})) : []
-		return {
-			...receipt,
-			events,
-		}
+		return await getContractMethodReceiptEvents(this.receipt) || []
 	}
 }
 

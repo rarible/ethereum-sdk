@@ -34,8 +34,8 @@ async function createSudoswapPool(
 	)
 
 	const tx = await send(fc)
-	const receipt = await tx.wait()
-	const e = receipt.events.find((e) => e.event === "NewPair")
+	const events = await tx.getEvents()
+	const e = events.find((e) => e.event === "NewPair")
 	if (!e) {
 		throw new Error("No create pair event found")
 	}

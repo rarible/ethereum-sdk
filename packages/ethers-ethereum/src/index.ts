@@ -10,6 +10,7 @@ import type { TypedDataSigner } from "@ethersproject/abstract-signer"
 import { BigNumber as EthersBN } from "ethers/lib/ethers"
 import type { EthereumTransactionEvent } from "@rarible/ethereum-provider/src"
 import { decodeParameters, encodeParameters } from "./abi-coder"
+import { getTxEvents } from "./utils/parse-logs"
 
 export class EthersWeb3ProviderEthereum implements EthereumProvider.Ethereum {
 	constructor(readonly web3Provider: ethers.providers.Web3Provider, readonly from?: string) {
@@ -159,27 +160,6 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 		}
 	}
 
-	private getTxEvents(receipt: ethers.providers.TransactionReceipt): EthereumTransactionEvent[] {
-		return receipt.logs.map(log => {
-			try {
-				const parsedEvent = this.contract.interface.parseLog(log)
-				return {
-					...log,
-					event: parsedEvent.name,
-					args: parsedEvent.args,
-					returnValues: parsedEvent.args,
-				}
-			} catch (e) {
-				return {
-					...log,
-					event: "",
-					returnValues: {},
-					args: {},
-				}
-			}
-		})
-	}
-
 	async send(options?: EthereumProvider.EthereumSendOptions): Promise<EthereumProvider.EthereumTransaction> {
 		if (options?.additionalData) {
 			const additionalData = toBinary(options.additionalData).slice(2)
@@ -196,7 +176,7 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 
 			return new EthersTransaction(
 				tx,
-				this.getTxEvents.bind(this)
+				this.contract
 			)
 		}
 
@@ -212,7 +192,7 @@ export class EthersFunctionCall implements EthereumProvider.EthereumFunctionCall
 export class EthersTransaction implements EthereumProvider.EthereumTransaction {
 	constructor(
 		private readonly tx: TransactionResponse,
-		private readonly getEvents?: (receipt: ethers.providers.TransactionReceipt) => EthereumTransactionEvent[]
+		private readonly contract?: Contract
 	) {}
 
 	get hash(): Word {
@@ -223,18 +203,20 @@ export class EthersTransaction implements EthereumProvider.EthereumTransaction {
 		const receipt = await this.tx.wait()
 		const status = receipt.status === 1
 
-		if (this.getEvents) {
-			return {
-				...receipt,
-				status,
-				events: this.getEvents(receipt),
-			}
-		}
 		return {
 			...receipt,
 			status,
-			events: (receipt as any).events,
 		}
+	}
+
+	async getEvents(): Promise<EthereumTransactionEvent[]> {
+		const receipt = await this.tx.wait()
+
+		if (this.contract) {
+			return getTxEvents(receipt, this.contract)
+		}
+
+		return (receipt as any)?.events || []
 	}
 
 	get to(): Address | undefined {

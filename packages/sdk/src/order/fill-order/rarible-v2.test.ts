@@ -235,7 +235,7 @@ describe.skip("buy & acceptBid orders", () => {
 		const tx = await filler.buy({ order: finalOrder, amount: 1, payouts: [], originFees: [] })
 		const receipt = await tx.wait()
 		console.log("rece", JSON.stringify(receipt, null, " "))
-		const matchEvent = receipt.events.find(e => e.event === "Match")
+		const matchEvent = (await tx.getEvents()).find(e => e.event === "Match")
 		expect(matchEvent).toBeTruthy()
 		expect(matchEvent?.returnValues).toBeTruthy()
 

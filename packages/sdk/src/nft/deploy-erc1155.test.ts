@@ -31,10 +31,7 @@ describe.skip("deploy token test", () => {
 			"ipfs:/",
 			"ipfs:/",
 		)
-
-		const receipt = await tx.wait()
-
-		const createProxyEvent = receipt.events.find(e => e.event === "Create1155RaribleProxy")
+		const createProxyEvent = (await tx.getEvents()).find(e => e.event === "Create1155RaribleProxy")
 
 		if (!createProxyEvent || !createProxyEvent.args) {
 			throw new Error("Proxy has not been created")
@@ -53,8 +50,7 @@ describe.skip("deploy token test", () => {
 			"ipfs:/",
 			[],
 		)
-		const receipt = await tx.wait()
-		const createProxyEvent = receipt.events.find(e => e.event === "Create1155RaribleUserProxy")
+		const createProxyEvent = (await tx.getEvents()).find(e => e.event === "Create1155RaribleUserProxy")
 
 		if (!createProxyEvent || !createProxyEvent.args) {
 			throw new Error("Proxy has not been created")

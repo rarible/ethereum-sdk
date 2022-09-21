@@ -125,9 +125,9 @@ export class StartAuction {
 				)
 
 
-				const auctionIdPromise = tx.wait()
-					.then(receipt => {
-						const createdEvent = receipt.events.find(e => e.event === "AuctionCreated")
+				const auctionIdPromise = tx.getEvents()
+					.then(async events => {
+						const createdEvent = events.find(e => e.event === "AuctionCreated")
 						if (!createdEvent) throw new Error("AuctionCreated event has not been found")
 						return toBigNumber(createdEvent.args.auctionId)
 					})

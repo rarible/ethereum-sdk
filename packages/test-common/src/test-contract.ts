@@ -6,9 +6,9 @@ export async function testSimpleContract(web3: Web3, ethereum: Ethereum) {
 	const contract = ethereum.createContract(SIMPLE_TEST_ABI, deployed.options.address)
 
 	const tx = await contract.functionCall("setValue", 10).send()
-	const receipt = await tx.wait()
-
-	const eventValue = receipt.events.filter(e => e.event === "Value")[0]
+	await tx.wait()
+	const events = await tx.getEvents()
+	const eventValue = events.filter(e => e.event === "Value")[0]
 	expect(eventValue.args.value.toString()).toBe("10")
 
 	const valueCall = contract.functionCall("value")

@@ -19,7 +19,6 @@ import { signNft as signNftTemplate } from "../nft/sign-nft"
 import { createErc721V3Collection } from "../common/mint"
 import { retry } from "../common/retry"
 import { createEthereumApis } from "../common/apis"
-import { getEstimateGasInjects } from "../common/estimate-gas"
 import { OrderBid } from "./bid"
 import { signOrder as signOrderTemplate } from "./sign-order"
 import { OrderFiller } from "./fill-order"
@@ -54,14 +53,13 @@ describe.skip("bid", () => {
 	const apis = createEthereumApis("testnet")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
-	const estimateGas = getEstimateGasInjects()
 	const mint = mintTemplate
 		.bind(null, ethereum, send, signNft, nftCollectionApi)
 		.bind(null, nftLazyMintApi, checkWalletChainId)
 	const approve = approveTemplate.bind(null, ethereum, send, config.transferProxies)
 	const getBaseOrderFee = async () => 0
 
-	const orderService = new OrderFiller(ethereum, send, estimateGas, config, apis, getBaseOrderFee, "testnet")
+	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee, "testnet")
 
 	const checkLazyAssetType = checkLazyAssetTypeTemplate.bind(null, apis.nftItem)
 	const checkLazyAsset = checkLazyAssetTemplate.bind(null, checkLazyAssetType)

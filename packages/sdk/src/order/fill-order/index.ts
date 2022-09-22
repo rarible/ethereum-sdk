@@ -20,7 +20,6 @@ import { checkLazyAssetType } from "../check-lazy-asset-type"
 import { checkChainId } from "../check-chain-id"
 import type { IRaribleEthereumSdkConfig } from "../../types"
 import type { EthereumNetwork } from "../../types"
-import type { EstimateGasMethod } from "../../common/estimate-gas"
 import type {
 	CryptoPunksOrderFillRequest,
 	FillOrderAction,
@@ -66,7 +65,6 @@ export class OrderFiller {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
-		private readonly estimateGas: EstimateGasMethod,
 		private readonly config: EthereumConfig,
 		private readonly apis: RaribleEthereumApis,
 		private readonly getBaseOrderFee: (type: SimpleOrder["type"]) => Promise<number>,
@@ -80,29 +78,26 @@ export class OrderFiller {
 			ethereum,
 			apis.order,
 			send,
-			estimateGas,
 			config,
 			getBaseOrderFee,
 			sdkConfig,
 		)
-		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, sdkConfig)
-		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, estimateGas, config, apis, getBaseOrderFee, sdkConfig)
-		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, sdkConfig)
-		this.seaportHandler = new SeaportOrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, env, sdkConfig)
+		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config, getBaseOrderFee, sdkConfig)
+		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
+		this.punkHandler = new CryptoPunksOrderHandler(ethereum, send, config, getBaseOrderFee, sdkConfig)
+		this.seaportHandler = new SeaportOrderHandler(ethereum, send, config, getBaseOrderFee, env, sdkConfig)
 		this.looksrareHandler = new LooksrareOrderHandler(
 			ethereum,
 			send,
-			estimateGas,
 			config,
 			getBaseOrderFee,
 			env,
 			sdkConfig,
 		)
-		this.x2y2Handler = new X2Y2OrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, apis)
+		this.x2y2Handler = new X2Y2OrderHandler(ethereum, send, config, getBaseOrderFee, apis)
 		this.ammHandler = new AmmOrderHandler(
 			ethereum,
 			send,
-			estimateGas,
 			config,
 			getBaseOrderFee,
 			env,

@@ -28,7 +28,6 @@ import { createEthereumApis } from "../../common/apis"
 import { checkChainId } from "../check-chain-id"
 import { createRaribleSdk } from "../../index"
 import { FILL_CALLDATA_TAG } from "../../config/common"
-import { getEstimateGasInjects } from "../../common/estimate-gas"
 import { OrderFiller } from "./index"
 
 describe.skip("buy & acceptBid orders", () => {
@@ -51,9 +50,8 @@ describe.skip("buy & acceptBid orders", () => {
 
 	const checkWalletChainId = checkChainId.bind(null, buyerEthereum, config)
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
-	const estimateGas = getEstimateGasInjects()
 	const getBaseOrderFee = async () => 100
-	const filler = new OrderFiller(buyerEthereum, send, estimateGas, config, apis, getBaseOrderFee, env)
+	const filler = new OrderFiller(buyerEthereum, send, config, apis, getBaseOrderFee, env)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
@@ -167,7 +165,7 @@ describe.skip("buy & acceptBid orders", () => {
 		const startErc20Balance = toBn(await it.testErc20.methods.balanceOf(sellerAddress).call())
 		const startErc1155Balance = toBn(await it.testErc1155.methods.balanceOf(buyerAddress, 1).call())
 
-		const filler = new OrderFiller(buyerEthereum, send, estimateGas, config, apis, getBaseOrderFee, env)
+		const filler = new OrderFiller(buyerEthereum, send, config, apis, getBaseOrderFee, env)
 		const tx = await filler.buy({ order: finalOrder, amount: 1, payouts: [], originFees: [] })
 		await tx.wait()
 
@@ -228,7 +226,7 @@ describe.skip("buy & acceptBid orders", () => {
 		const startErc1155Balance = toBn(await it.testErc1155.methods.balanceOf(buyerAddress, tokenId).call())
 
 		const fillCalldata = toBinary(`${ZERO_ADDRESS}00000001`)
-		const filler = new OrderFiller(provider, send, estimateGas, config, apis, getBaseOrderFee, env, {
+		const filler = new OrderFiller(provider, send, config, apis, getBaseOrderFee, env, {
 			fillCalldata,
 		})
 		const tx = await filler.buy({ order: finalOrder, amount: 1, payouts: [], originFees: [] })
@@ -589,7 +587,7 @@ describe.skip("buy & acceptBid orders", () => {
 
 		const finalOrder = { ...left, signature }
 
-		const filler = new OrderFiller(sellerEthereum, send, estimateGas, config, apis, getBaseOrderFee, env)
+		const filler = new OrderFiller(sellerEthereum, send, config, apis, getBaseOrderFee, env)
 
 		await filler.acceptBid({ order: finalOrder, amount: 1, originFees: []})
 

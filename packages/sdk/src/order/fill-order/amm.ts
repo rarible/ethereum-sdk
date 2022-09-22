@@ -8,7 +8,6 @@ import type { EthereumConfig } from "../../config/type"
 import { getRequiredWallet } from "../../common/get-required-wallet"
 import type { SimpleOrder } from "../types"
 import type { EthereumNetwork, IRaribleEthereumSdkConfig } from "../../types"
-import type { EstimateGasMethod } from "../../common/estimate-gas"
 import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
 import type { OrderFillSendData, AmmOrderFillRequest } from "./types"
 import { SudoswapFill } from "./amm/sudoswap-fill"
@@ -20,7 +19,6 @@ export class AmmOrderHandler {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
-		private readonly estimateGas: EstimateGasMethod,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly env: EthereumNetwork,
@@ -36,11 +34,6 @@ export class AmmOrderHandler {
 			if (request.originFees?.length) {
 				throw new Error("Origin fees not supported for sudoswap direct buy")
 			}
-
-			await this.estimateGas(fillData.functionCall, {
-				from: await ethereum.getFrom(),
-				value: fillData.options.value,
-			})
 
 			return {
 				functionCall: fillData.functionCall,
@@ -65,11 +58,6 @@ export class AmmOrderHandler {
 				feeAddresses[0],
 				feeAddresses[1]
 			)
-
-			await this.estimateGas(functionCall, {
-				from: await ethereum.getFrom(),
-				value: valueForSending.toString(),
-			})
 
 			return {
 				functionCall: functionCall,

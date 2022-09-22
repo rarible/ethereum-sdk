@@ -4,48 +4,47 @@ import { LogsLevel } from "../types"
 import type { ILoggerConfig } from "./logger/logger"
 import { getErrorMessageString } from "./logger/logger"
 
-export type EstimateGasMethod = (
+export async function estimateGas(
 	functionCall: EthereumFunctionCall,
-	options: EthereumEstimateGasOptions
-) => Promise<number>
-
-export function getEstimateGasInjects(injects: {
-	logger?: ILoggerConfig
-} = {}): EstimateGasMethod {
-	const logger = injects.logger
-
-	return async function estimateGas(
-		functionCall: EthereumFunctionCall,
-		options: EthereumEstimateGasOptions
-	): Promise<number> {
+	options?: EthereumEstimateGasOptions,
+	logger?: ILoggerConfig,
+): Promise<number> {
+	try {
+		return await functionCall.estimateGas(options)
+	} catch (err: any) {
 		try {
-			return await functionCall.estimateGas(options)
-		} catch (err: any) {
-			try {
-				const callInfo = await functionCall.getCallInfo()
-				const logsAvailable = logger && logger.level && callInfo
-				if (logsAvailable && logger.level >= LogsLevel.ERROR && callInfo) {
-					let data = undefined
-					try {
-						data = await functionCall.getData()
-					} catch (e: any) {
-						console.error("Unable to get tx data for log", e)
-					}
-					logger.instance.raw({
-						level: "WARN",
-						method: callInfo.method,
-						message: {
-							error: getErrorMessageString(err),
-							from: callInfo.from,
-							args: callInfo.args,
-						},
-						data,
-					})
+			const callInfo = await functionCall.getCallInfo()
+			if (logger?.level && logger.level >= LogsLevel.ERROR) {
+				let data = undefined
+				try {
+					data = await functionCall.getData()
+				} catch (e: any) {
+					console.error("Unable to get tx data for log", e)
 				}
-			} catch (e) {
-				console.error("Error while sending logs", e, err)
+				logger.instance.raw({
+					level: "WARN",
+					method: callInfo.method,
+					message: {
+						error: getErrorMessageString(err),
+						from: callInfo.from,
+						args: callInfo.args,
+					},
+					data,
+				})
+
+				console.error({
+					method: callInfo.method,
+					message: {
+						error: getErrorMessageString(err),
+						from: callInfo.from,
+						args: callInfo.args,
+					},
+					data,
+				})
 			}
-			throw err
+		} catch (e) {
+			console.error("Error while sending logs", e, err)
 		}
+		throw err
 	}
 }

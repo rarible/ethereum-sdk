@@ -17,7 +17,6 @@ import type { SimpleLooksrareOrder, SimpleOrder } from "../types"
 import { isNft } from "../is-nft"
 import type { EthereumNetwork } from "../../types"
 import type { IRaribleEthereumSdkConfig } from "../../types"
-import type { EstimateGasMethod } from "../../common/estimate-gas"
 import type { MakerOrderWithVRS, TakerOrderWithEncodedParams } from "./looksrare-utils/types"
 import type { LooksrareOrderFillRequest, OrderFillSendData } from "./types"
 import { ExchangeWrapperOrderType } from "./types"
@@ -29,7 +28,6 @@ export class LooksrareOrderHandler {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
-		private readonly estimateGas: EstimateGasMethod,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly env: EthereumNetwork,
@@ -183,10 +181,7 @@ export class LooksrareOrderHandler {
 			value: requestData.options.value.toString(),
 			additionalData: getUpdatedCalldata(this.sdkConfig),
 		}
-		await this.estimateGas(functionCall, {
-			from: await provider.getFrom(),
-			value: options.value,
-		})
+
 		return {
 			functionCall,
 			options,

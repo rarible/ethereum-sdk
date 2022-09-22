@@ -10,8 +10,6 @@ import type { SimpleCryptoPunkOrder } from "../types"
 import { createCryptoPunksMarketContract } from "../../nft/contracts/cryptoPunks"
 import type { SimpleOrder } from "../types"
 import type { IRaribleEthereumSdkConfig } from "../../types"
-import { getRequiredWallet } from "../../common/get-required-wallet"
-import type { EstimateGasMethod } from "../../common/estimate-gas"
 import { invertOrder } from "./invert-order"
 import type { CryptoPunksOrderFillRequest, OrderFillSendData, OrderHandler } from "./types"
 import { getUpdatedCalldata } from "./common/get-updated-call"
@@ -20,7 +18,6 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
-		private readonly estimateGas: EstimateGasMethod,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly sdkConfig?: IRaribleEthereumSdkConfig
@@ -50,10 +47,7 @@ export class CryptoPunksOrderHandler implements OrderHandler<CryptoPunksOrderFil
 			additionalData: getUpdatedCalldata(this.sdkConfig),
 		}
 		const functionCall = this.getPunkOrderCallMethod(initial)
-		await this.estimateGas(functionCall, {
-			from: await getRequiredWallet(this.ethereum).getFrom(),
-			value: options.value,
-		})
+
 		return { functionCall, options }
 	}
 

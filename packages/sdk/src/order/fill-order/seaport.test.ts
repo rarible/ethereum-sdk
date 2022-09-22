@@ -23,7 +23,6 @@ import { checkChainId } from "../check-chain-id"
 import type { SendFunction } from "../../common/send-transaction"
 import { getSimpleSendWithInjects } from "../../common/send-transaction"
 import { FILL_CALLDATA_TAG } from "../../config/common"
-import { getEstimateGasInjects } from "../../common/estimate-gas"
 import { ItemType } from "./seaport-utils/constants"
 import type { CreateInputItem } from "./seaport-utils/types"
 import { SeaportOrderHandler } from "./seaport"
@@ -65,12 +64,10 @@ describe.skip("seaport", () => {
 
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
-	const estimateGas = getEstimateGasInjects()
 
 	const seaportBuyerOrderHandler = new SeaportOrderHandler(
 		buyerWeb3,
 		send,
-		estimateGas,
 		config,
 		async () => 0,
 		"testnet"

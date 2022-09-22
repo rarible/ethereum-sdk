@@ -14,7 +14,6 @@ import { createEthereumApis } from "../common/apis"
 import { createRaribleSdk } from "../index"
 import { createErc721V3Collection } from "../common/mint"
 import { MintResponseTypeEnum } from "../nft/mint"
-import { getEstimateGasInjects } from "../common/estimate-gas"
 import { cancel } from "./cancel"
 import { signOrder } from "./sign-order"
 import { UpsertOrder } from "./upsert-order"
@@ -41,8 +40,7 @@ describe.skip("cancel order", () => {
 
 	const getBaseOrderFee = async () => 0
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
-	const estimateGas = getEstimateGasInjects()
-	const orderService = new OrderFiller(ethereum, send, estimateGas, config, apis, getBaseOrderFee, env)
+	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee, env)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

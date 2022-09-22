@@ -27,16 +27,16 @@ import { checkChainId } from "../../../check-chain-id"
 import { signOrder } from "../../../sign-order"
 import { BatchOrderFiller } from "../batch-purchase"
 import { createRaribleSdk } from "../../../../index"
-import { getEstimateGasInjects } from "../../../../common/estimate-gas"
 import {
-	checkOwnerships, makeAmmOrder,
+	checkOwnerships,
+	makeAmmOrder,
 	makeLooksrareOrder,
 	makeRaribleV2Order,
 	makeSeaportOrder,
 	ordersToRequests,
 } from "./common/utils"
 
-describe.skip("Batch purchase", function () {
+describe("Batch purchase", function () {
 	const providerConfig = {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",
@@ -108,10 +108,10 @@ describe.skip("Batch purchase", function () {
 	})
 
 	test("looksrare few items sell", async () => {
-		const orders = await Promise.all([
-			makeLooksrareOrder(sdkSeller, ethereum, send, config),
-			makeLooksrareOrder(sdkSeller, ethereum, send, config),
-		])
+		const orders = [
+			await makeLooksrareOrder(sdkSeller, ethereum, send, config),
+			await makeLooksrareOrder(sdkSeller, ethereum, send, config),
+		]
 
 		await buyout(orders, [{
 			account: toAddress("0x0d28e9Bd340e48370475553D21Bd0A95c9a60F92"),
@@ -197,9 +197,8 @@ describe.skip("fillOrder: Opensea orders", function () {
 	// const checkWalletChainId2 = checkChainId.bind(null, ethereum2, config)
 
 	const send1 = getSimpleSendWithInjects().bind(null, checkWalletChainId1)
-	const estimateGas = getEstimateGasInjects()
 
-	const orderFiller = new BatchOrderFiller(ethereum1, send1, estimateGas, config, apis, getBaseOrderFee, env)
+	const orderFiller = new BatchOrderFiller(ethereum1, send1, config, apis, getBaseOrderFee, env)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),

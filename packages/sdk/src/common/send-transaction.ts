@@ -6,6 +6,7 @@ import type { EthereumFunctionCall, EthereumSendOptions, EthereumTransaction } f
 import { LogsLevel } from "../types"
 import type { ILoggerConfig } from "./logger/logger"
 import { getErrorMessageString } from "./logger/logger"
+import { estimateGas } from "./estimate-gas"
 
 export type SendFunction = (
 	functionCall: EthereumFunctionCall, options?: EthereumSendOptions,
@@ -31,7 +32,12 @@ export function getSendWithInjects(injects: {
 	): Promise<EthereumTransaction> {
 		await checkChainId()
 		const callInfo = await functionCall.getCallInfo()
-		const logsAvailable = logger && logger.level && callInfo
+
+		try {
+			await estimateGas(functionCall, { from: callInfo.from, value: options?.value }, logger)
+		} catch (e) {
+			console.error("EstimateGas failed with error", e)
+		}
 
 		try {
 			const tx = await functionCall.send(options)
@@ -41,7 +47,7 @@ export function getSendWithInjects(injects: {
 				console.error("createPendingLogs error", e)
 			}
 			try {
-				if (logsAvailable && logger.level >= LogsLevel.TRACE) {
+				if (logger?.level && logger.level >= LogsLevel.TRACE) {
 					logger.instance.raw({
 						level: "TRACE",
 						method: callInfo.method,
@@ -58,7 +64,7 @@ export function getSendWithInjects(injects: {
 			return tx
 		} catch (err: any) {
 			try {
-				if (logsAvailable && logger.level >= LogsLevel.ERROR && callInfo) {
+				if (logger?.level && logger.level >= LogsLevel.ERROR) {
 					let data = undefined
 					try {
 						data = await functionCall.getData()
@@ -102,12 +108,17 @@ export function getSimpleSendWithInjects(injects: {
 		options?: EthereumSendOptions,
 	) {
 		const callInfo = await functionCall.getCallInfo()
-		const logsAvailable = logger && logger.level && callInfo
+
+		try {
+			await estimateGas(functionCall, { from: callInfo.from, value: options?.value }, logger)
+		} catch (e) {
+			console.error("EstimateGas failed with error", e)
+		}
 
 		try {
 			const tx = functionCall.send(options)
 			try {
-				if (logsAvailable && logger.level >= LogsLevel.TRACE) {
+				if (logger?.level && logger.level >= LogsLevel.TRACE) {
 					logger.instance.trace(callInfo.method, {
 						from: callInfo.from,
 						args: callInfo.args,
@@ -120,7 +131,7 @@ export function getSimpleSendWithInjects(injects: {
 			return tx
 		} catch (err: any) {
 			try {
-				if (logsAvailable && logger.level >= LogsLevel.ERROR && callInfo) {
+				if (logger?.level && logger.level >= LogsLevel.ERROR && callInfo) {
 					logger.instance.error(callInfo.method, {
 						from: callInfo.from,
 						args: callInfo.args,

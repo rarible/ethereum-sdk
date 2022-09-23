@@ -36,7 +36,7 @@ import {
 	ordersToRequests,
 } from "./common/utils"
 
-describe("Batch purchase", function () {
+describe.skip("Batch purchase", function () {
 	const providerConfig = {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",

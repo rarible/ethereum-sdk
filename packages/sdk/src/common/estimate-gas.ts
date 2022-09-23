@@ -24,21 +24,19 @@ export async function estimateGas(
 				logger.instance.raw({
 					level: "WARN",
 					method: callInfo.method,
-					message: {
-						error: getErrorMessageString(err),
-						from: callInfo.from,
-						args: callInfo.args,
-					},
+					provider: callInfo.provider,
+					message: getErrorMessageString(err),
+					from: callInfo.from,
+					args: JSON.stringify(callInfo.args),
 					data,
 				})
 
 				console.error({
 					method: callInfo.method,
-					message: {
-						error: getErrorMessageString(err),
-						from: callInfo.from,
-						args: callInfo.args,
-					},
+					provider: callInfo.provider,
+					message: getErrorMessageString(err),
+					from: callInfo.from,
+					args: JSON.stringify(callInfo.args),
 					data,
 				})
 			}

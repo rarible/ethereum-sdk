@@ -17,9 +17,14 @@ export enum LogsLevel {
 	TRACE = 2
 }
 
+export interface LogsConfig {
+	level: LogsLevel,
+	session?: string,
+}
+
 export interface IRaribleEthereumSdkConfig {
 	apiClientParams?: ConfigurationParameters
-	logs?: LogsLevel
+	logs?: LogsConfig
 	ethereum?: EthereumNetworkConfig
 	polygon?: EthereumNetworkConfig
 	fillCalldata?: Binary

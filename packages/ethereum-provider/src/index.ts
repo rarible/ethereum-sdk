@@ -50,7 +50,8 @@ export interface EthereumFunctionCallInfo {
 	method: string
 	args: any[]
 	contract: string
-	from?: string
+	from: string
+	provider?: string
 }
 
 export interface EthereumFunctionCall {

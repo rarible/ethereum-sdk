@@ -93,6 +93,7 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 			contract: this.contract.options.address,
 			args: this.args,
 			from: await this.getFrom(),
+			provider: "web3",
 		}
 	}
 

@@ -2558,10 +2558,10 @@
   resolved "https://registry.yarnpkg.com/@rarible/types/-/types-0.9.3.tgz#16eac9f500b48e4bd4c43f2d93a84c46dc5a5a13"
   integrity sha512-lvmmqyibKNqylXr9yYMdor+onv/2z7O8LThpEsO/DpM2nawJ8f/QeEPjlyqTpjVhQyrpGwwFjuNQCTiiJi3msg==
 
-"@rarible/utils@~0.9.1":
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/@rarible/utils/-/utils-0.9.1.tgz#007eef8b762818b8569273e892f97b20cf07868c"
-  integrity sha512-Z+olAMTwpnu+y1rOyFlWobjFHKsWCxXWef5UyjfkbPtHUUM3R+0zt7Xp92FZWx/By4bJ9wmVvZMCDvomTPL+7g==
+"@rarible/utils@~0.9.10":
+  version "0.9.10"
+  resolved "https://registry.yarnpkg.com/@rarible/utils/-/utils-0.9.10.tgz#05681aa7bd9213f525a7f1e3856d0d361503abe0"
+  integrity sha512-efq8jxlLsNQAC6iY7jcKYlxeV0SAOfp2F4c7VXQv/JCivoDxkMnMzUWaQuxR/XN6UjV2UjpJ364xmaisiqh82g==
   dependencies:
     bignumber.js "^9.0.0"
 

@@ -12,7 +12,6 @@ import { waitTx } from "../../common/wait-tx"
 import type { SimpleOrder, SimpleRaribleV2Order } from "../types"
 import { isSigner } from "../../common/is-signer"
 import { fixSignature } from "../../common/fix-signature"
-import type { EstimateGasMethod } from "../../common/estimate-gas"
 import type { IRaribleEthereumSdkConfig } from "../../types"
 import { assetTypeToStruct } from "../asset-type-to-struct"
 import { encodeRaribleV2OrderData } from "../encode-rarible-v2-order-data"
@@ -36,7 +35,6 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
-		private readonly estimateGas: EstimateGasMethod,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly sdkConfig?: IRaribleEthereumSdkConfig
@@ -148,10 +146,7 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 			)
 
 			const options = await this.getMatchV2Options(initial, inverted)
-			await this.estimateGas(functionCall, {
-				from: await this.ethereum.getFrom(),
-				value: options.value,
-			})
+
 			return {
 				functionCall,
 				options: {

@@ -36,9 +36,7 @@ import { AmmOrderHandler } from "../amm"
 import { createExchangeWrapperContract } from "../../contracts/exchange-wrapper"
 import type { SeaportV1OrderFillRequest } from "../types"
 import type { X2Y2OrderFillRequest } from "../types"
-import type { EstimateGasMethod } from "../../../common/estimate-gas"
 import { getUpdatedCalldata } from "../common/get-updated-call"
-import { getRequiredWallet } from "../../../common/get-required-wallet"
 
 export class BatchOrderFiller {
 	v2Handler: RaribleV2OrderHandler
@@ -53,19 +51,18 @@ export class BatchOrderFiller {
 	constructor(
 		private readonly ethereum: Maybe<Ethereum>,
 		private readonly send: SendFunction,
-		private readonly estimateGas: EstimateGasMethod,
 		private readonly config: EthereumConfig,
 		private readonly apis: RaribleEthereumApis,
 		private readonly getBaseOrderFee: (type: SimpleOrder["type"]) => Promise<number>,
 		private readonly env: EthereumNetwork,
 		private readonly sdkConfig?: IRaribleEthereumSdkConfig
 	) {
-		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee)
-		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, estimateGas, config, apis, getBaseOrderFee, sdkConfig)
-		this.seaportHandler = new SeaportOrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, env)
-		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, env)
-		this.x2Y2Handler = new X2Y2OrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, apis)
-		this.ammHandler = new AmmOrderHandler(ethereum, send, estimateGas, config, getBaseOrderFee, env)
+		this.v2Handler = new RaribleV2OrderHandler(ethereum, send, config, getBaseOrderFee)
+		this.openSeaHandler = new OpenSeaOrderHandler(ethereum, send, config, apis, getBaseOrderFee, sdkConfig)
+		this.seaportHandler = new SeaportOrderHandler(ethereum, send, config, getBaseOrderFee, env)
+		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, config, getBaseOrderFee, env)
+		this.x2Y2Handler = new X2Y2OrderHandler(ethereum, send, config, getBaseOrderFee, apis)
+		this.ammHandler = new AmmOrderHandler(ethereum, send, config, getBaseOrderFee, env)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 		this.getTransactionRequestData = this.getTransactionRequestData.bind(this)
@@ -196,7 +193,6 @@ export class BatchOrderFiller {
 		feeAddresses: [Address, Address]
 	): Promise<OrderFillSendData> {
 		let totalValue = toBn(0)
-		const ethereum = getRequiredWallet(this.ethereum)
 
 		const ordersCallData = await Promise.all(preparedOrders.map(async (preparedOrder) => {
 			const requestData = await this.getTransactionSingleRequestData(preparedOrder)
@@ -212,11 +208,6 @@ export class BatchOrderFiller {
 			feeAddresses[1],
 			true // allowFail
 		)
-
-		await this.estimateGas(functionCall, {
-			from: await ethereum.getFrom(),
-			value: totalValue.toString(),
-		})
 
 		return {
 			functionCall,

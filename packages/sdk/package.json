@@ -29,7 +29,7 @@
     "@rarible/ethereum-api-client": "^0.1.23-beta7",
     "@rarible/ethereum-provider": "^0.12.97",
     "@rarible/logger": "^0.9.9",
-    "@rarible/utils": "~0.9.1",
+    "@rarible/utils": "~0.9.10",
     "axios": "^0.25.0",
     "eth-sig-util": "^3.0.0",
     "ethereumjs-util": "^7.1.0",

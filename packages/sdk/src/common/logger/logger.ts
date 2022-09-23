@@ -1,5 +1,6 @@
 import axios from "axios"
 import { RemoteLogger } from "@rarible/logger/build"
+import { getRandomId } from "@rarible/utils"
 import type { AbstractLogger } from "@rarible/logger/build/domain"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { Ethereum } from "@rarible/ethereum-provider"
@@ -54,11 +55,13 @@ export function getErrorMessageString(err: any): string {
 export function createRemoteLogger(context: {
 	ethereum: Maybe<Ethereum>,
 	env: Environment,
+	sessionId?: string,
 }): RemoteLogger {
 	const getContext = async () => {
 		return {
 			service: loggerConfig.service,
 			environment: context.env,
+			sessionId: context.sessionId ?? getRandomId("ethereum"),
 			"web3Address": (await context.ethereum?.getFrom()) ?? "unknown",
 			"ethNetwork": (await context.ethereum?.getChainId())?.toString() ?? "unknown",
 		}

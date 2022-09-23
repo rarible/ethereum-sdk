@@ -51,11 +51,9 @@ export function getSendWithInjects(injects: {
 					logger.instance.raw({
 						level: "TRACE",
 						method: callInfo.method,
-						message: {
-							from: callInfo.from,
-							args: callInfo.args,
-							tx,
-						},
+						message: JSON.stringify(getTxData(tx)),
+						args: JSON.stringify(callInfo.args),
+						provider: callInfo.provider,
 					})
 				}
 			} catch (e) {
@@ -75,11 +73,10 @@ export function getSendWithInjects(injects: {
 					logger.instance.raw({
 						level: "ERROR",
 						method: callInfo.method,
-						message: {
-							error: getErrorMessageString(err),
-							from: callInfo.from,
-							args: callInfo.args,
-						},
+						message: getErrorMessageString(err),
+						from: callInfo.from,
+						provider: callInfo.provider,
+						args: JSON.stringify(callInfo.args),
 						data,
 					})
 				}
@@ -116,13 +113,16 @@ export function getSimpleSendWithInjects(injects: {
 		}
 
 		try {
-			const tx = functionCall.send(options)
+			const tx = await functionCall.send(options)
 			try {
 				if (logger?.level && logger.level >= LogsLevel.TRACE) {
-					logger.instance.trace(callInfo.method, {
+					logger.instance.raw({
+						level: "TRACE",
+						method: callInfo.method,
 						from: callInfo.from,
-						args: callInfo.args,
-						tx,
+						provider: callInfo.provider,
+						args: JSON.stringify(callInfo.args),
+						message: JSON.stringify(getTxData(tx)),
 					})
 				}
 			} catch (e) {
@@ -132,9 +132,12 @@ export function getSimpleSendWithInjects(injects: {
 		} catch (err: any) {
 			try {
 				if (logger?.level && logger.level >= LogsLevel.ERROR && callInfo) {
-					logger.instance.error(callInfo.method, {
+					logger.instance.raw({
+						level: "ERROR",
+						method: callInfo.method,
 						from: callInfo.from,
-						args: callInfo.args,
+						provider: callInfo.provider,
+						args: JSON.stringify(callInfo.args),
 						error: getErrorMessageString(err),
 					})
 				}
@@ -155,6 +158,16 @@ export async function createPendingLogs(api: GatewayControllerApi, tx: EthereumT
 		nonce: tx.nonce,
 	}
 	return await api.createGatewayPendingTransactions({ createTransactionRequest })
+}
+
+function getTxData(tx: EthereumTransaction) {
+	return {
+		hash: tx.hash,
+		data: tx.data,
+		nonce: tx.nonce,
+		from: tx.from,
+		to: tx.to,
+	}
 }
 
 export async function sentTx(source: ContractSendMethod, options: SendOptions): Promise<string> {

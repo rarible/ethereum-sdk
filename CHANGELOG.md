@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.98](https://github.com/rarible/ethereum-sdk/compare/v0.12.97...v0.12.98) (2022-09-23)
+
+
+### Features
+
+* add sessionId to logs ([#197](https://github.com/rarible/ethereum-sdk/issues/197)) ([9565bbe](https://github.com/rarible/ethereum-sdk/commit/9565bbe378d170eccf86d6208f377ac2a73c9523))
+* call estimate gas before send transaction ([#196](https://github.com/rarible/ethereum-sdk/issues/196)) ([43cec43](https://github.com/rarible/ethereum-sdk/commit/43cec43a0a233c93374567177b7832520d1843c6))
+
+
+
+
+
 ## [0.12.97](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.96...v0.12.97) (2022-09-21)
 
 

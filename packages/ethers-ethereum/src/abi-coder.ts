@@ -56,7 +56,7 @@ export function encodeParameters(types: any[], params: any[]) {
 export function decodeParameters(types: any[], data: string) {
 	types = mapTypes(types)
 
-	return ethersAbiCoder.decode(types, data).data
+	return ethersAbiCoder.decode(types, data)
 }
 
 function mapTypes(types: any[]) {

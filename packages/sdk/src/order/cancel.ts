@@ -105,26 +105,30 @@ export async function cancelX2Y2Order(
 ) {
 	function decodeCancelInput(input: string) {
 		return ethereum.decodeParameter(
-			[{
+			{
 				components: [{
 					name: "itemHashes",
 					type: "bytes32[]",
-				}, {
+				},
+				{
 					name: "deadline",
 					type: "uint256",
-				}, {
+				},
+				{
 					name: "v",
 					type: "uint8",
-				}, {
+				},
+				{
 					name: "r",
 					type: "bytes32",
-				}, {
+				},
+				{
 					name: "s",
 					type: "bytes32",
 				}],
 				name: "data",
 				type: "tuple",
-			}],
+			},
 			input,
 		)[0] as {
 			itemHashes: string[]

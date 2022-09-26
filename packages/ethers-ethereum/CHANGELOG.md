@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.100](https://github.com/rarible/ethereum-sdk/compare/v0.12.99...v0.12.100) (2022-09-26)
+
+
+### Bug Fixes
+
+* fix x2y2 cancel call ([2d2ee59](https://github.com/rarible/ethereum-sdk/commit/2d2ee5996f0b558538d889f4c57bd52b218f4960))
+
+
+
+
+
 ## [0.12.98](https://github.com/rarible/ethereum-sdk/compare/v0.12.97...v0.12.98) (2022-09-23)
 
 

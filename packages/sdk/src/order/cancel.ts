@@ -145,8 +145,8 @@ export async function cancelX2Y2Order(
 			orderId: order.data.orderId,
 			op: OP_CANCEL_OFFER,
 			caller: await ethereum.getFrom(),
-			sign: signMessage,
-			signMessage: await ethereum.personalSign(signMessage),
+			sign: await ethereum.personalSign(signMessage),
+			signMessage: signMessage,
 		},
 	})).input)
 

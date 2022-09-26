@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.101](https://github.com/rarible/ethereum-sdk/compare/v0.12.100...v0.12.101) (2022-09-26)
+
+**Note:** Version bump only for package @rarible/protocol-ethereum-sdk
+
+
+
+
+
 ## [0.12.100](https://github.com/rarible/ethereum-sdk/compare/v0.12.99...v0.12.100) (2022-09-26)
 
 

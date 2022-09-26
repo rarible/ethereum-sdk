@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.101](https://github.com/rarible/ethereum-sdk/compare/v0.12.100...v0.12.101) (2022-09-26)
+
+
+### Bug Fixes
+
+* fix web3 provider decodeParameter method ([78c3f04](https://github.com/rarible/ethereum-sdk/commit/78c3f042fd2a5f0d31fceed28636e5329b383cef))
+
+
+
+
+
 ## [0.12.100](https://github.com/rarible/ethereum-sdk/compare/v0.12.99...v0.12.100) (2022-09-26)
 
 

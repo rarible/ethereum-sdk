@@ -90,7 +90,7 @@ export class X2Y2OrderHandler {
 		}
 
 		const x2y2Input = await X2Y2Utils.getOrderSign(this.apis, {
-			sender: toAddress(await this.ethereum.getFrom()),
+			sender: this.config.exchange.wrapper,
 			orderId: request.order.data.orderId,
 			currency: ZERO_ADDRESS,
 			price: request.order.take.value,

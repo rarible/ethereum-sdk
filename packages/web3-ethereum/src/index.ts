@@ -48,7 +48,7 @@ export class Web3Ethereum implements EthereumProvider.Ethereum {
 	}
 
 	decodeParameter(type: any, data: string): any {
-		return this.config.web3.eth.abi.decodeParameter(type, data)
+		return this.config.web3.eth.abi.decodeParameters([type], data)
 	}
 
 	async getBalance(address: Address): Promise<BigNumber> {

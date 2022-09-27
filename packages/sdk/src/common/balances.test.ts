@@ -10,7 +10,8 @@ import { retry } from "./retry"
 import { createEthereumApis } from "./apis"
 
 describe("getBalance test", () => {
-	const { provider } = createE2eProvider()
+	const pk = "d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469"
+	const { provider } = createE2eProvider(pk)
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3})
 
@@ -23,6 +24,7 @@ describe("getBalance test", () => {
 	})
 
 	test("get eth balance", async () => {
+		console.log("it", it.testErc20.options.address)
 		const senderAddress = toAddress(await ethereum.getFrom())
 		const balance = await balances.getBalance(senderAddress, { assetClass: "ETH" })
 		expect(balance.toString()).toBe("0")

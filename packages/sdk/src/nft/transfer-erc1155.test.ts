@@ -5,12 +5,14 @@ import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
 import { ethers } from "ethers"
 import { EthersEthereum, EthersWeb3ProviderEthereum } from "@rarible/ethers-ethereum"
+import type { Ethereum } from "@rarible/ethereum-provider"
 import { getApiConfig } from "../config/api-config"
 import { isError } from "../common/is-error"
 import { getSendWithInjects, sentTx } from "../common/send-transaction"
 import { getEthereumConfig } from "../config"
 import { checkChainId } from "../order/check-chain-id"
 import { prependProviderName } from "../order/test/prepend-provider-name"
+import type { EthereumNetwork } from "../types"
 import { transferErc1155 } from "./transfer-erc1155"
 
 const { provider, addresses, accounts } = createGanacheProvider()
@@ -24,14 +26,11 @@ const providers = [
 	new EthersWeb3ProviderEthereum(ethersWeb3Provider),
 ]
 
-// describe.each(providers)("transfer Erc1155", (ethereum: Ethereum) => {
-describe.skip("transfer Erc1155", () => {
-	//todo remove and uncomment describe.each
-	const ethereum = providers[0]
+describe.each(providers)("transfer Erc1155", (ethereum: Ethereum) => {
 	const [from] = addresses
 	const to = randomAddress()
 
-	const env = "testnet"
+	const env: EthereumNetwork = "dev-ethereum"
 	const configuration = new Configuration(getApiConfig(env))
 	const gatewayApi = new GatewayControllerApi(configuration)
 

@@ -17,28 +17,27 @@ import { transfer } from "./transfer"
 import { ERC721VersionEnum } from "./contracts/domain"
 import { getErc721Contract } from "./contracts/erc721"
 
-describe.skip("transfer Erc721 lazy", () => {
-	const { provider, wallet } = createE2eProvider()
+describe("transfer Erc721 lazy", () => {
+	const { provider, wallet } = createE2eProvider("0x26250bb39160076f030517503da31e11aca80060d14f84ebdaced666efb89e21")
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
 
-	const configuration = new Configuration(getApiConfig("testnet"))
+	const configuration = new Configuration(getApiConfig("dev-ethereum"))
 	const nftOwnershipApi = new NftOwnershipControllerApi(configuration)
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintControllerApi = new NftLazyMintControllerApi(configuration)
 	const nftItemApi = new NftItemControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const config = getEthereumConfig("testnet")
+	const config = getEthereumConfig("dev-ethereum")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)
-	const sign = signNft.bind(null, ethereum, 17)
+	const sign = signNft.bind(null, ethereum, 300500)
 
-
-	test.skip("should transfer erc721 lazy token", async () => {
+	test("should transfer erc721 lazy token", async () => {
 		const from = toAddress(wallet.getAddressString())
 		const recipient = randomAddress()
-		const contract = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
+		const contract = toAddress("0x6972347e66A32F40ef3c012615C13cB88Bf681cc")
 
 		const request: ERC721RequestV3 = {
 			uri: "ipfs://ipfs/hash",

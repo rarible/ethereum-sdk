@@ -9,14 +9,14 @@ import { getEthereumConfig } from "../config"
 import { approveErc721 as approveErc721Template } from "./approve-erc721"
 import { checkChainId } from "./check-chain-id"
 
-describe.skip("approveErc721", () => {
+describe("approveErc721", () => {
 	const { provider, addresses } = createGanacheProvider()
 	const web3 = new Web3(provider as any)
 	const ethereum = new Web3Ethereum({ web3 })
 	const [from] = addresses
-	const configuration = new Configuration(getApiConfig("testnet"))
+	const configuration = new Configuration(getApiConfig("dev-ethereum"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const config = getEthereumConfig("testnet")
+	const config = getEthereumConfig("dev-ethereum")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 

@@ -11,14 +11,14 @@ import { DeployErc1155 } from "./deploy-erc1155"
 describe.skip("deploy token test", () => {
 	const { provider } = createE2eProvider(
 		"26250bb39160076f030517503da31e11aca80060d14f84ebdaced666efb89e21", {
-			networkId: 200500,
-			rpcUrl: "https://staging-ethereum-node.rarible.com",
+			rpcUrl: "https://dev-ethereum-node.rarible.com",
+			networkId: 300500,
 		})
 	const web3 = new Web3(provider as any)
 	const ethereum1 = new Web3Ethereum({ web3 })
 
-	const config = getEthereumConfig("staging")
-	const configuration = new Configuration(getApiConfig("staging"))
+	const config = getEthereumConfig("dev-ethereum")
+	const configuration = new Configuration(getApiConfig("dev-ethereum"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const checkWalletChainId = checkChainId.bind(null, ethereum1, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)

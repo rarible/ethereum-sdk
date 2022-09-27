@@ -5,13 +5,18 @@ export const erc1155v1Abi: AbiItem[] = [
 		"inputs": [
 			{
 				"internalType": "string",
-				"name": "name",
+				"name": "_name",
 				"type": "string",
 			},
 			{
 				"internalType": "string",
-				"name": "symbol",
+				"name": "_symbol",
 				"type": "string",
+			},
+			{
+				"internalType": "address",
+				"name": "signer",
+				"type": "address",
 			},
 			{
 				"internalType": "string",
@@ -22,11 +27,6 @@ export const erc1155v1Abi: AbiItem[] = [
 				"internalType": "string",
 				"name": "tokenURIPrefix",
 				"type": "string",
-			},
-			{
-				"internalType": "address",
-				"name": "signer",
-				"type": "address",
 			},
 		],
 		"payable": false,

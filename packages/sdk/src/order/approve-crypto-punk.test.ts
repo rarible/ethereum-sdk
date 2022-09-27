@@ -9,7 +9,7 @@ import { getEthereumConfig } from "../config"
 import { approveCryptoPunk } from "./approve-crypto-punk"
 import { checkChainId } from "./check-chain-id"
 
-describe.skip("approve crypto punks", () => {
+describe("approve crypto punks", () => {
 	const {
 		addresses,
 		provider,
@@ -22,10 +22,10 @@ describe.skip("approve crypto punks", () => {
 		punksMarket: deployCryptoPunks(web3),
 	})
 
-	const configuration = new Configuration(getApiConfig("testnet"))
+	const configuration = new Configuration(getApiConfig("dev-ethereum"))
 	const gatewayApi = new GatewayControllerApi(configuration)
 
-	const config = getEthereumConfig("testnet")
+	const config = getEthereumConfig("dev-ethereum")
 	const checkWalletChainId = checkChainId.bind(null, ethereumSeller, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 	const approve = approveCryptoPunk.bind(null, ethereumSeller, send)

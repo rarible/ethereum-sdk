@@ -7,7 +7,7 @@ export const devEthereumConfig: EthereumConfig = {
 	basePath: "https://dev-ethereum-api.rarible.org",
 	chainId: 300500,
 	exchange: {
-		v1: ZERO_ADDRESS,
+		v1: toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7"),
 		v2: toAddress("0x6aABb267a1c440CfB5C200Ebcd078Efa9249492A"),
 		openseaV1: ZERO_ADDRESS,
 		wrapper: toAddress("0xB9078a4102309Fe32eCDb2B82f61496bB1c7FBA1"),

@@ -5,6 +5,7 @@ import { toBn } from "@rarible/utils/build/bn"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
 import { EthersEthereum, EthersWeb3ProviderEthereum } from "@rarible/ethers-ethereum"
 import { ethers } from "ethers"
+import type { Ethereum } from "@rarible/ethereum-provider"
 import { Web3Ethereum } from "../../../web3-ethereum"
 import { getApiConfig } from "../config/api-config"
 import { getSendWithInjects, sentTx } from "../common/send-transaction"
@@ -24,14 +25,11 @@ const providers = [
 	new EthersWeb3ProviderEthereum(ethersWeb3Provider),
 ]
 
-// describe.each(providers)("approveErc20", (ethereum: Ethereum) => {
-describe.skip("approveErc20", () => {
-	//todo remove and uncomment describe.each
-	const ethereum = providers[0]
+describe.each(providers)("approveErc20", (ethereum: Ethereum) => {
 	const [testAddress] = addresses
-	const configuration = new Configuration(getApiConfig("testnet"))
+	const configuration = new Configuration(getApiConfig("dev-ethereum"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const config = getEthereumConfig("testnet")
+	const config = getEthereumConfig("dev-ethereum")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 	const approveErc20 = approveErc20Template.bind(null, ethereum, send)
@@ -41,6 +39,7 @@ describe.skip("approveErc20", () => {
 	})
 
 	beforeAll(async () => {
+		console.log("it", it.testErc20.options.address)
 		await it.testErc20.methods.mint(testAddress, 100).send({ from: testAddress, gas: 200000 })
 	})
 

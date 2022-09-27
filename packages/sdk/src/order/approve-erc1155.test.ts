@@ -11,16 +11,16 @@ import { getEthereumConfig } from "../config"
 import { approveErc1155 as approveErc1155Template } from "./approve-erc1155"
 import { checkChainId } from "./check-chain-id"
 
-describe.skip("approveErc1155", () => {
+describe("approveErc1155", () => {
 	const { provider, addresses } = createGanacheProvider(
 		"d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469"
 	)
 	const web3 = new Web3(provider as any)
 	const ethereum = new Web3Ethereum({ web3 })
 	const [testAddress] = addresses
-	const configuration = new Configuration(getApiConfig("testnet"))
+	const configuration = new Configuration(getApiConfig("dev-ethereum"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const config = getEthereumConfig("testnet")
+	const config = getEthereumConfig("dev-ethereum")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 	const approveErc1155 = approveErc1155Template.bind(null, ethereum, send)

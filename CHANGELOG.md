@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.102](https://github.com/rarible/ethereum-sdk/compare/v0.12.101...v0.12.102) (2022-09-27)
+
+
+### Bug Fixes
+
+* change x2y2 contract address ([4673117](https://github.com/rarible/ethereum-sdk/commit/4673117338c2d13db2f348c855949d78da57a634))
+
+
+
+
+
 ## [0.12.101](https://github.com/rarible/ethereum-sdk/compare/v0.12.100...v0.12.101) (2022-09-26)
 
 

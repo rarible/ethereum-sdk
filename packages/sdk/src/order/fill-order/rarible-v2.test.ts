@@ -28,9 +28,10 @@ import { createEthereumApis } from "../../common/apis"
 import { checkChainId } from "../check-chain-id"
 import { createRaribleSdk } from "../../index"
 import { FILL_CALLDATA_TAG } from "../../config/common"
+import type { EthereumNetwork } from "../../types"
 import { OrderFiller } from "./index"
 
-describe.skip("buy & acceptBid orders", () => {
+describe("buy & acceptBid orders", () => {
 	const { addresses, provider, accounts } = createGanacheProvider()
 	const [account1] = accounts
 	const [buyerAddress, sellerAddress] = addresses
@@ -44,7 +45,7 @@ describe.skip("buy & acceptBid orders", () => {
 		new ethers.Wallet(account1.secretKey, ethersWeb3Provider)
 	)
 
-	const env = "staging" as const
+	const env: EthereumNetwork = "dev-ethereum"
 	const config = getEthereumConfig(env)
 	const apis = createEthereumApis(env)
 
@@ -84,7 +85,7 @@ describe.skip("buy & acceptBid orders", () => {
 		config.exchange.v2 = toAddress(it.exchangeV2.options.address)
 		config.transferProxies.cryptoPunks = toAddress(it.punksTransferProxy.options.address)
 		config.transferProxies.erc20 = toAddress(it.erc20TransferProxy.options.address)
-		config.chainId = 200500
+		// config.chainId = 200500
 
 		await sentTx(it.transferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
 			from: buyerAddress,

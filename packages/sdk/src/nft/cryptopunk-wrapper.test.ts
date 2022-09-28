@@ -7,13 +7,14 @@ import {
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { Configuration, GatewayControllerApi } from "@rarible/ethereum-api-client"
+import { toAddress } from "@rarible/types"
 import { getApiConfig } from "../config/api-config"
 import { getEthereumConfig } from "../config"
 import { checkChainId } from "../order/check-chain-id"
 import { getSendWithInjects, sentTx } from "../common/send-transaction"
 import { approveForWrapper, unwrapPunk, wrapPunk } from "./cryptopunk-wrapper"
 
-describe("wrap crypto punk", () => {
+describe.skip("wrap crypto punk", () => {
 	const { provider, addresses } = createGanacheProvider()
 	const configuration = new Configuration(getApiConfig("dev-ethereum"))
 	const gatewayApi = new GatewayControllerApi(configuration)
@@ -31,9 +32,14 @@ describe("wrap crypto punk", () => {
 		punksWrapper: deployCryptoPunksWrapper(web3),
 	})
 
+	beforeAll(async () => {
+		config.cryptoPunks.marketContract = toAddress(it.punksMarket.options.address)
+		config.cryptoPunks.wrapperContract = toAddress(it.punksWrapper.options.address)
+	})
+
 	const punkId = 3490
 
-	test.skip("should wrap cryptopunk", async () => {
+	test("should wrap cryptopunk", async () => {
 		console.log("market:", (it.punksMarket as any)._address)
 		console.log("wrapper:", (it.punksWrapper as any)._address)
 
@@ -70,7 +76,7 @@ describe("wrap crypto punk", () => {
 		expect(wrapTx.hash).toBeTruthy()
 	})
 
-	test.skip("should unwrap cryptopunk", async () => {
+	test("should unwrap cryptopunk", async () => {
 		const tx = await unwrapPunk(
 			ethereum,
 			send,

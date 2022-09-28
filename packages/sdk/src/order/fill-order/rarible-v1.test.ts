@@ -5,19 +5,18 @@ import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { getEthereumConfig } from "../../config"
 import { retry } from "../../common/retry"
-import { getSimpleSendWithInjects } from "../../common/send-transaction"
+import { getSimpleSendWithInjects, sentTxConfirm } from "../../common/send-transaction"
 import { getApiConfig } from "../../config/api-config"
 import { signOrder } from "../sign-order"
 import type { SimpleLegacyOrder, SimpleOrder } from "../types"
 import { createEthereumApis } from "../../common/apis"
 import { checkChainId } from "../check-chain-id"
+import { DEV_PK_1, DEV_PK_2 } from "../../common/test/private-keys"
 import { OrderFiller } from "./"
 
-describe.skip("test exchange v1 order", () => {
-	const { provider: provider1, wallet: wallet1 } = createE2eProvider()
-	const { provider: provider2, wallet: wallet2 } = createE2eProvider(
-		"ded057615d97f0f1c751ea2795bc4b03bbf44844c13ab4f5e6fd976506c276b9"
-	)
+describe("test exchange v1 order", () => {
+	const { provider: provider1, wallet: wallet1 } = createE2eProvider(DEV_PK_1)
+	const { provider: provider2, wallet: wallet2 } = createE2eProvider(DEV_PK_2)
 	const web31 = new Web3(provider1)
 	const web32 = new Web3(provider2)
 	const sellerEthereum = new Web3Ethereum({ web3: web31 })
@@ -46,7 +45,7 @@ describe.skip("test exchange v1 order", () => {
 	test("simple test v1", async () => {
 		console.log(await buyerEthereum.getFrom())
 		const tokenId = toBigNumber("1")
-		await it.testErc721.methods.mint(seller, tokenId, "url").send({ from: seller })
+		await sentTxConfirm(it.testErc721.methods.mint(seller, tokenId, "url"), { from: seller })
 
 		let order: SimpleOrder = {
 			make: {
@@ -68,7 +67,7 @@ describe.skip("test exchange v1 order", () => {
 			type: "RARIBLE_V1",
 			data: {
 				dataType: "LEGACY",
-				fee: 3,
+				fee: 0,
 			},
 		}
 
@@ -77,7 +76,7 @@ describe.skip("test exchange v1 order", () => {
 			.send({from: seller })
 
 		const signedOrder: SimpleLegacyOrder = { ...order, signature: await sign(order) }
-		await filler.buy({ order: signedOrder, amount: 1, originFee: 100 })
+		await filler.buy({ order: signedOrder, amount: 1, originFee: 0 })
 
 		const ownership = await retry(10, 4000, async () => {
 			const ownership = await ownershipApi.getNftOwnershipById({

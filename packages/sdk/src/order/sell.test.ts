@@ -19,6 +19,8 @@ import { signNft as signNftTemplate } from "../nft/sign-nft"
 import { createErc721V3Collection } from "../common/mint"
 import { delay, retry } from "../common/retry"
 import { createEthereumApis } from "../common/apis"
+import { DEV_PK_1 } from "../common/test/private-keys"
+import type { EthereumNetwork } from "../types"
 import { OrderSell } from "./sell"
 import { signOrder as signOrderTemplate } from "./sign-order"
 import { OrderFiller } from "./fill-order"
@@ -27,21 +29,11 @@ import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
 import { TEST_ORDER_TEMPLATE } from "./test/order"
 import { checkChainId } from "./check-chain-id"
 
-const providerConfig = {
-	networkId: 4,
-	rpcUrl: "https://node-rinkeby.rarible.com",
-}
-const { provider, wallet } = createE2eProvider(
-	"0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a",
-	providerConfig
-)
+const { provider, wallet } = createE2eProvider(DEV_PK_1)
 const { providers } = createTestProviders(provider, wallet)
 
-// describe.each(providers)("sell", (ethereum) => {
-describe.skip("sell", () => {
-	//todo remove and uncomment describe.each
-	const ethereum = providers[0]
-	const env = "testnet" as const
+describe.each(providers)("sell", (ethereum) => {
+	const env: EthereumNetwork = "dev-ethereum"
 	const configuration = new Configuration(getApiConfig(env))
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
@@ -71,7 +63,7 @@ describe.skip("sell", () => {
 		checkWalletChainId
 	)
 	const orderSell = new OrderSell(upserter, checkAssetType, checkWalletChainId)
-	const e2eErc721V3ContractAddress = toAddress("0x6ede7f3c26975aad32a475e1021d8f6f39c89d82")
+	const e2eErc721V3ContractAddress = toAddress("0x6972347e66A32F40ef3c012615C13cB88Bf681cc")
 	const treasury = createE2eWallet()
 	const treasuryAddress = toAddress(treasury.getAddressString())
 

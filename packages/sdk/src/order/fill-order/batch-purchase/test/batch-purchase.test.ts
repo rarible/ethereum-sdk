@@ -27,6 +27,7 @@ import { checkChainId } from "../../../check-chain-id"
 import { signOrder } from "../../../sign-order"
 import { BatchOrderFiller } from "../batch-purchase"
 import { createRaribleSdk } from "../../../../index"
+import type { EthereumNetwork } from "../../../../types"
 import {
 	checkOwnerships,
 	makeAmmOrder,
@@ -182,7 +183,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 	const ethereum1 = new Web3Ethereum({ web3, from: sender1Address, gas: 1000000 })
 	const ethereum2 = new Web3Ethereum({ web3, from: sender2Address, gas: 1000000 })
 
-	const env = "testnet" as const
+	const env: EthereumNetwork = "dev-ethereum"
 	const config: EthereumConfig = {
 		...getEthereumConfig(env),
 		openSea: {
@@ -244,7 +245,7 @@ describe.skip("fillOrder: Opensea orders", function () {
 		config.exchange.v2 = toAddress(it.exchangeV2.options.address)
 		config.transferProxies.erc20 = toAddress(it.erc20TransferProxy.options.address)
 		config.exchange.wrapper = toAddress(it.exchangeWrapper.options.address)
-		config.chainId = 17
+		// config.chainId = 17
 	})
 
 	function getOrder(asset: Asset, owner: Address): SimpleRaribleV2Order {

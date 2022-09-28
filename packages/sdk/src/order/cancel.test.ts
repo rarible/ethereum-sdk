@@ -1,4 +1,4 @@
-import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll, createE2eProvider, deployTestErc1155 } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber, toBinary } from "@rarible/types"
@@ -27,7 +27,6 @@ import { createSeaportOrder } from "./test/order-opensea"
 import { awaitOrder } from "./test/await-order"
 import { getOpenseaEthTakeData } from "./test/get-opensea-take-data"
 import { approve as approveTemplate } from "./approve"
-import { approveErc721 } from "./approve-erc721"
 
 describe("cancel order", () => {
 	const { provider, wallet } = createE2eProvider(DEV_PK_1)
@@ -50,6 +49,7 @@ describe("cancel order", () => {
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
 		testErc721: deployTestErc721(web3, "Test", "TST"),
+		testErc1155: deployTestErc1155(web3, "Test"),
 	})
 	let from: Address
 
@@ -81,14 +81,13 @@ describe("cancel order", () => {
 	})
 
 	test("ExchangeV1 should work", async () => {
-		await sentTx(it.testErc721.methods.mint(from, "11", "0x"), {from})
-		// approveErc721(ethereum, send, config.transferProxies, from, )
+		await sentTx(it.testErc1155.methods.mint(from, "11", 11, "0x"), {from})
 		const form: OrderForm = {
 			...TEST_ORDER_TEMPLATE,
 			make: {
 				assetType: {
-					assetClass: "ERC721",
-					contract: toAddress(it.testErc721.options.address),
+					assetClass: "ERC1155",
+					contract: toAddress(it.testErc1155.options.address),
 					tokenId: toBigNumber("11"),
 				},
 				value: toBigNumber("1"),
@@ -126,13 +125,11 @@ describe("cancel order", () => {
 		)
 
 		const order = await upserter.upsert({ order: form })
-		console.log("order", order)
 		const tx = await cancel(checkLazyOrder, ethereum, send, config.exchange, checkWalletChainId, apis, order)
 		await tx.wait()
 
 		const cancelledOrder = await retry(15, 3000, async () => {
 			const current = await orderApi.getOrderByHash({ hash: order.hash })
-			console.log(current)
 			if (!current.cancelled) {
 				throw new Error("Order is not cancelled")
 			}

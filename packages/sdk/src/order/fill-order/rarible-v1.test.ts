@@ -67,7 +67,7 @@ describe("test exchange v1 order", () => {
 			type: "RARIBLE_V1",
 			data: {
 				dataType: "LEGACY",
-				fee: 0,
+				fee: 3,
 			},
 		}
 
@@ -76,7 +76,7 @@ describe("test exchange v1 order", () => {
 			.send({from: seller })
 
 		const signedOrder: SimpleLegacyOrder = { ...order, signature: await sign(order) }
-		await filler.buy({ order: signedOrder, amount: 1, originFee: 0 })
+		await filler.buy({ order: signedOrder, amount: 1, originFee: 100 })
 
 		const ownership = await retry(10, 4000, async () => {
 			const ownership = await ownershipApi.getNftOwnershipById({

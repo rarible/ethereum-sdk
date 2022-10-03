@@ -12,7 +12,7 @@ export const mainnetConfig: EthereumConfig = {
 		openseaV1: toAddress("0x7be8076f4ea4a4ad08075c2508e481d6c946d12b"),
 		wrapper: toAddress("0x2C45Af926d5f62C5935278106800a03eB565778E"),
 		looksrare: toAddress("0x59728544B08AB483533076417FbBB2fD0B17CE3a"),
-		x2y2: toAddress("0x6d7812d41a08bc2a910b562d8b56411964a4ed88"),
+		x2y2: toAddress("0x74312363e45dcaba76c59ec49a7aa8a65a67eed3"),
 	},
 	transferProxies: {
 		nft: toAddress("0x4fee7b061c97c9c496b01dbce9cdb10c02f0a0be"),

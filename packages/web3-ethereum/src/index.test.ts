@@ -76,7 +76,10 @@ describe("Web3Ethereum", () => {
 
 		const encoded = e2eEthereum.encodeParameter(type,	data)
 		const decoded = e2eEthereum.decodeParameter(type,	encoded)
+		console.log("decoded", decoded)
 		for (const field in data) {
+			//@ts-ignore
+			console.log("ex", decoded[field], data[field].toString())
 			//@ts-ignore
 			expect(decoded[field]).toEqual(data[field].toString())
 		}

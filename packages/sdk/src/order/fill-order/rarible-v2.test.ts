@@ -29,7 +29,7 @@ import { checkChainId } from "../check-chain-id"
 import { createRaribleSdk } from "../../index"
 import { FILL_CALLDATA_TAG } from "../../config/common"
 import type { EthereumNetwork } from "../../types"
-import { delay, retry } from "../../common/retry"
+import { retry } from "../../common/retry"
 import { OrderFiller } from "./index"
 
 describe("buy & acceptBid orders", () => {
@@ -182,8 +182,8 @@ describe("buy & acceptBid orders", () => {
 
 	test.each([
 		{provider: buyerEthereum, name: "web3"},
-		{provider: buyerEthersWeb3Provider1, name: "ethersWeb3Ethereum"},
-		{provider: buyerEthersEthereum1, name: "ethersEthereum"},
+		// {provider: buyerEthersWeb3Provider1, name: "ethersWeb3Ethereum"},
+		// {provider: buyerEthersEthereum1, name: "ethersEthereum"},
 	])("should match order(buy erc1155 for erc20) with $name provider", async ({provider}) => {
 		//sender1 has ERC20, sender2 has ERC1155
 

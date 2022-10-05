@@ -68,7 +68,7 @@ describe("buy & acceptBid orders", () => {
 		punkAssetMatcher: deployCryptoPunkAssetMatcher(web3),
 	})
 
-	beforeEach(async () => await delay(500))
+	// beforeEach(async () => await delay(500))
 
 	beforeAll(async () => {
 		/**
@@ -385,7 +385,8 @@ describe("buy & acceptBid orders", () => {
 			account: randomAddress(),
 			value: 100,
 		}]
-		await filler.buy({ order: finalOrder, amount: 2, originFees })
+		const tx = await filler.buy({ order: finalOrder, amount: 2, originFees })
+		await tx.wait()
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sellerAddress, 1).call()).toString()).toBe(
 			before2.minus(2).toFixed()
@@ -442,7 +443,7 @@ describe("buy & acceptBid orders", () => {
 		console.log(before2.toString())
 
 		const finalOrder = { ...left, signature }
-		await filler.buy({
+		const tx = await filler.buy({
 			order: finalOrder,
 			amount: 2,
 			originFeeFirst: {
@@ -450,6 +451,7 @@ describe("buy & acceptBid orders", () => {
 				value: 100,
 			},
 		})
+		await tx.wait()
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sellerAddress, 1).call()).toString()).toBe(
 			before2.minus(2).toFixed()
@@ -502,7 +504,8 @@ describe("buy & acceptBid orders", () => {
 
 
 		const finalOrder = { ...left, signature }
-		await filler.buy({ order: finalOrder, amount: 1, originFees: []})
+		const tx = await filler.buy({ order: finalOrder, amount: 1, originFees: []})
+		await tx.wait()
 
 		const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()
 
@@ -909,7 +912,8 @@ describe("e2e buy & acceptBid orders", () => {
 			account: randomAddress(),
 			value: 100,
 		}]
-		await filler.buy({ order: finalOrder, amount: 2, originFees })
+		const tx = await filler.buy({ order: finalOrder, amount: 2, originFees })
+		await tx.wait()
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sellerAddress, tokenId).call()).toString()).toBe(
 			before2.minus(2).toFixed()
@@ -962,7 +966,8 @@ describe("e2e buy & acceptBid orders", () => {
 			account: randomAddress(),
 			value: 100,
 		}]
-		await filler.buy({ order: finalOrder, amount: 2, originFees })
+		const tx = await filler.buy({ order: finalOrder, amount: 2, originFees })
+		await tx.wait()
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sellerAddress, 1).call()).toString()).toBe(
 			before2.minus(2).toFixed()
@@ -1019,7 +1024,7 @@ describe("e2e buy & acceptBid orders", () => {
 		console.log(before2.toString())
 
 		const finalOrder = { ...left, signature }
-		await filler.buy({
+		const tx = await filler.buy({
 			order: finalOrder,
 			amount: 2,
 			originFeeFirst: {
@@ -1027,6 +1032,7 @@ describe("e2e buy & acceptBid orders", () => {
 				value: 100,
 			},
 		})
+		await tx.wait()
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sellerAddress, 1).call()).toString()).toBe(
 			before2.minus(2).toFixed()
@@ -1079,7 +1085,8 @@ describe("e2e buy & acceptBid orders", () => {
 
 
 		const finalOrder = { ...left, signature }
-		await filler.buy({ order: finalOrder, amount: 1, originFees: []})
+		const tx = await filler.buy({ order: finalOrder, amount: 1, originFees: []})
+		await tx.wait()
 
 		const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()
 

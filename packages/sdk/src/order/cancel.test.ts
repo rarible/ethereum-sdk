@@ -60,6 +60,14 @@ describe("cancel order", () => {
 		await sentTxConfirm(it.testErc721.methods.mint(from, "10", "0x"), {from})
 		const form: OrderForm = {
 			...TEST_ORDER_TEMPLATE,
+			make: {
+				assetType: {
+					assetClass: "ERC721",
+					contract: toAddress(it.testErc721.options.address),
+					tokenId: toBigNumber("10"),
+				},
+				value: toBigNumber("10"),
+			},
 			take: {
 				assetType: {
 					assetClass: "ETH",

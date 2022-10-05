@@ -29,7 +29,7 @@ import { checkChainId } from "../check-chain-id"
 import { createRaribleSdk } from "../../index"
 import { FILL_CALLDATA_TAG } from "../../config/common"
 import type { EthereumNetwork } from "../../types"
-import { delay } from "../../common/retry"
+import { delay, retry } from "../../common/retry"
 import { OrderFiller } from "./index"
 
 describe("buy & acceptBid orders", () => {
@@ -794,7 +794,7 @@ describe("e2e buy & acceptBid orders", () => {
 			},
 		}
 
-		await sentTx(it.testErc20.methods.approve(it.erc20TransferProxy.options.address, toBn(10)), {
+		await sentTxConfirm(it.testErc20.methods.approve(it.erc20TransferProxy.options.address, toBn(10)), {
 			from: buyerAddress,
 		})
 
@@ -820,11 +820,14 @@ describe("e2e buy & acceptBid orders", () => {
 		expect(matchEvent).toBeTruthy()
 		expect(matchEvent?.returnValues).toBeTruthy()
 
-		const finishErc20Balance = toBn(await it.testErc20.methods.balanceOf(sellerAddress).call())
-		const finishErc1155Balance = toBn(await it.testErc1155.methods.balanceOf(buyerAddress, tokenId).call())
-
-		expect(finishErc20Balance.minus(startErc20Balance).toString()).toBe("2")
-		expect(finishErc1155Balance.minus(startErc1155Balance).toString()).toBe("1")
+		await retry(10, 2000, async () => {
+			const finishErc20Balance = toBn(await it.testErc20.methods.balanceOf(sellerAddress).call())
+			const finishErc1155Balance = toBn(await it.testErc1155.methods.balanceOf(buyerAddress, tokenId).call())
+			console.log("startErc20Balance", startErc20Balance.toString(), "finishErc20Balance", finishErc20Balance.toString())
+			expect(finishErc20Balance.minus(startErc20Balance).toString()).toBe("2")
+			console.log("startErc1155Balance", startErc1155Balance.toString(), "finishErc1155Balance", finishErc1155Balance.toString())
+			expect(finishErc1155Balance.minus(startErc1155Balance).toString()).toBe("1")
+		})
 	})
 
 	test("get transaction data", async () => {

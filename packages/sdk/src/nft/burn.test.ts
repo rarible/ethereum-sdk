@@ -42,7 +42,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 	const collectionApi = new NftCollectionControllerApi(configuration)
 	const mintLazyApi = new NftLazyMintControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const sign = signNft.bind(null, ethereum, 300500)
+	const sign = signNft.bind(null, ethereum, config.chainId)
 	const config = getEthereumConfig(env)
 	const checkChainId = checkChainIdTemplate.bind(null, ethereum, config)
 	const send = getSendWithInjects().bind(ethereum, gatewayApi, checkChainId)
@@ -124,13 +124,19 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 				royalties: [],
 				lazy: true,
 			} as ERC721RequestV3)
-		await burn(checkChainId, {
+		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			await minted.transaction.wait()
+		}
+		const tx = await burn(checkChainId, {
 			assetType: {
 				contract: e2eErc721V3ContractAddress,
 				tokenId: minted.tokenId,
 			},
 			creators: [{ account: toAddress(testAddress), value: 10000 }],
 		})
+		if (tx) {
+			await tx.wait()
+		}
 		await retry(5, 2000, async () => {
 			const nftItemResponse = await apis.nftItem.getNftItemById({
 				itemId: `${e2eErc721V3ContractAddress}:${minted.tokenId}`,
@@ -148,7 +154,10 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 			royalties: [],
 			lazy: true,
 		} as ERC1155RequestV2)
-		await burn(checkChainId, {
+		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			await minted.transaction.wait()
+		}
+		const tx = await burn(checkChainId, {
 			assetType: {
 				contract: e2eErc1155V2ContractAddress,
 				tokenId: minted.tokenId,
@@ -156,6 +165,9 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 			amount: toBigNumber("50"),
 			creators: [{ account: toAddress(testAddress), value: 10000 }],
 		})
+		if (tx) {
+			await tx.wait()
+		}
 
 		await retry(5, 2000, async () => {
 			const nftItemResponse = await apis.nftItem.getNftItemById({
@@ -174,13 +186,19 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 			royalties: [],
 			lazy: true,
 		} as ERC1155RequestV2)
-		await burn(checkChainId, {
+		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			await minted.transaction.wait()
+		}
+		const tx = await burn(checkChainId, {
 			assetType: {
 				contract: e2eErc1155V2ContractAddress,
 				tokenId: minted.tokenId,
 			},
 			creators: [],
 		})
+		if (tx) {
+			await tx.wait()
+		}
 
 		await retry(5, 2000, async () => {
 			const nftItemResponse = await apis.nftItem.getNftItemById({

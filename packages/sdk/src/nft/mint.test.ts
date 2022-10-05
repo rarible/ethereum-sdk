@@ -41,7 +41,7 @@ const providers = [
 	new EthersWeb3ProviderEthereum(new ethers.providers.Web3Provider(provider3 as any)),
 ]
 
-const env: EthereumNetwork = "testnet"
+const env: EthereumNetwork = "dev-ethereum"
 const configuration = new Configuration(getApiConfig(env))
 const nftCollectionApi = new NftCollectionControllerApi(configuration)
 const nftLazyMintApi = new NftLazyMintControllerApi(configuration)

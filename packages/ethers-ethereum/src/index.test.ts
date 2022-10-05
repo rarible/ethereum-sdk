@@ -43,7 +43,7 @@ describe.each(data)("ethers.js Ethereum", (eth: Ethereum) => {
 
 	test(`${eth.constructor.name} getNetworkId`, async () => {
 		const networkId = await eth.getChainId()
-		expect(networkId).toBe(17)
+		expect(networkId).toBe(300500)
 	})
 
 	test(`${eth.constructor.name} encode/decode`, async () => {
@@ -88,7 +88,7 @@ describe.each(data)("ethers.js Ethereum", (eth: Ethereum) => {
 
 describe("get transaction receipt events", () => {
 	const { provider } = common.createE2eProvider(
-		"d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469",
+		testPK,
 		{
 			networkId: 1,
 			rpcUrl: "https://node-mainnet.rarible.com",
@@ -99,6 +99,7 @@ describe("get transaction receipt events", () => {
 
 
 	test("get Seaport tx events (prod)", async () => {
+		console.log("addr", await ethereum.getFrom())
 		const tx = await ethereum.web3Provider.getTransaction("0x8d7ce93eac45141de762bf29fae4a1c6458e2b2d0b0361432b091a9e29b3c903")
 		const signer = web3Provider.getSigner()
 		const seaportAddr = "0x00000000006c3852cbef3e08e8df289169ede581"

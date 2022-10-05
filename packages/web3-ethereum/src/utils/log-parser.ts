@@ -141,7 +141,7 @@ export function parseReceiptEvents(
 			// @ts-ignore
 			receipt.events[count] = ev
 			// @ts-ignore
-			count++
+			count += 1
 		}
 	})
 

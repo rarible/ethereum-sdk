@@ -28,6 +28,7 @@ import { signOrder } from "../../../sign-order"
 import { BatchOrderFiller } from "../batch-purchase"
 import { createRaribleSdk } from "../../../../index"
 import type { EthereumNetwork } from "../../../../types"
+import { DEV_PK_1, DEV_PK_2 } from "../../../../common/test/private-keys"
 import {
 	checkOwnerships,
 	makeAmmOrder,
@@ -42,24 +43,19 @@ describe.skip("Batch purchase", function () {
 		networkId: 4,
 		rpcUrl: "https://node-rinkeby.rarible.com",
 	}
-	const { provider: providerBuyer } = createE2eProvider(
-		"0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a",
-		providerConfig
-	)
-	const { provider: providerSeller } = createE2eProvider(
-		"0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c",
-		providerConfig
-	)
+	const { provider: providerBuyer } = createE2eProvider(DEV_PK_1, providerConfig)
+	const { provider: providerSeller } = createE2eProvider(DEV_PK_2, providerConfig)
 
+	const env: EthereumNetwork = "testnet"
 	const web3Seller = new Web3(providerSeller as any)
 	const ethereumSeller = new Web3Ethereum({ web3: web3Seller, gas: 3000000 })
 	const ethereum = new Web3Ethereum({ web3: web3Seller, gas: 3000000 })
 
 	const buyerWeb3 = new Web3Ethereum({ web3: new Web3(providerBuyer as any), gas: 3000000})
-	const sdkBuyer = createRaribleSdk(buyerWeb3, "testnet")
-	const sdkSeller = createRaribleSdk(ethereumSeller, "testnet")
+	const sdkBuyer = createRaribleSdk(buyerWeb3, env)
+	const sdkSeller = createRaribleSdk(ethereumSeller, env)
 
-	const config = getEthereumConfig("testnet")
+	const config = getEthereumConfig(env)
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
 

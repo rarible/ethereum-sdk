@@ -19,6 +19,7 @@ import { createErc1155V1Collection, createErc1155V2Collection, createErc721V1Col
 import { checkChainId } from "../order/check-chain-id"
 import { getEthereumConfig } from "../config"
 import { DEV_PK_1 } from "../common/test/private-keys"
+import type { EthereumNetwork } from "../types"
 import { signNft } from "./sign-nft"
 import type { ERC1155RequestV1, ERC1155RequestV2, ERC721RequestV1, ERC721RequestV2, ERC721RequestV3} from "./mint"
 import { mint as mintTemplate, MintResponseTypeEnum } from "./mint"
@@ -40,7 +41,8 @@ const providers = [
 	new EthersWeb3ProviderEthereum(new ethers.providers.Web3Provider(provider3 as any)),
 ]
 
-const configuration = new Configuration(getApiConfig("dev-ethereum"))
+const env: EthereumNetwork = "testnet"
+const configuration = new Configuration(getApiConfig(env))
 const nftCollectionApi = new NftCollectionControllerApi(configuration)
 const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 const nftItemApi = new NftItemControllerApi(configuration)
@@ -51,14 +53,14 @@ const erc1155V2ContractAddress = toAddress("0x11F13106845CF424ff5FeE7bAdCbCe6aA0
 
 describe.each(providers)("mint test", ethereum => {
 	let minter: Address
-	const config = getEthereumConfig("dev-ethereum")
+	const config = getEthereumConfig(env)
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 
 	beforeAll(async () => {
 		minter = toAddress(await ethereum.getFrom())
 	})
 
-	const sign = signNft.bind(null, ethereum, 300500)
+	const sign = signNft.bind(null, ethereum, config.chainId)
 
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 

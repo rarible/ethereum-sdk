@@ -81,7 +81,7 @@ describe.each(data)("ethers.js Ethereum", (eth: Ethereum) => {
 		const decoded = eth.decodeParameter(type,	encoded)
 		for (const field in data) {
 			//@ts-ignore
-			expect(decoded[field]).toEqual(data[field].toString())
+			expect(decoded["data"][field]).toEqual(data[field].toString())
 		}
 	})
 })

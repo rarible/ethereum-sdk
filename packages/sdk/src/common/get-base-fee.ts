@@ -10,7 +10,7 @@ import { NetworkErrorCode } from "./logger/logger"
 export async function getBaseFee(
 	config: EthereumConfig,
 	env: EthereumNetwork,
-	type: SimpleOrder["type"] | "AUCTION" = CURRENT_ORDER_TYPE_VERSION
+	type: EnvFeeType = CURRENT_ORDER_TYPE_VERSION
 ): Promise<number> {
 	let envFeeConfig
 	try {
@@ -34,4 +34,5 @@ export async function getBaseFee(
 }
 
 export type CommonFeeConfig = Record<EthereumNetwork, EnvFeeConfig>
-export type EnvFeeConfig = Record<SimpleOrder["type"] | "AUCTION", number>
+export type EnvFeeType = SimpleOrder["type"] | "AUCTION"
+export type EnvFeeConfig = Record<EnvFeeType, number>

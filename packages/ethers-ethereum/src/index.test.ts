@@ -43,7 +43,7 @@ describe.each(data)("ethers.js Ethereum", (eth: Ethereum) => {
 
 	test(`${eth.constructor.name} getNetworkId`, async () => {
 		const networkId = await eth.getChainId()
-		expect(networkId).toBe(17)
+		expect(networkId).toBe(300500)
 	})
 
 	test(`${eth.constructor.name} encode/decode`, async () => {
@@ -81,14 +81,14 @@ describe.each(data)("ethers.js Ethereum", (eth: Ethereum) => {
 		const decoded = eth.decodeParameter(type,	encoded)
 		for (const field in data) {
 			//@ts-ignore
-			expect(decoded[field]).toEqual(data[field].toString())
+			expect(decoded["data"][field]).toEqual(data[field].toString())
 		}
 	})
 })
 
 describe("get transaction receipt events", () => {
 	const { provider } = common.createE2eProvider(
-		"d519f025ae44644867ee8384890c4a0b8a7b00ef844e8d64c566c0ac971c9469",
+		testPK,
 		{
 			networkId: 1,
 			rpcUrl: "https://node-mainnet.rarible.com",

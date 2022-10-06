@@ -24,8 +24,7 @@
   "dependencies": {
     "@rarible/ethereum-provider": "^0.12.98",
     "eth-rpc-errors": "^4.0.3",
-    "exponential-backoff": "^3.1.0",
-    "web3-parse-receipt-events": "^1.0.2"
+    "exponential-backoff": "^3.1.0"
   },
   "devDependencies": {
     "@rarible/ethereum-sdk-test-common": "^0.12.98",

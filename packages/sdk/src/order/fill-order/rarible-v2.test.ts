@@ -28,9 +28,11 @@ import { createEthereumApis } from "../../common/apis"
 import { checkChainId } from "../check-chain-id"
 import { createRaribleSdk } from "../../index"
 import { FILL_CALLDATA_TAG } from "../../config/common"
+import type { EthereumNetwork } from "../../types"
+import { retry } from "../../common/retry"
 import { OrderFiller } from "./index"
 
-describe.skip("buy & acceptBid orders", () => {
+describe("buy & acceptBid orders", () => {
 	const { addresses, provider, accounts } = createGanacheProvider()
 	const [account1] = accounts
 	const [buyerAddress, sellerAddress] = addresses
@@ -44,7 +46,7 @@ describe.skip("buy & acceptBid orders", () => {
 		new ethers.Wallet(account1.secretKey, ethersWeb3Provider)
 	)
 
-	const env = "staging" as const
+	const env: EthereumNetwork = "dev-ethereum"
 	const config = getEthereumConfig(env)
 	const apis = createEthereumApis(env)
 
@@ -66,6 +68,8 @@ describe.skip("buy & acceptBid orders", () => {
 		punkAssetMatcher: deployCryptoPunkAssetMatcher(web3),
 	})
 
+	// beforeEach(async () => await delay(500))
+
 	beforeAll(async () => {
 		/**
 		 * Configuring
@@ -74,7 +78,7 @@ describe.skip("buy & acceptBid orders", () => {
 			it.exchangeV2.methods.__ExchangeV2_init(
 				toAddress(it.transferProxy.options.address),
 				toAddress(it.erc20TransferProxy.options.address),
-				toBigNumber("100"),
+				toBigNumber("0"),
 				buyerAddress,
 				toAddress(it.royaltiesProvider.options.address)
 			),
@@ -84,7 +88,7 @@ describe.skip("buy & acceptBid orders", () => {
 		config.exchange.v2 = toAddress(it.exchangeV2.options.address)
 		config.transferProxies.cryptoPunks = toAddress(it.punksTransferProxy.options.address)
 		config.transferProxies.erc20 = toAddress(it.erc20TransferProxy.options.address)
-		config.chainId = 200500
+		// config.chainId = 200500
 
 		await sentTx(it.transferProxy.methods.addOperator(toAddress(it.exchangeV2.options.address)), {
 			from: buyerAddress,
@@ -230,53 +234,16 @@ describe.skip("buy & acceptBid orders", () => {
 			fillCalldata,
 		})
 		const tx = await filler.buy({ order: finalOrder, amount: 1, payouts: [], originFees: [] })
-		const receipt = await tx.wait()
-		console.log("rece", JSON.stringify(receipt, null, " "))
+		await tx.wait()
 		const matchEvent = (await tx.getEvents()).find(e => e.event === "Match")
 		expect(matchEvent).toBeTruthy()
 		expect(matchEvent?.returnValues).toBeTruthy()
 
-		const finishErc20Balance = toBn(await it.testErc20.methods.balanceOf(sellerAddress).call())
+		const finishErc20Balance = toBn(await it.testErc20.methods.balanceOf(buyerAddress).call())
 		const finishErc1155Balance = toBn(await it.testErc1155.methods.balanceOf(buyerAddress, tokenId).call())
 
-		expect(finishErc20Balance.minus(startErc20Balance).toString()).toBe("2")
+		expect(startErc20Balance.minus(finishErc20Balance).toString()).toBe("2")
 		expect(finishErc1155Balance.minus(startErc1155Balance).toString()).toBe("1")
-	})
-
-
-	test("should throw error on match order (on estimateGas)", async () => {
-		//sender1 has ERC20, sender2 has ERC1155
-		const left: SimpleOrder = {
-			make: {
-				assetType: {
-					assetClass: "ERC1155",
-					contract: toAddress(it.testErc1155.options.address),
-					tokenId: toBigNumber("1"),
-				},
-				value: toBigNumber("5"),
-			},
-			maker: sellerAddress,
-			take: {
-				assetType: {
-					assetClass: "ETH",
-				},
-				value: toBigNumber("10"),
-			},
-			salt: randomWord(),
-			type: "RARIBLE_V2",
-			data: {
-				dataType: "RARIBLE_V2_DATA_V1",
-				payouts: [],
-				originFees: [],
-			},
-		}
-		const signature = await signOrder(sellerEthereum, config, left)
-
-		const finalOrder = { ...left, signature }
-		const buyPromise = filler.buy({ order: finalOrder, amount: 2, payouts: [], originFees: [] })
-		expect(buyPromise).rejects.toThrow(
-			"VM Exception while processing transaction: revert ERC1155: caller is not owner nor approved"
-		)
 	})
 
 	test("get transaction data", async () => {
@@ -364,7 +331,8 @@ describe.skip("buy & acceptBid orders", () => {
 			account: randomAddress(),
 			value: 100,
 		}]
-		await filler.buy({ order: finalOrder, amount: 2, originFees })
+		const tx = await filler.buy({ order: finalOrder, amount: 2, originFees })
+		await tx.wait()
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sellerAddress, tokenId).call()).toString()).toBe(
 			before2.minus(2).toFixed()
@@ -417,7 +385,8 @@ describe.skip("buy & acceptBid orders", () => {
 			account: randomAddress(),
 			value: 100,
 		}]
-		await filler.buy({ order: finalOrder, amount: 2, originFees })
+		const tx = await filler.buy({ order: finalOrder, amount: 2, originFees })
+		await tx.wait()
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sellerAddress, 1).call()).toString()).toBe(
 			before2.minus(2).toFixed()
@@ -474,7 +443,7 @@ describe.skip("buy & acceptBid orders", () => {
 		console.log(before2.toString())
 
 		const finalOrder = { ...left, signature }
-		await filler.buy({
+		const tx = await filler.buy({
 			order: finalOrder,
 			amount: 2,
 			originFeeFirst: {
@@ -482,6 +451,7 @@ describe.skip("buy & acceptBid orders", () => {
 				value: 100,
 			},
 		})
+		await tx.wait()
 
 		expect(toBn(await it.testErc1155.methods.balanceOf(sellerAddress, 1).call()).toString()).toBe(
 			before2.minus(2).toFixed()
@@ -534,7 +504,8 @@ describe.skip("buy & acceptBid orders", () => {
 
 
 		const finalOrder = { ...left, signature }
-		await filler.buy({ order: finalOrder, amount: 1, originFees: []})
+		const tx = await filler.buy({ order: finalOrder, amount: 1, originFees: []})
+		await tx.wait()
 
 		const ownerAddress = await it.punksMarket.methods.punkIndexToAddress(punkId).call()
 

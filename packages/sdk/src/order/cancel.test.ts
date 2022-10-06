@@ -1,19 +1,21 @@
-import { awaitAll, createE2eProvider } from "@rarible/ethereum-sdk-test-common"
+import { awaitAll, createE2eProvider, deployTestErc1155 } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum"
 import { toAddress, toBigNumber, toBinary } from "@rarible/types"
-import type { OrderForm } from "@rarible/ethereum-api-client"
+import type { Address, OrderForm } from "@rarible/ethereum-api-client"
 import { Configuration, OrderControllerApi } from "@rarible/ethereum-api-client"
 import { deployTestErc20 } from "@rarible/ethereum-sdk-test-common"
 import { deployTestErc721 } from "@rarible/ethereum-sdk-test-common"
 import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
 import { delay, retry } from "../common/retry"
-import { getSimpleSendWithInjects } from "../common/send-transaction"
+import { getSimpleSendWithInjects, sentTx, sentTxConfirm } from "../common/send-transaction"
 import { createEthereumApis } from "../common/apis"
 import { createRaribleSdk } from "../index"
 import { createErc721V3Collection } from "../common/mint"
 import { MintResponseTypeEnum } from "../nft/mint"
+import { DEV_PK_1 } from "../common/test/private-keys"
+import type { EthereumNetwork } from "../types"
 import { cancel } from "./cancel"
 import { signOrder } from "./sign-order"
 import { UpsertOrder } from "./upsert-order"
@@ -24,13 +26,13 @@ import { ItemType } from "./fill-order/seaport-utils/constants"
 import { createSeaportOrder } from "./test/order-opensea"
 import { awaitOrder } from "./test/await-order"
 import { getOpenseaEthTakeData } from "./test/get-opensea-take-data"
+import { approve as approveTemplate } from "./approve"
 
-describe.skip("cancel order", () => {
-	const { provider, wallet } = createE2eProvider()
+describe("cancel order", () => {
+	const { provider, wallet } = createE2eProvider(DEV_PK_1)
 	const web3 = new Web3(provider)
 	const ethereum = new Web3Ethereum({ web3 })
-	const approve = () => Promise.resolve(undefined)
-	const env = "testnet" as const
+	const env: EthereumNetwork = "dev-ethereum"
 	const config = getEthereumConfig(env)
 	const sign = signOrder.bind(null, ethereum, config)
 	const configuration = new Configuration(getApiConfig(env))
@@ -40,16 +42,38 @@ describe.skip("cancel order", () => {
 
 	const getBaseOrderFee = async () => 0
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
+	const approve = approveTemplate.bind(null, ethereum, send, config.transferProxies)
 	const orderService = new OrderFiller(ethereum, send, config, apis, getBaseOrderFee, env)
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web3, "Test1", "TST1"),
 		testErc721: deployTestErc721(web3, "Test", "TST"),
+		testErc1155: deployTestErc1155(web3, "Test"),
+	})
+	let from: Address
+
+	beforeAll(async () => {
+		from = toAddress(await ethereum.getFrom())
 	})
 
 	test("ExchangeV2 should work", async () => {
+		await sentTxConfirm(it.testErc721.methods.mint(from, "10", "0x"), {from})
 		const form: OrderForm = {
 			...TEST_ORDER_TEMPLATE,
+			make: {
+				assetType: {
+					assetClass: "ERC721",
+					contract: toAddress(it.testErc721.options.address),
+					tokenId: toBigNumber("10"),
+				},
+				value: toBigNumber("10"),
+			},
+			take: {
+				assetType: {
+					assetClass: "ETH",
+				},
+				value: toBigNumber("10"),
+			},
 			salt: toBigNumber("10") as any,
 			maker: toAddress(wallet.getAddressString()),
 			type: "RARIBLE_V2",
@@ -64,15 +88,16 @@ describe.skip("cancel order", () => {
 	})
 
 	test("ExchangeV1 should work", async () => {
+		await sentTx(it.testErc1155.methods.mint(from, "11", 11, "0x"), {from})
 		const form: OrderForm = {
 			...TEST_ORDER_TEMPLATE,
 			make: {
 				assetType: {
-					assetClass: "ERC721",
-					contract: toAddress(it.testErc721.options.address),
-					tokenId: toBigNumber("10"),
+					assetClass: "ERC1155",
+					contract: toAddress(it.testErc1155.options.address),
+					tokenId: toBigNumber("11"),
 				},
-				value: toBigNumber("10"),
+				value: toBigNumber("1"),
 			},
 			take: {
 				assetType: {
@@ -110,7 +135,7 @@ describe.skip("cancel order", () => {
 		const tx = await cancel(checkLazyOrder, ethereum, send, config.exchange, checkWalletChainId, apis, order)
 		await tx.wait()
 
-		const cancelledOrder = await retry(15, 2000, async () => {
+		const cancelledOrder = await retry(15, 3000, async () => {
 			const current = await orderApi.getOrderByHash({ hash: order.hash })
 			if (!current.cancelled) {
 				throw new Error("Order is not cancelled")

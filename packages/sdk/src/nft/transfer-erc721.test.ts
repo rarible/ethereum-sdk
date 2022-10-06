@@ -10,16 +10,16 @@ import { getEthereumConfig } from "../config"
 import { checkChainId } from "../order/check-chain-id"
 import { transferErc721 } from "./transfer-erc721"
 
-describe.skip("transfer Erc721", () => {
+describe("transfer Erc721", () => {
 	const { provider, addresses } = createGanacheProvider()
 	const web3 = new Web3(provider as any)
 	const ethereum = new Web3Ethereum({ web3, gas: 200000 })
 	const [from] = addresses
 	const to = randomAddress()
 
-	const configuration = new Configuration(getApiConfig("testnet"))
+	const configuration = new Configuration(getApiConfig("dev-ethereum"))
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const config = getEthereumConfig("testnet")
+	const config = getEthereumConfig("dev-ethereum")
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 

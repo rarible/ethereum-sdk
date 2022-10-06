@@ -6,7 +6,8 @@ import {
 	NftCollectionControllerApi,
 	NftLazyMintControllerApi,
 } from "@rarible/ethereum-api-client"
-import { toBn } from "@rarible/utils"
+import { BigNumber, toBn } from "@rarible/utils"
+import type { Ethereum } from "@rarible/ethereum-provider"
 import { checkAssetType as checkAssetTypeTemplate } from "../order/check-asset-type"
 import { getSendWithInjects } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
@@ -21,6 +22,7 @@ import { createEthereumApis } from "../common/apis"
 import { getEthereumConfig } from "../config"
 import { checkChainId as checkChainIdTemplate } from "../order/check-chain-id"
 import { retry } from "../common/retry"
+import type { EthereumNetwork } from "../types"
 import type { ERC1155RequestV1, ERC1155RequestV2, ERC721RequestV2, ERC721RequestV3 } from "./mint"
 import { mint as mintTemplate, MintResponseTypeEnum } from "./mint"
 import { signNft } from "./sign-nft"
@@ -29,39 +31,37 @@ import { ERC1155VersionEnum, ERC721VersionEnum } from "./contracts/domain"
 import { getErc721Contract } from "./contracts/erc721"
 import { getErc1155Contract } from "./contracts/erc1155"
 
-const { provider, wallet } = createE2eProvider()
+const { provider, wallet } = createE2eProvider("0x26250bb39160076f030517503da31e11aca80060d14f84ebdaced666efb89e21")
 const { providers } = createTestProviders(provider, wallet)
 
-// describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
-describe.skip("burn nfts", () => {
-	//todo remove and uncomment describe.each
-	const ethereum = providers[0]
+describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 	const testAddress = toAddress(wallet.getAddressString())
-	const configuration = new Configuration(getApiConfig("testnet"))
-	const apis = createEthereumApis("testnet")
+	const env: EthereumNetwork = "dev-ethereum"
+	const configuration = new Configuration(getApiConfig(env))
+	const apis = createEthereumApis(env)
 	const collectionApi = new NftCollectionControllerApi(configuration)
 	const mintLazyApi = new NftLazyMintControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const sign = signNft.bind(null, ethereum, 17)
-	const config = getEthereumConfig("testnet")
+	const sign = signNft.bind(null, ethereum, 300500)
+	const config = getEthereumConfig(env)
 	const checkChainId = checkChainIdTemplate.bind(null, ethereum, config)
 	const send = getSendWithInjects().bind(ethereum, gatewayApi, checkChainId)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, collectionApi)
 	const mint = mintTemplate.bind(null, ethereum, send, sign, collectionApi)
 	const burn = burnTemplate.bind(null, ethereum, send, checkAssetType, apis)
-	const contractErc721 = toAddress("0x87ECcc03BaBC550c919Ad61187Ab597E9E7f7C21")
-	const contractErc1155 = toAddress("0x8812cFb55853da0968a02AaaEA84CD93EC4b42A1")
 
-	const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
-	const e2eErc1155V2ContractAddress = toAddress("0x268dF35c389Aa9e1ce0cd83CF8E5752b607dE90d")
+	const e2eErc721V2ContractAddress = toAddress("0x74bddd22a6b9d8fae5b2047af0e0af02c42b7dae")
+	const e2eErc721V3ContractAddress = toAddress("0x6972347e66A32F40ef3c012615C13cB88Bf681cc")
+	const e2eErc1155V1ContractAddress = toAddress("0x6919dc0cf9d4bcd89727113fbe33e3c24909d6f5")
+	const e2eErc1155V2ContractAddress = toAddress("0x11F13106845CF424ff5FeE7bAdCbCe6aA0b855c1")
 
 	test("should burn ERC-721 v2 token", async () => {
-		const testErc721 = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, contractErc721)
+		const testErc721 = await getErc721Contract(ethereum, ERC721VersionEnum.ERC721V2, e2eErc721V2ContractAddress)
 		const minted = await mint(
 			mintLazyApi,
 			checkChainId,
 			{
-				collection: createErc721V2Collection(contractErc721),
+				collection: createErc721V2Collection(e2eErc721V2ContractAddress),
 				uri: "ipfs://ipfs/hash",
 				royalties: [],
 			} as ERC721RequestV2)
@@ -69,11 +69,10 @@ describe.skip("burn nfts", () => {
 			await minted.transaction.wait()
 		}
 		const testBalance = await testErc721.functionCall("balanceOf", testAddress).call()
-		expect(toBn(testBalance).toString()).toBe("1")
 
 		const burnTx = await burn(checkChainId, {
 			assetType: {
-				contract: contractErc721,
+				contract: e2eErc721V2ContractAddress,
 				tokenId: minted.tokenId,
 			},
 		})
@@ -81,16 +80,17 @@ describe.skip("burn nfts", () => {
 			await burnTx.wait()
 		}
 		const testBalanceAfterBurn = await testErc721.functionCall("balanceOf", testAddress).call()
-		expect(toBn(testBalanceAfterBurn).toString()).toBe("0")
+		console.log(testBalance.toString(), testBalanceAfterBurn.toString())
+		expect(new BigNumber(testBalance.toString()).minus(testBalanceAfterBurn.toString()).toString()).toBe("1")
 	})
 
 	test("should burn ERC-1155 v1 token", async () => {
-		const testErc1155 = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V1, contractErc1155)
+		const testErc1155 = await getErc1155Contract(ethereum, ERC1155VersionEnum.ERC1155V1, e2eErc1155V1ContractAddress)
 		const minted = await mint(
 			mintLazyApi,
 			checkChainId,
 			{
-				collection: createErc1155V1Collection(contractErc1155),
+				collection: createErc1155V1Collection(e2eErc1155V1ContractAddress),
 				uri: "ipfs://ipfs/hash",
 				royalties: [],
 				supply: 100,
@@ -100,7 +100,7 @@ describe.skip("burn nfts", () => {
 		}
 		const burnTx = await burn(checkChainId, {
 			assetType: {
-				contract: contractErc1155,
+				contract: e2eErc1155V1ContractAddress,
 				tokenId: minted.tokenId,
 			},
 			amount: toBigNumber("50"),
@@ -113,7 +113,7 @@ describe.skip("burn nfts", () => {
 		expect(toBn(testBalanceAfterBurn).toString()).toBe("50")
 	})
 
-	test.skip("should burn ERC-721 v3 lazy", async () => {
+	test("should burn ERC-721 v3 lazy", async () => {
 		const minted = await mint(
 			mintLazyApi,
 			checkChainId,
@@ -124,13 +124,19 @@ describe.skip("burn nfts", () => {
 				royalties: [],
 				lazy: true,
 			} as ERC721RequestV3)
-		await burn(checkChainId, {
+		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			await minted.transaction.wait()
+		}
+		const tx = await burn(checkChainId, {
 			assetType: {
 				contract: e2eErc721V3ContractAddress,
 				tokenId: minted.tokenId,
 			},
 			creators: [{ account: toAddress(testAddress), value: 10000 }],
 		})
+		if (tx) {
+			await tx.wait()
+		}
 		await retry(5, 2000, async () => {
 			const nftItemResponse = await apis.nftItem.getNftItemById({
 				itemId: `${e2eErc721V3ContractAddress}:${minted.tokenId}`,
@@ -139,7 +145,7 @@ describe.skip("burn nfts", () => {
 		})
 	})
 
-	test.skip("should burn ERC-1155 v2 lazy", async () => {
+	test("should burn ERC-1155 v2 lazy", async () => {
 		const minted = await mint(mintLazyApi, checkChainId, {
 			collection: createErc1155V2Collection(e2eErc1155V2ContractAddress),
 			uri: "ipfs://ipfs/hash",
@@ -148,7 +154,10 @@ describe.skip("burn nfts", () => {
 			royalties: [],
 			lazy: true,
 		} as ERC1155RequestV2)
-		await burn(checkChainId, {
+		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			await minted.transaction.wait()
+		}
+		const tx = await burn(checkChainId, {
 			assetType: {
 				contract: e2eErc1155V2ContractAddress,
 				tokenId: minted.tokenId,
@@ -156,6 +165,9 @@ describe.skip("burn nfts", () => {
 			amount: toBigNumber("50"),
 			creators: [{ account: toAddress(testAddress), value: 10000 }],
 		})
+		if (tx) {
+			await tx.wait()
+		}
 
 		await retry(5, 2000, async () => {
 			const nftItemResponse = await apis.nftItem.getNftItemById({
@@ -165,7 +177,7 @@ describe.skip("burn nfts", () => {
 		})
 	})
 
-	test.skip("should burn ERC-1155 v2 lazy and burn creators is empty", async () => {
+	test("should burn ERC-1155 v2 lazy and burn creators is empty", async () => {
 		const minted = await mint(mintLazyApi, checkChainId, {
 			collection: createErc1155V2Collection(e2eErc1155V2ContractAddress),
 			uri: "ipfs://ipfs/hash",
@@ -174,13 +186,19 @@ describe.skip("burn nfts", () => {
 			royalties: [],
 			lazy: true,
 		} as ERC1155RequestV2)
-		await burn(checkChainId, {
+		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			await minted.transaction.wait()
+		}
+		const tx = await burn(checkChainId, {
 			assetType: {
 				contract: e2eErc1155V2ContractAddress,
 				tokenId: minted.tokenId,
 			},
 			creators: [],
 		})
+		if (tx) {
+			await tx.wait()
+		}
 
 		await retry(5, 2000, async () => {
 			const nftItemResponse = await apis.nftItem.getNftItemById({

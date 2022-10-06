@@ -78,7 +78,7 @@ describe("Web3Ethereum", () => {
 		const decoded = e2eEthereum.decodeParameter(type,	encoded)
 		for (const field in data) {
 			//@ts-ignore
-			expect(decoded[field]).toEqual(data[field].toString())
+			expect(decoded["data"][field]).toEqual(data[field].toString())
 		}
 	})
 

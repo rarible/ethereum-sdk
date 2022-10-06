@@ -18,6 +18,8 @@ import { createErc721V3Collection } from "../common/mint"
 import type { ERC721RequestV3, MintOffChainResponse} from "../nft/mint"
 import { mint as mintTemplate } from "../nft/mint"
 import { signNft } from "../nft/sign-nft"
+import type { EthereumNetwork } from "../types"
+import { DEV_PK_1, DEV_PK_2 } from "../common/test/private-keys"
 import { OrderBid } from "./bid"
 import { signOrder as signOrderTemplate } from "./sign-order"
 import { OrderFiller } from "./fill-order"
@@ -27,16 +29,16 @@ import { checkChainId } from "./check-chain-id"
 import type { SimpleRaribleV2Order } from "./types"
 import { approve as approveTemplate } from "./approve"
 
-describe.skip("bid", () => {
-	const { provider: provider1 } = createE2eProvider()
+describe("bid", () => {
+	const { provider: provider1 } = createE2eProvider(DEV_PK_1)
 	const web31 = new Web3(provider1)
 	const ethereum1 = new Web3Ethereum({ web3: web31 })
 
-	const { provider: provider2 } = createE2eProvider()
+	const { provider: provider2 } = createE2eProvider(DEV_PK_2)
 	const web32 = new Web3(provider2)
 	const ethereum2 = new Web3Ethereum({ web3: web32 })
 
-	const env = "testnet" as const
+	const env: EthereumNetwork = "dev-ethereum"
 	const configuration = new Configuration(getApiConfig(env))
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const orderApi = new OrderControllerApi(configuration)
@@ -68,11 +70,11 @@ describe.skip("bid", () => {
 	const gatewayApi = new GatewayControllerApi(configuration)
 	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 	const send1 = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId1)
-	const sign1 = signNft.bind(null, ethereum1, 17)
+	const sign1 = signNft.bind(null, ethereum1, 300500)
 	const mint1 = mintTemplate
 		.bind(null, ethereum1, send1, sign1, nftCollectionApi)
 		.bind(null, nftLazyMintApi, checkWalletChainId1)
-	const e2eErc721V3ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
+	const e2eErc721V3ContractAddress = toAddress("0x6972347e66A32F40ef3c012615C13cB88Bf681cc")
 
 	const it = awaitAll({
 		testErc20: deployTestErc20(web32, "Test1", "TST1"),
@@ -129,7 +131,7 @@ describe.skip("bid", () => {
 		await acceptBidTx.wait()
 	})
 
-	test.skip("create bid for erc-721 collection and accept bid with lazy-item", async () => {
+	test("create bid for erc-721 collection and accept bid with lazy-item", async () => {
 		const ownerCollectionAddress = toAddress(await ethereum1.getFrom())
 		const bidderAddress = toAddress(await ethereum2.getFrom())
 

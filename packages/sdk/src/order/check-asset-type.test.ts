@@ -15,23 +15,24 @@ import { createErc721V3Collection } from "../common/mint"
 import { getApiConfig } from "../config/api-config"
 import { createTestProviders } from "../common/create-test-providers"
 import { getEthereumConfig } from "../config"
+import type { EthereumNetwork } from "../types"
+import { DEV_PK_1 } from "../common/test/private-keys"
 import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
 import { checkChainId } from "./check-chain-id"
 
-const { provider, wallet } = createE2eProvider()
+const { provider, wallet } = createE2eProvider(DEV_PK_1)
 const { providers } = createTestProviders(provider, wallet)
 const from = toAddress(wallet.getAddressString())
 
-// describe.each(providers)("check-asset-type test", ethereum => {
-describe.skip("check-asset-type test", () => {
-	const ethereum = providers[0]
-	const e2eErc721ContractAddress = toAddress("0x22f8CE349A3338B15D7fEfc013FA7739F5ea2ff7")
-	const configuration = new Configuration(getApiConfig("testnet"))
+describe.each(providers)("check-asset-type test", ethereum => {
+	const env: EthereumNetwork = "dev-ethereum"
+	const e2eErc721ContractAddress = toAddress("0x6972347e66A32F40ef3c012615C13cB88Bf681cc")
+	const configuration = new Configuration(getApiConfig(env))
 	const nftCollectionApi = new NftCollectionControllerApi(configuration)
 	const nftLazyMintApi = new NftLazyMintControllerApi(configuration)
 	const gatewayApi = new GatewayControllerApi(configuration)
-	const sign = signNft.bind(null, ethereum, 17)
-	const config = getEthereumConfig("testnet")
+	const sign = signNft.bind(null, ethereum, 300500)
+	const config = getEthereumConfig(env)
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSendWithInjects().bind(null, gatewayApi, checkWalletChainId)
 	const checkAssetType = checkAssetTypeTemplate.bind(null, nftCollectionApi)

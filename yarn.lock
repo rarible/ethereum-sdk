@@ -11371,14 +11371,6 @@ web3-eth-abi@1.7.4:
     "@ethersproject/abi" "^5.6.3"
     web3-utils "1.7.4"
 
-web3-eth-abi@^1.3.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/web3-eth-abi/-/web3-eth-abi-1.8.0.tgz#47fdff00bfdfa72064c9c612ff6369986598196d"
-  integrity sha512-xPeMb2hS9YLQK/Q5YZpkcmzoRGM+/R8bogSrYHhNC3hjZSSU0YRH+1ZKK0f9YF4qDZaPMI8tKWIMSCDIpjG6fg==
-  dependencies:
-    "@ethersproject/abi" "^5.6.3"
-    web3-utils "1.8.0"
-
 web3-eth-accounts@1.7.4:
   version "1.7.4"
   resolved "https://registry.yarnpkg.com/web3-eth-accounts/-/web3-eth-accounts-1.7.4.tgz#7a24a4dfe947f7e9d1bae678529e591aa146167a"
@@ -11471,15 +11463,6 @@ web3-net@1.7.4:
     web3-core-method "1.7.4"
     web3-utils "1.7.4"
 
-web3-parse-receipt-events@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/web3-parse-receipt-events/-/web3-parse-receipt-events-1.0.2.tgz#794759d4b2e9222cc99fe354ec46aba31f8eae4a"
-  integrity sha512-rDD7iwIBWx82a8+jbt2WjmPE9wUQPTpIuK7zwNRFQmEmWCiomdmT8e6m2ueLuAGa8gLM4SXGjpgmi7BMEyRcKg==
-  dependencies:
-    debug "^4.2.0"
-    web3-eth-abi "^1.3.0"
-    web3-utils "^1.3.0"
-
 web3-provider-engine@^16.0.1:
   version "16.0.4"
   resolved "https://registry.yarnpkg.com/web3-provider-engine/-/web3-provider-engine-16.0.4.tgz#a6565d85f3cfdc2da68f141af8728f90ad198f3f"
@@ -11546,19 +11529,6 @@ web3-utils@1.7.4, web3-utils@^1.3.4:
   version "1.7.4"
   resolved "https://registry.yarnpkg.com/web3-utils/-/web3-utils-1.7.4.tgz#eb6fa3706b058602747228234453811bbee017f5"
   integrity sha512-acBdm6Evd0TEZRnChM/MCvGsMwYKmSh7OaUfNf5OKG0CIeGWD/6gqLOWIwmwSnre/2WrA1nKGId5uW2e5EfluA==
-  dependencies:
-    bn.js "^5.2.1"
-    ethereum-bloom-filters "^1.0.6"
-    ethereumjs-util "^7.1.0"
-    ethjs-unit "0.1.6"
-    number-to-bn "1.7.0"
-    randombytes "^2.1.0"
-    utf8 "3.0.0"
-
-web3-utils@1.8.0, web3-utils@^1.3.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/web3-utils/-/web3-utils-1.8.0.tgz#0a506f8c6af9a2ad6ba79689892662769534fc03"
-  integrity sha512-7nUIl7UWpLVka2f09CMbKOSEvorvHnaugIabU4mj7zfMvm0tSByLcEu3eyV9qgS11qxxLuOkzBIwCstTflhmpQ==
   dependencies:
     bn.js "^5.2.1"
     ethereum-bloom-filters "^1.0.6"

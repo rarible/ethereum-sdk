@@ -3,6 +3,8 @@ import type { Address, AssetType, OrderForm } from "@rarible/ethereum-api-client
 import type { BigNumber } from "@rarible/types"
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { BigNumberValue } from "@rarible/utils/build/bn"
+import type { AmmTradeInfo } from "@rarible/ethereum-api-client/build/models"
+import type { GetAmmBuyInfoRequest } from "@rarible/ethereum-api-client/build/apis/OrderControllerApi"
 import { getEthereumConfig } from "./config"
 import type { UpsertOrderAction } from "./order/upsert-order"
 import { UpsertOrder } from "./order/upsert-order"
@@ -135,6 +137,13 @@ export interface RaribleOrderSdk {
 	 * Get base fee for filling an order (this fee will be hold by the processing platform - in basis points)
 	 */
 	getBaseOrderFillFee(order: SimpleOrder): Promise<number>
+
+	/**
+	 * Get for buy pricing info from AMM
+   *
+   * @param request AMM hash with amount of NFTs
+   */
+	getBuyAmmInfo(request: GetAmmBuyInfoRequest): Promise<AmmTradeInfo>
 
 	/**
 	 * Cancel order
@@ -305,6 +314,7 @@ export function createRaribleSdk(
 			cancel: partialCall(cancelTemplate, checkLazyOrder, ethereum, send, config.exchange, checkWalletChainId, apis),
 			getBaseOrderFee: getBaseOrderFee,
 			getBaseOrderFillFee: filler.getBaseOrderFillFee,
+			getBuyAmmInfo: filler.getBuyAmmInfo,
 		},
 		auction: {
 			start: startAuctionService.start,

@@ -137,7 +137,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 		if (tx) {
 			await tx.wait()
 		}
-		await retry(5, 2000, async () => {
+		await retry(4, 5000, async () => {
 			const nftItemResponse = await apis.nftItem.getNftItemById({
 				itemId: `${e2eErc721V3ContractAddress}:${minted.tokenId}`,
 			})
@@ -169,7 +169,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 			await tx.wait()
 		}
 
-		await retry(5, 2000, async () => {
+		await retry(4, 5000, async () => {
 			const nftItemResponse = await apis.nftItem.getNftItemById({
 				itemId: `${e2eErc1155V2ContractAddress}:${minted.tokenId}`,
 			})
@@ -200,7 +200,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 			await tx.wait()
 		}
 
-		await retry(5, 2000, async () => {
+		await retry(4, 5000, async () => {
 			const nftItemResponse = await apis.nftItem.getNftItemById({
 				itemId: `${e2eErc1155V2ContractAddress}:${minted.tokenId}`,
 			})

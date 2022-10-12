@@ -1,8 +1,9 @@
 export function getBlockchainFromChainId(chainId: number): EVMBlockchain {
 	switch (chainId) {
 		case 1:
-		case 4:
 		case 3:
+		case 4:
+		case 5:
 		case 17:
 		case 200500:
 		case 300500:

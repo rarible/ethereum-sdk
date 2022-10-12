@@ -29,7 +29,6 @@ import { checkChainId } from "../check-chain-id"
 import { createRaribleSdk } from "../../index"
 import { FILL_CALLDATA_TAG } from "../../config/common"
 import type { EthereumNetwork } from "../../types"
-import { retry } from "../../common/retry"
 import { OrderFiller } from "./index"
 
 describe("buy & acceptBid orders", () => {

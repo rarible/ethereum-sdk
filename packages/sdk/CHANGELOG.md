@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.104](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.103...v0.12.104) (2022-10-12)
+
+
+### Bug Fixes
+
+* goerli network utils ([#200](https://github.com/rarible/protocol-ethereum-sdk/issues/200)) ([cb81dc0](https://github.com/rarible/protocol-ethereum-sdk/commit/cb81dc0fae87cfd52e34962ba348b66400542336))
+
+
+
+
+
 ## [0.12.103](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.102...v0.12.103) (2022-10-06)
 
 

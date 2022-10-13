@@ -12,7 +12,7 @@ import { checkChainId } from "../order/check-chain-id"
 import { getEthereumConfig } from "../config"
 import type { EthereumNetwork } from "../types"
 import { createPendingLogs, getSendWithInjects } from "./send-transaction"
-import { DEV_PK_1 } from "./test/private-keys"
+import { DEV_PK_1 } from "./test/test-credentials"
 
 describe("sendTransaction", () => {
 	const { provider, wallet } = createE2eProvider(DEV_PK_1)

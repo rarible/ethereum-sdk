@@ -16,7 +16,7 @@ import { getApiConfig } from "../config/api-config"
 import { createTestProviders } from "../common/create-test-providers"
 import { getEthereumConfig } from "../config"
 import type { EthereumNetwork } from "../types"
-import { DEV_PK_1 } from "../common/test/private-keys"
+import { DEV_PK_1 } from "../common/test/test-credentials"
 import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
 import { checkChainId } from "./check-chain-id"
 

@@ -6,7 +6,7 @@ import { getSendWithInjects } from "../common/send-transaction"
 import { getApiConfig } from "../config/api-config"
 import { getEthereumConfig } from "../config"
 import { checkChainId } from "../order/check-chain-id"
-import { DEV_PK_1 } from "../common/test/private-keys"
+import { DEV_PK_1 } from "../common/test/test-credentials"
 import type { EthereumNetwork } from "../types"
 import { DeployErc1155 } from "./deploy-erc1155"
 

@@ -102,6 +102,7 @@ export class OrderFiller {
 			send,
 			config,
 			getBaseOrderFee,
+			apis,
 			env,
 			sdkConfig
 		)

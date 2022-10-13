@@ -13,22 +13,19 @@ import { createErc1155V2Collection, createErc721V3Collection } from "../../commo
 import { MintResponseTypeEnum } from "../../nft/mint"
 import { awaitOwnership } from "../test/await-ownership"
 import { FILL_CALLDATA_TAG } from "../../config/common"
+import { DEV_PK_1, DEV_PK_2, GOERLI_CONFIG } from "../../common/test/test-credentials"
 import { makeRaribleSellOrder } from "./looksrare-utils/create-order"
 
-describe.skip("looksrare fill", () => {
-	const providerConfig = {
-		networkId: 4,
-		rpcUrl: "https://node-rinkeby.rarible.com",
-	}
+describe("looksrare fill", () => {
 	const {provider: providerBuyer} = createE2eProvider(
-		"0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a",
-		providerConfig
+		DEV_PK_1,
+		GOERLI_CONFIG
 	)
 	const {provider: providerSeller} = createE2eProvider(
-		"0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c",
-		providerConfig
+		DEV_PK_2,
+		GOERLI_CONFIG
 	)
-	const {wallet: feeWallet} = createE2eProvider(undefined, providerConfig)
+	const {wallet: feeWallet} = createE2eProvider(undefined, GOERLI_CONFIG)
 	const web3Seller = new Web3(providerSeller as any)
 	const ethereumSeller = new Web3Ethereum({
 		web3: web3Seller,
@@ -48,13 +45,14 @@ describe.skip("looksrare fill", () => {
 
 	const buyerEthersWeb3ProviderEthereum = new EthersWeb3ProviderEthereum(buyerEthersWeb3Provider)
 	const buyerEthersEthereum =	new EthersEthereum(
-		new ethers.Wallet("0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a", buyerEthersWeb3Provider)
+		new ethers.Wallet(DEV_PK_1, buyerEthersWeb3Provider)
 	)
 
 	const sdkBuyer = createRaribleSdk(buyerWeb3, "testnet")
 	const sdkSeller = createRaribleSdk(ethereumSeller, "testnet")
 
 	const rinkebyErc721V3ContractAddress = toAddress("0x6ede7f3c26975aad32a475e1021d8f6f39c89d82")
+	const goerliErc721V3ContractAddress = toAddress("0x1723017329a804564bC8d215496C89eaBf1F3211")
 	const rinkebyErc1155V2ContractAddress = toAddress("0x1af7a7555263f275433c6bb0b8fdcd231f89b1d7")
 	const originFeeAddress = toAddress(feeWallet.getAddressString())
 
@@ -63,13 +61,17 @@ describe.skip("looksrare fill", () => {
 	const checkWalletChainId = checkChainId.bind(null, ethereum, config)
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
 
-	test.skip("fill erc 721", async () => {
+	test("fill erc 721", async () => {
+		console.log("addr", await ethereumSeller.getFrom())
+		// if ("asd" == "asd") {
+		// 	throw new Error("Looksrare contract has not been set")
+		// }
 		if (!config.exchange.looksrare) {
 			throw new Error("Looksrare contract has not been set")
 		}
 
 		const sellItem = await sdkSeller.nft.mint({
-			collection: createErc721V3Collection(rinkebyErc721V3ContractAddress),
+			collection: createErc721V3Collection(goerliErc721V3ContractAddress),
 			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
 			royalties: [],
 			lazy: false,

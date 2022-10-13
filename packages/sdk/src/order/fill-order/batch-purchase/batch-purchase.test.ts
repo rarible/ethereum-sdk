@@ -17,18 +17,18 @@ import type { Address, Asset, Part } from "@rarible/ethereum-api-client"
 import { randomWord, toAddress, toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 import { toBn } from "@rarible/utils/build/bn"
 import type { BigNumber } from "@rarible/utils"
-import { getSimpleSendWithInjects, sentTx } from "../../../../common/send-transaction"
-import type { EthereumConfig } from "../../../../config/type"
-import { getEthereumConfig } from "../../../../config"
-import { id32 } from "../../../../common/id"
-import type { SimpleOrder, SimpleRaribleV2Order } from "../../../types"
-import { createEthereumApis } from "../../../../common/apis"
-import { checkChainId } from "../../../check-chain-id"
-import { signOrder } from "../../../sign-order"
-import { BatchOrderFiller } from "../batch-purchase"
-import { createRaribleSdk } from "../../../../index"
-import type { EthereumNetwork } from "../../../../types"
-import { DEV_PK_1, DEV_PK_2 } from "../../../../common/test/private-keys"
+import { getSimpleSendWithInjects, sentTx } from "../../../common/send-transaction"
+import type { EthereumConfig } from "../../../config/type"
+import { getEthereumConfig } from "../../../config"
+import { id32 } from "../../../common/id"
+import type { SimpleOrder, SimpleRaribleV2Order } from "../../types"
+import { createEthereumApis } from "../../../common/apis"
+import { checkChainId } from "../../check-chain-id"
+import { signOrder } from "../../sign-order"
+import { createRaribleSdk } from "../../../index"
+import type { EthereumNetwork } from "../../../types"
+import { DEV_PK_1, DEV_PK_2 } from "../../../common/test/test-credentials"
+import { BatchOrderFiller } from "./batch-purchase"
 import {
 	checkOwnerships,
 	makeAmmOrder,
@@ -36,12 +36,12 @@ import {
 	makeRaribleV2Order,
 	makeSeaportOrder,
 	ordersToRequests,
-} from "./common/utils"
+} from "./test/common/utils"
 
-describe.skip("Batch purchase", function () {
+describe("Batch purchase", function () {
 	const providerConfig = {
-		networkId: 4,
-		rpcUrl: "https://node-rinkeby.rarible.com",
+		networkId: 5,
+		rpcUrl: "https://goerli-ethereum-node.rarible.com",
 	}
 	const { provider: providerBuyer } = createE2eProvider(DEV_PK_1, providerConfig)
 	const { provider: providerSeller } = createE2eProvider(DEV_PK_2, providerConfig)

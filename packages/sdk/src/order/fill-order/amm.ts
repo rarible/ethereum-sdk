@@ -3,16 +3,18 @@ import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Part } from "@rarible/ethereum-api-client"
 import type { BigNumber } from "@rarible/types"
 import { toBigNumber } from "@rarible/types/build/big-number"
+import type { NftItemRoyalty } from "@rarible/ethereum-api-client/build/models/NftItemRoyalty"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
 import { getRequiredWallet } from "../../common/get-required-wallet"
 import type { SimpleOrder } from "../types"
 import type { EthereumNetwork, IRaribleEthereumSdkConfig } from "../../types"
 import { createExchangeWrapperContract } from "../contracts/exchange-wrapper"
+import type { RaribleEthereumApis } from "../../common/apis"
 import type { OrderFillSendData, AmmOrderFillRequest } from "./types"
 import { SudoswapFill } from "./amm/sudoswap-fill"
 import type { PreparedOrderRequestDataForExchangeWrapper } from "./types"
-import { calcValueWithFees, originFeeValueConvert } from "./common/origin-fees-utils"
+import { calcValueWithFees, encodeBasisPointsPlusAccount, originFeeValueConvert } from "./common/origin-fees-utils"
 import { ExchangeWrapperOrderType } from "./types"
 
 export class AmmOrderHandler {
@@ -21,6 +23,7 @@ export class AmmOrderHandler {
 		private readonly send: SendFunction,
 		private readonly config: EthereumConfig,
 		private readonly getBaseOrderFeeConfig: (type: SimpleOrder["type"]) => Promise<number>,
+		private readonly apis: RaribleEthereumApis,
 		private readonly env: EthereumNetwork,
 		private readonly sdkConfig?: IRaribleEthereumSdkConfig,
 		private readonly options: {directBuy: boolean} = {directBuy: false},
@@ -51,6 +54,27 @@ export class AmmOrderHandler {
 				fees: encodedFeesValue,
 				data: await fillData.functionCall.getData(),
 			}
+			if (request.addRoyalty && request.assetType) {
+				const royalties = await this.apis.nftItem.getNftItemRoyaltyById({
+					itemId: `${request.assetType.contract}:${request.assetType.tokenId}`,
+				})
+				console.log("royalties", royalties)
+
+				if (royalties.royalty?.length) {
+					data.data = ethereum.encodeParameter(ADDITIONAL_DATA_STRUCT, {
+						data: await fillData.functionCall.getData(),
+						additionalRoyalties: royalties.royalty.map(
+							royalty => encodeBasisPointsPlusAccount(royalty.value, royalty.account)
+						),
+					})
+					const firstFee = request.originFees?.[0]?.value?.toString(16).padStart(4, "0") ?? "0000"
+					const secondFee = request.originFees?.[1]?.value?.toString(16).padStart(4, "0") ?? "0000"
+					if (firstFee.length > 4 || secondFee.length > 4) {
+						throw new Error("Decrease origin fees values")
+					}
+					data.fees = toBigNumber("0x1" + firstFee + secondFee)
+				}
+			}
 
 			const functionCall = wrapperContract.functionCall(
 				"singlePurchase",
@@ -75,7 +99,7 @@ export class AmmOrderHandler {
 		let fillData: OrderFillSendData
 		switch (request.order.data.dataType) {
 			case "SUDOSWAP_AMM_DATA_V1":
-				fillData = await SudoswapFill.getDirectFillData(ethereum, request, this.config, this.sdkConfig)
+				fillData = await SudoswapFill.getDirectFillData(ethereum, request, this.apis, this.config, this.sdkConfig)
 				break
 			default:
 				throw new Error("Unsupported order data type " + request.order.data.dataType)
@@ -126,4 +150,19 @@ export class AmmOrderHandler {
 	getOrderFee(): number {
 		return 0
 	}
+}
+
+export const ADDITIONAL_DATA_STRUCT = {
+	components: [
+		{
+			name: "data",
+			type: "bytes",
+		},
+		{
+			name: "additionalRoyalties",
+			type: "uint[]",
+		},
+	],
+	name: "data",
+	type: "tuple",
 }

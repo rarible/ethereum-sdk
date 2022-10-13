@@ -35,7 +35,7 @@ export const devEthereumConfig: EthereumConfig = {
 		wrapperContract: ZERO_ADDRESS,
 	},
 	sudoswap: {
-		pairFactory: ZERO_ADDRESS,
+		pairFactory: toAddress("0x1af70c6e674b09d58a55c8fedc7578b59938ec6c"),
 		pairRouter: ZERO_ADDRESS,
 	},
 	weth: toAddress("0x55eB2809896aB7414706AaCDde63e3BBb26e0BC6"),

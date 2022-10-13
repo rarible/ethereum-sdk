@@ -58,7 +58,11 @@ export type X2Y2OrderFillRequest = CommonFillRequest<SimpleX2Y2Order> & { origin
 
 export type LooksrareOrderFillRequest = CommonFillRequest<SimpleLooksrareOrder> & { originFees?: Part[] }
 
-export type AmmOrderFillRequest = CommonFillRequest<SimpleAmmOrder> & { originFees?: Part[] }
+export type AmmOrderFillRequest = CommonFillRequest<SimpleAmmOrder> & {
+	originFees?: Part[],
+	addRoyalty?: boolean
+	assetType: CommonFillRequestAssetType | CommonFillRequestAssetType[]
+}
 
 export type CryptoPunksOrderFillRequest = CommonFillRequest<SimpleCryptoPunkOrder>
 

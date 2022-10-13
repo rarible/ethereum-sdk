@@ -11,7 +11,7 @@ import { signOrder } from "../sign-order"
 import type { SimpleLegacyOrder, SimpleOrder } from "../types"
 import { createEthereumApis } from "../../common/apis"
 import { checkChainId } from "../check-chain-id"
-import { DEV_PK_1, DEV_PK_2 } from "../../common/test/private-keys"
+import { DEV_PK_1, DEV_PK_2 } from "../../common/test/test-credentials"
 import { OrderFiller } from "./"
 
 describe("test exchange v1 order", () => {

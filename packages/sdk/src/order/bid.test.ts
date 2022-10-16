@@ -80,10 +80,11 @@ describe.each(providers)("bid", (ethereum) => {
 
 	const erc20Contract = toAddress("0xfcaEB56C49b9eb2EA0a18992603F566a18E9db68")
 	beforeAll(async () => {
-		await send(
+		const tx = await send(
 			createErc20Contract(ethereum, erc20Contract)
 				.functionCall("mint", await ethereum.getFrom(), 1000)
 		)
+		await tx.wait()
 	})
 
 	test("create and update of v2 works", async () => {
@@ -125,7 +126,7 @@ describe.each(providers)("bid", (ethereum) => {
 		expect(order.hash).toBeTruthy()
 
 		await retry(5, 2000, async () => {
-			const nextPrice = "40000000000000000"
+			const nextPrice = "150"
 			const updatedOrder = await orderSell.update({
 				orderHash: order.hash,
 				price: toBigNumber(nextPrice),
@@ -148,6 +149,9 @@ describe.each(providers)("bid", (ethereum) => {
 			royalties: [],
 			lazy: false,
 		} as ERC721RequestV3)
+		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			await minted.transaction.wait()
+		}
 
 		const form: OrderForm = {
 			...TEST_ORDER_TEMPLATE,
@@ -165,7 +169,7 @@ describe.each(providers)("bid", (ethereum) => {
 					assetClass: "ERC20",
 					contract: erc20Contract,
 				},
-				value: toBigNumber("10000000000000000"),
+				value: toBigNumber("200"),
 			},
 			salt: toBigNumber("10"),
 			type: "RARIBLE_V1",
@@ -178,7 +182,7 @@ describe.each(providers)("bid", (ethereum) => {
 		const order = await upserter.upsert({ order: form })
 
 		await retry(5, 2000, async () => {
-			const nextPrice = "20000000000000000"
+			const nextPrice = "250"
 			const updatedOrder = await orderSell.update({
 				orderHash: order.hash,
 				price: toBigNumber(nextPrice),

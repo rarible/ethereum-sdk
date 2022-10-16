@@ -16,7 +16,7 @@ import { FILL_CALLDATA_TAG } from "../../config/common"
 import { DEV_PK_1, DEV_PK_2, GOERLI_CONFIG } from "../../common/test/test-credentials"
 import { makeRaribleSellOrder } from "./looksrare-utils/create-order"
 
-describe("looksrare fill", () => {
+describe.skip("looksrare fill", () => {
 	const {provider: providerBuyer} = createE2eProvider(
 		DEV_PK_1,
 		GOERLI_CONFIG
@@ -51,9 +51,8 @@ describe("looksrare fill", () => {
 	const sdkBuyer = createRaribleSdk(buyerWeb3, "testnet")
 	const sdkSeller = createRaribleSdk(ethereumSeller, "testnet")
 
-	const rinkebyErc721V3ContractAddress = toAddress("0x6ede7f3c26975aad32a475e1021d8f6f39c89d82")
 	const goerliErc721V3ContractAddress = toAddress("0x1723017329a804564bC8d215496C89eaBf1F3211")
-	const rinkebyErc1155V2ContractAddress = toAddress("0x1af7a7555263f275433c6bb0b8fdcd231f89b1d7")
+	const goerliErc1155V2ContractAddress = toAddress("0xe46D6235f3488B8Ce8AA054e8E5bc0aE86146145")
 	const originFeeAddress = toAddress(feeWallet.getAddressString())
 
 	const config = getEthereumConfig("testnet")
@@ -62,10 +61,6 @@ describe("looksrare fill", () => {
 	const send = getSimpleSendWithInjects().bind(null, checkWalletChainId)
 
 	test("fill erc 721", async () => {
-		console.log("addr", await ethereumSeller.getFrom())
-		// if ("asd" == "asd") {
-		// 	throw new Error("Looksrare contract has not been set")
-		// }
 		if (!config.exchange.looksrare) {
 			throw new Error("Looksrare contract has not been set")
 		}
@@ -107,13 +102,13 @@ describe("looksrare fill", () => {
 		await tx.wait()
 	})
 
-	test.skip("fill erc 1155", async () => {
+	test("fill erc 1155", async () => {
 		if (!config.exchange.looksrare) {
 			throw new Error("Looksrare contract has not been set")
 		}
 
 		const sellItem = await sdkSeller.nft.mint({
-			collection: createErc1155V2Collection(rinkebyErc1155V2ContractAddress),
+			collection: createErc1155V2Collection(goerliErc1155V2ContractAddress),
 			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
 			royalties: [],
 			lazy: false,
@@ -185,7 +180,7 @@ describe("looksrare fill", () => {
 			throw new Error("Looksrare contract has not been set")
 		}
 		const sellItem = await sdkSeller.nft.mint({
-			collection: createErc721V3Collection(rinkebyErc721V3ContractAddress),
+			collection: createErc721V3Collection(goerliErc721V3ContractAddress),
 			uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
 			royalties: [],
 			lazy: false,

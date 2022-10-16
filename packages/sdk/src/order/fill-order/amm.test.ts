@@ -9,22 +9,18 @@ import { getSimpleSendWithInjects } from "../../common/send-transaction"
 import { checkChainId } from "../check-chain-id"
 import { retry } from "../../common/retry"
 import type { SimpleOrder } from "../types"
-import { DEV_PK_1, DEV_PK_2 } from "../../common/test/test-credentials"
+import { DEV_PK_1, DEV_PK_2, GOERLI_CONFIG } from "../../common/test/test-credentials"
 import type { EthereumNetwork } from "../../types"
 import { mintTokensToNewSudoswapPool } from "./amm/test/utils"
 
 describe("amm", () => {
-	const providerConfig = {
-		networkId: 5,
-		rpcUrl: "https://goerli-ethereum-node.rarible.com",
-	}
 	const { provider: providerSeller } = createE2eProvider(
 		DEV_PK_2,
-		providerConfig,
+		GOERLI_CONFIG,
 	)
 	const { provider: providerBuyer } = createE2eProvider(
 		DEV_PK_1,
-		providerConfig,
+		GOERLI_CONFIG,
 	)
 
 	const env: EthereumNetwork = "testnet"

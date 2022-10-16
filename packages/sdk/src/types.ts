@@ -28,6 +28,7 @@ export interface IRaribleEthereumSdkConfig {
 	ethereum?: EthereumNetworkConfig
 	polygon?: EthereumNetworkConfig
 	fillCalldata?: Binary
+	apiKey?: string
 }
 
 export interface EthereumNetworkConfig {

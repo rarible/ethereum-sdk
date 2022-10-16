@@ -56,15 +56,20 @@ export function createRemoteLogger(context: {
 	ethereum: Maybe<Ethereum>,
 	env: Environment,
 	sessionId?: string,
+	apiKey?: string,
 }): RemoteLogger {
 	const getContext = async () => {
-		return {
+		const data: Record<string, string> = {
 			service: loggerConfig.service,
 			environment: context.env,
 			sessionId: context.sessionId ?? getRandomId("ethereum"),
 			"web3Address": (await context.ethereum?.getFrom()) ?? "unknown",
 			"ethNetwork": (await context.ethereum?.getChainId())?.toString() ?? "unknown",
 		}
+		if (context.apiKey !== undefined) {
+			data.apiKey = context.apiKey
+		}
+		return data
 	}
 
 	return new RemoteLogger((msg) => axios.post(loggerConfig.elkUrl, msg), {

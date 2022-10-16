@@ -25,6 +25,7 @@ export interface LogsConfig {
 export interface IRaribleEthereumSdkConfig {
 	apiClientParams?: ConfigurationParameters
 	logs?: LogsConfig
+	loggingContext?: any
 	ethereum?: EthereumNetworkConfig
 	polygon?: EthereumNetworkConfig
 	fillCalldata?: Binary

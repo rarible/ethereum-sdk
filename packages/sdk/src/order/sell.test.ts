@@ -12,7 +12,7 @@ import { toBn } from "@rarible/utils"
 import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
 import type { ERC721RequestV3 } from "../nft/mint"
-import { mint as mintTemplate } from "../nft/mint"
+import { mint as mintTemplate, MintResponseTypeEnum } from "../nft/mint"
 import { createTestProviders } from "../common/create-test-providers"
 import { getSendWithInjects } from "../common/send-transaction"
 import { signNft as signNftTemplate } from "../nft/sign-nft"
@@ -79,6 +79,9 @@ describe.each(providers)("sell", (ethereum) => {
 			royalties: [],
 			lazy: false,
 		} as ERC721RequestV3)
+		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			await minted.transaction.wait()
+		}
 
 		const order = await orderSell.sell({
 			type: "DATA_V2",
@@ -130,6 +133,10 @@ describe.each(providers)("sell", (ethereum) => {
 			royalties: [],
 			lazy: false,
 		} as ERC721RequestV3)
+
+		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			await minted.transaction.wait()
+		}
 
 		const form: OrderForm = {
 			...TEST_ORDER_TEMPLATE,

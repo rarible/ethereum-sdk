@@ -245,7 +245,12 @@ export function createRaribleSdk(
 
 	const sendWithInjects = partialCall(getSendWithInjects({
 		logger: {
-			instance: createRemoteLogger({ethereum, env: getEnvironment(env), sessionId: sdkConfig?.logs?.session}),
+			instance: createRemoteLogger({
+				ethereum,
+				env: getEnvironment(env),
+				sessionId: sdkConfig?.logs?.session,
+				apiKey: sdkConfig?.apiKey,
+			}),
 			level: sdkConfig?.logs?.level ?? LogsLevel.DISABLED,
 		},
 	}), apis.gateway)

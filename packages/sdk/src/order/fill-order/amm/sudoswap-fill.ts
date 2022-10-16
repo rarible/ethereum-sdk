@@ -2,6 +2,10 @@ import type { BigNumber } from "@rarible/types"
 import { toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import { Warning } from "@rarible/logger/build"
+import type { NftItemRoyalty } from "@rarible/ethereum-api-client/build/models/NftItemRoyalty"
+import type { BigNumberValue} from "@rarible/utils/build/bn"
+import { toBn } from "@rarible/utils/build/bn"
+import { BigNumber as BigNum } from "@rarible/utils"
 import type { AmmOrderFillRequest, OrderFillSendData } from "../types"
 import type { EthereumConfig } from "../../../config/type"
 import { createSudoswapRouterV1Contract } from "../../contracts/sudoswap-router-v1"
@@ -25,7 +29,7 @@ export class SudoswapFill {
 		switch (order.make.assetType.assetClass) {
 			case "ERC721":
 				if (request.assetType) {
-					throw new Warning("Remove assetType from request, because it should be captured from order")
+					throw new Warning("Remove assetType from request, because it must be captured from order")
 				}
 				fillData = await this.buySpecificNFTs(ethereum, request, config, [order.make.assetType.tokenId])
 				break
@@ -135,5 +139,14 @@ export class SudoswapFill {
 		}
 	}
 
+	static getRoyaltiesAmount(royalty: NftItemRoyalty[], value: BigNumberValue) {
+		const royaltiesBasisPoints = royalty.reduce((acc, item) => {
+			return acc += item.value
+		}, 0)
+		return toBn(royaltiesBasisPoints)
+			.dividedBy(10000)
+			.multipliedBy(value)
+			.integerValue(BigNum.ROUND_FLOOR)
+	}
 
 }

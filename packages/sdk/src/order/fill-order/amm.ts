@@ -3,7 +3,7 @@ import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
 import type { Part } from "@rarible/ethereum-api-client"
 import type { BigNumber } from "@rarible/types"
 import { toBigNumber } from "@rarible/types/build/big-number"
-import type { NftItemRoyalty } from "@rarible/ethereum-api-client/build/models/NftItemRoyalty"
+import { toBn } from "@rarible/utils/build/bn"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
 import { getRequiredWallet } from "../../common/get-required-wallet"
@@ -46,7 +46,7 @@ export class AmmOrderHandler {
 			const wrapperContract = createExchangeWrapperContract(ethereum, this.config.exchange.wrapper)
 
 			const { totalFeeBasisPoints, encodedFeesValue, feeAddresses } = originFeeValueConvert(request.originFees)
-			const valueForSending = calcValueWithFees(toBigNumber(fillData.options.value?.toString() ?? "0"), totalFeeBasisPoints)
+			let valueForSending = calcValueWithFees(toBigNumber(fillData.options.value?.toString() ?? "0"), totalFeeBasisPoints)
 
 			const data = {
 				marketId: ExchangeWrapperOrderType.AAM,
@@ -58,15 +58,21 @@ export class AmmOrderHandler {
 				const royalties = await this.apis.nftItem.getNftItemRoyaltyById({
 					itemId: `${request.assetType.contract}:${request.assetType.tokenId}`,
 				})
-				console.log("royalties", royalties)
 
 				if (royalties.royalty?.length) {
-					data.data = ethereum.encodeParameter(ADDITIONAL_DATA_STRUCT, {
+					const dataForEncoding = {
 						data: await fillData.functionCall.getData(),
 						additionalRoyalties: royalties.royalty.map(
 							royalty => encodeBasisPointsPlusAccount(royalty.value, royalty.account)
 						),
-					})
+					}
+					data.data = ethereum.encodeParameter(ADDITIONAL_DATA_STRUCT, dataForEncoding)
+
+					const royaltiesAmount = SudoswapFill.getRoyaltiesAmount(
+						royalties.royalty,
+						fillData.options.value?.toString() ?? 0
+					)
+					valueForSending = toBn(valueForSending.plus(royaltiesAmount).toString())
 					const firstFee = request.originFees?.[0]?.value?.toString(16).padStart(4, "0") ?? "0000"
 					const secondFee = request.originFees?.[1]?.value?.toString(16).padStart(4, "0") ?? "0000"
 					if (firstFee.length > 4 || secondFee.length > 4) {

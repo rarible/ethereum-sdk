@@ -5,3 +5,8 @@ export const GOERLI_CONFIG = {
 	rpcUrl: "https://goerli-ethereum-node.rarible.com",
 	networkId: 5,
 }
+
+export const MAINNET_CONFIG = {
+	rpcUrl: "https://node-mainnet.rarible.com",
+	networkId: 1,
+}

@@ -16,19 +16,22 @@ import { makeRaribleSellOrder } from "../../../looksrare-utils/create-order"
 import type { EthereumConfig } from "../../../../../config/type"
 import { mintTokensToNewSudoswapPool } from "../../../amm/test/utils"
 
-// const devErc721V3ContractAddress = toAddress("0x6972347e66A32F40ef3c012615C13cB88Bf681cc")
 const goerliErc721V3ContractAddress = toAddress("0x1723017329a804564bC8d215496C89eaBf1F3211")
-// const rinkebyErc1155V2ContractAddress = toAddress("0x1af7a7555263f275433c6bb0b8fdcd231f89b1d7")
 
 export async function mintTestToken(sdk: RaribleSdk) {
 	const sellItem = await sdk.nft.mint({
-		// collection: createErc721V3Collection(goerliErc721V3ContractAddress),
 		collection: createErc721V3Collection(goerliErc721V3ContractAddress),
 		uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
-		royalties: [{
-			account: toAddress("0xEE5DA6b5cDd5b5A22ECEB75b84C7864573EB4FeC"),
-			value: 1000,
-		}],
+		royalties: [
+			{
+				account: toAddress("0x8508317a912086b921F6D2532f65e343C8140Cc8"),
+				value: 1000,
+			},
+			{
+				account: toAddress("0xEE5DA6b5cDd5b5A22ECEB75b84C7864573EB4FeC"),
+				value: 1000,
+			},
+		],
 		lazy: false,
 	})
 	if (sellItem.type === MintResponseTypeEnum.ON_CHAIN) {

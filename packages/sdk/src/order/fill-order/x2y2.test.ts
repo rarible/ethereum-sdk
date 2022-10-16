@@ -1,19 +1,15 @@
 import { createE2eProvider } from "@rarible/ethereum-sdk-test-common"
 import Web3 from "web3"
 import { Web3Ethereum } from "@rarible/web3-ethereum/build"
-import { toAddress, toBigNumber, toWord } from "@rarible/types"
+import { toAddress } from "@rarible/types"
 import type { X2Y2Order } from "@rarible/ethereum-api-client"
 import { createRaribleSdk } from "../../index"
+import { DEV_PK_1 } from "../../common/test/test-credentials"
 
 // x2y2 works only on mainnet
 describe("x2y2", () => {
-	const providerConfig = {
-		networkId: 1,
-		rpcUrl: "https://node-mainnet.rarible.com",
-	}
 	const { provider: providerBuyer } = createE2eProvider(
-		"0x00120de4b1518cf1f16dc1b02f6b4a8ac29e870174cb1d8575f578480930250a",
-		providerConfig,
+		DEV_PK_1,
 	)
 
 	const buyerWeb3 = new Web3Ethereum({ web3: new Web3(providerBuyer as any), gas: 3000000 })
@@ -21,7 +17,7 @@ describe("x2y2", () => {
 
 	test("try to fill order", async () => {
 		const order = await sdkBuyer.apis.order.getOrderByHash({
-			hash: "0x63f5861c4abbe917c9dd3869ed82918c596cab82d53a2479f143f2ac989321fb",
+			hash: "0xc58a775f541930cad235d8eb024c8214d01a782d0dd96b109ecc9e47654dc551",
 		})
 		const tx = await sdkBuyer.order.buy({
 			order: order as X2Y2Order,

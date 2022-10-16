@@ -54,6 +54,7 @@ export function getSendWithInjects(injects: {
 						message: JSON.stringify(getTxData(tx)),
 						args: JSON.stringify(callInfo.args),
 						provider: callInfo.provider,
+						loggingContext: injects.logger?.loggingContext,
 					})
 				}
 			} catch (e) {
@@ -77,6 +78,7 @@ export function getSendWithInjects(injects: {
 						from: callInfo.from,
 						provider: callInfo.provider,
 						args: JSON.stringify(callInfo.args),
+						loggingContext: injects.logger?.loggingContext,
 						data,
 					})
 				}

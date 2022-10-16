@@ -81,6 +81,7 @@ export function createRemoteLogger(context: {
 export interface ILoggerConfig {
 	instance: AbstractLogger
 	level: LogsLevel
+	loggingContext?: any
 }
 
 export enum NetworkErrorCode {

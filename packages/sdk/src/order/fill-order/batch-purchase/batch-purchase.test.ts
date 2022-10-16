@@ -27,7 +27,7 @@ import { checkChainId } from "../../check-chain-id"
 import { signOrder } from "../../sign-order"
 import { createRaribleSdk } from "../../../index"
 import type { EthereumNetwork } from "../../../types"
-import { DEV_PK_1, DEV_PK_2, MAINNET_CONFIG } from "../../../common/test/test-credentials"
+import { DEV_PK_1, DEV_PK_2, GOERLI_CONFIG } from "../../../common/test/test-credentials"
 import { BatchOrderFiller } from "./batch-purchase"
 import {
 	checkOwnerships,
@@ -38,11 +38,11 @@ import {
 	ordersToRequests,
 } from "./test/common/utils"
 
-describe("Batch purchase", function () {
-	const { provider: providerBuyer } = createE2eProvider(DEV_PK_1, MAINNET_CONFIG)
-	const { provider: providerSeller } = createE2eProvider(DEV_PK_2, MAINNET_CONFIG)
+describe.skip("Batch purchase", function () {
+	const { provider: providerBuyer } = createE2eProvider(DEV_PK_1, GOERLI_CONFIG)
+	const { provider: providerSeller } = createE2eProvider(DEV_PK_2, GOERLI_CONFIG)
 
-	const env: EthereumNetwork = "mainnet"
+	const env: EthereumNetwork = "testnet"
 	const web3Seller = new Web3(providerSeller as any)
 	const ethereumSeller = new Web3Ethereum({ web3: web3Seller, gas: 3000000 })
 	const ethereum = new Web3Ethereum({ web3: web3Seller, gas: 3000000 })

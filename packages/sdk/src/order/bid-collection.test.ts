@@ -19,7 +19,7 @@ import type { ERC721RequestV3, MintOffChainResponse} from "../nft/mint"
 import { mint as mintTemplate } from "../nft/mint"
 import { signNft } from "../nft/sign-nft"
 import type { EthereumNetwork } from "../types"
-import { DEV_PK_1, DEV_PK_2 } from "../common/test/private-keys"
+import { DEV_PK_1, DEV_PK_2 } from "../common/test/test-credentials"
 import { OrderBid } from "./bid"
 import { signOrder as signOrderTemplate } from "./sign-order"
 import { OrderFiller } from "./fill-order"
@@ -131,7 +131,7 @@ describe("bid", () => {
 		await acceptBidTx.wait()
 	})
 
-	test("create bid for erc-721 collection and accept bid with lazy-item", async () => {
+	test.skip("create bid for erc-721 collection and accept bid with lazy-item", async () => {
 		const ownerCollectionAddress = toAddress(await ethereum1.getFrom())
 		const bidderAddress = toAddress(await ethereum2.getFrom())
 

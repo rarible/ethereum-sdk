@@ -11,10 +11,10 @@ import { signOrder } from "../sign-order"
 import type { SimpleLegacyOrder, SimpleOrder } from "../types"
 import { createEthereumApis } from "../../common/apis"
 import { checkChainId } from "../check-chain-id"
-import { DEV_PK_1, DEV_PK_2 } from "../../common/test/private-keys"
+import { DEV_PK_1, DEV_PK_2 } from "../../common/test/test-credentials"
 import { OrderFiller } from "./"
 
-describe("test exchange v1 order", () => {
+describe.skip("test exchange v1 order", () => {
 	const { provider: provider1, wallet: wallet1 } = createE2eProvider(DEV_PK_1)
 	const { provider: provider2, wallet: wallet2 } = createE2eProvider(DEV_PK_2)
 	const web31 = new Web3(provider1)

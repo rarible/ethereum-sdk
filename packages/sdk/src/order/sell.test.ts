@@ -12,14 +12,14 @@ import { toBn } from "@rarible/utils"
 import { getEthereumConfig } from "../config"
 import { getApiConfig } from "../config/api-config"
 import type { ERC721RequestV3 } from "../nft/mint"
-import { mint as mintTemplate } from "../nft/mint"
+import { mint as mintTemplate, MintResponseTypeEnum } from "../nft/mint"
 import { createTestProviders } from "../common/create-test-providers"
 import { getSendWithInjects } from "../common/send-transaction"
 import { signNft as signNftTemplate } from "../nft/sign-nft"
 import { createErc721V3Collection } from "../common/mint"
 import { delay, retry } from "../common/retry"
 import { createEthereumApis } from "../common/apis"
-import { DEV_PK_1 } from "../common/test/private-keys"
+import { DEV_PK_1 } from "../common/test/test-credentials"
 import type { EthereumNetwork } from "../types"
 import { OrderSell } from "./sell"
 import { signOrder as signOrderTemplate } from "./sign-order"
@@ -79,6 +79,9 @@ describe.each(providers)("sell", (ethereum) => {
 			royalties: [],
 			lazy: false,
 		} as ERC721RequestV3)
+		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			await minted.transaction.wait()
+		}
 
 		const order = await orderSell.sell({
 			type: "DATA_V2",
@@ -130,6 +133,10 @@ describe.each(providers)("sell", (ethereum) => {
 			royalties: [],
 			lazy: false,
 		} as ERC721RequestV3)
+
+		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			await minted.transaction.wait()
+		}
 
 		const form: OrderForm = {
 			...TEST_ORDER_TEMPLATE,

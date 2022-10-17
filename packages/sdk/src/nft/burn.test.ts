@@ -23,6 +23,7 @@ import { getEthereumConfig } from "../config"
 import { checkChainId as checkChainIdTemplate } from "../order/check-chain-id"
 import { retry } from "../common/retry"
 import type { EthereumNetwork } from "../types"
+import { DEV_PK_1 } from "../common/test/test-credentials"
 import type { ERC1155RequestV1, ERC1155RequestV2, ERC721RequestV2, ERC721RequestV3 } from "./mint"
 import { mint as mintTemplate, MintResponseTypeEnum } from "./mint"
 import { signNft } from "./sign-nft"
@@ -31,7 +32,7 @@ import { ERC1155VersionEnum, ERC721VersionEnum } from "./contracts/domain"
 import { getErc721Contract } from "./contracts/erc721"
 import { getErc1155Contract } from "./contracts/erc1155"
 
-const { provider, wallet } = createE2eProvider("0x26250bb39160076f030517503da31e11aca80060d14f84ebdaced666efb89e21")
+const { provider, wallet } = createE2eProvider(DEV_PK_1)
 const { providers } = createTestProviders(provider, wallet)
 
 describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
@@ -113,7 +114,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 		expect(toBn(testBalanceAfterBurn).toString()).toBe("50")
 	})
 
-	test("should burn ERC-721 v3 lazy", async () => {
+	test.skip("should burn ERC-721 v3 lazy", async () => {
 		const minted = await mint(
 			mintLazyApi,
 			checkChainId,
@@ -137,7 +138,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 		if (tx) {
 			await tx.wait()
 		}
-		await retry(5, 2000, async () => {
+		await retry(4, 5000, async () => {
 			const nftItemResponse = await apis.nftItem.getNftItemById({
 				itemId: `${e2eErc721V3ContractAddress}:${minted.tokenId}`,
 			})
@@ -145,7 +146,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 		})
 	})
 
-	test("should burn ERC-1155 v2 lazy", async () => {
+	test.skip("should burn ERC-1155 v2 lazy", async () => {
 		const minted = await mint(mintLazyApi, checkChainId, {
 			collection: createErc1155V2Collection(e2eErc1155V2ContractAddress),
 			uri: "ipfs://ipfs/hash",
@@ -169,7 +170,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 			await tx.wait()
 		}
 
-		await retry(5, 2000, async () => {
+		await retry(4, 5000, async () => {
 			const nftItemResponse = await apis.nftItem.getNftItemById({
 				itemId: `${e2eErc1155V2ContractAddress}:${minted.tokenId}`,
 			})
@@ -177,7 +178,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 		})
 	})
 
-	test("should burn ERC-1155 v2 lazy and burn creators is empty", async () => {
+	test.skip("should burn ERC-1155 v2 lazy and burn creators is empty", async () => {
 		const minted = await mint(mintLazyApi, checkChainId, {
 			collection: createErc1155V2Collection(e2eErc1155V2ContractAddress),
 			uri: "ipfs://ipfs/hash",
@@ -200,7 +201,7 @@ describe.each(providers)("burn nfts", (ethereum: Ethereum) => {
 			await tx.wait()
 		}
 
-		await retry(5, 2000, async () => {
+		await retry(4, 5000, async () => {
 			const nftItemResponse = await apis.nftItem.getNftItemById({
 				itemId: `${e2eErc1155V2ContractAddress}:${minted.tokenId}`,
 			})

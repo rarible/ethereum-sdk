@@ -7,8 +7,8 @@ import {
 	NftLazyMintControllerApi,
 } from "@rarible/ethereum-api-client"
 import { retry } from "../common/retry"
-import type { ERC721RequestV3} from "../nft/mint"
-import { mint } from "../nft/mint"
+import type { ERC721RequestV3 } from "../nft/mint"
+import { mint, MintResponseTypeEnum } from "../nft/mint"
 import { signNft } from "../nft/sign-nft"
 import { getSendWithInjects } from "../common/send-transaction"
 import { createErc721V3Collection } from "../common/mint"
@@ -16,7 +16,7 @@ import { getApiConfig } from "../config/api-config"
 import { createTestProviders } from "../common/create-test-providers"
 import { getEthereumConfig } from "../config"
 import type { EthereumNetwork } from "../types"
-import { DEV_PK_1 } from "../common/test/private-keys"
+import { DEV_PK_1 } from "../common/test/test-credentials"
 import { checkAssetType as checkAssetTypeTemplate } from "./check-asset-type"
 import { checkChainId } from "./check-chain-id"
 
@@ -54,6 +54,9 @@ describe.each(providers)("check-asset-type test", ethereum => {
 			checkWalletChainId,
 			request
 		)
+		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			await minted.transaction.wait()
+		}
 
 		const assetClass = await retry(10, 4000, async () => {
 			const assetType = await checkAssetType({
@@ -85,6 +88,9 @@ describe.each(providers)("check-asset-type test", ethereum => {
 			checkWalletChainId,
 			request
 		)
+		if (minted.type === MintResponseTypeEnum.ON_CHAIN) {
+			await minted.transaction.wait()
+		}
 
 		const assetType = await checkAssetType({
 			assetClass: "ERC721",

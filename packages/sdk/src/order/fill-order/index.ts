@@ -3,6 +3,8 @@ import { toAddress } from "@rarible/types"
 import { Action } from "@rarible/action"
 import type { Address, AssetType } from "@rarible/ethereum-api-client"
 import type { Maybe } from "@rarible/types/build/maybe"
+import type { GetAmmBuyInfoRequest } from "@rarible/ethereum-api-client/build/apis/OrderControllerApi"
+import type { AmmTradeInfo } from "@rarible/ethereum-api-client/build/models"
 import type {
 	SimpleCryptoPunkOrder,
 	SimpleLegacyOrder,
@@ -100,11 +102,13 @@ export class OrderFiller {
 			send,
 			config,
 			getBaseOrderFee,
+			apis,
 			env,
 			sdkConfig
 		)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
+		this.getBuyAmmInfo = this.getBuyAmmInfo.bind(this)
 	}
 
 	private getFillAction<Request extends FillOrderRequest>(): Action<FillOrderStageId, Request, EthereumTransaction> {
@@ -369,5 +373,9 @@ export class OrderFiller {
 		if (order.end !== undefined && new Date(order.end * 1000).getTime() < now) {
 			throw new Error(`Order was actual until ${new Date(order.end * 1000)}, now ${new Date()}`)
 		}
+	}
+
+	getBuyAmmInfo(request: GetAmmBuyInfoRequest): Promise<AmmTradeInfo> {
+		return this.apis.order.getAmmBuyInfo(request)
 	}
 }

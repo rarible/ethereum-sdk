@@ -24,7 +24,11 @@ async function createSudoswapPool(
 	const sudoswapFactory = await createSudoswapFactoryV1Contract(sellerWeb3, sudoswapFactoryAddress)
 	const fc = sudoswapFactory.functionCall("createPairETH",
 		tokenContract, //nft address
-		"0x3764b9FE584719C4570725A2b5A2485d418A186E", //curve
+		// EXPONENTIAL_CURVE: 0x0D807bd5fF2C4eF298755bE30E22926b33244B0c
+		// LINEAR_CURVE: 0xaC6dcFF6E13132f075e36cA3a7F403236f869438
+		// XYK_CURVE: 0x02363a2F1B2c2C5815cb6893Aa27861BE0c4F760
+		"0xaC6dcFF6E13132f075e36cA3a7F403236f869438", //goerli curve
+		// "0x7aa8ec1028d36883bb3a94d2a04b5cf0d8231d26", //dev curve
 		from, //_assetRecipient
 		1, //_poolType
 		"100", //_delta

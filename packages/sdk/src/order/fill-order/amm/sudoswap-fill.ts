@@ -1,32 +1,45 @@
 import type { BigNumber } from "@rarible/types"
 import { toBigNumber, ZERO_ADDRESS } from "@rarible/types"
 import type { Ethereum } from "@rarible/ethereum-provider"
+import { Warning } from "@rarible/logger/build"
+import type { NftItemRoyalty } from "@rarible/ethereum-api-client/build/models/NftItemRoyalty"
+import type { BigNumberValue} from "@rarible/utils/build/bn"
+import { toBn } from "@rarible/utils/build/bn"
+import { BigNumber as BigNum } from "@rarible/utils"
 import type { AmmOrderFillRequest, OrderFillSendData } from "../types"
 import type { EthereumConfig } from "../../../config/type"
 import { createSudoswapRouterV1Contract } from "../../contracts/sudoswap-router-v1"
 import { getUpdatedCalldata } from "../common/get-updated-call"
 import type { IRaribleEthereumSdkConfig } from "../../../types"
+import type { RaribleEthereumApis } from "../../../common/apis"
 
 
 export class SudoswapFill {
 	static async getDirectFillData(
 		ethereum: Ethereum,
 		request: AmmOrderFillRequest,
+		apis: RaribleEthereumApis,
 		config: EthereumConfig,
 		sdkConfig?: IRaribleEthereumSdkConfig
 	): Promise<OrderFillSendData> {
 		const order = this.getOrder(request)
 
 		let fillData: OrderFillSendData
+
 		switch (order.make.assetType.assetClass) {
 			case "ERC721":
+				if (request.assetType) {
+					throw new Warning("Remove assetType from request, because it must be captured from order")
+				}
 				fillData = await this.buySpecificNFTs(ethereum, request, config, [order.make.assetType.tokenId])
 				break
 			case "AMM_NFT":
-				if (request.assetType?.tokenId) {
-					fillData = await this.buySpecificNFTs(ethereum, request, config, [
-						toBigNumber(request.assetType.tokenId.toString()),
-					])
+				if (request.assetType) {
+					const tokenIds = Array.isArray(request.assetType)
+						? request.assetType.map(type => toBigNumber(type.tokenId.toString()))
+						: [toBigNumber(request.assetType.tokenId.toString())]
+
+					fillData = await this.buySpecificNFTs(ethereum, request, config, tokenIds)
 				} else {
 					fillData = await this.buyAnyNFTs(ethereum, request, config, 1)
 				}
@@ -125,4 +138,15 @@ export class SudoswapFill {
 			},
 		}
 	}
+
+	static getRoyaltiesAmount(royalty: NftItemRoyalty[], value: BigNumberValue) {
+		const royaltiesBasisPoints = royalty.reduce((acc, item) => {
+			return acc += item.value
+		}, 0)
+		return toBn(royaltiesBasisPoints)
+			.dividedBy(10000)
+			.multipliedBy(value)
+			.integerValue(BigNum.ROUND_FLOOR)
+	}
+
 }

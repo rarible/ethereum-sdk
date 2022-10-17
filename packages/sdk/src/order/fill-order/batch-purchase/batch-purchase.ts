@@ -62,7 +62,7 @@ export class BatchOrderFiller {
 		this.seaportHandler = new SeaportOrderHandler(ethereum, send, config, getBaseOrderFee, env)
 		this.looksrareHandler = new LooksrareOrderHandler(ethereum, send, config, getBaseOrderFee, env)
 		this.x2Y2Handler = new X2Y2OrderHandler(ethereum, send, config, getBaseOrderFee, apis)
-		this.ammHandler = new AmmOrderHandler(ethereum, send, config, getBaseOrderFee, env)
+		this.ammHandler = new AmmOrderHandler(ethereum, send, config, getBaseOrderFee, apis, env)
 		this.checkAssetType = checkAssetType.bind(this, apis.nftCollection)
 		this.checkLazyAssetType = checkLazyAssetType.bind(this, apis.nftItem)
 		this.getTransactionRequestData = this.getTransactionRequestData.bind(this)
@@ -194,11 +194,13 @@ export class BatchOrderFiller {
 	): Promise<OrderFillSendData> {
 		let totalValue = toBn(0)
 
-		const ordersCallData = await Promise.all(preparedOrders.map(async (preparedOrder) => {
-			const requestData = await this.getTransactionSingleRequestData(preparedOrder)
-			totalValue = totalValue.plus(requestData.options?.value || 0)
-			return requestData.data
-		}))
+		const ordersCallData = await Promise.all(
+			preparedOrders.map(async (preparedOrder) => {
+				const requestData = await this.getOrderData(preparedOrder)
+				totalValue = totalValue.plus(requestData.options?.value || 0)
+				return requestData.data
+			})
+		)
 
 		const wrapperContract = createExchangeWrapperContract(this.ethereum!, this.config.exchange.wrapper)
 		const functionCall = wrapperContract.functionCall(
@@ -218,7 +220,7 @@ export class BatchOrderFiller {
 		}
 	}
 
-	private async getTransactionSingleRequestData(
+	private async getOrderData(
 		preparedOrder: PreparedOrder
 	): Promise<PreparedOrderRequestDataForExchangeWrapper> {
 		switch (preparedOrder.request.order.type) {

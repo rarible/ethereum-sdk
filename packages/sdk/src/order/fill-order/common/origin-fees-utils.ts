@@ -59,3 +59,8 @@ export function calcValueWithFees(value: BigNumber | BigNum, feesBasisPoints: nu
 
 	return feesValue.plus(value)
 }
+
+export function encodeBasisPointsPlusAccount(bp: number, account: Address): BigNumber {
+	const bpConverted = toBn("0x" + bp.toString(16) + "0".repeat(40))
+	return toBigNumber("0x" + bpConverted.plus(account).toString(16))
+}

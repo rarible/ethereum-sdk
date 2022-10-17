@@ -1,5 +1,5 @@
 import { toAddress, toBigNumber } from "@rarible/types"
-import { calcValueWithFees, originFeeValueConvert } from "./origin-fees-utils"
+import { calcValueWithFees, encodeBasisPointsPlusAccount, originFeeValueConvert } from "./origin-fees-utils"
 
 describe("originFee wrapper utils", () => {
 	test("Should calc correct value + fee",  () => {
@@ -47,5 +47,14 @@ describe("originFee wrapper utils", () => {
 				toAddress("0x0000000000000000000000000000000000000000"),
 			],
 		})
+	})
+
+	test("encode basis points plus account", async () => {
+		const account = toAddress("0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2")
+		expect(encodeBasisPointsPlusAccount(0, account)).toEqual("0xd1d4e623d10f9fba5db95830f7d3839406c6af2")
+		expect(encodeBasisPointsPlusAccount(1, account)).toEqual("0x10d1d4e623d10f9fba5db95830f7d3839406c6af2")
+		expect(encodeBasisPointsPlusAccount(10, account)).toEqual("0xa0d1d4e623d10f9fba5db95830f7d3839406c6af2")
+		expect(encodeBasisPointsPlusAccount(1000, account)).toEqual("0x3e80d1d4e623d10f9fba5db95830f7d3839406c6af2")
+		expect(encodeBasisPointsPlusAccount(10000, account)).toEqual("0x27100d1d4e623d10f9fba5db95830f7d3839406c6af2")
 	})
 })

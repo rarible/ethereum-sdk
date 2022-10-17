@@ -12,7 +12,7 @@ import { checkChainId } from "../order/check-chain-id"
 import { getEthereumConfig } from "../config"
 import type { EthereumNetwork } from "../types"
 import { createPendingLogs, getSendWithInjects } from "./send-transaction"
-import { DEV_PK_1 } from "./test/private-keys"
+import { DEV_PK_1 } from "./test/test-credentials"
 
 describe("sendTransaction", () => {
 	const { provider, wallet } = createE2eProvider(DEV_PK_1)
@@ -58,6 +58,6 @@ describe("sendTransaction", () => {
 		const functionCall = testErc721.functionCall("mint", tokenId, v, r, s, [], "uri")
 		const tx = send(functionCall)
 
-		await expect(tx).rejects.toThrow("Change network of your wallet. Config chainId=4, but wallet chainId=300500")
+		await expect(tx).rejects.toThrow("Change network of your wallet. Config chainId=5, but wallet chainId=300500")
 	})
 })

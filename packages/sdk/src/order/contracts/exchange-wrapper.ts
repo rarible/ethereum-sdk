@@ -8,6 +8,42 @@ export function createExchangeWrapperContract(ethereum: Ethereum, address?: Addr
 
 export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_wyvernExchange",
+				"type": "address",
+			},
+			{
+				"internalType": "address",
+				"name": "_exchangeV2",
+				"type": "address",
+			},
+			{
+				"internalType": "address",
+				"name": "_seaPort",
+				"type": "address",
+			},
+			{
+				"internalType": "address",
+				"name": "_x2y2",
+				"type": "address",
+			},
+			{
+				"internalType": "address",
+				"name": "_looksRare",
+				"type": "address",
+			},
+			{
+				"internalType": "address",
+				"name": "_sudoswap",
+				"type": "address",
+			},
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor",
+	},
+	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -40,11 +76,24 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 		"type": "event",
 	},
 	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "paused",
+				"type": "bool",
+			},
+		],
+		"name": "Paused",
+		"type": "event",
+	},
+	{
 		"inputs": [],
 		"name": "exchangeV2",
 		"outputs": [
 			{
-				"internalType": "contract IExchangeV2",
+				"internalType": "address",
 				"name": "",
 				"type": "address",
 			},
@@ -58,7 +107,7 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 		"name": "looksRare",
 		"outputs": [
 			{
-				"internalType": "contract ILooksRare",
+				"internalType": "address",
 				"name": "",
 				"type": "address",
 			},
@@ -194,6 +243,33 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 		"constant": true,
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "bool",
+				"name": "_paused",
+				"type": "bool",
+			},
+		],
+		"name": "pause",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function",
+	},
+	{
+		"inputs": [],
+		"name": "paused",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool",
+			},
+		],
+		"stateMutability": "view",
+		"type": "function",
+		"constant": true,
+	},
+	{
 		"inputs": [],
 		"name": "renounceOwnership",
 		"outputs": [],
@@ -205,7 +281,21 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 		"name": "seaPort",
 		"outputs": [
 			{
-				"internalType": "contract ISeaPort",
+				"internalType": "address",
+				"name": "",
+				"type": "address",
+			},
+		],
+		"stateMutability": "view",
+		"type": "function",
+		"constant": true,
+	},
+	{
+		"inputs": [],
+		"name": "sudoswap",
+		"outputs": [
+			{
+				"internalType": "address",
 				"name": "",
 				"type": "address",
 			},
@@ -252,7 +342,7 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 		"name": "wyvernExchange",
 		"outputs": [
 			{
-				"internalType": "contract IWyvernExchange",
+				"internalType": "address",
 				"name": "",
 				"type": "address",
 			},
@@ -266,7 +356,7 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 		"name": "x2y2",
 		"outputs": [
 			{
-				"internalType": "contract Ix2y2",
+				"internalType": "address",
 				"name": "",
 				"type": "address",
 			},
@@ -277,107 +367,8 @@ export const EXCHANGEV2_BULK_ABI: AbiItem[] = [
 	},
 	{
 		"stateMutability": "payable",
-		//@ts-ignore
-		"type": "receive",
+		"type": "receive" as any,
 		"payable": true,
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "contract IWyvernExchange",
-				"name": "_wyvernExchange",
-				"type": "address",
-			},
-			{
-				"internalType": "contract IExchangeV2",
-				"name": "_exchangeV2",
-				"type": "address",
-			},
-			{
-				"internalType": "contract ISeaPort",
-				"name": "_seaPort",
-				"type": "address",
-			},
-			{
-				"internalType": "contract Ix2y2",
-				"name": "_x2y2",
-				"type": "address",
-			},
-			{
-				"internalType": "contract ILooksRare",
-				"name": "_looksRare",
-				"type": "address",
-			},
-		],
-		"name": "__ExchangeWrapper_init",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function",
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "contract IWyvernExchange",
-				"name": "_wyvernExchange",
-				"type": "address",
-			},
-		],
-		"name": "setWyvern",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function",
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "contract IExchangeV2",
-				"name": "_exchangeV2",
-				"type": "address",
-			},
-		],
-		"name": "setExchange",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function",
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "contract ISeaPort",
-				"name": "_seaPort",
-				"type": "address",
-			},
-		],
-		"name": "setSeaPort",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function",
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "contract Ix2y2",
-				"name": "_x2y2",
-				"type": "address",
-			},
-		],
-		"name": "setX2Y2",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function",
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "contract ILooksRare",
-				"name": "_looksRare",
-				"type": "address",
-			},
-		],
-		"name": "setLooksRare",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function",
 	},
 	{
 		"inputs": [

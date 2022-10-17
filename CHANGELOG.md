@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.105](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.104...v0.12.105) (2022-10-17)
+
+
+### Features
+
+* api keys ([#201](https://github.com/rarible/protocol-ethereum-sdk/issues/201)) ([506bef2](https://github.com/rarible/protocol-ethereum-sdk/commit/506bef28a7f756dea33e7a6416aec57bb840dc68))
+* get buy amm info ([#199](https://github.com/rarible/protocol-ethereum-sdk/issues/199)) ([c37cd92](https://github.com/rarible/protocol-ethereum-sdk/commit/c37cd926b102b133444c54ec5b301705ebef2cbe))
+* support logging context ([#202](https://github.com/rarible/protocol-ethereum-sdk/issues/202)) ([af4db44](https://github.com/rarible/protocol-ethereum-sdk/commit/af4db44a9c6a0b8ef0298e648c16f2218ca13469))
+
+
+
+
+
 ## [0.12.104](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.103...v0.12.104) (2022-10-12)
 
 

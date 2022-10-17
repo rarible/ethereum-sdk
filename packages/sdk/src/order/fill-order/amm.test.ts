@@ -13,7 +13,7 @@ import { DEV_PK_1, DEV_PK_2, GOERLI_CONFIG } from "../../common/test/test-creden
 import type { EthereumNetwork } from "../../types"
 import { mintTokensToNewSudoswapPool } from "./amm/test/utils"
 
-describe("amm", () => {
+describe.skip("amm", () => {
 	const { provider: providerSeller } = createE2eProvider(
 		DEV_PK_2,
 		GOERLI_CONFIG,

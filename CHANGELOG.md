@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.106](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.105...v0.12.106) (2022-10-17)
+
+
+### Bug Fixes
+
+* amm asset type in request ([#203](https://github.com/rarible/protocol-ethereum-sdk/issues/203)) ([63c068b](https://github.com/rarible/protocol-ethereum-sdk/commit/63c068b4acf03c829259dbb2ec49fa79519b864e))
+
+
+
+
+
 ## [0.12.105](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.104...v0.12.105) (2022-10-17)
 
 

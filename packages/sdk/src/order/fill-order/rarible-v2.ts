@@ -107,23 +107,6 @@ export class RaribleV2OrderHandler implements OrderHandler<RaribleV2OrderFillReq
 			const [sellOrderDataType, sellOrderData] = encodeRaribleV2OrderData(this.ethereum, initial.data)
 			const [, buyOrderData] = encodeRaribleV2OrderData(this.ethereum, inverted.data)
 
-			console.log("ourchase", {
-				sellOrderMaker: initial.maker,
-				sellOrderNftAmount: initial.make.value,
-				nftAssetClass: nftStruct.assetClass,
-				nftData: nftStruct.data,
-				sellOrderPaymentAmount: initial.take.value,
-				paymentToken: initial.take.assetType.assetClass === "ETH" ? ZERO_ADDRESS : initial.take.assetType.contract,
-				sellOrderSalt: initial.salt,
-				sellOrderStart: initial.start ?? 0,
-				sellOrderEnd: initial.end ?? 0,
-				sellOrderDataType: sellOrderDataType,
-				sellOrderData: sellOrderData,
-				sellOrderSignature: fixSignature(initial.signature) || "0x",
-				buyOrderPaymentAmount: inverted.make.value,
-				buyOrderNftAmount: inverted.take.value,
-				buyOrderData: buyOrderData,
-			})
 			const functionCall = exchangeContract.functionCall(
 				"directPurchase",
 				{

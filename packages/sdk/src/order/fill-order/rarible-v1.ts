@@ -64,7 +64,6 @@ export class RaribleV1OrderHandler implements OrderHandler<LegacyOrderFillReques
 		const buyerFeeSig = await this.orderApi.buyerFeeSignature(
 			{ fee: inverted.data.fee, orderForm: fromSimpleOrderToOrderForm(initial) },
 		)
-		console.log("inverted.data.fee", inverted.data.fee, buyerFeeSig, fromSimpleOrderToOrderForm(initial))
 		const exchangeContract = createExchangeV1Contract(this.ethereum, this.config.exchange.v1)
 		const functionCall = exchangeContract.functionCall(
 			"exchange",

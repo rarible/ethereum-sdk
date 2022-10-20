@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.107](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.106...v0.12.107) (2022-10-20)
+
+
+### Features
+
+* update wrapper contracts on mainnet and goerli ([#205](https://github.com/rarible/protocol-ethereum-sdk/issues/205)) ([020a937](https://github.com/rarible/protocol-ethereum-sdk/commit/020a937403548cb3108413876c32b0d73a240ddb))
+
+
+
+
+
 ## [0.12.106](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.105...v0.12.106) (2022-10-17)
 
 

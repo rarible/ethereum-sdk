@@ -10,7 +10,7 @@ export const mainnetConfig: EthereumConfig = {
 		v1: toAddress("0x09EaB21c40743B2364b94345419138eF80f39e30"),
 		v2: toAddress("0x9757F2d2b135150BBeb65308D4a91804107cd8D6"),
 		openseaV1: toAddress("0x7be8076f4ea4a4ad08075c2508e481d6c946d12b"),
-		wrapper: toAddress("0x2C45Af926d5f62C5935278106800a03eB565778E"),
+		wrapper: toAddress("0x662962d64242f3179f53cfcd3995f78baf3c5258"),
 		looksrare: toAddress("0x59728544B08AB483533076417FbBB2fD0B17CE3a"),
 		x2y2: toAddress("0x74312363e45dcaba76c59ec49a7aa8a65a67eed3"),
 	},

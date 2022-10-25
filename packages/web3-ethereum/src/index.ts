@@ -8,6 +8,7 @@ import { toAddress, toBigNumber, toBinary, toWord } from "@rarible/types"
 import { backOff } from "exponential-backoff"
 import type * as EthereumProvider from "@rarible/ethereum-provider"
 import type { AbiItem } from "web3-utils"
+import { getParsedError } from "./utils/get-parsed-error"
 import type { Web3EthereumConfig } from "./domain"
 import { providerRequest } from "./utils/provider-request"
 import { toPromises } from "./utils/to-promises"
@@ -114,16 +115,38 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 	}
 
 	async send(options: EthereumProvider.EthereumSendOptions = {}): Promise<EthereumProvider.EthereumTransaction> {
-		const from = toAddress(await this.getFrom())
-		if (options.additionalData) {
-			const additionalData = toBinary(options.additionalData).slice(2)
-			const sourceData = toBinary(await this.getData()).slice(2)
+		try {
+			const from = toAddress(await this.getFrom())
+			if (options.additionalData) {
+				const additionalData = toBinary(options.additionalData).slice(2)
+				const sourceData = toBinary(await this.getData()).slice(2)
 
-			const data = `0x${sourceData}${additionalData}`
-			const promiEvent = this.config.web3.eth.sendTransaction({
+				const data = `0x${sourceData}${additionalData}`
+				const promiEvent = this.config.web3.eth.sendTransaction({
+					from,
+					to: this.contract.options.address,
+					data,
+					gas: this.config.gas || options.gas,
+					value: options.value,
+					gasPrice: options.gasPrice?.toString(),
+				})
+				const { hash, receipt } = toPromises(promiEvent)
+				const hashValue = await hash
+				const tx = await this.getTransaction(hashValue)
+
+				return new Web3Transaction(
+					receipt,
+					toWord(hashValue),
+					toBinary(data),
+					tx.nonce,
+					from,
+					toAddress(this.contract.options.address),
+					this.contract.options.jsonInterface
+				)
+			}
+
+			const promiEvent: PromiEvent<Contract> = this.sendMethod.send({
 				from,
-				to: this.contract.options.address,
-				data,
 				gas: this.config.gas || options.gas,
 				value: options.value,
 				gasPrice: options.gasPrice?.toString(),
@@ -131,35 +154,24 @@ export class Web3FunctionCall implements EthereumProvider.EthereumFunctionCall {
 			const { hash, receipt } = toPromises(promiEvent)
 			const hashValue = await hash
 			const tx = await this.getTransaction(hashValue)
-
 			return new Web3Transaction(
 				receipt,
 				toWord(hashValue),
-				toBinary(data),
+				toBinary(await this.getData()),
 				tx.nonce,
 				from,
-				toAddress(this.contract.options.address),
-				this.contract.options.jsonInterface
+				toAddress(this.contract.options.address)
 			)
+		} catch (e: any) {
+			const errorObject = getParsedError(e)
+			errorObject._receipt = {
+				...(await this.getCallInfo()),
+				data: await this.getData(),
+				options,
+			}
+			throw errorObject
 		}
 
-		const promiEvent: PromiEvent<Contract> = this.sendMethod.send({
-			from,
-			gas: this.config.gas || options.gas,
-			value: options.value,
-			gasPrice: options.gasPrice?.toString(),
-		})
-		const { hash, receipt } = toPromises(promiEvent)
-		const hashValue = await hash
-		const tx = await this.getTransaction(hashValue)
-		return new Web3Transaction(
-			receipt,
-			toWord(hashValue),
-			toBinary(await this.getData()),
-			tx.nonce,
-			from,
-			toAddress(this.contract.options.address)
-		)
 	}
 
 	private getTransaction(hash: string) {
@@ -194,7 +206,19 @@ export class Web3Transaction implements EthereumProvider.EthereumTransaction {
 	) {}
 
 	async wait(): Promise<EthereumProvider.EthereumTransactionReceipt> {
-		return await this.receipt
+		try {
+		  return await this.receipt
+		} catch (e: any) {
+			const errorObject = getParsedError(e)
+			errorObject._receipt = {
+				hash: this.hash,
+				data: this.data,
+				nonce: this.nonce,
+				from: this.from,
+				to: this.to,
+			}
+			throw errorObject
+		}
 	}
 
 	async getEvents(): Promise<EthereumProvider.EthereumTransactionEvent[]> {

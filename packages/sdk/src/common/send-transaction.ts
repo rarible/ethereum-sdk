@@ -54,7 +54,8 @@ export function getSendWithInjects(injects: {
 						message: JSON.stringify(getTxData(tx)),
 						args: JSON.stringify(callInfo.args),
 						provider: callInfo.provider,
-						loggingContext: injects.logger?.loggingContext,
+						to: callInfo.contract,
+						value: options?.value,
 					})
 				}
 			} catch (e) {
@@ -78,7 +79,8 @@ export function getSendWithInjects(injects: {
 						from: callInfo.from,
 						provider: callInfo.provider,
 						args: JSON.stringify(callInfo.args),
-						loggingContext: injects.logger?.loggingContext,
+						to: callInfo.contract,
+						value: options?.value,
 						data,
 					})
 				}
@@ -125,6 +127,8 @@ export function getSimpleSendWithInjects(injects: {
 						provider: callInfo.provider,
 						args: JSON.stringify(callInfo.args),
 						message: JSON.stringify(getTxData(tx)),
+						to: callInfo.contract,
+						value: options?.value,
 					})
 				}
 			} catch (e) {
@@ -141,6 +145,8 @@ export function getSimpleSendWithInjects(injects: {
 						provider: callInfo.provider,
 						args: JSON.stringify(callInfo.args),
 						error: getErrorMessageString(err),
+						to: callInfo.contract,
+						value: options?.value,
 					})
 				}
 			} catch (e) {

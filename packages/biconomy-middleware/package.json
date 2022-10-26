@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@biconomy/mexa": "^2.0.25",
-    "@rarible/logger": "^0.9.9",
+    "@rarible/logger": "^0.9.12",
     "eth-json-rpc-middleware": "^7.0.1",
     "json-rpc-engine": "^6.1.0"
   },

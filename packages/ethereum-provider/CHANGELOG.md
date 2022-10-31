@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.109](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.108...v0.12.109) (2022-10-31)
+
+
+### Features
+
+* wrap ethereum providers errors ([#210](https://github.com/rarible/protocol-ethereum-sdk/issues/210)) ([3701a52](https://github.com/rarible/protocol-ethereum-sdk/commit/3701a52e86514f3fb6db7a28437e89fecbb55f44))
+
+
+
+
+
 ## [0.12.98](https://github.com/rarible/ethereum-sdk/compare/v0.12.97...v0.12.98) (2022-09-23)
 
 

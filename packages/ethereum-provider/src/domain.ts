@@ -1,4 +1,5 @@
 import type { TypedMessage as EthSigUtilTypedData } from "eth-sig-util"
+import type { Binary } from "@rarible/types"
 
 export enum SignTypedDataMethodEnum {
 	V4 = "eth_signTypedData_v4",
@@ -17,3 +18,28 @@ export type MessageTypes = {
 }
 
 export type TypedMessage<T extends MessageTypes> = EthSigUtilTypedData<T>
+
+export interface EthereumSendOptions {
+	value?: number | string
+	gas?: number
+	gasPrice?: number
+	additionalData?: Binary
+}
+
+export interface EthereumEstimateGasOptions {
+	from?: string
+	value?: number | string
+}
+
+export interface EthereumFunctionCallInfo {
+	method: string
+	args: any[]
+	contract: string
+	from: string
+	provider?: string
+}
+
+export enum Provider {
+	WEB3 = "web3",
+	ETHERS = "ethers"
+}

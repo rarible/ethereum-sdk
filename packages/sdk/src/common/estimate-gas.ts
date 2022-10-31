@@ -1,4 +1,5 @@
-import type { EthereumEstimateGasOptions, EthereumFunctionCall } from "@rarible/ethereum-provider"
+import type { EthereumFunctionCall } from "@rarible/ethereum-provider"
+import type { EthereumEstimateGasOptions } from "@rarible/ethereum-provider"
 import { LogsLevel } from "../types"
 import type { ILoggerConfig } from "./logger/logger"
 import { getErrorMessageString } from "./logger/logger"
@@ -20,15 +21,6 @@ export async function estimateGas(
 				} catch (e: any) {
 					console.error("Unable to get tx data for log", e)
 				}
-				logger.instance.raw({
-					level: "WARN",
-					method: callInfo.method,
-					provider: callInfo.provider,
-					message: getErrorMessageString(err),
-					from: callInfo.from,
-					args: JSON.stringify(callInfo.args),
-					data,
-				})
 
 				console.error({
 					method: callInfo.method,
@@ -36,6 +28,8 @@ export async function estimateGas(
 					message: getErrorMessageString(err),
 					from: callInfo.from,
 					args: JSON.stringify(callInfo.args),
+					to: callInfo.contract,
+					value: options?.value,
 					data,
 				})
 			}

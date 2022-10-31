@@ -1,5 +1,5 @@
 import type { EthereumFunctionCall } from "@rarible/ethereum-provider"
-import type { EthereumEstimateGasOptions } from "@rarible/ethereum-provider/src"
+import type { EthereumEstimateGasOptions } from "@rarible/ethereum-provider"
 import { LogsLevel } from "../types"
 import type { ILoggerConfig } from "./logger/logger"
 import { getErrorMessageString } from "./logger/logger"

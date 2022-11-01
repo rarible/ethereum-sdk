@@ -103,7 +103,7 @@ describe.each(providers)("bid", (ethereum) => {
 			await minted.transaction.wait()
 		}
 
-		const order = await orderSell.bid({
+		const { order } = await orderSell.bid({
 			type: "DATA_V2",
 			maker: toAddress(wallet.getAddressString()),
 			takeAssetType: {
@@ -127,7 +127,7 @@ describe.each(providers)("bid", (ethereum) => {
 
 		await retry(5, 2000, async () => {
 			const nextPrice = "150"
-			const updatedOrder = await orderSell.update({
+			const { order: updatedOrder } = await orderSell.update({
 				orderHash: order.hash,
 				price: toBigNumber(nextPrice),
 			})
@@ -183,7 +183,7 @@ describe.each(providers)("bid", (ethereum) => {
 
 		await retry(5, 2000, async () => {
 			const nextPrice = "250"
-			const updatedOrder = await orderSell.update({
+			const { order: updatedOrder } = await orderSell.update({
 				orderHash: order.hash,
 				price: toBigNumber(nextPrice),
 			})

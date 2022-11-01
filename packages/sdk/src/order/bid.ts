@@ -1,4 +1,5 @@
 import type { Erc20AssetType, EthAssetType, Order, OrderForm, RaribleV2OrderForm } from "@rarible/ethereum-api-client"
+import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import type { BigNumberValue } from "@rarible/utils/build/bn"
 import { toBn } from "@rarible/utils/build/bn"
 import { Action } from "@rarible/action"
@@ -15,11 +16,16 @@ export type BidRequest = {
 } & HasPrice & OrderRequest
 
 export type BidOrderOrderStageId = "approve" | "sign"
-export type BidOrderAction = Action<BidOrderOrderStageId, BidRequest, Order>
+export interface IBidResult {
+	approveTx: EthereumTransaction | undefined
+	order: Order
+}
+
+export type BidOrderAction = Action<BidOrderOrderStageId, BidRequest, IBidResult>
 
 export type BidUpdateRequest = HasOrder & HasPrice
 
-export type BidUpdateOrderAction = Action<BidOrderOrderStageId, BidUpdateRequest, Order>
+export type BidUpdateOrderAction = Action<BidOrderOrderStageId, BidUpdateRequest, IBidResult>
 
 export class OrderBid {
 	constructor(
@@ -37,13 +43,18 @@ export class OrderBid {
 				}
 				const form = await this.getBidForm(request)
 				const checked = await this.upserter.checkLazyOrder(form) as OrderForm
-				await this.upserter.approve(checked, true)
-				return checked
+				const approveTx = await this.upserter.approve(checked, true)
+				return { checked, approveTx }
 			},
 		})
 		.thenStep({
 			id: "sign" as const,
-			run: (checked: OrderForm) => this.upserter.upsertRequest(checked),
+			run: async (req: {checked: OrderForm, approveTx: EthereumTransaction | undefined}) => {
+				return {
+					approveTx: req.approveTx,
+					order: await this.upserter.upsertRequest(req.checked),
+				}
+			},
 		})
 		.before(async (input: BidRequest) => {
 			await this.checkWalletChainId()
@@ -56,7 +67,7 @@ export class OrderBid {
 			run: async (request: BidUpdateRequest) => {
 				const order = await this.upserter.getOrder(request)
 				if (order.type === "CRYPTO_PUNK") {
-					return request
+					return { form: request, approveTx: undefined }
 				}
 				if (order.make.assetType.assetClass !== "ERC20") {
 					throw new Error(`Make asset type should be ERC-20, received=${order.make.assetType.assetClass}`)
@@ -64,17 +75,23 @@ export class OrderBid {
 				const price = await this.upserter.getPrice(request, order.make.assetType)
 				const form = await this.prepareOrderUpdateForm(order, price)
 				const checked = await this.upserter.checkLazyOrder(form) as OrderForm
-				await this.upserter.approve(checked, true)
-				return checked
+				const approveTx = await this.upserter.approve(checked, true)
+				return { form: checked, approveTx }
 			},
 		})
 		.thenStep({
 			id: "sign" as const,
-			run: (form: OrderForm | SellUpdateRequest) => {
-				if ("type" in form && (form.type === "RARIBLE_V1" || form.type === "RARIBLE_V2")) {
-					return this.upserter.upsertRequest(form)
+			run: async (req: {form: OrderForm | SellUpdateRequest, approveTx: EthereumTransaction | undefined}) => {
+				if ("type" in req.form && (req.form.type === "RARIBLE_V1" || req.form.type === "RARIBLE_V2")) {
+					return {
+						approveTx: req.approveTx,
+						order: await this.upserter.upsertRequest(req.form),
+					}
 				}
-				return this.upserter.updateCryptoPunkOrder(form)
+				return {
+					approveTx: req.approveTx,
+					order: await this.upserter.updateCryptoPunkOrder(req.form),
+				}
 			},
 		})
 		.before(async (input: BidUpdateRequest) => {

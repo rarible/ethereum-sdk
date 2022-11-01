@@ -101,7 +101,7 @@ describe("bid", () => {
 
 		const erc20Contract = toAddress(it.testErc20.options.address)
 
-		const order = await orderBid.bid({
+		const { order } = await orderBid.bid({
 			type: "DATA_V2",
 			maker: bidderAddress,
 			makeAssetType: {
@@ -116,10 +116,10 @@ describe("bid", () => {
 			amount: 1,
 			payouts: [],
 			originFees: [],
-		}) as SimpleRaribleV2Order
+		})
 
 		const acceptBidTx = await filler1.acceptBid({
-			order,
+			order: order as SimpleRaribleV2Order,
 			amount: 1,
 			originFees: [],
 			assetType: {
@@ -152,7 +152,7 @@ describe("bid", () => {
 
 		const erc20Contract = toAddress(it.testErc20.options.address)
 
-		const order = await orderBid.bid({
+		const { order } = await orderBid.bid({
 			type: "DATA_V2",
 			maker: bidderAddress,
 			makeAssetType: {
@@ -167,10 +167,10 @@ describe("bid", () => {
 			amount: 1,
 			payouts: [],
 			originFees: [],
-		}) as SimpleRaribleV2Order
+		})
 
 		const acceptBidTx = await filler1.acceptBid({
-			order,
+			order: order as SimpleRaribleV2Order,
 			amount: 1,
 			originFees: [],
 			assetType: {

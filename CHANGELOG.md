@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.110](https://github.com/rarible/ethereum-sdk/compare/v0.12.109...v0.12.110) (2022-11-01)
+
+
+### Features
+
+* return approve transaction from bid/updateBid actions ([#211](https://github.com/rarible/ethereum-sdk/issues/211)) ([cceef87](https://github.com/rarible/ethereum-sdk/commit/cceef874aeb4bde63158b8585922823e00175058))
+
+
+
+
+
 ## [0.12.109](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.108...v0.12.109) (2022-10-31)
 
 

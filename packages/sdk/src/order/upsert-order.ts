@@ -19,6 +19,7 @@ import type { OrderRaribleV2Data } from "@rarible/ethereum-api-client/build/mode
 import { toBn } from "@rarible/utils/build/bn"
 import type { Ethereum } from "@rarible/ethereum-provider"
 import type { Maybe } from "@rarible/types/build/maybe"
+import type { EthereumTransaction } from "@rarible/ethereum-provider"
 import { createCryptoPunksMarketContract } from "../nft/contracts/cryptoPunks"
 import type { SendFunction } from "../common/send-transaction"
 import { getRequiredWallet } from "../common/get-required-wallet"
@@ -135,11 +136,11 @@ export class UpsertOrder {
 		}
 	}
 
-	async approve(checkedOrder: OrderForm, infinite: boolean = false) {
+	async approve(checkedOrder: OrderForm, infinite: boolean = false): Promise<EthereumTransaction | undefined>  {
 		const simple = UpsertOrder.orderFormToSimpleOrder(checkedOrder)
 		const fee = await this.orderFiller.getOrderFee(simple)
 		const make = addFee(checkedOrder.make, fee)
-		await this.approveFn(checkedOrder.maker, make, infinite)
+		return await this.approveFn(checkedOrder.maker, make, infinite)
 	}
 
 	async upsertRequest(checked: OrderForm): Promise<Order> {

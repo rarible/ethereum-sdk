@@ -16,11 +16,13 @@ import { makeRaribleSellOrder } from "../../../looksrare-utils/create-order"
 import type { EthereumConfig } from "../../../../../config/type"
 import { mintTokensToNewSudoswapPool } from "../../../amm/test/utils"
 
-const goerliErc721V3ContractAddress = toAddress("0x1723017329a804564bC8d215496C89eaBf1F3211")
+// const goerliErc721V3ContractAddress = toAddress("0x1723017329a804564bC8d215496C89eaBf1F3211")
+const devErc721V3ContractAddress = toAddress("0xf9864189fe52456345DD0055D210fD160694Dd08")
 
 export async function mintTestToken(sdk: RaribleSdk) {
 	const sellItem = await sdk.nft.mint({
-		collection: createErc721V3Collection(goerliErc721V3ContractAddress),
+		// collection: createErc721V3Collection(goerliErc721V3ContractAddress),
+		collection: createErc721V3Collection(devErc721V3ContractAddress),
 		uri: "ipfs://ipfs/QmfVqzkQcKR1vCNqcZkeVVy94684hyLki7QcVzd9rmjuG5",
 		royalties: [
 			{

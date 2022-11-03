@@ -14,7 +14,12 @@ import type { RaribleEthereumApis } from "../../common/apis"
 import type { OrderFillSendData, AmmOrderFillRequest } from "./types"
 import { SudoswapFill } from "./amm/sudoswap-fill"
 import type { PreparedOrderRequestDataForExchangeWrapper } from "./types"
-import { calcValueWithFees, encodeBasisPointsPlusAccount, originFeeValueConvert } from "./common/origin-fees-utils"
+import {
+	calcValueWithFees,
+	encodeBasisPointsPlusAccount,
+	getPackedFeeValue,
+	originFeeValueConvert,
+} from "./common/origin-fees-utils"
 import { ExchangeWrapperOrderType } from "./types"
 
 export class AmmOrderHandler {
@@ -28,6 +33,69 @@ export class AmmOrderHandler {
 		private readonly sdkConfig?: IRaribleEthereumSdkConfig,
 		private readonly options: {directBuy: boolean} = {directBuy: false},
 	) {}
+
+	private async getMarketData(
+		request: AmmOrderFillRequest,
+		fillData: OrderFillSendData,
+		feeValue?: BigNumber,
+	) {
+		const ethereum = getRequiredWallet(this.ethereum)
+
+		const { totalFeeBasisPoints, encodedFeesValue, feeAddresses } = originFeeValueConvert(request.originFees)
+		let valueForSending = calcValueWithFees(toBigNumber(fillData.options.value?.toString() ?? "0"), totalFeeBasisPoints)
+
+		const data = {
+			marketId: ExchangeWrapperOrderType.AAM,
+			amount: fillData.options.value ?? "0",
+			fees: feeValue ?? encodedFeesValue,
+			data: await fillData.functionCall.getData(),
+		}
+		if (request.addRoyalty && request.assetType) {
+			const royalties = await this.apis.nftItem.getNftItemRoyaltyById({
+				itemId: `${request.assetType.contract}:${request.assetType.tokenId}`,
+			})
+
+			if (royalties.royalty?.length) {
+				const dataForEncoding = {
+					data: await fillData.functionCall.getData(),
+					additionalRoyalties: royalties.royalty.map(
+						royalty => encodeBasisPointsPlusAccount(royalty.value, royalty.account)
+					),
+				}
+				data.data = ethereum.encodeParameter(ADDITIONAL_DATA_STRUCT, dataForEncoding)
+
+				const royaltiesAmount = SudoswapFill.getRoyaltiesAmount(
+					royalties.royalty,
+					fillData.options.value?.toString() ?? 0
+				)
+				valueForSending = toBn(valueForSending.plus(royaltiesAmount).toString())
+
+				if (feeValue) {
+					data.fees = toBigNumber("0x1" + feeValue.toString().slice(-8))
+				} else {
+					const firstFee = getPackedFeeValue(request.originFees?.[0]?.value)
+					const secondFee = getPackedFeeValue(request.originFees?.[1]?.value)
+					if (firstFee.length > 4 || secondFee.length > 4) {
+						throw new Error("Decrease origin fees values")
+					}
+					data.fees = toBigNumber("0x1" + firstFee + secondFee)
+				}
+			}
+		}
+
+		return {
+			originFees: {
+				totalFeeBasisPoints,
+				encodedFeesValue,
+				feeAddresses,
+			},
+			data,
+			options: {
+				...fillData.options,
+				value: valueForSending.toString(),
+			},
+		}
+	}
 
 	async getTransactionData(request: AmmOrderFillRequest): Promise<OrderFillSendData> {
 		const ethereum = getRequiredWallet(this.ethereum)
@@ -45,43 +113,7 @@ export class AmmOrderHandler {
 		} else { // buy with rarible wrapper
 			const wrapperContract = createExchangeWrapperContract(ethereum, this.config.exchange.wrapper)
 
-			const { totalFeeBasisPoints, encodedFeesValue, feeAddresses } = originFeeValueConvert(request.originFees)
-			let valueForSending = calcValueWithFees(toBigNumber(fillData.options.value?.toString() ?? "0"), totalFeeBasisPoints)
-
-			const data = {
-				marketId: ExchangeWrapperOrderType.AAM,
-				amount: fillData.options.value,
-				fees: encodedFeesValue,
-				data: await fillData.functionCall.getData(),
-			}
-			if (request.addRoyalty && request.assetType) {
-				const royalties = await this.apis.nftItem.getNftItemRoyaltyById({
-					itemId: `${request.assetType.contract}:${request.assetType.tokenId}`,
-				})
-
-				if (royalties.royalty?.length) {
-					const dataForEncoding = {
-						data: await fillData.functionCall.getData(),
-						additionalRoyalties: royalties.royalty.map(
-							royalty => encodeBasisPointsPlusAccount(royalty.value, royalty.account)
-						),
-					}
-					data.data = ethereum.encodeParameter(ADDITIONAL_DATA_STRUCT, dataForEncoding)
-
-					const royaltiesAmount = SudoswapFill.getRoyaltiesAmount(
-						royalties.royalty,
-						fillData.options.value?.toString() ?? 0
-					)
-					valueForSending = toBn(valueForSending.plus(royaltiesAmount).toString())
-					const firstFee = request.originFees?.[0]?.value?.toString(16).padStart(4, "0") ?? "0000"
-					const secondFee = request.originFees?.[1]?.value?.toString(16).padStart(4, "0") ?? "0000"
-					if (firstFee.length > 4 || secondFee.length > 4) {
-						throw new Error("Decrease origin fees values")
-					}
-					data.fees = toBigNumber("0x1" + firstFee + secondFee)
-				}
-			}
-
+			const {data, options, originFees: {feeAddresses}} = await this.getMarketData(request, fillData)
 			const functionCall = wrapperContract.functionCall(
 				"singlePurchase",
 				data,
@@ -91,10 +123,7 @@ export class AmmOrderHandler {
 
 			return {
 				functionCall: functionCall,
-				options: {
-					...fillData.options,
-					value: valueForSending.toString(),
-				},
+				options,
 			}
 		}
 	}
@@ -124,28 +153,18 @@ export class AmmOrderHandler {
 
 	async getTransactionDataForExchangeWrapper(
 		request: AmmOrderFillRequest,
-		originFees: Part[] | undefined,
 		feeValue: BigNumber,
 	): Promise<PreparedOrderRequestDataForExchangeWrapper> {
 		if (request.order.take.assetType.assetClass !== "ETH") {
 			throw new Error("Unsupported asset type for take asset " + request.order.take.assetType.assetClass)
 		}
 
-		const {functionCall, options} = await this.getTransactionDataDirectBuy(request)
-
-		const { totalFeeBasisPoints } = originFeeValueConvert(originFees)
-		const valueForSending = calcValueWithFees(toBigNumber(options.value?.toString() ?? "0"), totalFeeBasisPoints)
+		const fillData = await this.getTransactionDataDirectBuy(request)
+		const {data, options} = await this.getMarketData(request, fillData, feeValue)
 
 		return {
-			data: {
-				marketId: ExchangeWrapperOrderType.AAM,
-				amount: request.order.take.value,
-				fees: feeValue,
-				data: await functionCall.getData(),
-			},
-			options: {
-				value: valueForSending.toString(),
-			},
+			data,
+			options,
 		}
 	}
 

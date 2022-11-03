@@ -12,9 +12,13 @@ export const ZERO_FEE_VALUE = toBigNumber("0x" + "0".repeat(64))
  * @param fees
  */
 export function packFeesToUint(fees: [number | undefined, number | undefined]): BigNumber {
-	const firstFee = fees[0]?.toString(16).padStart(4, "0") ?? "0000"
-	const secondFee = fees[1]?.toString(16).padStart(4, "0") ?? "0000"
+	const firstFee = getPackedFeeValue(fees[0])
+	const secondFee = getPackedFeeValue(fees[1])
 	return toBigNumber("0x" + "0".repeat(64 - 8) + firstFee + secondFee)
+}
+
+export function getPackedFeeValue(fee: number | undefined) {
+	return fee?.toString(16).padStart(4, "0") ?? "0000"
 }
 
 /**

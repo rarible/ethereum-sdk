@@ -15,10 +15,10 @@ export const stagingEthereumConfig: EthereumConfig = {
 		x2y2: ZERO_ADDRESS,
 	},
 	transferProxies: {
-		nft: toAddress("0x44be0e540DfA005D97Fde86CdD058F7E1A71A317"),
-		erc20: toAddress("0x6c93080188cbF7a194831818A5a965C987dC39e1"),
-		erc721Lazy: toAddress("0x44a72AEb7dAc73c4b72f89d6855dE063949627F3"),
-		erc1155Lazy: toAddress("0x957893927401ceF0878c538976a92a46C36ADc5f"),
+		nft: toAddress("0xc6f33b62A94939E52E1b074c4aC1A801B869fDB2"),
+		erc20: toAddress("0x3586d3E6CDaE98d5F0eEaB737977Bc78406Da2BD"),
+		erc721Lazy: toAddress("0xeC47DA9591FC24F5a5F401e8D275526Cc5eE5d37"),
+		erc1155Lazy: toAddress("0x8812cFb55853da0968a02AaaEA84CD93EC4b42A1"),
 		openseaV1: ZERO_ADDRESS,
 		cryptoPunks: ZERO_ADDRESS,
 	},
@@ -28,8 +28,8 @@ export const stagingEthereumConfig: EthereumConfig = {
 		proxyRegistry: ZERO_ADDRESS,
 	},
 	factories: {
-		erc721: toAddress("0x21d2AAAac56Aa438cD549f78155acF954948Dc59"),
-		erc1155: toAddress("0x274c9F788D322b00857fd43E7D07cDF9F0314c37"),
+		erc721: toAddress("0x6972347e66A32F40ef3c012615C13cB88Bf681cc"),
+		erc1155: toAddress("0x2754b8bc3D1b59053B1b53adfDb9536EED023D58"),
 	},
 	cryptoPunks: {
 		marketContract: ZERO_ADDRESS,
@@ -39,6 +39,6 @@ export const stagingEthereumConfig: EthereumConfig = {
 		pairFactory: ZERO_ADDRESS,
 		pairRouter: ZERO_ADDRESS,
 	},
-	weth: toAddress("0x379B089471603E4c26BD503E6F6C419c1666f3A6"),
+	weth: toAddress("0x8618444D5916c52Ef2BA9a64dDE5fE04249F6001"),
 	auction: ZERO_ADDRESS,
 }

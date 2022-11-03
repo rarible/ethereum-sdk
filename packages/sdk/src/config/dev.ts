@@ -10,7 +10,7 @@ export const devEthereumConfig: EthereumConfig = {
 		v1: toAddress("0x18033Ad24EBBd26E06a84d820dB1D252Fa0c00DB"),
 		v2: toAddress("0x6aABb267a1c440CfB5C200Ebcd078Efa9249492A"),
 		openseaV1: ZERO_ADDRESS,
-		wrapper: toAddress("0xB9078a4102309Fe32eCDb2B82f61496bB1c7FBA1"),
+		wrapper: toAddress("0x5Ace78C04f6D2656B89ce7FAA1f3C4d08fD6f1B7"),
 		x2y2: ZERO_ADDRESS,
 	},
 	transferProxies: {
@@ -35,8 +35,8 @@ export const devEthereumConfig: EthereumConfig = {
 		wrapperContract: ZERO_ADDRESS,
 	},
 	sudoswap: {
-		pairFactory: toAddress("0x1af70c6e674b09d58a55c8fedc7578b59938ec6c"),
-		pairRouter: ZERO_ADDRESS,
+		pairFactory: toAddress("0x3df054dA59B1c0D5d9CeE5EDc9B58798526023B5"),
+		pairRouter: toAddress("0xc64E5D291CaEdF42b77fa9E50d5Fd46113227857"),
 	},
 	weth: toAddress("0x55eB2809896aB7414706AaCDde63e3BBb26e0BC6"),
 	auction: ZERO_ADDRESS,

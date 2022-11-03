@@ -12,6 +12,7 @@ import { createSudoswapRouterV1Contract } from "../../contracts/sudoswap-router-
 import { getUpdatedCalldata } from "../common/get-updated-call"
 import type { IRaribleEthereumSdkConfig } from "../../../types"
 import type { RaribleEthereumApis } from "../../../common/apis"
+import { createSudoswapPairContract } from "../../contracts/sudoswap-pair"
 
 
 export class SudoswapFill {
@@ -41,7 +42,7 @@ export class SudoswapFill {
 
 					fillData = await this.buySpecificNFTs(ethereum, request, config, tokenIds)
 				} else {
-					fillData = await this.buyAnyNFTs(ethereum, request, config, 1)
+					fillData = await this.buyAnyNFTs(ethereum, request, config, request.amount)
 				}
 				break
 			default:
@@ -97,6 +98,8 @@ export class SudoswapFill {
 	): Promise<OrderFillSendData> {
 		const routerContract = this.getRouterContract(ethereum, config)
 		const order = this.getOrder(request)
+		const poolContract = createSudoswapPairContract(ethereum, order.data.poolAddress)
+		const price = await poolContract.functionCall("getBuyNFTQuote", tokenIds.length).call()
 		return {
 			functionCall: routerContract.functionCall(
 				"swapETHForSpecificNFTs",
@@ -109,7 +112,7 @@ export class SudoswapFill {
 				SudoswapFill.getDeadline()
 			),
 			options: {
-				value: order.take.value,
+				value: price.inputAmount.toString(),
 			},
 		}
 	}
@@ -122,6 +125,9 @@ export class SudoswapFill {
 	): Promise<OrderFillSendData> {
 		const routerContract = this.getRouterContract(ethereum, config)
 		const order = this.getOrder(request)
+
+		const poolContract = createSudoswapPairContract(ethereum, order.data.poolAddress)
+		const price = await poolContract.functionCall("getBuyNFTQuote", amount).call()
 		return {
 			functionCall: routerContract.functionCall(
 				"swapETHForAnyNFTs",
@@ -134,7 +140,7 @@ export class SudoswapFill {
 				SudoswapFill.getDeadline()
 			),
 			options: {
-				value: order.take.value,
+				value: price.inputAmount.toString(),
 			},
 		}
 	}

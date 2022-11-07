@@ -352,6 +352,70 @@ describe.skip("seaport", () => {
 		expect(tx.data.endsWith(fullAdditionalData)).toBe(true)
 		await tx.wait()
 	})
+
+	test("test convertOriginFeesToTips with erc1155 partial", async () => {
+		const request = {
+			order: {
+				make: {
+					assetType: {
+						assetClass: "ERC1155",
+						contract: "",
+					},
+					value: toBn(10),
+				},
+				take: {
+					assetType: {
+						assetClass: "ETH",
+					},
+					value: 1000,
+				},
+			},
+			amount: 2,
+			originFees: [{
+				account: "0x0",
+				value: 1000,
+			}, {
+				account: "0x0",
+				value: 500,
+			}],
+		} as any
+		const tips: any = seaportBuyerOrderHandler.convertOriginFeesToTips(request)
+		//2 (amount) * 100 (pricePerOne) * 10% = 20
+		expect(tips[0].amount).toBe("20")
+		//2 (amount) * 100 (pricePerOne) * 5% = 10
+		expect(tips[1].amount).toBe("10")
+	})
+
+	test("test convertOriginFeesToTips with 721", async () => {
+		const request = {
+			order: {
+				make: {
+					assetType: {
+						assetClass: "ERC721",
+						contract: "",
+					},
+					value: toBn(1),
+				},
+				take: {
+					assetType: {
+						assetClass: "ETH",
+					},
+					value: 1000,
+				},
+			},
+			amount: 1,
+			originFees: [{
+				account: "0x0",
+				value: 1000,
+			}, {
+				account: "0x0",
+				value: 500,
+			}],
+		} as any
+		const tips: any = seaportBuyerOrderHandler.convertOriginFeesToTips(request)
+		expect(tips![0].amount).toBe("100")
+		expect(tips![1].amount).toBe("50")
+	})
 })
 
 function getOpenseaWethTakeData(amount: BigNumberValue) {

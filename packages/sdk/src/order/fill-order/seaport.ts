@@ -7,8 +7,8 @@ import { ZERO_ADDRESS } from "@rarible/types"
 import type { Part } from "@rarible/ethereum-api-client"
 import { toBn } from "@rarible/utils/build/bn"
 import type { AssetType } from "@rarible/ethereum-api-client/build/models/AssetType"
+import { BigNumber as BigNumberUtils } from "@rarible/utils"
 import { isNft } from "../is-nft"
-import { addFee } from "../add-fee"
 import type { SimpleOrder } from "../types"
 import type { SendFunction } from "../../common/send-transaction"
 import type { EthereumConfig } from "../../config/type"
@@ -96,11 +96,7 @@ export class SeaportOrderHandler {
 
 		let tips: TipInputItem[] | undefined = []
 		if (!takeIsNft) {
-			tips = request.originFees?.map(fee => ({
-				token: getSeaportToken(order.take.assetType),
-				amount: toBn(addFee(order.take, fee.value).value).minus(order.take.value).toString(),
-				recipient: fee.account,
-			}))
+			tips = this.convertOriginFeesToTips(request)
 		}
 		const { functionCall, options } = await fulfillOrder(
 			ethereum,
@@ -119,6 +115,22 @@ export class SeaportOrderHandler {
 				additionalData: getUpdatedCalldata(this.sdkConfig),
 			},
 		}
+	}
+
+	convertOriginFeesToTips(request: SeaportV1OrderFillRequest): TipInputItem[] | undefined {
+		const {make} = request.order
+		const feeBase = make.assetType.assetClass === "ERC1155" && !toBn(request.amount).isEqualTo(make.value)
+			? toBn(request.order.take.value).div(make.value).multipliedBy(request.amount)
+			: toBn(request.order.take.value)
+		return request.originFees?.map(fee => ({
+			token: getSeaportToken(request.order.take.assetType),
+			amount: feeBase
+				.multipliedBy(toBn(fee.value))
+				.dividedBy(10000)
+				.integerValue(BigNumberUtils.ROUND_FLOOR)
+				.toString(),
+			recipient: fee.account,
+		}))
 	}
 
 	async getTransactionDataForExchangeWrapper(

@@ -15,7 +15,7 @@ import { checkChainId } from "../../check-chain-id"
 import { getSimpleSendWithInjects } from "../../../common/send-transaction"
 import { makeAmmOrder, ordersToRequests } from "./test/common/utils"
 
-describe("", () => {
+describe("amm batch buy tests", () => {
 	const { provider: providerBuyer } = createE2eProvider(DEV_PK_1)
 	const { provider: providerSeller } = createE2eProvider(DEV_PK_2)
 

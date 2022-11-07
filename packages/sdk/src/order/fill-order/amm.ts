@@ -1,6 +1,5 @@
 import type { Maybe } from "@rarible/types/build/maybe"
 import type { Ethereum, EthereumTransaction } from "@rarible/ethereum-provider"
-import type { Part } from "@rarible/ethereum-api-client"
 import type { BigNumber } from "@rarible/types"
 import { toBigNumber } from "@rarible/types/build/big-number"
 import { toBn } from "@rarible/utils/build/bn"

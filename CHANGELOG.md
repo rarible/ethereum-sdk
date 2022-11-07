@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.111](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.110...v0.12.111) (2022-11-07)
+
+
+### Bug Fixes
+
+* sudoswap fix, update staging contracts ([#212](https://github.com/rarible/protocol-ethereum-sdk/issues/212)) ([a9bda2c](https://github.com/rarible/protocol-ethereum-sdk/commit/a9bda2c471a88293830ef129adb38c107d62fccc))
+
+
+
+
+
 ## [0.12.110](https://github.com/rarible/ethereum-sdk/compare/v0.12.109...v0.12.110) (2022-11-01)
 
 

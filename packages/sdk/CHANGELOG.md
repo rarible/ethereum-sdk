@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.112](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.111...v0.12.112) (2022-11-07)
+
+
+### Bug Fixes
+
+* seaport origin fees fix ([#213](https://github.com/rarible/protocol-ethereum-sdk/issues/213)) ([800d385](https://github.com/rarible/protocol-ethereum-sdk/commit/800d385cf983983f916f75a1d18128da5118193f))
+
+
+
+
+
 ## [0.12.111](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.110...v0.12.111) (2022-11-07)
 
 

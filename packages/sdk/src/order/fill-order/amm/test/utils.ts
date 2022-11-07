@@ -27,8 +27,9 @@ async function createSudoswapPool(
 		// EXPONENTIAL_CURVE: 0x0D807bd5fF2C4eF298755bE30E22926b33244B0c
 		// LINEAR_CURVE: 0xaC6dcFF6E13132f075e36cA3a7F403236f869438
 		// XYK_CURVE: 0x02363a2F1B2c2C5815cb6893Aa27861BE0c4F760
-		"0xaC6dcFF6E13132f075e36cA3a7F403236f869438", //goerli curve
-		// "0x7aa8ec1028d36883bb3a94d2a04b5cf0d8231d26", //dev curve
+		// "0xaC6dcFF6E13132f075e36cA3a7F403236f869438", //goerli curve
+		"0xdd661D1DADdb8F37751a45975C1f4851faFfC9bD", //dev curve
+		// "0x42d8004fd14114C989654b825F993cA127EedBce", //dev curve
 		from, //_assetRecipient
 		1, //_poolType
 		"100", //_delta

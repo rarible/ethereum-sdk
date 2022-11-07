@@ -257,7 +257,6 @@ export class BatchOrderFiller {
 			case "AMM":
 				return this.ammHandler.getTransactionDataForExchangeWrapper(
 					<AmmOrderFillRequest>preparedOrder.request,
-					preparedOrder.request.originFees,
 					preparedOrder.fees
 				)
 			default:

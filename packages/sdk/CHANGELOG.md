@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.114](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.113...v0.12.114) (2022-11-10)
+
+
+### Bug Fixes
+
+* staging adresess ([#215](https://github.com/rarible/protocol-ethereum-sdk/issues/215)) ([828e3e4](https://github.com/rarible/protocol-ethereum-sdk/commit/828e3e49017f92b3c2afebea169bda3ec2331351))
+
+
+
+
+
 ## [0.12.113](https://github.com/rarible/ethereum-sdk/compare/v0.12.112...v0.12.113) (2022-11-10)
 
 

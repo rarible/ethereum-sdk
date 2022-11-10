@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@rarible/action": "~0.5.0",
-    "@rarible/ethereum-api-client": "^0.1.23-beta8",
+    "@rarible/ethereum-api-client": "^0.1.24-beta1",
     "@rarible/ethereum-provider": "^0.12.109",
     "@rarible/logger": "^0.9.12",
     "@rarible/utils": "~0.9.10",

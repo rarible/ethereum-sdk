@@ -1,4 +1,5 @@
 import * as EthereumApiClient from "@rarible/ethereum-api-client"
+import { NetworkError } from "@rarible/logger/build"
 import { getApiConfig } from "../config/api-config"
 import type { EthereumNetwork } from "../types"
 
@@ -19,7 +20,18 @@ export function createEthereumApis(
 	env: EthereumNetwork,
 	params: EthereumApiClient.ConfigurationParameters = {}
 ): RaribleEthereumApis {
-	const config = getApiConfig(env, params)
+	const config = getApiConfig(env, {
+		exceptionHandler: async (error, url, init) => {
+			throw new NetworkError({
+				status: -1,
+				url: decodeURIComponent(url),
+				formData: init?.body?.toString(),
+				method: init?.method,
+				data: { message: error.message },
+			})
+		},
+		...params,
+	})
 	const configuration = new EthereumApiClient.Configuration(config)
 	return {
 		nftItem: new EthereumApiClient.NftItemControllerApi(configuration),

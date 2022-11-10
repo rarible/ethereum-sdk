@@ -8,9 +8,9 @@ export const stagingEthereumConfig: EthereumConfig = {
 	chainId: 200500,
 	exchange: {
 		v1: ZERO_ADDRESS,
-		v2: toAddress("0x5aB7F3B0A00868612e0883F4353493575D2cDCB2"),
+		v2: toAddress("0x6aABb267a1c440CfB5C200Ebcd078Efa9249492A"),
 		openseaV1: ZERO_ADDRESS,
-		wrapper: ZERO_ADDRESS,
+		wrapper: toAddress("0x274c9F788D322b00857fd43E7D07cDF9F0314c37"),
 		looksrare: ZERO_ADDRESS,
 		x2y2: ZERO_ADDRESS,
 	},
@@ -36,8 +36,8 @@ export const stagingEthereumConfig: EthereumConfig = {
 		wrapperContract: ZERO_ADDRESS,
 	},
 	sudoswap: {
-		pairFactory: ZERO_ADDRESS,
-		pairRouter: ZERO_ADDRESS,
+		pairFactory: toAddress("0x525641e8f1140b8a215A0D9692BA2C9A7916e017"),
+		pairRouter: toAddress("0xE27A07e9B293dC677e34aB5fF726073ECbeCA842"),
 	},
 	weth: toAddress("0x8618444D5916c52Ef2BA9a64dDE5fE04249F6001"),
 	auction: ZERO_ADDRESS,

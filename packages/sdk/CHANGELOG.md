@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.113](https://github.com/rarible/ethereum-sdk/compare/v0.12.112...v0.12.113) (2022-11-10)
+
+
+### Features
+
+* wrap api fetch exception ([#214](https://github.com/rarible/ethereum-sdk/issues/214)) ([4b7e716](https://github.com/rarible/ethereum-sdk/commit/4b7e7166589ccded2605f036dccc3d062ffe824c))
+
+
+
+
+
 ## [0.12.112](https://github.com/rarible/protocol-ethereum-sdk/compare/v0.12.111...v0.12.112) (2022-11-07)
 
 

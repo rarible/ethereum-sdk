@@ -7,7 +7,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap && lerna link",
     "clean": "lerna run clean --parallel",
-    "build-all": "sh ./scripts/build.sh",
+    "build": "sh ./scripts/build.sh",
     "build-test-common": "yarn workspace @rarible/ethereum-sdk-test-common run build",
     "build-biconomy-middleware": "yarn workspace @rarible/biconomy-middleware run build",
     "build-ethereum-provider": "yarn workspace @rarible/ethereum-provider run build",
@@ -20,7 +20,7 @@
     "prettify:packages": "lerna exec -- sort-package-json && sort-package-json",
     "prettify": "run-s prettify:*",
     "prepare": "husky install",
-    "test": "lerna run test --parallel",
+    "test": "sh ./scripts/test.sh",
     "verify": "lerna run verify --parallel",
     "lint-staged": "lint-staged",
     "publish-all": "lerna publish from-package",

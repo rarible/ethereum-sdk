@@ -1,4 +1,7 @@
+#!/bin/sh
 set -e
+yarn bootstrap
+yarn clean
 yarn run build-ethereum-provider
 yarn run build-test-common
 yarn run build-ethers-ethereum

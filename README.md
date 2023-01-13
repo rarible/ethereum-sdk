@@ -1,5 +1,8 @@
 # Rarible Protocol Ethereum Software Development Kit
 
+<table><tr><td><p align="center"><b>⚠️ PLEASE READ ⚠️</b></p><div align="center">This package has been moved to <a href="https://github.com/rarible/sdk">another repository</a>. <b>Current repository won't be updated anymore.</b></div></td></tr></table>
+
+
 Rarible Protocol Ethereum SDK enables applications to easily interact with Rarible protocol.
 
 See more information about Rarible Protocol at [docs.rarible.org](https://docs.rarible.org).
